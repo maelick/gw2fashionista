@@ -13,6 +13,7 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.11"
 GuildWars2-API-Client = "^0.8.0"
+python-dotenv = "^1.2.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
