@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "gw2-fashion-exporter"
+version = "0.1.0"
+description = "Export GW2 equipment tabs as fashion templates"
+authors = ["Maëlick Claes <himself@maelick.net>"]
+license = "MIT"
+readme = "README.md"
+
+packages = [
+    { include = "gw2fashion", from = "src" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+GuildWars2-API-Client = "^0.8.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)s)"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
