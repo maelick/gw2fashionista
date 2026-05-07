@@ -17,6 +17,7 @@ python-dotenv = "^1.2.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
+ipython = "^9.13.0"
 
 [tool.pytest.ini_options]
 pythonpath = "src"
