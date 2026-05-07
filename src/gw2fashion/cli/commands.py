@@ -75,3 +75,36 @@ class Export(BaseCommand):
 
     def write_json_output(self, f, fashion_templates: list[EquipmentTabFashion]):
         json.dump([t.to_dict() for t in fashion_templates], f)
+
+
+class Read(BaseCommand):
+    def __init__(self, args):
+        super().__init__(args)
+
+    def __call__(self):
+        self.read_template()
+
+    def read_template(self):
+        raise NotImplemented
+
+
+class Merge(BaseCommand):
+    def __init__(self, args):
+        super().__init__(args)
+
+    def __call__(self):
+        self.merge_templates()
+
+    def merge_templates(self):
+        raise NotImplemented
+
+
+class Filter(BaseCommand):
+    def __init__(self, args):
+        super().__init__(args)
+
+    def __call__(self):
+        self.filter_template()
+
+    def filter_template(self):
+        raise NotImplemented
