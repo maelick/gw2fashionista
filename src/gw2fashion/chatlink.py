@@ -36,5 +36,5 @@ def decode_chat_link(link: str):
     except Exception as e:
         raise ValueError(f'{repr(link)}: {e}') from e
     if len(b) == 0:
-        return ValueError(f'{repr(link)} has empty base64 content')
+        raise ValueError(f'{repr(link)} has empty base64 content')
     return b
