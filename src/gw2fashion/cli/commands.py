@@ -5,6 +5,7 @@ import csv
 import json
 
 from gw2fashion.api import GW2API, EquipmentTabFashion
+from gw2fashion import ChatLink
 
 class BaseCommand:
     def __init__(self, args):
@@ -85,8 +86,13 @@ class Read(BaseCommand):
         self.read_template()
 
     def read_template(self):
-        raise NotImplementedError()
-
+        for chat_link in self.args.chat_links:
+            try:
+                parsed_chat_link = ChatLink.parse(chat_link)
+            except Exception as e:
+                logging.error(f'Invalid fashion template: {e}')
+                sys.exit(1) # TODO maybe we should be able to configure whether to exit or continue on error
+            print(parsed_chat_link)
 
 class Merge(BaseCommand):
     def __init__(self, args):
