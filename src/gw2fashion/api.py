@@ -3,7 +3,9 @@ from dataclasses import dataclass
 from typing import Generator, Any, Optional
 
 from gw2api import GuildWars2Client
-from gw2fashion import FashionTemplate, Cache
+from gw2fashion.cache import Cache
+from gw2fashion.template import FashionTemplate, FashionTemplateData
+from gw2fashion.skins import SkinData, DyableSkinData, ColorData
 
 
 @dataclass
@@ -64,3 +66,60 @@ class GW2API:
             tab = EquipmentTab(char_name, i, t['name'], t['equipment'])
             tab.fill_missing_skins(self.cache)
             yield tab
+
+    def resolve_fashion_data(self, template: FashionTemplate):
+        data = template.to_data()
+        self.cache.skins.fetch_missings(list(data.all_skin_ids()))
+        self.cache.colors.fetch_missings(list(data.all_color_ids()))
+        if data.outfit is not None:
+            self.cache.outfits.fetch_missings([data.outfit.id])
+
+        self.resolve_skin_names(data)
+        self.resolve_skin_dye_names(data)
+
+        return data
+
+    def resolve_skin_names(self, data: FashionTemplateData):
+        self.resolve_skin_name(data.aquabreather)
+        self.resolve_skin_name(data.backpack)
+        self.resolve_skin_name(data.chest)
+        self.resolve_skin_name(data.shoes)
+        self.resolve_skin_name(data.gloves)
+        self.resolve_skin_name(data.head)
+        self.resolve_skin_name(data.legs)
+        self.resolve_skin_name(data.shoulders)
+        self.resolve_skin_name(data.weapon_aquatic_a)
+        self.resolve_skin_name(data.weapon_aquatic_b)
+        self.resolve_skin_name(data.weapon_a1)
+        self.resolve_skin_name(data.weapon_a2)
+        self.resolve_skin_name(data.weapon_b1)
+        self.resolve_skin_name(data.weapon_b2)
+        self.resolve_outfit_name(data.outfit)
+
+    def resolve_skin_dye_names(self, data: FashionTemplateData):
+        self.resolve_dye_names(data.backpack)
+        self.resolve_dye_names(data.chest)
+        self.resolve_dye_names(data.shoes)
+        self.resolve_dye_names(data.gloves)
+        self.resolve_dye_names(data.head)
+        self.resolve_dye_names(data.legs)
+        self.resolve_dye_names(data.shoulders)
+        self.resolve_dye_names(data.outfit)
+
+    def resolve_skin_name(self, skin: Optional[SkinData]):
+        if skin is not None:
+            skin.name = self.cache.skins.get(skin.id)['name']
+
+    def resolve_outfit_name(self, outfit: Optional[SkinData]):
+        if outfit is not None:
+            outfit.name = self.cache.outfits.get(outfit.id)['name']
+
+    def resolve_dye_names(self, skin: Optional[DyableSkinData]):
+        if skin is not None:
+            self.resolve_dye_name(skin.dye1)
+            self.resolve_dye_name(skin.dye2)
+            self.resolve_dye_name(skin.dye3)
+            self.resolve_dye_name(skin.dye4)
+
+    def resolve_dye_name(self, dye: ColorData):
+        dye.name = self.cache.colors.get(dye.id)['name']

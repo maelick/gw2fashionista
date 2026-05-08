@@ -41,13 +41,14 @@ class ObjectCache:
         return self.objects[id]
 
     def get_many(self, ids: list[int]) -> list[dict]:
-        missing_ids = [id for id in ids if id not in self.objects]
-        if len(missing_ids):
-            self.fetch_missings(missing_ids)
+        self.fetch_missings(ids)
         return [self.objects[id] for id in ids]
 
     def fetch_missings(self, ids: list[int]):
+        ids = [id for id in ids if id not in self.objects]
         n = len(ids)
+        if n == 0:
+            return
         logging.info(f'Retrieving {n} missings {self.obj_type}')
         # TODO would be better with Python 3.12 itertools.batched function
         for i in range(0, n, 200):
