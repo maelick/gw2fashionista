@@ -18,6 +18,7 @@ def _export_parser(subparser):
     parser.add_argument('--api-key', help='GW2 API key. If missing, it will be read from the environment variable GW2_API_KEY.')
     parser.add_argument('-f', '--format', default='auto', choices=['auto', 'csv', 'json'], help='Output format. If auto, format will be based on the output filename extension and default to CSV if missing filename or unknown extension.')
     parser.add_argument('-o', '--output', help='Filename to use as output.')
+    parser.add_argument('--no-default-name', dest='add_default_names', action='store_false', help='When provided, do not generate names for tabs without one.')
     parser.set_defaults(command=commands.Export)
     return parser
 

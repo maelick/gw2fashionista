@@ -37,6 +37,10 @@ class Export(BaseCommand):
         api = self.get_api()
 
         fashion_templates = [t.extract_fashion() for t in api.fetch_equipment_tabs(self.args.characters)]
+        if self.args.add_default_names:
+            for t in fashion_templates:
+                if not t.tab_name:
+                    t.tab_name = f'{t.char_name} {t.tab_id}'
 
         with self.open_dest() as f:
             self.write_output(f, fashion_templates)
