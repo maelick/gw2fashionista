@@ -1,6 +1,6 @@
 import logging
 from dataclasses import dataclass
-from typing import Generator, Any
+from typing import Generator, Any, Optional
 
 from gw2api import GuildWars2Client
 from gw2fashion import FashionTemplate, Cache
@@ -38,11 +38,14 @@ class EquipmentTabFashion(BaseEquipmentTab):
 
 
 class GW2API:
-    def __init__(self, api_key):
+    def __init__(self, api_key: Optional[str]=None):
         self.client = GuildWars2Client(api_key=api_key)
         self.cache = Cache(self.client)
-        self.account_name = self.client.account.get()['name']
-        logging.info(f'Logged in towards GW2 API with account {self.account_name}')
+        if api_key:
+            self.account_name = self.client.account.get()['name']
+            logging.info(f'Logged in towards GW2 API with account {self.account_name}')
+        else:
+            self.account_name = None
 
     def fetch_equipment_tabs(self, characters: list[str]) -> Generator[EquipmentTab, Any, None]:
         if not characters:
