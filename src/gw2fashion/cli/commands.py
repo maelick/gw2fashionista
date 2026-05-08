@@ -5,6 +5,7 @@ import csv
 import json
 
 from gw2fashion.api import GW2API, EquipmentTabFashion
+from gw2fashion.enums.chatlink import ChatLinkType
 from gw2fashion import ChatLink
 
 class BaseCommand:
@@ -83,16 +84,40 @@ class Read(BaseCommand):
         super().__init__(args)
 
     def __call__(self):
-        self.read_template()
+        self.read_templates()
 
-    def read_template(self):
-        for chat_link in self.args.chat_links:
+    def read_templates(self):
+        for chat_link in self.get_chat_links():
             try:
                 parsed_chat_link = ChatLink.parse(chat_link)
             except Exception as e:
                 logging.error(f'Invalid fashion template: {e}')
                 sys.exit(1) # TODO maybe we should be able to configure whether to exit or continue on error
+            if parsed_chat_link.type != ChatLinkType.WARDROBE_TEMPLATE:
+                logging.error(f'Chat link is not a fashion template: {parsed_chat_link.type}')
+                sys.exit(1) # TODO maybe we should be able to configure whether to exit or continue on error
             print(parsed_chat_link)
+
+    def get_chat_links(self):
+        if self.args.chat_links:
+            return self.args.chat_links
+        return self.read_chat_links(sys.stdin)
+
+    def read_chat_links(self, f):
+        rows = [row for row in csv.reader(f)]
+        if not rows:
+            return []
+        if len(rows[0]) == 1:
+            return get_column(rows)
+        try:
+            col = rows[0].index('template_link')
+        except ValueError as e:
+            raise ValueError('Missing column template_link in input CSV file') from e
+        return get_column(rows[1:], col)
+
+
+def get_column(rows, col=0):
+    return [link[col] for link in rows if len(link)]
 
 class Merge(BaseCommand):
     def __init__(self, args):
