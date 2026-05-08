@@ -10,15 +10,17 @@ class TestResolveNames(unittest.TestCase):
     api = GW2API()
 
     def test_empty(self):
-        template = ChatLink.parse(testdata.empty).fashion_template()
-        data = self.api.resolve_fashion_data(template)
+        fashion = ChatLink.parse(testdata.empty).fashion_template().to_data()
+        self.api.cache_fashion_data([fashion])
+        data = self.api.resolve_fashion_data(fashion)
 
         for skin_type, skin in data.__dict__.items():
             self.assertIsNone(skin, f'{skin_type} should be None')
 
     def test_zizi(self):
-        template = ChatLink.parse(testdata.zizi).fashion_template()
-        data = self.api.resolve_fashion_data(template)
+        fashion = ChatLink.parse(testdata.zizi).fashion_template().to_data()
+        self.api.cache_fashion_data([fashion])
+        data = self.api.resolve_fashion_data(fashion)
 
         self.assertIsNotNone(data.outfit) # TODO
 
@@ -34,8 +36,9 @@ class TestResolveNames(unittest.TestCase):
         self.assertZiziArmor(data)
 
     def test_zizi_armor_only(self):
-        template = ChatLink.parse(testdata.zizi_armor_only).fashion_template()
-        data = self.api.resolve_fashion_data(template)
+        fashion = ChatLink.parse(testdata.zizi_armor_only).fashion_template().to_data()
+        self.api.cache_fashion_data([fashion])
+        data = self.api.resolve_fashion_data(fashion)
 
         self.assertIsNone(data.aquabreather)
         self.assertIsNone(data.outfit)

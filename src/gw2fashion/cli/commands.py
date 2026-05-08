@@ -88,9 +88,11 @@ class Read(BaseCommand):
 
     def read_templates(self):
         api = GW2API()
-        templates = [self.read_template(chat_link) for chat_link in self.get_chat_links()]
-        data = [api.resolve_fashion_data(t).to_dict() for t in templates]
-        json.dump(data, sys.stdout)
+        fashion = {link: self.read_template(link).to_data() for link in self.get_chat_links()}
+        api.cache_fashion_data(fashion.values())
+
+        result = [{'chat_link': link, 'skins': data.to_dict()} for link, data in fashion.items()]
+        json.dump(result, sys.stdout)
 
     def read_template(self, chat_link: str) -> FashionTemplate:
         try:

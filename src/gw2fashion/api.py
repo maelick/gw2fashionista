@@ -1,6 +1,7 @@
 import logging
 from dataclasses import dataclass
 from typing import Generator, Any, Optional
+from collections.abc import Iterable
 
 from gw2api import GuildWars2Client
 from gw2fashion.cache import Cache
@@ -67,16 +68,23 @@ class GW2API:
             tab.fill_missing_skins(self.cache)
             yield tab
 
-    def resolve_fashion_data(self, template: FashionTemplate):
-        data = template.to_data()
-        self.cache.skins.fetch_missings(list(data.all_skin_ids()))
-        self.cache.colors.fetch_missings(list(data.all_color_ids()))
-        if data.outfit is not None:
-            self.cache.outfits.fetch_missings([data.outfit.id])
+    def cache_fashion_data(self, templates: Iterable[FashionTemplateData]):
+        missing_skins = set()
+        missing_colors = set()
+        missing_outfits = set()
+        for t in templates:
+            missing_skins.update(t.all_skin_ids())
+            missing_colors.update(t.all_color_ids())
+            if t.outfit is not None:
+                missing_outfits.add(t.outfit.id)
 
+        self.cache.skins.fetch_missings(list(missing_skins))
+        self.cache.colors.fetch_missings(list(missing_colors))
+        self.cache.outfits.fetch_missings(list(missing_outfits))
+
+    def resolve_fashion_data(self, data: FashionTemplateData):
         self.resolve_skin_names(data)
         self.resolve_skin_dye_names(data)
-
         return data
 
     def resolve_skin_names(self, data: FashionTemplateData):
