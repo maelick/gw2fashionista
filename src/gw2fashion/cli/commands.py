@@ -71,10 +71,10 @@ class Export(BaseCommand):
                 raise ValueError('Invalid output type: ' + output_format)
 
     def write_csv_output(self, f, fashion_templates: list[EquipmentTabFashion]):
-        w = csv.writer(f)
-        w.writerow(('char_name', 'tab_id', 'tab_name', 'template_link'))
+        w = csv.DictWriter(f, fieldnames=['char_name', 'tab_id', 'tab_name', 'fashion_link'])
+        w.writeheader()
         for t in fashion_templates:
-            w.writerow((t.char_name, t.tab_id, t.tab_name, t.fashion_link))
+            w.writerow(t.to_dict())
 
     def write_json_output(self, f, fashion_templates: list[EquipmentTabFashion]):
         json.dump([t.to_dict() for t in fashion_templates], f)
@@ -116,9 +116,9 @@ class Read(BaseCommand):
         if len(rows[0]) == 1:
             return get_column(rows)
         try:
-            col = rows[0].index('template_link')
+            col = rows[0].index('fashion_link')
         except ValueError as e:
-            raise ValueError('Missing column template_link in input CSV file') from e
+            raise ValueError('Missing column fashion_link in input CSV file') from e
         return get_column(rows[1:], col)
 
 

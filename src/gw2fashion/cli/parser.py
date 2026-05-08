@@ -23,7 +23,7 @@ def _export_parser(subparser):
 
 def _read_parser(subparser):
     parser = subparser.add_parser('read', help='Read a fashion template and prints its content by retrieving values from the GW2 API.')
-    parser.add_argument('chat_links', metavar='fashion-template', nargs='*', help='Chat link of the fashion template(s) to read. If empty, chat links will be read from stdin, either as a CSV file from the column template_link or as one chat_link per row')
+    parser.add_argument('chat_links', metavar='fashion-template', nargs='*', help='Chat link of the fashion template(s) to read. If empty, chat links will be read from stdin, either as a CSV file from the column fashion_link, or as one link per row')
     parser.set_defaults(command=commands.Read)
     return parser
 
