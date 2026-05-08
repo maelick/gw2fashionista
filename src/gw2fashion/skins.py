@@ -1,9 +1,51 @@
 import struct
+from dataclasses import dataclass
+from typing import Optional
 
 from gw2fashion.enums.skin import SkinType, SkinVisibilityFlag
 
 _SKIN_BYTE_FORMAT = '<H'
 _DYEABLE_SKIN_BYTE_FORMAT = '<HHHHH'
+
+@dataclass
+class SkinData:
+    id: int
+    name: str
+    visible: bool
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'visible': self.visible,
+        }
+
+
+@dataclass
+class ColorData:
+    id: int
+    name: str
+
+    def to_dict(self):
+        return {k: v for k, v in self.__dict__.items()}
+
+@dataclass
+class DyableSkinData(SkinData):
+    dye1: ColorData
+    dye2: ColorData
+    dye3: ColorData
+    dye4: ColorData
+
+    def all_dyes(self):
+        return [self.dye1, self.dye2, self.dye3, self.dye4]
+
+    def to_dict(self):
+        d = SkinData.to_dict(self)
+        d['dye1'] = self.dye1.to_dict()
+        d['dye2'] = self.dye2.to_dict()
+        d['dye3'] = self.dye3.to_dict()
+        d['dye4'] = self.dye4.to_dict()
+        return d
 
 
 class Skin:
@@ -45,6 +87,11 @@ class Skin:
         else:
             return SkinVisibilityFlag(0)
 
+    def to_data(self) -> Optional[SkinData]:
+        if not self.skin:
+            return None
+        return SkinData(self.skin, '', self.visible)
+
 
 class DyableSkin(Skin):
     @classmethod
@@ -62,6 +109,12 @@ class DyableSkin(Skin):
         Skin.__init__(self, skin_type, skin, visible, byte_format=_DYEABLE_SKIN_BYTE_FORMAT)
         self.dyes = dyes
         self.pack_values += (d if d else 1 for d in self.dyes)
+
+    def to_data(self) -> Optional[DyableSkinData]:
+        if not self.skin:
+            return None
+        d1, d2, d3, d4 = self.dyes
+        return DyableSkinData(self.skin, '', self.visible, ColorData(d1, ''), ColorData(d2, ''), ColorData(d3, ''), ColorData(d4, ''))
 
 
 def skin_from_data(skin_type: SkinType, item_data: dict={}):

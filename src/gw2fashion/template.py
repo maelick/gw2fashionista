@@ -1,13 +1,71 @@
 import struct
 import base64
-from typing import Self
+from typing import Self, Optional
+from dataclasses import dataclass
 
 from gw2fashion.enums.skin import SkinAPILabel, SkinType, SkinVisibilityFlag
-from gw2fashion.skins import Skin, DyableSkin, skin_from_data, unpack_skin_from
+from gw2fashion.skins import SkinData, DyableSkinData, Skin, DyableSkin, skin_from_data, unpack_skin_from
 from gw2fashion.enums.chatlink import ChatLinkType
 
 _HEADER_BYTE_FORMAT = '<B'
 _VISIBILITY_BYTE_FORMAT = '<H'
+
+@dataclass
+class FashionTemplateData:
+    aquabreather: Optional[SkinData]
+    backpack: Optional[DyableSkinData]
+    chest: Optional[DyableSkinData]
+    shoes: Optional[DyableSkinData]
+    gloves: Optional[DyableSkinData]
+    head: Optional[DyableSkinData]
+    legs: Optional[DyableSkinData]
+    shoulders: Optional[DyableSkinData]
+    outfit: Optional[DyableSkinData]
+    weapon_aquatic_a: Optional[SkinData]
+    weapon_aquatic_b: Optional[SkinData]
+    weapon_a1: Optional[SkinData]
+    weapon_a2: Optional[SkinData]
+    weapon_b1: Optional[SkinData]
+    weapon_b2: Optional[SkinData]
+
+    def all_skins(self):
+        return (skin for skin in (
+            self.aquabreather,
+            self.backpack,
+            self.chest,
+            self.shoes,
+            self.gloves,
+            self.head,
+            self.legs,
+            self.shoulders,
+            self.weapon_aquatic_a,
+            self.weapon_aquatic_b,
+            self.weapon_a1,
+            self.weapon_a2,
+            self.weapon_b1,
+            self.weapon_b2,
+        ) if skin is not None)
+
+    def all_dyable_skins(self):
+        return (skin for skin in (
+            self.backpack,
+            self.chest,
+            self.shoes,
+            self.gloves,
+            self.head,
+            self.legs,
+            self.shoulders,
+            self.outfit,
+        ) if skin is not None)
+
+    def all_skin_ids(self):
+        return set(skin.id for skin in self.all_skins())
+
+    def all_color_ids(self):
+        return set(color.id for skin in self.all_dyable_skins() for color in skin.all_dyes())
+
+    def to_dict(self):
+        return {k: v.to_dict() for k, v in self.__dict__.items() if v is not None}
 
 
 class FashionTemplate:
@@ -94,6 +152,25 @@ class FashionTemplate:
         b = base64.b64encode(b)
         link = b.decode('utf-8')
         return f'[&{link}]'
+
+    def to_data(self):
+        return FashionTemplateData(
+            self.skins[SkinType.AQUABREATHER].to_data(),
+            self.skins[SkinType.BACKPACK].to_data(),
+            self.skins[SkinType.CHEST].to_data(),
+            self.skins[SkinType.SHOES].to_data(),
+            self.skins[SkinType.GLOVES].to_data(),
+            self.skins[SkinType.HEAD].to_data(),
+            self.skins[SkinType.LEGS].to_data(),
+            self.skins[SkinType.SHOULDERS].to_data(),
+            self.skins[SkinType.OUTFIT].to_data(),
+            self.skins[SkinType.WEAPON_AQUATIC_A].to_data(),
+            self.skins[SkinType.WEAPON_AQUATIC_B].to_data(),
+            self.skins[SkinType.WEAPON_A1].to_data(),
+            self.skins[SkinType.WEAPON_A2].to_data(),
+            self.skins[SkinType.WEAPON_B1].to_data(),
+            self.skins[SkinType.WEAPON_B2].to_data(),
+        )
 
     def __repr__(self):
         return repr(self.skins)

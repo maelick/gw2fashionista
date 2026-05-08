@@ -6,7 +6,8 @@ import json
 
 from gw2fashion.api import GW2API, EquipmentTabFashion
 from gw2fashion.enums.chatlink import ChatLinkType
-from gw2fashion import ChatLink
+from gw2fashion.chatlink import ChatLink
+from gw2fashion.template import FashionTemplate
 
 class BaseCommand:
     def __init__(self, args):
@@ -87,16 +88,20 @@ class Read(BaseCommand):
         self.read_templates()
 
     def read_templates(self):
-        for chat_link in self.get_chat_links():
-            try:
-                parsed_chat_link = ChatLink.parse(chat_link)
-            except Exception as e:
-                logging.error(f'Invalid fashion template: {e}')
-                sys.exit(1) # TODO maybe we should be able to configure whether to exit or continue on error
-            if parsed_chat_link.type != ChatLinkType.WARDROBE_TEMPLATE:
-                logging.error(f'Chat link is not a fashion template: {parsed_chat_link.type}')
-                sys.exit(1) # TODO maybe we should be able to configure whether to exit or continue on error
-            print(parsed_chat_link)
+        templates = [self.read_template(chat_link) for chat_link in self.get_chat_links()]
+        data = [t.to_data().to_dict() for t in templates]
+        json.dump(data, sys.stdout)
+
+    def read_template(self, chat_link: str) -> FashionTemplate:
+        try:
+            parsed_chat_link = ChatLink.parse(chat_link)
+        except Exception as e:
+            logging.error(f'Invalid fashion template: {e}')
+            sys.exit(1) # TODO maybe we should be able to configure whether to exit or continue on error
+        if parsed_chat_link.type != ChatLinkType.WARDROBE_TEMPLATE:
+            logging.error(f'Chat link is not a fashion template: {parsed_chat_link.type}')
+            sys.exit(1) # TODO maybe we should be able to configure whether to exit or continue on error
+        return parsed_chat_link.object
 
     def get_chat_links(self):
         if self.args.chat_links:
