@@ -85,7 +85,7 @@ class Read(BaseCommand):
         self.read_template()
 
     def read_template(self):
-        raise NotImplemented
+        raise NotImplementedError()
 
 
 class Merge(BaseCommand):
@@ -96,7 +96,7 @@ class Merge(BaseCommand):
         self.merge_templates()
 
     def merge_templates(self):
-        raise NotImplemented
+        raise NotImplementedError()
 
 
 class Filter(BaseCommand):
@@ -107,4 +107,4 @@ class Filter(BaseCommand):
         self.filter_template()
 
     def filter_template(self):
-        raise NotImplemented
+        raise NotImplementedError()
