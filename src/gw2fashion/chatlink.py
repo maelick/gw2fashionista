@@ -29,12 +29,12 @@ class ChatLink:
 def decode_chat_link(link: str):
     m = CHAT_LINK_RE.match(link)
     if not m or len(m.groups()) == 0:
-        raise ValueError('Invalid chat link', link)
+        raise ValueError(f'{repr(link)} is not a GW2 chat link')
     b = m.groups()[0].encode('utf-8')
     try:
         b = base64.b64decode(b)
     except Exception as e:
-        raise ValueError('Chat link has invalid base64 content', link) from e
+        raise ValueError(f'{repr(link)}: {e}') from e
     if len(b) == 0:
-        return ValueError('Chat link is empty', link)
+        return ValueError(f'{repr(link)} has empty base64 content')
     return b

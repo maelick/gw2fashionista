@@ -25,7 +25,7 @@ class FashionTemplate:
     @classmethod
     def from_bytes(cls, b):
         if len(b) != 97:
-            raise ValueError("Fashion template code should be 97 bytes long")
+            raise ValueError("Fashion template link should be 97 bytes long")
         if b[0] != ChatLinkType.WARDROBE_TEMPLATE:
             raise ValueError("Not a fashion templade link")
 
