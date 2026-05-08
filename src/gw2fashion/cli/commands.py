@@ -5,7 +5,6 @@ import csv
 import json
 
 from gw2fashion.api import GW2API, EquipmentTabFashion
-from gw2fashion.enums.chatlink import ChatLinkType
 from gw2fashion.chatlink import ChatLink
 from gw2fashion.template import FashionTemplate
 
@@ -99,10 +98,11 @@ class Read(BaseCommand):
         except Exception as e:
             logging.error(f'Invalid fashion template: {e}')
             sys.exit(1) # TODO maybe we should be able to configure whether to exit or continue on error
-        if parsed_chat_link.type != ChatLinkType.WARDROBE_TEMPLATE:
+        try:
+            return parsed_chat_link.fashion_template()
+        except TypeError:
             logging.error(f'Chat link is not a fashion template: {parsed_chat_link.type}')
             sys.exit(1) # TODO maybe we should be able to configure whether to exit or continue on error
-        return parsed_chat_link.object
 
     def get_chat_links(self):
         if self.args.chat_links:

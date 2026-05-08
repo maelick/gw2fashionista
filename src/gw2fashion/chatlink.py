@@ -25,6 +25,11 @@ class ChatLink:
             case _:
                 raise ValueError(f'Unsupported chat link header: {b[0]}')
 
+    def fashion_template(self) -> FashionTemplate:
+        if not isinstance(self.object, FashionTemplate):
+            raise TypeError('Not a FashionTemplate')
+        return self.object
+
 
 def decode_chat_link(link: str):
     m = CHAT_LINK_RE.match(link)
