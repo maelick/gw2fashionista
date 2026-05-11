@@ -19,6 +19,7 @@ def _export_parser(subparser):
     parser.add_argument('-f', '--format', default='auto', choices=['auto', 'csv', 'json'], help='Output format. If auto, format will be based on the output filename extension and default to CSV if missing filename or unknown extension.')
     parser.add_argument('-o', '--output', help='Filename to use as output.')
     parser.add_argument('--no-default-name', dest='add_default_names', action='store_false', help='When provided, do not generate names for tabs without one.')
+    _add_filters(parser)
     parser.set_defaults(command=commands.Export)
     return parser
 
@@ -53,7 +54,7 @@ def _add_filters(parser: argparse.ArgumentParser):
     group.add_argument('--no-weapons', action='store_true')
     group.add_argument('--no-armor', action='store_true')
     group.add_argument('--no-backpack', action='store_true')
-    group.add_argument('--no-oufit', action='store_true')
+    group.add_argument('--no-outfit', action='store_true')
 
     subgroup = group.add_mutually_exclusive_group()
     subgroup.add_argument('--no-underwater', action='store_true')

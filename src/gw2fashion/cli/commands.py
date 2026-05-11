@@ -7,6 +7,7 @@ import json
 from gw2fashion.api import GW2API, EquipmentTabFashion
 from gw2fashion.chatlink import ChatLink
 from gw2fashion.template import FashionTemplate
+from gw2fashion.filter import SkinFilter
 
 class BaseCommand:
     def __init__(self, args):
@@ -26,7 +27,28 @@ class BaseCommand:
         return api
 
 
-class Export(BaseCommand):
+class FilterBaseCommand(BaseCommand):
+    def __init__(self, args):
+        super().__init__(args)
+        self.init_filter()
+
+    def init_filter(self):
+        self.filter = SkinFilter()
+        if self.args.no_weapons:
+            self.filter.no_weapons()
+        if self.args.no_armor:
+            self.filter.no_armor()
+        if self.args.no_backpack:
+            self.filter.no_backpack()
+        if self.args.no_outfit:
+            self.filter.no_outfit()
+        if self.args.no_underwater:
+            self.filter.no_underwater()
+        if self.args.only_underwater:
+            self.filter.only_underwater()
+
+
+class Export(FilterBaseCommand):
     def __init__(self, args):
         super().__init__(args)
 
@@ -36,7 +58,7 @@ class Export(BaseCommand):
     def export_equipment_fashion(self):
         api = self.get_api()
 
-        fashion_templates = [t.extract_fashion() for t in api.fetch_equipment_tabs(self.args.characters)]
+        fashion_templates = [t.extract_fashion(self.filter) for t in api.fetch_equipment_tabs(self.args.characters)]
         if self.args.add_default_names:
             for t in fashion_templates:
                 if not t.tab_name:
