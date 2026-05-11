@@ -149,11 +149,7 @@ class Read(BaseCommand):
             raise ValueError('Missing column fashion_link in input CSV file') from e
         return get_column(rows[1:], col)
 
-
-def get_column(rows, col=0):
-    return [link[col] for link in rows if len(link)]
-
-class Merge(BaseCommand):
+class Merge(FilterBaseCommand):
     def __init__(self, args):
         super().__init__(args)
 
@@ -161,10 +157,13 @@ class Merge(BaseCommand):
         self.merge_templates()
 
     def merge_templates(self):
-        raise NotImplementedError()
+        base_fashion = parse_fashion(self.args.base_fashion_template)
+        new_fashion = parse_fashion(self.args.new_fashion_template)
+        merged = base_fashion.merge(new_fashion)
+        print(merged.to_chat_link())
 
 
-class Filter(BaseCommand):
+class Filter(FilterBaseCommand):
     def __init__(self, args):
         super().__init__(args)
 
@@ -172,4 +171,13 @@ class Filter(BaseCommand):
         self.filter_template()
 
     def filter_template(self):
-        raise NotImplementedError()
+        fashion = parse_fashion(self.args.fashion_template)
+        filtered = fashion.filter(self.filter)
+        print(filtered.to_chat_link())
+
+
+def get_column(rows, col=0):
+    return [link[col] for link in rows if len(link)]
+
+def parse_fashion(chat_link: str):
+    return ChatLink.parse(chat_link).fashion_template()

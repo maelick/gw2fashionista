@@ -39,6 +39,7 @@ def _merge_parser(subparser):
 
 def _filter_parser(subparser):
     parser = subparser.add_parser('filter', help='Filter a fashion template to include only specific parts.')
+    parser.add_argument('fashion_template', metavar='fashion-template', help='Chat link of the fashion template to filter.')
     _add_filters(parser)
     parser.set_defaults(command=commands.Filter)
     return parser
