@@ -28,11 +28,11 @@ class SkinType(enum.Enum):
         self.dyable = dyable
         self.always_visible = always_visible
 
-    def visibility_flag(self):
-        return SkinVisibilityFlag[self.name]
+    def flag(self):
+        return SkinFlag[self.name]
 
 
-class SkinVisibilityFlag(enum.Flag):
+class SkinFlag(enum.Flag):
     AQUABREATHER = enum.auto()
     BACKPACK = enum.auto()
     CHEST = enum.auto()
@@ -51,3 +51,7 @@ class SkinVisibilityFlag(enum.Flag):
 
     def skin_type(self):
         return SkinType[self.name]
+
+
+# Ensure that names for visibility flags and skin types are the same
+assert set(f.name for f in SkinFlag) == set(t.name for t in SkinType)

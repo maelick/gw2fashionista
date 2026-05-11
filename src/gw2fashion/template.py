@@ -3,7 +3,7 @@ import base64
 from typing import Self, Optional
 from dataclasses import dataclass
 
-from gw2fashion.enums.skin import SkinType, SkinVisibilityFlag
+from gw2fashion.enums.skin import SkinType, SkinFlag
 from gw2fashion.skins import SkinData, DyableSkinData, Skin, DyableSkin, skin_from_data, unpack_skin_from, skin_type_from_equipment_slot
 from gw2fashion.enums.chatlink import ChatLinkType
 
@@ -88,13 +88,13 @@ class FashionTemplate:
             raise ValueError("Not a fashion templade link")
 
         visibility = struct.unpack_from(_VISIBILITY_BYTE_FORMAT, b, -2)[0]
-        visibility = SkinVisibilityFlag(visibility)
+        visibility = SkinFlag(visibility)
 
         offset = 1
         skins = {}
 
         for skin_type in SkinType:
-            visible = skin_type.visibility_flag() in visibility
+            visible = skin_type.flag() in visibility
             skin = unpack_skin_from(skin_type, b, offset, visible)
             offset += skin.num_bytes
             skins[skin_type] = skin
@@ -118,7 +118,7 @@ class FashionTemplate:
                 if skin != other.skins[skin_type]]                
 
     def visibility(self):
-        visibility = SkinVisibilityFlag(0)
+        visibility = SkinFlag(0)
         for skin in self.skins.values():
             visibility = visibility | skin.visibility_flag()
         return visibility

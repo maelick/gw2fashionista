@@ -2,7 +2,7 @@ import struct
 from dataclasses import dataclass
 from typing import Optional
 
-from gw2fashion.enums.skin import SkinType, SkinVisibilityFlag
+from gw2fashion.enums.skin import SkinType, SkinFlag
 
 _SKIN_BYTE_FORMAT = '<H'
 _DYEABLE_SKIN_BYTE_FORMAT = '<HHHHH'
@@ -83,9 +83,9 @@ class Skin:
     
     def visibility_flag(self):
         if self.visible:
-            return self.skin_type.visibility_flag()
+            return self.skin_type.flag()
         else:
-            return SkinVisibilityFlag(0)
+            return SkinFlag(0)
 
     def to_data(self) -> Optional[SkinData]:
         if not self.skin:
