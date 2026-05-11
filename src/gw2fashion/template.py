@@ -119,12 +119,14 @@ class FashionTemplate:
                 if skin != other.skins[skin_type]]
 
     def filter(self, filter: SkinFilter):
-        for skin_type in filter.hidden_skins():
-            self.skins[skin_type] = skin_from_data(skin_type)
+        skins = {skin_type: self.skins[skin_type]
+                 for skin_type in filter.visible_skins()}
+        return FashionTemplate(skins)
 
-    def apply(self, other: Self):
-        for skin_type, skin in other.skins.items():
-            self.skins[skin_type] = skin
+    def merge(self, other: Self):
+        skins = {skin_type: skin if skin.is_set() else self.skins[skin_type]
+                 for skin_type, skin in other.skins.items()}
+        return FashionTemplate(skins)
 
     def visibility(self):
         visibility = SkinFlag(0)

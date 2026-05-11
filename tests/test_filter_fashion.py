@@ -1,7 +1,7 @@
 import unittest
 
 from gw2fashion import ChatLink
-from gw2fashion.enums.skin import SkinType, SkinFlag
+from gw2fashion.enums.skin import SkinFlag
 from gw2fashion.filter import SkinFilter, ARMORS
 
 import data as testdata
@@ -11,7 +11,7 @@ class TestFilterFashion(unittest.TestCase):
         template = ChatLink.parse(testdata.zizi).fashion_template()
         filter = SkinFilter(ARMORS | SkinFlag.BACKPACK)
         filter.no_underwater()
-        template.filter(filter)
+        template = template.filter(filter)
         self.assertEqual(template.to_chat_link(), testdata.zizi_armor_only)
         expectedTemplate = ChatLink.parse(testdata.zizi_armor_only).fashion_template()
         self.assertEqual(expectedTemplate, template)
