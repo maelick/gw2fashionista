@@ -93,21 +93,3 @@ class TestResolveNames(unittest.TestCase):
         self.assertEqual(data.shoulders.dye2.name, 'Permafrost')
         self.assertEqual(data.shoulders.dye3.name, 'Dye Remover')
         self.assertEqual(data.shoulders.dye4.name, 'Dye Remover')
-
-    def assertSkinSet(self, skin: Skin):
-        self.assertNotEqual(skin.skin, 0, msg=f'{skin.skin_type} should be set')
-
-    def assertSkinNotSet(self, skin: Skin):
-        self.assertEqual(skin.skin, 0, msg=f'{skin.skin_type} should not be set')
-
-    def assertSkinVisible(self, skin: Skin):
-        self.assertTrue(skin.visible, msg=f'{skin.skin_type} should be visible')
-
-    def assertSkinNotVisible(self, skin: Skin):
-        self.assertFalse(skin.visible, msg=f'{skin.skin_type} should not be visible')
-    
-    def assertHasDyes(self, skin: DyableSkin):
-        self.assertNotEqual(skin.dyes, (1, 1, 1, 1), msg=f'{skin.skin_type} should have dyes')
-
-    def assertHasNoDyes(self, skin: DyableSkin):
-        self.assertEqual(skin.dyes, (1, 1, 1, 1), msg=f'{skin.skin_type} should not have dyes')
