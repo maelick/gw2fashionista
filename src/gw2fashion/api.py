@@ -6,6 +6,7 @@ from collections.abc import Iterable
 from gw2api import GuildWars2Client
 from gw2fashion.cache import Cache
 from gw2fashion.template import FashionTemplate, FashionTemplateData
+from gw2fashion.filter import SkinFilter
 from gw2fashion.skins import SkinData, DyableSkinData, ColorData
 
 
@@ -29,8 +30,10 @@ class EquipmentTab(BaseEquipmentTab):
                 if 'default_skin' in item_data:
                     item['skin'] = item_data['default_skin']
 
-    def extract_fashion(self):
+    def extract_fashion(self, filter: SkinFilter=None):
         template = FashionTemplate.from_data(self.equipment)
+        if filter:
+            template = template.filter(filter)
         return EquipmentTabFashion(self.char_name, self.tab_id, self.tab_name, template, template.to_chat_link())
 
 
