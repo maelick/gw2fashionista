@@ -160,7 +160,7 @@ class Merge(FilterBaseCommand):
 
     def merge_templates(self):
         base_fashion = parse_fashion(self.args.base_fashion_template)
-        new_fashion = parse_fashion(self.args.new_fashion_template)
+        new_fashion = parse_fashion(self.args.new_fashion_template).filter(self.filter)
         merged = base_fashion.merge(new_fashion, self.args.ignore_skin, self.args.ignore_dyes)
         print(merged.to_chat_link())
 

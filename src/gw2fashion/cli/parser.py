@@ -35,8 +35,8 @@ def _merge_parser(subparser):
     parser.add_argument('new_fashion_template', metavar='fashion-template2', help='Chat link of the fashion template with new values to apply to the base one.')
     group = _add_filters(parser)
     subgroup = group.add_mutually_exclusive_group()
-    subgroup.add_argument('--dyes-only', action='store_false', dest='ignore_skin', help='Only merge dyes (i.e. original skin will be preserved).')
-    subgroup.add_argument('--skin-only', action='store_false', dest='ignore_dyes', help='Only merge skin (i.e. original dyes will be preserved).')
+    subgroup.add_argument('--dyes-only', action='store_true', dest='ignore_skin', help='Only merge dyes (i.e. original skin will be preserved).')
+    subgroup.add_argument('--skin-only', action='store_true', dest='ignore_dyes', help='Only merge skin (i.e. original dyes will be preserved).')
     parser.set_defaults(command=commands.Merge)
     return parser
 
