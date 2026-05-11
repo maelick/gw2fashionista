@@ -75,6 +75,9 @@ class Skin:
     def __repr__(self):
         return repr(self.__dict__)
 
+    def is_set(self):
+        return self.skin and self.skin > 0
+
     def to_bytes(self):
         return struct.pack(self.byte_format, *self.pack_values)
     
@@ -88,7 +91,7 @@ class Skin:
             return SkinFlag(0)
 
     def to_data(self) -> Optional[SkinData]:
-        if not self.skin:
+        if not self.is_set():
             return None
         return SkinData(self.skin, '', self.visible)
 
