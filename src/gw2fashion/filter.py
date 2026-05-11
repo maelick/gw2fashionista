@@ -29,7 +29,10 @@ UNDERWATER = (
 
 
 class SkinFilter:
-    skins = ALL
+    skins: SkinFlag
+
+    def __init__(self, skins=ALL):
+        self.skins = skins
 
     def add(self, skin: SkinFlag):
         self.skins |= skin
