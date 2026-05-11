@@ -52,6 +52,9 @@ class SkinFlag(enum.Flag):
     def skin_type(self):
         return SkinType[self.name]
 
+    def skin_types(self):
+        return (f.skin_type() for f in self)
+
 
 # Ensure that names for visibility flags and skin types are the same
 assert set(f.name for f in SkinFlag) == set(t.name for t in SkinType)
