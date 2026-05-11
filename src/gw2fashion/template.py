@@ -123,8 +123,8 @@ class FashionTemplate:
                  for skin_type in filter.visible_skins()}
         return FashionTemplate(skins)
 
-    def merge(self, other: Self):
-        skins = {skin_type: self.skins[skin_type].merge(skin)
+    def merge(self, other: Self, ignore_skin=False, ignore_dyes=False):
+        skins = {skin_type: self.skins[skin_type].merge(skin, ignore_skin, ignore_dyes)
                  for skin_type, skin in other.skins.items()}
         return FashionTemplate(skins)
 

@@ -95,10 +95,11 @@ class Skin:
             return None
         return SkinData(self.skin, '', self.visible)
     
-    def merge(self, other: Self) -> Self:
-        if other.is_set():
+    def merge(self, other: Self, ignore_skin=False, ignore_dyes=False) -> Self:
+        if not other.is_set() or ignore_skin:
+            return self
+        else:
             return other
-        return self
 
 
 class DyableSkin(Skin):
@@ -123,6 +124,16 @@ class DyableSkin(Skin):
             return None
         d1, d2, d3, d4 = self.dyes
         return DyableSkinData(self.skin, '', self.visible, ColorData(d1, ''), ColorData(d2, ''), ColorData(d3, ''), ColorData(d4, ''))
+
+    def merge(self, other: Self, ignore_skin=False, ignore_dyes=False) -> Self:
+        if not other.is_set() or (ignore_skin and ignore_dyes):
+            return self
+        elif ignore_skin:
+            return DyableSkin(self.skin_type, self.skin, other.dyes, self.visible)
+        elif ignore_dyes:
+            return DyableSkin(self.skin_type, other.skin, self.dyes, other.visible)
+        else:
+            return other
 
 
 def skin_from_data(skin_type: SkinType, item_data: dict={}):
