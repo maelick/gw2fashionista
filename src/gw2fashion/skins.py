@@ -1,6 +1,6 @@
 import struct
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Self
 
 from gw2fashion.enums.skin import SkinType, SkinFlag
 
@@ -94,6 +94,11 @@ class Skin:
         if not self.is_set():
             return None
         return SkinData(self.skin, '', self.visible)
+    
+    def merge(self, other: Self) -> Self:
+        if other.is_set():
+            return other
+        return self
 
 
 class DyableSkin(Skin):

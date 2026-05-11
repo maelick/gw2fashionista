@@ -124,7 +124,7 @@ class FashionTemplate:
         return FashionTemplate(skins)
 
     def merge(self, other: Self):
-        skins = {skin_type: skin if skin.is_set() else self.skins[skin_type]
+        skins = {skin_type: self.skins[skin_type].merge(skin)
                  for skin_type, skin in other.skins.items()}
         return FashionTemplate(skins)
 
