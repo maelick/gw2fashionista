@@ -28,32 +28,8 @@ class SkinType(enum.Enum):
         self.dyable = dyable
         self.always_visible = always_visible
 
-    def api_label(self):
-        return SkinAPILabel[self.name]
-
     def visibility_flag(self):
         return SkinVisibilityFlag[self.name]
-
-
-class SkinAPILabel(enum.StrEnum):
-    AQUABREATHER = 'HelmAquatic'
-    BACKPACK = 'Backpack'
-    CHEST = 'Coat'
-    SHOES = 'Boots'
-    GLOVES = 'Gloves'
-    HEAD = 'Helm'
-    LEGS = 'Leggings'
-    SHOULDERS = 'Shoulders'
-    OUTFIT = 'Outfit'
-    WEAPON_AQUATIC_A = 'WeaponAquaticA'
-    WEAPON_AQUATIC_B = 'WeaponAquaticB'
-    WEAPON_A1 = 'WeaponA1'
-    WEAPON_A2 = 'WeaponA2'
-    WEAPON_B1 = 'WeaponB1'
-    WEAPON_B2 = 'WeaponB2'
-
-    def skin_type(self):
-        return SkinType[self.name]
 
 
 class SkinVisibilityFlag(enum.Flag):

@@ -3,8 +3,8 @@ import base64
 from typing import Self, Optional
 from dataclasses import dataclass
 
-from gw2fashion.enums.skin import SkinAPILabel, SkinType, SkinVisibilityFlag
-from gw2fashion.skins import SkinData, DyableSkinData, Skin, DyableSkin, skin_from_data, unpack_skin_from
+from gw2fashion.enums.skin import SkinType, SkinVisibilityFlag
+from gw2fashion.skins import SkinData, DyableSkinData, Skin, DyableSkin, skin_from_data, unpack_skin_from, skin_type_from_equipment_slot
 from gw2fashion.enums.chatlink import ChatLinkType
 
 _HEADER_BYTE_FORMAT = '<B'
@@ -74,12 +74,12 @@ class FashionTemplate:
         # TODO outfit missing from API data
         skins = {}
         for item in equipment_tab:
-            if item['slot'] in list(SkinAPILabel):
-                skin_type = SkinAPILabel(item['slot']).skin_type()
+            skin_type = skin_type_from_equipment_slot(item['slot'])
+            if skin_type:
                 skin = skin_from_data(skin_type, item)
                 skins[skin.skin_type] = skin
         return cls(skins)
-    
+
     @classmethod
     def from_bytes(cls, b):
         if len(b) != 97:

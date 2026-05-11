@@ -125,9 +125,45 @@ def skin_from_data(skin_type: SkinType, item_data: dict={}):
     else:
         return Skin(skin_type, skin)
 
-
 def unpack_skin_from(skin_type: SkinType, b: bytes, offset: int, visible: bool):
     if skin_type.dyable:
         return DyableSkin.unpack_from(skin_type, b, offset, visible)
     else:
         return Skin.unpack_from(skin_type, b, offset, visible)
+
+def skin_type_from_equipment_slot(slot):
+    match slot:
+        case 'HelmAquatic':
+            return SkinType.AQUABREATHER
+        case 'Backpack':
+            return SkinType.BACKPACK
+        case 'Coat':
+            return SkinType.CHEST
+        case 'Boots':
+            return SkinType.SHOES
+        case 'Gloves':
+            return SkinType.GLOVES
+        case 'Helm':
+            return SkinType.HEAD
+        case 'Leggings':
+            return SkinType.LEGS
+        case 'Shoulders':
+            return SkinType.SHOULDERS
+        case 'Outfit':
+            return SkinType.OUTFIT
+        case 'WeaponAquaticA':
+            return SkinType.WEAPON_AQUATIC_A
+        case 'WeaponAquaticB':
+            return SkinType.WEAPON_AQUATIC_B
+        case 'WeaponA1':
+            return SkinType.WEAPON_A1
+        case 'WeaponA2':
+            return SkinType.WEAPON_A2
+        case 'WeaponB1':
+            return SkinType.WEAPON_B1
+        case 'WeaponB2':
+            return SkinType.WEAPON_B2
+        case 'Accessory1' | 'Accessory2' | 'Ring1' | 'Ring2' | 'Amulet':
+            pass
+        case _:
+            raise ValueError(f'Unkown equipment slot {slot}')
