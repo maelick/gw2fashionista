@@ -43,6 +43,9 @@ class SkinFilter:
     def filter(self, skin: SkinFlag):
         skins &= skin
 
+    def invert(self):
+        self.skins = ~self.skins
+
     def no_weapons(self):
         self.remove(WEAPONS)
 
