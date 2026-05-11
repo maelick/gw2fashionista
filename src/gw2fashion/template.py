@@ -4,6 +4,7 @@ from typing import Self, Optional
 from dataclasses import dataclass
 
 from gw2fashion.enums.skin import SkinType, SkinFlag
+from gw2fashion.filter import SkinFilter
 from gw2fashion.skins import SkinData, DyableSkinData, Skin, DyableSkin, skin_from_data, unpack_skin_from, skin_type_from_equipment_slot
 from gw2fashion.enums.chatlink import ChatLinkType
 
@@ -115,7 +116,15 @@ class FashionTemplate:
         return [skin_type
                 for skin_type, skin
                 in self.skins.items()
-                if skin != other.skins[skin_type]]                
+                if skin != other.skins[skin_type]]
+
+    def filter(self, filter: SkinFilter):
+        for skin_type in filter.hidden_skins():
+            self.skins[skin_type] = skin_from_data(skin_type)
+
+    def apply(self, other: Self):
+        for skin_type, skin in other.skins.items():
+            self.skins[skin_type] = skin
 
     def visibility(self):
         visibility = SkinFlag(0)
