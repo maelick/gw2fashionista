@@ -116,6 +116,8 @@ class Read(BaseCommand):
         api = GW2API()
         fashion = {link: self.read_template(link).to_data() for link in self.get_chat_links()}
         api.cache_fashion_data(fashion.values())
+        for f in fashion.values():
+            api.resolve_fashion_data(f)
 
         result = [{'chat_link': link, 'skins': data.to_dict()} for link, data in fashion.items()]
         json.dump(result, sys.stdout)
