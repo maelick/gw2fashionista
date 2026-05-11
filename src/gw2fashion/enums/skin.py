@@ -27,7 +27,7 @@ class SkinType(enum.Enum):
     def always_visible(self):
         # TODO get rid of match by using custom __new__/__init__: https://docs.python.org/3/howto/enum.html#using-a-custom-new
         match self:
-            case SkinType.OUTFIT | SkinType.LEGS | SkinType.SHOES:
+            case SkinType.CHEST | SkinType.LEGS | SkinType.SHOES:
                 return True
             case _:
                 return False

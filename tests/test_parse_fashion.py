@@ -58,8 +58,8 @@ class TestParseTemplate(unittest.TestCase):
                     self.assertSkinNotSet(skin)
                     self.assertSkinVisible(skin)
                 case SkinType.OUTFIT:
-                    self.assertSkinSet(skin) # TODO double check if correct
-                    self.assertSkinVisible(skin)
+                    self.assertSkinSet(skin)
+                    self.assertSkinNotVisible(skin)
                     self.assertHasNoDyes(skin)
                 case SkinType.AQUABREATHER:
                     self.assertSkinSet(skin)
@@ -76,7 +76,7 @@ class TestParseTemplate(unittest.TestCase):
                     self.assertSkinSet(skin)
                     self.assertSkinVisible(skin)
         
-        # self.assertEqual(testdata.zizi, template.to_chat_link()) # TODO FIXME
+        self.assertEqual(testdata.zizi, template.to_chat_link())
 
     def test_zizi_armor_only(self):
         template = ChatLink.parse(testdata.zizi_armor_only).fashion_template()
