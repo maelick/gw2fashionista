@@ -61,7 +61,7 @@ class Skin:
 
     def __init__(self, skin_type: SkinType, skin: int, visible=True, byte_format=_SKIN_BYTE_FORMAT):
         self.skin_type = skin_type
-        self.visible = visible or self.skin_type.always_visible()
+        self.visible = visible or self.skin_type.always_visible
         self.skin = skin
         self.byte_format = byte_format
         self.num_bytes = struct.calcsize(byte_format)
@@ -119,7 +119,7 @@ class DyableSkin(Skin):
 
 def skin_from_data(skin_type: SkinType, item_data: dict={}):
     skin = item_data.get('skin', 0)
-    if skin_type.is_dyable():
+    if skin_type.dyable:
         dyes = item_data.get('dyes', (None, None, None, None))
         return DyableSkin(skin_type, skin, dyes)
     else:
@@ -127,7 +127,7 @@ def skin_from_data(skin_type: SkinType, item_data: dict={}):
 
 
 def unpack_skin_from(skin_type: SkinType, b: bytes, offset: int, visible: bool):
-    if skin_type.is_dyable():
+    if skin_type.dyable:
         return DyableSkin.unpack_from(skin_type, b, offset, visible)
     else:
         return Skin.unpack_from(skin_type, b, offset, visible)

@@ -2,43 +2,37 @@ import enum
 
 
 class SkinType(enum.Enum):
-    AQUABREATHER = 0
-    BACKPACK = enum.auto()
-    CHEST = enum.auto()
-    SHOES = enum.auto()
-    GLOVES = enum.auto()
-    HEAD = enum.auto()
-    LEGS = enum.auto()
-    SHOULDERS = enum.auto()
-    OUTFIT = enum.auto()
-    WEAPON_AQUATIC_A = enum.auto()
-    WEAPON_AQUATIC_B = enum.auto()
-    WEAPON_A1 = enum.auto()
-    WEAPON_A2 = enum.auto()
-    WEAPON_B1 = enum.auto()
-    WEAPON_B2 = enum.auto()
+    AQUABREATHER = ()
+    BACKPACK = (True)
+    CHEST = (True, True)
+    SHOES = (True, True)
+    GLOVES = (True)
+    HEAD = (True)
+    LEGS = (True, True)
+    SHOULDERS = (True)
+    OUTFIT = (True)
+    WEAPON_AQUATIC_A = ()
+    WEAPON_AQUATIC_B = ()
+    WEAPON_A1 = ()
+    WEAPON_A2 = ()
+    WEAPON_B1 = ()
+    WEAPON_B2 = ()
+
+    def __new__(cls, *args):
+        value = len(cls.__members__)
+        obj = object.__new__(cls)
+        obj._value_ = value
+        return obj
+
+    def __init__(self, dyable=False, always_visible=False):
+        self.dyable = dyable
+        self.always_visible = always_visible
 
     def api_label(self):
         return SkinAPILabel[self.name]
-    
+
     def visibility_flag(self):
         return SkinVisibilityFlag[self.name]
-    
-    def always_visible(self):
-        # TODO get rid of match by using custom __new__/__init__: https://docs.python.org/3/howto/enum.html#using-a-custom-new
-        match self:
-            case SkinType.CHEST | SkinType.LEGS | SkinType.SHOES:
-                return True
-            case _:
-                return False
-    
-    def is_dyable(self):
-        # TODO get rid of match by using custom __new__/__init__: https://docs.python.org/3/howto/enum.html#using-a-custom-new
-        match self:
-            case SkinType.BACKPACK | SkinType.CHEST | SkinType.SHOES | SkinType.GLOVES | SkinType.LEGS | SkinType.HEAD | SkinType.SHOULDERS | SkinType.OUTFIT:
-                return True
-            case _:
-                return False
 
 
 class SkinAPILabel(enum.StrEnum):
