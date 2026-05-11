@@ -33,7 +33,10 @@ def _merge_parser(subparser):
     parser = subparser.add_parser('merge', help='Merge two fashion templates by overriding specific parts of the first one with values of the second one')
     parser.add_argument('base_fashion_template', metavar='fashion-template1', help='Chat link of the base fashion template to override.')
     parser.add_argument('new_fashion_template', metavar='fashion-template2', help='Chat link of the fashion template with new values to apply to the base one.')
-    _add_filters(parser)
+    group = _add_filters(parser)
+    subgroup = group.add_mutually_exclusive_group()
+    subgroup.add_argument('--dyes-only', action='store_false', dest='ignore_skin', help='Only merge dyes (i.e. original skin will be preserved).')
+    subgroup.add_argument('--skin-only', action='store_false', dest='ignore_dyes', help='Only merge skin (i.e. original dyes will be preserved).')
     parser.set_defaults(command=commands.Merge)
     return parser
 
@@ -60,3 +63,5 @@ def _add_filters(parser: argparse.ArgumentParser):
     subgroup = group.add_mutually_exclusive_group()
     subgroup.add_argument('--no-underwater', action='store_true')
     subgroup.add_argument('--only-underwater', action='store_true')
+
+    return group
