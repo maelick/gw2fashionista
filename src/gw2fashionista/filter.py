@@ -1,4 +1,4 @@
-from gw2fashion.enums.skin import SkinFlag
+from gw2fashionista.enums.skin import SkinFlag
 
 ALL = SkinFlag(2 ** len(SkinFlag)-1)
 

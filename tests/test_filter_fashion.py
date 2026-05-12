@@ -1,8 +1,8 @@
 import unittest
 
-from gw2fashion import ChatLink
-from gw2fashion.enums.skin import SkinFlag
-from gw2fashion.filter import SkinFilter, ARMORS
+from gw2fashionista import ChatLink
+from gw2fashionista.enums.skin import SkinFlag
+from gw2fashionista.filter import SkinFilter, ARMORS
 
 import data as testdata
 

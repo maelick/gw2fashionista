@@ -1,7 +1,7 @@
 import unittest
 
-from gw2fashion import ChatLink, Skin, DyableSkin
-from gw2fashion.enums.skin import SkinType
+from gw2fashionista import ChatLink, Skin, DyableSkin
+from gw2fashionista.enums.skin import SkinType
 
 import data as testdata
 

@@ -1,6 +1,6 @@
 import argparse
 
-from gw2fashion.cli import commands
+from gw2fashionista.cli import commands
 
 def build_parser():
     parser = argparse.ArgumentParser(description='GW2 Fashion Exporter CLI')

@@ -3,8 +3,8 @@ import base64
 from dataclasses import dataclass
 from typing import Any
 
-from gw2fashion.template import FashionTemplate
-from gw2fashion.enums.chatlink import ChatLinkType
+from gw2fashionista.template import FashionTemplate
+from gw2fashionista.enums.chatlink import ChatLinkType
 
 BASE64_RE = r'[-A-Za-z0-9+/]*={0,3}'
 CHAT_LINK_RE = re.compile(r'^\[?&?(' + BASE64_RE + r')\]?$')

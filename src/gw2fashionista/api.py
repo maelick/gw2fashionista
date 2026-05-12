@@ -4,10 +4,10 @@ from typing import Generator, Any, Optional
 from collections.abc import Iterable
 
 from gw2api import GuildWars2Client
-from gw2fashion.cache import Cache
-from gw2fashion.template import FashionTemplate, FashionTemplateData
-from gw2fashion.filter import SkinFilter
-from gw2fashion.skins import SkinData, DyableSkinData, ColorData
+from gw2fashionista.cache import Cache
+from gw2fashionista.template import FashionTemplate, FashionTemplateData
+from gw2fashionista.filter import SkinFilter
+from gw2fashionista.skins import SkinData, DyableSkinData, ColorData
 
 
 @dataclass

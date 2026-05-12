@@ -1,5 +1,5 @@
 import logging
-from gw2fashion.cli.parser import build_parser
+from gw2fashionista.cli.parser import build_parser
 
 class CLI:
     def __init__(self):

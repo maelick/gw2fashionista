@@ -1,8 +1,8 @@
 import unittest
 
-from gw2fashion import ChatLink, Skin, DyableSkin
-from gw2fashion.template import FashionTemplateData
-from gw2fashion.api import GW2API
+from gw2fashionista import ChatLink, Skin, DyableSkin
+from gw2fashionista.template import FashionTemplateData
+from gw2fashionista.api import GW2API
 
 import data as testdata
 

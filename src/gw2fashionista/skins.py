@@ -2,7 +2,7 @@ import struct
 from dataclasses import dataclass
 from typing import Optional, Self
 
-from gw2fashion.enums.skin import SkinType, SkinFlag
+from gw2fashionista.enums.skin import SkinType, SkinFlag
 
 _SKIN_BYTE_FORMAT = '<H'
 _DYEABLE_SKIN_BYTE_FORMAT = '<HHHHH'

@@ -3,10 +3,10 @@ import base64
 from typing import Self, Optional
 from dataclasses import dataclass
 
-from gw2fashion.enums.skin import SkinType, SkinFlag
-from gw2fashion.filter import SkinFilter
-from gw2fashion.skins import SkinData, DyableSkinData, Skin, DyableSkin, skin_from_data, unpack_skin_from, skin_type_from_equipment_slot
-from gw2fashion.enums.chatlink import ChatLinkType
+from gw2fashionista.enums.skin import SkinType, SkinFlag
+from gw2fashionista.filter import SkinFilter
+from gw2fashionista.skins import SkinData, DyableSkinData, Skin, DyableSkin, skin_from_data, unpack_skin_from, skin_type_from_equipment_slot
+from gw2fashionista.enums.chatlink import ChatLinkType
 
 _HEADER_BYTE_FORMAT = '<B'
 _VISIBILITY_BYTE_FORMAT = '<H'

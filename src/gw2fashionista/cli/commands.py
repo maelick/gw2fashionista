@@ -4,10 +4,10 @@ import sys
 import csv
 import json
 
-from gw2fashion.api import GW2API, EquipmentTabFashion
-from gw2fashion.chatlink import ChatLink
-from gw2fashion.template import FashionTemplate
-from gw2fashion.filter import SkinFilter
+from gw2fashionista.api import GW2API, EquipmentTabFashion
+from gw2fashionista.chatlink import ChatLink
+from gw2fashionista.template import FashionTemplate
+from gw2fashionista.filter import SkinFilter
 
 class BaseCommand:
     def __init__(self, args):
