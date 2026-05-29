@@ -1,0 +1,7 @@
+[package]
+name = "gw2fashionista-cli"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+gw2fashionista-core = { version = "0.1.0", path = "../gw2fashionista-core" }
