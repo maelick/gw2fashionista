@@ -1,12 +1,12 @@
 use std::io::Cursor;
 
-use strum::EnumIter;
+use strum::{EnumCount, EnumIter};
 use bitflags::bitflags;
 use byteorder::{LittleEndian, ReadBytesExt};
 
 use super::error::ChatLinkError;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, EnumIter)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, EnumIter, EnumCount)]
 pub enum SkinType {
     Aquabreather,
     Backpack,
