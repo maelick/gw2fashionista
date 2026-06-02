@@ -1,7 +1,7 @@
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 
 #[derive(IntoPrimitive, TryFromPrimitive, Debug)]
-#[repr(u16)]
+#[repr(u8)]
 pub enum ChatLinkType {
     Coin = 0x01,
     Item = 0x02,

@@ -6,16 +6,22 @@ pub enum ChatLinkError {
     UnsupportedType(ChatLinkType),
 
     #[error("Unknown or invalid chat link type header: {0:?}")]
-    UnknownType(u16),
+    UnknownType(u8),
+
+    #[error("String does not look like a chat link")]
+    InvalidString,
 
     #[error("Invalid base64 string")]
-    InvalidBase64(),
+    InvalidBase64(base64::DecodeError),
 
     #[error("Truncated data: {0:?}")]
     TruncatedData(Vec<u8>),
 
     #[error("Invalid payload: {0:?}")]
     InvalidPayload(Vec<u8>),
+
+    #[error("Empty payload")]
+    EmptyPayload,
 
     #[error("Not implemented")]
     NotImplemented,
