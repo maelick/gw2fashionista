@@ -38,6 +38,16 @@ pub struct SerializedChatLink {
     bytes: Vec<u8>,
 }
 
+impl TryFrom<&str> for ChatLink {
+    type Error = ChatLinkError;
+
+    fn try_from(raw_chat_link: &str) -> Result<Self, ChatLinkError> {
+        let serialized = SerializedChatLink::try_from(raw_chat_link)?;
+        serialized.try_into()
+    }
+}
+
+
 impl TryFrom<SerializedChatLink> for ChatLink {
     type Error = ChatLinkError;
 
