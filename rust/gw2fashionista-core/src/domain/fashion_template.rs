@@ -8,8 +8,11 @@ pub struct FashionTemplate {
 impl TryFrom<Vec<u8>> for FashionTemplate {
     type Error = ChatLinkError;
 
-    fn try_from(_: Vec<u8>) -> Result<Self, ChatLinkError> {
-        return Err(ChatLinkError::NotImplemented)
+    fn try_from(bytes: Vec<u8>) -> Result<Self, ChatLinkError> {
+        if bytes.len() != 96 {
+            return Err(ChatLinkError::TruncatedData(bytes))
+        }
+        Ok(FashionTemplate{})
     }
 }
 

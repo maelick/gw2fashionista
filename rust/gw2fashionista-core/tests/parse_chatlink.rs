@@ -3,9 +3,9 @@ mod tests {
     use gw2fashionista_core::domain::{chatlink::ChatLink, error::ChatLinkError};
     use std::assert_matches;
 
-    const EMPTY_TEMPLATE: &str = "[&DwAAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAAAAAAAAAAAAAD/fw==]";
+    const EMPTY_TEMPLATE: &str = "DwAAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAAAAAAAAAAAAAD/fw==";
     const ZIZI_TEMPLATE: &str = "D1sDPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAHwAAQABAAEAAQDjE6APPBI8Ej0SAAD+fg==";
-    const ZIZI_ARMOR_TEMPLATE: &str = "[&DwAAPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAAAAAQABAAEAAQAAAAAAAAAAAAAAAAD/fw==]";
+    const ZIZI_ARMOR_TEMPLATE: &str = "DwAAPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAAAAAQABAAEAAQAAAAAAAAAAAAAAAAD/fw==";
     
     #[test]
     fn test_parse_empty_link() {
@@ -56,7 +56,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_parse_invalid_length() {
         let raw = "DwAAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAAAAAAAAAD/fw==";
         
@@ -69,7 +68,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_parse_empty() {
         let raw = EMPTY_TEMPLATE;
         
@@ -82,7 +80,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_parse_zizi() {
         let raw = ZIZI_TEMPLATE;
         
@@ -95,7 +92,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_parse_zizi_armor_only() {
         let raw = ZIZI_ARMOR_TEMPLATE;
         
