@@ -1,6 +1,17 @@
+use regex::Regex;
+use once_cell::sync::Lazy;
+use base64::Engine;
+
 use super::error::ChatLinkError;
 use super::link_type::ChatLinkType;
 use super::fashion_template::FashionTemplate;
+
+const BASE64_RE: &str = r"[-A-Za-z0-9+/]*={0,3}";
+
+static CHAT_LINK_REGEX: Lazy<Regex> = Lazy::new(|| {
+    let pattern = format!(r"^\[?&?({})\]?$", BASE64_RE);
+    Regex::new(&pattern).unwrap()
+});
 
 #[derive(Debug)]
 pub enum ChatLink {
@@ -58,5 +69,28 @@ impl TryFrom<ChatLink> for SerializedChatLink {
             }
             _ => Err(ChatLinkError::NotImplemented),
         }
+    }
+}
+
+impl TryFrom<Vec<u8>> for SerializedChatLink {
+    type Error = ChatLinkError;
+
+    fn try_from(bytes: Vec<u8>) -> Result<Self, ChatLinkError> {
+        let (header, payload) = bytes
+            .split_first()
+            .ok_or(ChatLinkError::EmptyPayload)?;
+        let link_type = ChatLinkType::try_from(*header).map_err(|err| ChatLinkError::UnknownType(err.number))?;
+        Ok(SerializedChatLink::new(link_type, payload.to_vec()))
+    }
+}
+
+impl TryFrom<&str> for SerializedChatLink {
+    type Error = ChatLinkError;
+
+    fn try_from(raw_chat_link: &str) -> Result<Self, ChatLinkError> {
+        let caps = CHAT_LINK_REGEX.captures(raw_chat_link).ok_or(ChatLinkError::InvalidString)?;
+        let base64_str = caps.get(1).ok_or(ChatLinkError::InvalidString)?.as_str();
+        let decoded = base64::engine::general_purpose::STANDARD.decode(base64_str);
+        decoded.map_err(ChatLinkError::InvalidBase64)?.try_into()
     }
 }
