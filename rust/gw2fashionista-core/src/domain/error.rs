@@ -12,13 +12,16 @@ pub enum ChatLinkError {
     InvalidString,
 
     #[error("Invalid base64 string")]
-    InvalidBase64(base64::DecodeError),
+    InvalidBase64(#[from] base64::DecodeError),
 
     #[error("Truncated data: {0:?}")]
     TruncatedData(Vec<u8>),
 
     #[error("Invalid payload: {0:?}")]
-    InvalidPayload(Vec<u8>),
+    InvalidPayload(#[from] std::io::Error),
+
+    #[error("Invalid visibility bytes: {0:?}")]
+    InvalidVisibility(u16),
 
     #[error("Empty payload")]
     EmptyPayload,

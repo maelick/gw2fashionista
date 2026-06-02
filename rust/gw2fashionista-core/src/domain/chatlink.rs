@@ -54,7 +54,7 @@ impl TryFrom<SerializedChatLink> for ChatLink {
     fn try_from(serialized: SerializedChatLink) -> Result<Self, ChatLinkError> {
         match serialized.link_type {
             ChatLinkType::WardrobeTemplate => {
-                let template = FashionTemplate::try_from(serialized.bytes)?;
+                let template = FashionTemplate::try_from(serialized.bytes.as_slice())?;
                 Ok(ChatLink::WardrobeTemplate(template))
             }
             _ => Err(ChatLinkError::UnsupportedType(serialized.link_type)),
@@ -82,10 +82,10 @@ impl TryFrom<ChatLink> for SerializedChatLink {
     }
 }
 
-impl TryFrom<Vec<u8>> for SerializedChatLink {
+impl TryFrom<&[u8]> for SerializedChatLink {
     type Error = ChatLinkError;
 
-    fn try_from(bytes: Vec<u8>) -> Result<Self, ChatLinkError> {
+    fn try_from(bytes: &[u8]) -> Result<Self, ChatLinkError> {
         let (header, payload) = bytes
             .split_first()
             .ok_or(ChatLinkError::EmptyPayload)?;
@@ -100,7 +100,7 @@ impl TryFrom<&str> for SerializedChatLink {
     fn try_from(raw_chat_link: &str) -> Result<Self, ChatLinkError> {
         let caps = CHAT_LINK_REGEX.captures(raw_chat_link).ok_or(ChatLinkError::InvalidString)?;
         let base64_str = caps.get(1).ok_or(ChatLinkError::InvalidString)?.as_str();
-        let decoded = base64::engine::general_purpose::STANDARD.decode(base64_str);
-        decoded.map_err(ChatLinkError::InvalidBase64)?.try_into()
+        let decoded = base64::engine::general_purpose::STANDARD.decode(base64_str)?;
+        decoded.as_slice().try_into()
     }
 }
