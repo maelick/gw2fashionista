@@ -12,6 +12,38 @@ pub struct FashionTemplate {
     slots: HashMap<SkinType, EquipmentSlot>
 }
 
+impl FashionTemplate {
+    pub fn new(slots: HashMap<SkinType, EquipmentSlot>) -> Self {
+        FashionTemplate { slots }
+    }
+
+    pub fn get_slot(&self, skin_type: SkinType) -> Option<&EquipmentSlot> {
+        self.slots.get(&skin_type)
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &EquipmentSlot> {
+        self.slots.values()
+    }
+}
+
+impl IntoIterator for FashionTemplate {
+    type Item = EquipmentSlot;
+    type IntoIter = std::collections::hash_map::IntoValues<SkinType, EquipmentSlot>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.slots.into_values()
+    }
+}
+
+impl<'a> IntoIterator for &'a FashionTemplate {
+    type Item = &'a EquipmentSlot;
+    type IntoIter = std::collections::hash_map::Values<'a, SkinType, EquipmentSlot>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.slots.values()
+    }
+}
+
 impl TryFrom<&[u8]> for FashionTemplate {
     type Error = ChatLinkError;
 
