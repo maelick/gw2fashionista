@@ -1,4 +1,5 @@
 use clap::{Args};
+use gw2fashionista_core::domain::chatlink::ChatLink;
 
 #[derive(Args, Debug)]
 pub struct Command {
@@ -12,6 +13,18 @@ impl super::Command for Command {
     }
 
     fn execute(&self) -> anyhow::Result<()> {
-        return Err(anyhow::anyhow!("not implemented"))
+        if self.chat_links.is_empty() {
+            Err(anyhow::anyhow!("reading from stdin not implemented"))
+        } else {
+            parse_and_print(&self.chat_links)
+        }
     }
+}
+
+fn parse_and_print(chat_links: &Vec<String>) -> anyhow::Result<()> {
+    for raw_link in chat_links {
+        let link = ChatLink::try_from(raw_link.as_str())?;
+        println!("{:?}", link);
+    }
+    Ok(())
 }
