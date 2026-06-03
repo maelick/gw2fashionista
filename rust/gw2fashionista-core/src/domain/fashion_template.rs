@@ -165,15 +165,15 @@ impl From<Dyes> for (u16, u16, u16, u16) {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Skin {
-    skin_type: SkinType,
-    skin: SkinId,
-    visible: bool,
+    pub skin_type: SkinType,
+    pub skin: SkinId,
+    pub visible: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DyableSkin {
-    skin: Skin,
-    dyes: Dyes,
+    pub skin: Skin,
+    pub dyes: Dyes,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
