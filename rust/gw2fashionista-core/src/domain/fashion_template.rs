@@ -164,66 +164,27 @@ impl From<Dyes> for (u16, u16, u16, u16) {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Skin {
-    pub skin_type: SkinType,
-    pub skin: SkinId,
-    pub visible: bool,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct DyableSkin {
-    pub skin: Skin,
-    pub dyes: Dyes,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EquipmentSlot {
-    Skin(Skin),
-    DyableSkin(DyableSkin),
+    NonDyable {
+        skin: SkinId,
+        visible: bool,
+    },
+    Dyable {
+        skin: SkinId,
+        visible: bool,
+        dyes: Dyes,
+    },
 }
 
 impl EquipmentSlot {
     fn from_cursor(cursor: &mut Cursor<&[u8]>, skin_type: SkinType, visibility: SkinVisibility) -> Result<Self, std::io::Error> {
-        if skin_type.dyable() {
-            Ok(DyableSkin::from_cursor(cursor, skin_type, visibility)?.into())
-        } else {
-            Ok(Skin::from_cursor(cursor, skin_type, visibility)?.into())
-        }
-    }
-}
-
-impl Skin {
-    pub fn new(skin_type: SkinType, skin: SkinId, visible: bool) -> Self {
-        Self { skin_type, skin, visible }
-    }
-
-    fn from_cursor(cursor: &mut Cursor<&[u8]>, skin_type: SkinType, visibility: SkinVisibility) -> Result<Self, std::io::Error> {
-        let skin_id = SkinId::from_cursor(cursor)?;
+        let skin = SkinId::from_cursor(cursor)?;
         let visible =  visibility.contains(skin_type.visibility());
-        Ok(Skin::new(skin_type, skin_id, visible))
-    }
-}
-
-impl DyableSkin {
-    pub fn new(skin: Skin, dyes: Dyes) -> Self {
-        Self { skin, dyes }
-    }
-
-    fn from_cursor(cursor: &mut Cursor<&[u8]>, skin_type: SkinType, visibility: SkinVisibility) -> Result<Self, std::io::Error> {
-        let skin = Skin::from_cursor(cursor, skin_type, visibility)?;
-        let dyes = Dyes::from_cursor(cursor)?;
-        Ok(DyableSkin::new(skin, dyes).into())
-    }
-}
-
-impl From<Skin> for EquipmentSlot {
-    fn from(skin: Skin) -> EquipmentSlot {
-        return EquipmentSlot::Skin(skin)
-    }
-}
-
-impl From<DyableSkin> for EquipmentSlot {
-    fn from(skin: DyableSkin) -> EquipmentSlot {
-        return EquipmentSlot::DyableSkin(skin)
+        if skin_type.dyable() {
+            let dyes = Dyes::from_cursor(cursor)?;
+            Ok(Self::Dyable { skin, visible, dyes })
+        } else {
+            Ok(Self::NonDyable { skin, visible })
+        }
     }
 }

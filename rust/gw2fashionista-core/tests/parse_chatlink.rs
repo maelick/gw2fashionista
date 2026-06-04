@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use gw2fashionista_core::domain::{chatlink::ChatLink, error::ChatLinkError, fashion_template::{DyableSkin, EquipmentSlot, FashionTemplate, Skin}, skin_type::SkinType};
+    use gw2fashionista_core::domain::{chatlink::ChatLink, error::ChatLinkError, fashion_template::{EquipmentSlot, FashionTemplate}, skin_type::SkinType};
 use strum::IntoEnumIterator;
     use std::assert_matches;
 
@@ -96,39 +96,39 @@ use strum::IntoEnumIterator;
 
         for (skin_type, slot) in actual {
             match slot {
-                EquipmentSlot::Skin(skin) => {
+                EquipmentSlot::NonDyable{ skin, visible } => {
                     match skin_type {
                         SkinType::WeaponB2 => {
-                            assert_eq!(skin.skin, 0.into(), "Expected unset skin_id for {skin:?}");
-                            assert!(skin.visible, "Expected skin to be visible for {skin:?}");
+                            assert_eq!(skin, 0.into(), "Expected unset skin_id for {skin:?}");
+                            assert!(visible, "Expected skin to be visible for {skin:?}");
                         },
                         SkinType::Aquabreather => {
-                            assert_ne!(skin.skin, 0.into(), "Expected skin_id set for {skin:?}");
-                            assert!(!skin.visible, "Expected skin to not be visible for {skin:?}");
+                            assert_ne!(skin, 0.into(), "Expected skin_id set for {skin:?}");
+                            assert!(!visible, "Expected skin to not be visible for {skin:?}");
                         },
                         SkinType::WeaponAquaticA | SkinType::WeaponAquaticB | SkinType::WeaponA1 | SkinType::WeaponA2 | SkinType::WeaponB1 => {
-                            assert_ne!(skin.skin, 0.into(), "Expected skin_id set for {skin:?}");
-                            assert!(skin.visible, "Expected skin to be visible for {skin:?}");
+                            assert_ne!(skin, 0.into(), "Expected skin_id set for {skin:?}");
+                            assert!(visible, "Expected skin to be visible for {skin:?}");
                         },
                         _ => panic!("Dyable skin should not be non-dyable {skin:?}")
                     }
                 }
-                EquipmentSlot::DyableSkin(skin) => {
+                EquipmentSlot::Dyable{ skin, visible, dyes } => {
                     match skin_type {
                         SkinType::Outfit => {
-                            assert_ne!(skin.skin.skin, 0.into(), "Expected skin_id set for {skin:?}");
-                            assert!(!skin.skin.visible, "Expected skin to not be visible for {skin:?}");
-                            assert_eq!(skin.dyes, (1, 1, 1, 1).into(), "Expected unset dyes for {skin:?}");
+                            assert_ne!(skin, 0.into(), "Expected skin_id set for {skin:?}");
+                            assert!(!visible, "Expected skin to not be visible for {skin:?}");
+                            assert_eq!(dyes, (1, 1, 1, 1).into(), "Expected unset dyes for {skin:?}");
                         },
                         SkinType::Backpack => {
-                            assert_ne!(skin.skin.skin, 0.into(), "Expected skin_id set for {skin:?}");
-                            assert!(skin.skin.visible, "Expected skin to be visible for {skin:?}");
-                            assert_eq!(skin.dyes, (1, 1, 1, 1).into(), "Expected unset dyes for {skin:?}");
+                            assert_ne!(skin, 0.into(), "Expected skin_id set for {skin:?}");
+                            assert!(visible, "Expected skin to be visible for {skin:?}");
+                            assert_eq!(dyes, (1, 1, 1, 1).into(), "Expected unset dyes for {skin:?}");
                         },
                         SkinType::Chest | SkinType::Shoes | SkinType::Gloves | SkinType::Head | SkinType::Legs | SkinType::Shoulders => {
-                            assert_ne!(skin.skin.skin, 0.into(), "Expected skin_id set for {skin:?}");
-                            assert!(skin.skin.visible, "Expected skin to be visible for {skin:?}");
-                            assert_ne!(skin.dyes, (1, 1, 1, 1).into(), "Expected dyes set for {skin:?}");
+                            assert_ne!(skin, 0.into(), "Expected skin_id set for {skin:?}");
+                            assert!(visible, "Expected skin to be visible for {skin:?}");
+                            assert_ne!(dyes, (1, 1, 1, 1).into(), "Expected dyes set for {skin:?}");
                         },
                         _ => panic!("Skin should not be dyable {skin:?}")
                     }
@@ -148,31 +148,31 @@ use strum::IntoEnumIterator;
 
         for (skin_type, slot) in actual {
             match slot {
-                EquipmentSlot::Skin(skin) => {
+                EquipmentSlot::NonDyable{ skin, visible } => {
                     match skin_type {
                         SkinType::WeaponAquaticA | SkinType::WeaponAquaticB | SkinType::WeaponA1 | SkinType::WeaponA2 | SkinType::WeaponB1 | SkinType::WeaponB2 | SkinType::Aquabreather => {
-                            assert_eq!(skin.skin, 0.into(), "Expected unset skin_id for {skin:?}");
-                            assert!(skin.visible, "Expected skin to be visible for {skin:?}");
+                            assert_eq!(skin, 0.into(), "Expected unset skin_id for {skin:?}");
+                            assert!(visible, "Expected skin to be visible for {skin:?}");
                         },
                         _ => panic!("Dyable skin should not be non-dyable {skin:?}")
                     }
                 }
-                EquipmentSlot::DyableSkin(skin) => {
+                EquipmentSlot::Dyable{ skin, visible, dyes } => {
                     match skin_type {
                         SkinType::Outfit => {
-                            assert_eq!(skin.skin.skin, 0.into(), "Expected unset skin_id for {skin:?}");
-                            assert!(skin.skin.visible, "Expected skin to be visible for {skin:?}");
-                            assert_eq!(skin.dyes, (1, 1, 1, 1).into(), "Expected unset dyes for {skin:?}");
+                            assert_eq!(skin, 0.into(), "Expected unset skin_id for {skin:?}");
+                            assert!(visible, "Expected skin to be visible for {skin:?}");
+                            assert_eq!(dyes, (1, 1, 1, 1).into(), "Expected unset dyes for {skin:?}");
                         },
                         SkinType::Backpack => {
-                            assert_ne!(skin.skin.skin, 0.into(), "Expected skin_id set for {skin:?}");
-                            assert!(skin.skin.visible, "Expected skin to be visible for {skin:?}");
-                            assert_eq!(skin.dyes, (1, 1, 1, 1).into(), "Expected unset dyes for {skin:?}");
+                            assert_ne!(skin, 0.into(), "Expected skin_id set for {skin:?}");
+                            assert!(visible, "Expected skin to be visible for {skin:?}");
+                            assert_eq!(dyes, (1, 1, 1, 1).into(), "Expected unset dyes for {skin:?}");
                         },
                         SkinType::Chest | SkinType::Shoes | SkinType::Gloves | SkinType::Head | SkinType::Legs | SkinType::Shoulders => {
-                            assert_ne!(skin.skin.skin, 0.into(), "Expected skin_id set for {skin:?}");
-                            assert!(skin.skin.visible, "Expected skin to be visible for {skin:?}");
-                            assert_ne!(skin.dyes, (1, 1, 1, 1).into(), "Expected dyes set for {skin:?}");
+                            assert_ne!(skin, 0.into(), "Expected skin_id set for {skin:?}");
+                            assert!(visible, "Expected skin to be visible for {skin:?}");
+                            assert_ne!(dyes, (1, 1, 1, 1).into(), "Expected dyes set for {skin:?}");
                         },
                         _ => panic!("Skin should not be dyable {skin:?}")
                     }
@@ -182,11 +182,10 @@ use strum::IntoEnumIterator;
     }
 
     fn empty_skin(skin_type: SkinType) -> EquipmentSlot {
-        let skin = Skin::new(skin_type, 0.into(), true);
         if skin_type.dyable() {
-            DyableSkin::new(skin, (1, 1, 1, 1).into()).into()
+            EquipmentSlot::Dyable{ skin: 0.into(), visible: true, dyes: (1, 1, 1, 1).into() }
         } else {
-            skin.into()
+            EquipmentSlot::NonDyable { skin: 0.into(), visible: true }
         }
     }
 }
