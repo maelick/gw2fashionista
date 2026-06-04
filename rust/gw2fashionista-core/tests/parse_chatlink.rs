@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use gw2fashionista_core::domain::{chatlink::ChatLink, error::ChatLinkError, fashion_template::{EquipmentSlot, FashionTemplate}, skin_type::SkinType};
+    use gw2fashionista_core::domain::{chatlink::ChatLink, error::ChatLinkError, wardrobe_template::{EquipmentSlot, WardrobeTemplate}, skin_type::SkinType};
 use strum::IntoEnumIterator;
     use std::assert_matches;
 
@@ -74,7 +74,7 @@ use strum::IntoEnumIterator;
         let expected_slots = SkinType::iter().map(|skin_type| {
             (skin_type, empty_skin(skin_type))
         }).collect();
-        let expected_template = FashionTemplate::new(expected_slots);
+        let expected_template = WardrobeTemplate::new(expected_slots);
         
         let result = ChatLink::try_from(raw);
         assert_matches!(result, Ok(ChatLink::WardrobeTemplate(actual)) if actual == expected_template);

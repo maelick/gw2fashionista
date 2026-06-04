@@ -8,13 +8,13 @@ use super::error::ChatLinkError;
 use super::skin_type::{SkinType, SkinVisibility};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct FashionTemplate {
+pub struct WardrobeTemplate {
     slots: HashMap<SkinType, EquipmentSlot>
 }
 
-impl FashionTemplate {
+impl WardrobeTemplate {
     pub fn new(slots: HashMap<SkinType, EquipmentSlot>) -> Self {
-        FashionTemplate { slots }
+        WardrobeTemplate { slots }
     }
 
     pub fn get_slot(&self, skin_type: SkinType) -> Option<&EquipmentSlot> {
@@ -26,7 +26,7 @@ impl FashionTemplate {
     }
 }
 
-impl IntoIterator for FashionTemplate {
+impl IntoIterator for WardrobeTemplate {
     type Item = (SkinType, EquipmentSlot);
     type IntoIter = std::collections::hash_map::IntoIter<SkinType, EquipmentSlot>;
 
@@ -35,7 +35,7 @@ impl IntoIterator for FashionTemplate {
     }
 }
 
-impl<'a> IntoIterator for &'a FashionTemplate {
+impl<'a> IntoIterator for &'a WardrobeTemplate {
     type Item = (&'a SkinType, &'a EquipmentSlot);
     type IntoIter = std::collections::hash_map::Iter<'a, SkinType, EquipmentSlot>;
 
@@ -44,7 +44,7 @@ impl<'a> IntoIterator for &'a FashionTemplate {
     }
 }
 
-impl TryFrom<&[u8]> for FashionTemplate {
+impl TryFrom<&[u8]> for WardrobeTemplate {
     type Error = ChatLinkError;
 
     fn try_from(bytes: &[u8]) -> Result<Self, ChatLinkError> {
@@ -61,12 +61,12 @@ impl TryFrom<&[u8]> for FashionTemplate {
             slots.insert(skin_type, slot);
         }
 
-        Ok(FashionTemplate{slots})
+        Ok(WardrobeTemplate{slots})
     }
 }
 
-impl From<FashionTemplate> for Vec<u8> {
-    fn from(_: FashionTemplate) -> Vec<u8> {
+impl From<WardrobeTemplate> for Vec<u8> {
+    fn from(_: WardrobeTemplate) -> Vec<u8> {
         return Vec::new() // TODO implement
     }
 }

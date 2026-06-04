@@ -4,7 +4,7 @@ use base64::Engine;
 
 use super::error::ChatLinkError;
 use super::link_type::ChatLinkType;
-use super::fashion_template::FashionTemplate;
+use super::wardrobe_template::WardrobeTemplate;
 
 const BASE64_RE: &str = r"[-A-Za-z0-9+/]*={0,3}";
 
@@ -29,7 +29,7 @@ pub enum ChatLink {
     WvWObjective,
     BuildTemplate,
     Achivement,
-    WardrobeTemplate(FashionTemplate),
+    WardrobeTemplate(WardrobeTemplate),
 }
 
 #[derive(Debug)]
@@ -54,7 +54,7 @@ impl TryFrom<SerializedChatLink> for ChatLink {
     fn try_from(serialized: SerializedChatLink) -> Result<Self, ChatLinkError> {
         match serialized.link_type {
             ChatLinkType::WardrobeTemplate => {
-                let template = FashionTemplate::try_from(serialized.bytes.as_slice())?;
+                let template = WardrobeTemplate::try_from(serialized.bytes.as_slice())?;
                 Ok(ChatLink::WardrobeTemplate(template))
             }
             _ => Err(ChatLinkError::UnsupportedType(serialized.link_type)),
