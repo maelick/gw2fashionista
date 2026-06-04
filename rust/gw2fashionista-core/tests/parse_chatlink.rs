@@ -97,7 +97,7 @@ use strum::IntoEnumIterator;
         for (skin_type, slot) in actual {
             match slot {
                 EquipmentSlot::Skin(skin) => {
-                    match skin.skin_type {
+                    match skin_type {
                         SkinType::WeaponB2 => {
                             assert_eq!(skin.skin, 0.into(), "Expected unset skin_id for {skin:?}");
                             assert!(skin.visible, "Expected skin to be visible for {skin:?}");
@@ -114,7 +114,7 @@ use strum::IntoEnumIterator;
                     }
                 }
                 EquipmentSlot::DyableSkin(skin) => {
-                    match skin.skin.skin_type {
+                    match skin_type {
                         SkinType::Outfit => {
                             assert_ne!(skin.skin.skin, 0.into(), "Expected skin_id set for {skin:?}");
                             assert!(!skin.skin.visible, "Expected skin to not be visible for {skin:?}");
@@ -149,7 +149,7 @@ use strum::IntoEnumIterator;
         for (skin_type, slot) in actual {
             match slot {
                 EquipmentSlot::Skin(skin) => {
-                    match skin.skin_type {
+                    match skin_type {
                         SkinType::WeaponAquaticA | SkinType::WeaponAquaticB | SkinType::WeaponA1 | SkinType::WeaponA2 | SkinType::WeaponB1 | SkinType::WeaponB2 | SkinType::Aquabreather => {
                             assert_eq!(skin.skin, 0.into(), "Expected unset skin_id for {skin:?}");
                             assert!(skin.visible, "Expected skin to be visible for {skin:?}");
@@ -158,7 +158,7 @@ use strum::IntoEnumIterator;
                     }
                 }
                 EquipmentSlot::DyableSkin(skin) => {
-                    match skin.skin.skin_type {
+                    match skin_type {
                         SkinType::Outfit => {
                             assert_eq!(skin.skin.skin, 0.into(), "Expected unset skin_id for {skin:?}");
                             assert!(skin.skin.visible, "Expected skin to be visible for {skin:?}");
