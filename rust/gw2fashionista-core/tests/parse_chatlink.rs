@@ -94,7 +94,7 @@ use strum::IntoEnumIterator;
            panic!("Expected WardrobeTemplate, got {result:?}");
         };
 
-        for slot in actual {
+        for (skin_type, slot) in actual {
             match slot {
                 EquipmentSlot::Skin(skin) => {
                     match skin.skin_type {
@@ -146,7 +146,7 @@ use strum::IntoEnumIterator;
            panic!("Expected WardrobeTemplate, got {result:?}");
         };
 
-        for slot in actual {
+        for (skin_type, slot) in actual {
             match slot {
                 EquipmentSlot::Skin(skin) => {
                     match skin.skin_type {

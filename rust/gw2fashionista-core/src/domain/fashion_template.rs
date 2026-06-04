@@ -27,20 +27,20 @@ impl FashionTemplate {
 }
 
 impl IntoIterator for FashionTemplate {
-    type Item = EquipmentSlot;
-    type IntoIter = std::collections::hash_map::IntoValues<SkinType, EquipmentSlot>;
+    type Item = (SkinType, EquipmentSlot);
+    type IntoIter = std::collections::hash_map::IntoIter<SkinType, EquipmentSlot>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.slots.into_values()
+        self.slots.into_iter()
     }
 }
 
 impl<'a> IntoIterator for &'a FashionTemplate {
-    type Item = &'a EquipmentSlot;
-    type IntoIter = std::collections::hash_map::Values<'a, SkinType, EquipmentSlot>;
+    type Item = (&'a SkinType, &'a EquipmentSlot);
+    type IntoIter = std::collections::hash_map::Iter<'a, SkinType, EquipmentSlot>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.slots.values()
+        self.slots.iter()
     }
 }
 
