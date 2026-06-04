@@ -89,7 +89,7 @@ impl TryFrom<&[u8]> for SerializedChatLink {
         let (header, payload) = bytes
             .split_first()
             .ok_or(ChatLinkError::EmptyPayload)?;
-        let link_type = ChatLinkType::try_from(*header).map_err(|err| ChatLinkError::UnknownType(err.number))?;
+        let link_type = ChatLinkType::try_from(*header)?;
         Ok(SerializedChatLink::new(link_type, payload.to_vec()))
     }
 }
