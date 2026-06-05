@@ -76,6 +76,16 @@ impl WardrobeTemplate {
         buffer.write_u16::<LittleEndian>(visibility.bits())?;
         Ok(buffer)
     }
+
+    pub fn as_map(&self, include_empty: bool) -> HashMap<SlotType, EquipmentSlot> {
+        let mut slots= HashMap::with_capacity(SlotType::COUNT);
+        for (slot_type, slot) in self {
+            if include_empty || !slot.is_empty() {
+                slots.insert(slot_type, *slot);
+            }
+        }
+        slots
+    }
 }
 
 impl<'a> IntoIterator for &'a WardrobeTemplate {
