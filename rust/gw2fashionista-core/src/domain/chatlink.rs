@@ -47,6 +47,14 @@ impl TryFrom<&str> for ChatLink {
     }
 }
 
+impl TryFrom<ChatLink> for String {
+    type Error = ChatLinkError;
+
+    fn try_from(chat_link: ChatLink) -> Result<Self, ChatLinkError> {
+        let serialized = SerializedChatLink::try_from(chat_link)?;
+        Ok(serialized.into())
+    }
+}
 
 impl TryFrom<SerializedChatLink> for ChatLink {
     type Error = ChatLinkError;
@@ -102,5 +110,20 @@ impl TryFrom<&str> for SerializedChatLink {
         let base64_str = caps.get(1).ok_or(ChatLinkError::InvalidString)?.as_str();
         let decoded = base64::engine::general_purpose::STANDARD.decode(base64_str)?;
         decoded.as_slice().try_into()
+    }
+}
+
+impl From<SerializedChatLink> for Vec<u8> {
+    fn from(chat_link: SerializedChatLink) -> Self {
+        let mut bytes = Vec::with_capacity(chat_link.bytes.len() + 1);
+        bytes.push(chat_link.link_type.into());
+        bytes.extend_from_slice(&chat_link.bytes);
+        bytes
+    }
+}
+
+impl From<SerializedChatLink> for String {
+    fn from(chat_link: SerializedChatLink) -> Self {
+        base64::engine::general_purpose::STANDARD.encode::<Vec<u8>>(chat_link.into())
     }
 }
