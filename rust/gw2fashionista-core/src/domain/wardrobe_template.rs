@@ -14,12 +14,18 @@ pub mod slot;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct WardrobeTemplate {
-    slots: HashMap<SlotType, EquipmentSlot>
+    slots: [EquipmentSlot; SlotType::COUNT],
 }
 
 impl WardrobeTemplate {
     pub fn new(slots: HashMap<SlotType, EquipmentSlot>) -> Self {
-        WardrobeTemplate { slots }
+        let slots_vec = SlotType::iter().map(|slot_type| {
+            match slots.get(&slot_type) {
+                Some(slot) => *slot,
+                None => EquipmentSlot::empty(slot_type),
+            }
+        }).collect();
+        Self::from_vector(slots_vec)
     }
 
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, ChatLinkError> {
@@ -29,23 +35,26 @@ impl WardrobeTemplate {
 
         let visibility = Visibility::from_bytes(bytes)?;
         let mut cursor = Cursor::new(bytes);
-        let mut slots = HashMap::with_capacity(SlotType::COUNT);
+        let slots: Result<Vec<_>, _> = SlotType::iter()
+            .map(|slot_type| EquipmentSlot::read(&mut cursor, slot_type, visibility))
+            .collect();
 
-        for slot_type in SlotType::iter() {
-            let slot = EquipmentSlot::read(&mut cursor, slot_type, visibility)?;
-            slots.insert(slot_type, slot);
-        }
-
-        Ok(WardrobeTemplate{slots})
+        Ok(Self::from_vector(slots?))
     }
 
-    pub fn get_slot(&self, slot_type: &SlotType) -> Option<&EquipmentSlot> {
-        self.slots.get(slot_type)
+    fn from_vector(slots: Vec<EquipmentSlot>) -> Self {
+        WardrobeTemplate {
+            slots: slots.try_into().expect("iterator produced exactly SlotType::COUNT items")
+        }
+    }
+
+    pub fn get_slot(&self, slot_type: &SlotType) -> &EquipmentSlot {
+        &self.slots[slot_type.index()]
     }
 
     pub fn iter(&self) -> impl Iterator<Item = (SlotType, &EquipmentSlot)> {
         SlotType::iter().map(|slot_type| {
-            (slot_type, self.get_slot(&slot_type).unwrap())
+            (slot_type, self.get_slot(&slot_type))
         })
     }
 

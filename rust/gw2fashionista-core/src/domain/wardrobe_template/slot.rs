@@ -7,6 +7,7 @@ use byteorder::{LittleEndian, ReadBytesExt};
 use crate::domain::error::ChatLinkError;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, EnumIter, EnumCount)]
+#[repr(u8)]
 pub enum SlotType {
     Aquabreather,
     Backpack,
@@ -90,6 +91,10 @@ impl SlotType {
             SlotType::WeaponB1 => Visibility::WEAPON_B1,
             SlotType::WeaponB2 => Visibility::WEAPON_B2,
         }
+    }
+
+    pub fn index(self) -> usize {
+        self as usize
     }
 }
 
