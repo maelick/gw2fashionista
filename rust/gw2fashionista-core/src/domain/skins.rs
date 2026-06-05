@@ -13,6 +13,10 @@ impl SkinId {
     pub fn from_cursor(cursor: &mut Cursor<&[u8]>) -> Result<Self, std::io::Error> {
         Ok(SkinId(cursor.read_u16::<LittleEndian>()?))
     }
+
+    pub fn is_empty(self) -> bool {
+        matches!(self, SkinId(id) if id == 0)
+    }
 }
 
 impl From<u16> for SkinId {
@@ -43,6 +47,10 @@ impl DyeId {
 
     pub fn from_cursor(cursor: &mut Cursor<&[u8]>) -> Result<Self, std::io::Error> {
         Ok(DyeId(cursor.read_u16::<LittleEndian>()?))
+    }
+
+    pub fn is_empty(self) -> bool {
+        matches!(self, DyeId(id) if id == 1)
     }
 }
 
@@ -79,6 +87,10 @@ impl Dyes {
             DyeId::from_cursor(cursor)?,
             DyeId::from_cursor(cursor)?,
         ))
+    }
+
+    pub fn is_empty(self) -> bool {
+        matches!(self, Dyes(dye1, dye2, dye3, dye4) if dye1.is_empty() && dye2.is_empty() && dye3.is_empty() && dye4.is_empty())
     }
 }
 

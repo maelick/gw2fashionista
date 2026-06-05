@@ -77,7 +77,14 @@ mod tests {
         let expected_template = WardrobeTemplate::new(expected_slots);
         
         let result = &ChatLink::try_from(raw).unwrap();
-        assert_matches!(result, ChatLink::WardrobeTemplate(actual) if actual == &expected_template);
+        let ChatLink::WardrobeTemplate(actual) = result else {
+           panic!("Expected WardrobeTemplate, got {result:?}");
+        };
+
+        assert_eq!(actual, &expected_template);
+        for (slot_type, slot) in actual {
+            assert!(slot.is_empty(), "Expect empty slot {slot_type:?} but got {slot:?}");
+        }
 
         let raw_with_brackets = format!("[&{}]", raw);
         let result_with_brackets = &ChatLink::try_from(raw_with_brackets.as_str()).unwrap();
@@ -104,19 +111,23 @@ mod tests {
                         SlotType::WeaponB2 => {
                             assert_eq!(skin, &0.into(), "Expected unset skin_id for {skin:?}");
                             assert!(visible, "Expected skin to be visible for {skin:?}");
+                            assert!(slot.is_empty(), "Expect empty slot {slot_type:?} but got {slot:?}");
                         },
                         SlotType::Aquabreather => {
                             assert_ne!(skin, &0.into(), "Expected skin_id set for {skin:?}");
                             assert!(!visible, "Expected skin to not be visible for {skin:?}");
+                            assert!(!slot.is_empty(), "Expect not empty slot {slot_type:?}");
                         },
                         SlotType::WeaponAquaticA | SlotType::WeaponAquaticB | SlotType::WeaponA1 | SlotType::WeaponA2 | SlotType::WeaponB1 => {
                             assert_ne!(skin, &0.into(), "Expected skin_id set for {skin:?}");
                             assert!(visible, "Expected skin to be visible for {skin:?}");
+                            assert!(!slot.is_empty(), "Expect not empty slot {slot_type:?}");
                         },
                         _ => panic!("Dyable skin should not be non-dyable {skin:?}")
                     }
                 }
                 EquipmentSlot::Dyable{ skin, visible, dyes } => {
+                    assert!(!slot.is_empty(), "Expect not empty slot {slot_type:?}");
                     match slot_type {
                         SlotType::Outfit => {
                             assert_ne!(skin, &0.into(), "Expected skin_id set for {skin:?}");
@@ -159,8 +170,9 @@ mod tests {
                         SlotType::WeaponAquaticA | SlotType::WeaponAquaticB | SlotType::WeaponA1 | SlotType::WeaponA2 | SlotType::WeaponB1 | SlotType::WeaponB2 | SlotType::Aquabreather => {
                             assert_eq!(skin, &0.into(), "Expected unset skin_id for {skin:?}");
                             assert!(visible, "Expected skin to be visible for {skin:?}");
+                            assert!(slot.is_empty(), "Expect empty slot {slot_type:?} but got {slot:?}");
                         },
-                        _ => panic!("Dyable skin should not be non-dyable {skin:?}")
+                        _ => panic!("Dyable skin should not be non-dyable {slot:?}")
                     }
                 }
                 EquipmentSlot::Dyable{ skin, visible, dyes } => {
@@ -169,16 +181,19 @@ mod tests {
                             assert_eq!(skin, &0.into(), "Expected unset skin_id for {skin:?}");
                             assert!(visible, "Expected skin to be visible for {skin:?}");
                             assert_eq!(dyes, &(1, 1, 1, 1).into(), "Expected unset dyes for {skin:?}");
+                            assert!(slot.is_empty(), "Expect empty slot {slot_type:?} but got {slot:?}");
                         },
                         SlotType::Backpack => {
                             assert_ne!(skin, &0.into(), "Expected skin_id set for {skin:?}");
                             assert!(visible, "Expected skin to be visible for {skin:?}");
                             assert_eq!(dyes, &(1, 1, 1, 1).into(), "Expected unset dyes for {skin:?}");
+                            assert!(!slot.is_empty(), "Expect not empty slot {slot_type:?}");
                         },
                         SlotType::Chest | SlotType::Shoes | SlotType::Gloves | SlotType::Head | SlotType::Legs | SlotType::Shoulders => {
                             assert_ne!(skin, &0.into(), "Expected skin_id set for {skin:?}");
                             assert!(visible, "Expected skin to be visible for {skin:?}");
                             assert_ne!(dyes, &(1, 1, 1, 1).into(), "Expected dyes set for {skin:?}");
+                            assert!(!slot.is_empty(), "Expect not empty slot {slot_type:?}");
                         },
                         _ => panic!("Skin should not be dyable {skin:?}")
                     }

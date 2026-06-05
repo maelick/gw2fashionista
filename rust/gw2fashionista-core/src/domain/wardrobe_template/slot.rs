@@ -153,6 +153,13 @@ impl EquipmentSlot {
         }
     }
 
+    pub fn is_empty(self) -> bool {
+        match self {
+            EquipmentSlot::NonDyable { skin, visible: _ } => skin.is_empty(),
+            EquipmentSlot::Dyable { skin, visible: _, dyes } => skin.is_empty() && dyes.is_empty(),
+        }
+    }
+
     pub fn read(cursor: &mut Cursor<&[u8]>, slot_type: SlotType, visibility: Visibility) -> Result<Self, std::io::Error> {
         let skin = SkinId::from_cursor(cursor)?;
         let visible =  visibility.contains(slot_type.visibility());
