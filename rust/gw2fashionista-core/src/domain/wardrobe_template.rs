@@ -25,7 +25,7 @@ impl WardrobeTemplate {
             return Err(ChatLinkError::TruncatedData(bytes.to_vec()))
         }
 
-        let visibility = SkinVisibility::try_from(bytes)?;
+        let visibility = SkinVisibility::from_bytes(bytes)?;
         let mut cursor = Cursor::new(bytes);
         let mut slots = HashMap::with_capacity(SkinType::COUNT);
 

@@ -93,22 +93,26 @@ impl SkinType {
     }
 }
 
-impl TryFrom<&[u8]> for SkinVisibility {
-    type Error = ChatLinkError;
-
-    fn try_from(bytes: &[u8]) -> Result<Self, ChatLinkError> {
+impl SkinVisibility {
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, ChatLinkError> {
         if bytes.len() < 2 {
             return Err(ChatLinkError::TruncatedData(bytes.to_vec()));
         }
         let visibility_offset = bytes.len() - 2;
         let mut cursor = Cursor::new(&bytes[visibility_offset..]);
-        SkinVisibility::from_cursor(&mut cursor)
+        SkinVisibility::read(&mut cursor)
+    }
+
+    pub fn read(cursor: &mut Cursor<&[u8]>) -> Result<Self, ChatLinkError> {
+        let visibility_bytes = cursor.read_u16::<LittleEndian>()?;
+        SkinVisibility::from_bits(visibility_bytes).ok_or(ChatLinkError::InvalidVisibility(visibility_bytes))
     }
 }
 
-impl SkinVisibility {
-    pub fn from_cursor(cursor: &mut Cursor<&[u8]>) -> Result<Self, ChatLinkError> {
-        let visibility_bytes = cursor.read_u16::<LittleEndian>()?;
-        SkinVisibility::from_bits(visibility_bytes).ok_or(ChatLinkError::InvalidVisibility(visibility_bytes))
+impl TryFrom<&[u8]> for SkinVisibility {
+    type Error = ChatLinkError;
+
+    fn try_from(bytes: &[u8]) -> Result<Self, ChatLinkError> {
+        Self::from_bytes(bytes)
     }
 }
