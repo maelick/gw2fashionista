@@ -4,10 +4,10 @@ use strum::{EnumCount, EnumIter};
 use bitflags::bitflags;
 use byteorder::{LittleEndian, ReadBytesExt};
 
-use super::error::ChatLinkError;
+use crate::domain::error::ChatLinkError;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, EnumIter, EnumCount)]
-pub enum SkinType {
+pub enum SlotType {
     Aquabreather,
     Backpack,
     Chest,
@@ -27,7 +27,7 @@ pub enum SkinType {
 
 bitflags! {
     #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-    pub struct SkinVisibility: u16 {
+    pub struct Visibility: u16 {
         const AQUABREATHER = 1 << 0;
         const BACKPACK = 1 << 1;
         const CHEST = 1 << 2;
@@ -46,18 +46,18 @@ bitflags! {
     }
 }
 
-impl SkinType {
+impl SlotType {
     pub const fn dyable(self) -> bool {
         {
             matches!(self,
-                SkinType::Backpack
-                | SkinType::Chest
-                | SkinType::Shoes
-                | SkinType::Gloves
-                | SkinType::Head
-                | SkinType::Legs
-                | SkinType::Shoulders
-                | SkinType::Outfit
+                SlotType::Backpack
+                | SlotType::Chest
+                | SlotType::Shoes
+                | SlotType::Gloves
+                | SlotType::Head
+                | SlotType::Legs
+                | SlotType::Shoulders
+                | SlotType::Outfit
             )
         }
     }
@@ -65,51 +65,51 @@ impl SkinType {
     pub const fn always_visible(self) -> bool {
         {
             matches!(self,
-                SkinType::Chest
-                | SkinType::Shoes
-                | SkinType::Legs
+                SlotType::Chest
+                | SlotType::Shoes
+                | SlotType::Legs
             )
         }
     }
 
-    pub const fn visibility(self) -> SkinVisibility {
+    pub const fn visibility(self) -> Visibility {
         match self {
-            SkinType::Aquabreather => SkinVisibility::AQUABREATHER,
-            SkinType::Backpack => SkinVisibility::BACKPACK,
-            SkinType::Chest => SkinVisibility::CHEST,
-            SkinType::Shoes => SkinVisibility::SHOES,
-            SkinType::Gloves => SkinVisibility::GLOVES,
-            SkinType::Head => SkinVisibility::HEAD,
-            SkinType::Legs => SkinVisibility::LEGS,
-            SkinType::Shoulders => SkinVisibility::SHOULDERS,
-            SkinType::Outfit => SkinVisibility::OUTFIT,
-            SkinType::WeaponAquaticA => SkinVisibility::WEAPON_AQUATIC_A,
-            SkinType::WeaponAquaticB => SkinVisibility::WEAPON_AQUATIC_B,
-            SkinType::WeaponA1 => SkinVisibility::WEAPON_A1,
-            SkinType::WeaponA2 => SkinVisibility::WEAPON_A2,
-            SkinType::WeaponB1 => SkinVisibility::WEAPON_B1,
-            SkinType::WeaponB2 => SkinVisibility::WEAPON_B2,
+            SlotType::Aquabreather => Visibility::AQUABREATHER,
+            SlotType::Backpack => Visibility::BACKPACK,
+            SlotType::Chest => Visibility::CHEST,
+            SlotType::Shoes => Visibility::SHOES,
+            SlotType::Gloves => Visibility::GLOVES,
+            SlotType::Head => Visibility::HEAD,
+            SlotType::Legs => Visibility::LEGS,
+            SlotType::Shoulders => Visibility::SHOULDERS,
+            SlotType::Outfit => Visibility::OUTFIT,
+            SlotType::WeaponAquaticA => Visibility::WEAPON_AQUATIC_A,
+            SlotType::WeaponAquaticB => Visibility::WEAPON_AQUATIC_B,
+            SlotType::WeaponA1 => Visibility::WEAPON_A1,
+            SlotType::WeaponA2 => Visibility::WEAPON_A2,
+            SlotType::WeaponB1 => Visibility::WEAPON_B1,
+            SlotType::WeaponB2 => Visibility::WEAPON_B2,
         }
     }
 }
 
-impl SkinVisibility {
+impl Visibility {
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, ChatLinkError> {
         if bytes.len() < 2 {
             return Err(ChatLinkError::TruncatedData(bytes.to_vec()));
         }
         let visibility_offset = bytes.len() - 2;
         let mut cursor = Cursor::new(&bytes[visibility_offset..]);
-        SkinVisibility::read(&mut cursor)
+        Visibility::read(&mut cursor)
     }
 
     pub fn read(cursor: &mut Cursor<&[u8]>) -> Result<Self, ChatLinkError> {
         let visibility_bytes = cursor.read_u16::<LittleEndian>()?;
-        SkinVisibility::from_bits(visibility_bytes).ok_or(ChatLinkError::InvalidVisibility(visibility_bytes))
+        Visibility::from_bits(visibility_bytes).ok_or(ChatLinkError::InvalidVisibility(visibility_bytes))
     }
 }
 
-impl TryFrom<&[u8]> for SkinVisibility {
+impl TryFrom<&[u8]> for Visibility {
     type Error = ChatLinkError;
 
     fn try_from(bytes: &[u8]) -> Result<Self, ChatLinkError> {

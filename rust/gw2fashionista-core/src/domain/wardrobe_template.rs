@@ -5,18 +5,20 @@ use strum::{EnumCount, IntoEnumIterator};
 use byteorder::{LittleEndian, WriteBytesExt};
 
 use super::error::ChatLinkError;
-use super::skin_type::{SkinType, SkinVisibility};
+use slot::{SlotType, Visibility};
 use super::skins::{SkinId, Dyes};
 
 const TEMPLATE_PAYLOAD_SIZE: usize = 96;
 
+pub mod slot;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct WardrobeTemplate {
-    slots: HashMap<SkinType, EquipmentSlot>
+    slots: HashMap<SlotType, EquipmentSlot>
 }
 
 impl WardrobeTemplate {
-    pub fn new(slots: HashMap<SkinType, EquipmentSlot>) -> Self {
+    pub fn new(slots: HashMap<SlotType, EquipmentSlot>) -> Self {
         WardrobeTemplate { slots }
     }
 
@@ -25,31 +27,31 @@ impl WardrobeTemplate {
             return Err(ChatLinkError::TruncatedData(bytes.to_vec()))
         }
 
-        let visibility = SkinVisibility::from_bytes(bytes)?;
+        let visibility = Visibility::from_bytes(bytes)?;
         let mut cursor = Cursor::new(bytes);
-        let mut slots = HashMap::with_capacity(SkinType::COUNT);
+        let mut slots = HashMap::with_capacity(SlotType::COUNT);
 
-        for skin_type in SkinType::iter() {
-            let slot = EquipmentSlot::read(&mut cursor, skin_type, visibility)?;
-            slots.insert(skin_type, slot);
+        for slot_type in SlotType::iter() {
+            let slot = EquipmentSlot::read(&mut cursor, slot_type, visibility)?;
+            slots.insert(slot_type, slot);
         }
 
         Ok(WardrobeTemplate{slots})
     }
 
-    pub fn get_slot(&self, skin_type: SkinType) -> Option<&EquipmentSlot> {
-        self.slots.get(&skin_type)
+    pub fn get_slot(&self, slot_type: SlotType) -> Option<&EquipmentSlot> {
+        self.slots.get(&slot_type)
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = (&SkinType, &EquipmentSlot)> {
+    pub fn iter(&self) -> impl Iterator<Item = (&SlotType, &EquipmentSlot)> {
         self.slots.iter()
     }
 
-    fn visibility(&self) -> SkinVisibility {
+    fn visibility(&self) -> Visibility {
         self.iter()
-            .filter(|(skin_type, slot)| skin_type.always_visible() || slot.is_visible())
-            .map(|(skin_type, _)| skin_type.visibility())
-            .fold(SkinVisibility::empty(), |acc, v| acc | v)
+            .filter(|(slot_type, slot)| slot_type.always_visible() || slot.is_visible())
+            .map(|(slot_type, _)| slot_type.visibility())
+            .fold(Visibility::empty(), |acc, v| acc | v)
     }
 
     pub fn serialize(&self) -> Result<Vec<u8>, std::io::Error> {
@@ -66,8 +68,8 @@ impl WardrobeTemplate {
 }
 
 impl IntoIterator for WardrobeTemplate {
-    type Item = (SkinType, EquipmentSlot);
-    type IntoIter = std::collections::hash_map::IntoIter<SkinType, EquipmentSlot>;
+    type Item = (SlotType, EquipmentSlot);
+    type IntoIter = std::collections::hash_map::IntoIter<SlotType, EquipmentSlot>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.slots.into_iter()
@@ -75,8 +77,8 @@ impl IntoIterator for WardrobeTemplate {
 }
 
 impl<'a> IntoIterator for &'a WardrobeTemplate {
-    type Item = (&'a SkinType, &'a EquipmentSlot);
-    type IntoIter = std::collections::hash_map::Iter<'a, SkinType, EquipmentSlot>;
+    type Item = (&'a SlotType, &'a EquipmentSlot);
+    type IntoIter = std::collections::hash_map::Iter<'a, SlotType, EquipmentSlot>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.slots.iter()
@@ -121,10 +123,10 @@ impl EquipmentSlot {
         }
     }
 
-    fn read(cursor: &mut Cursor<&[u8]>, skin_type: SkinType, visibility: SkinVisibility) -> Result<Self, std::io::Error> {
+    fn read(cursor: &mut Cursor<&[u8]>, slot_type: SlotType, visibility: Visibility) -> Result<Self, std::io::Error> {
         let skin = SkinId::from_cursor(cursor)?;
-        let visible =  visibility.contains(skin_type.visibility());
-        if skin_type.dyable() {
+        let visible =  visibility.contains(slot_type.visibility());
+        if slot_type.dyable() {
             let dyes = Dyes::from_cursor(cursor)?;
             Ok(Self::Dyable { skin, visible, dyes })
         } else {
