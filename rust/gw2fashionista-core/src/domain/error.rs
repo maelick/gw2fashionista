@@ -1,4 +1,4 @@
-use super::link_type::ChatLinkType;
+use crate::domain::link_type::ChatLinkType;
 
 #[derive(Debug, thiserror::Error)]
 pub enum ChatLinkError {
