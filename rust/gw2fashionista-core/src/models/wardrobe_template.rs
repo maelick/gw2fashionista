@@ -11,20 +11,35 @@ use crate::domain::wardrobe_template::slot::SlotType;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WardrobeTemplateData {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub aquabreather: Option<Skin>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub backpack: Option<DyableSkin>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub chest: Option<DyableSkin>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub shoes: Option<DyableSkin>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub gloves: Option<DyableSkin>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub head: Option<DyableSkin>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub legs: Option<DyableSkin>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub shoulders: Option<DyableSkin>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub outfit: Option<DyableSkin>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub weapon_aquatic_a: Option<Skin>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub weapon_aquatic_b: Option<Skin>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub weapon_a1: Option<Skin>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub weapon_a2: Option<Skin>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub weapon_b1: Option<Skin>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub weapon_b2: Option<Skin>,
 }
 

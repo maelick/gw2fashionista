@@ -7,6 +7,7 @@ pub struct Skin {
     pub id: u16,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub visible: Option<bool>,
 }
 
@@ -16,6 +17,7 @@ pub struct DyableSkin {
     pub dyes: (u16, u16, u16, u16),
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub visible: Option<bool>,
 }
 
