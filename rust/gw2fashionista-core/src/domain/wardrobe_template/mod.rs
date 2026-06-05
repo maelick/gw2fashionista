@@ -1,3 +1,4 @@
+use std::fmt;
 use std::io::Cursor;
 use std::collections::HashMap;
 
@@ -11,7 +12,7 @@ const TEMPLATE_PAYLOAD_SIZE: usize = 96;
 
 pub mod slot;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct WardrobeTemplate {
     slots: [EquipmentSlot; SlotType::COUNT],
 }
@@ -99,5 +100,13 @@ impl TryFrom<&WardrobeTemplate> for Vec<u8> {
 
     fn try_from(template: &WardrobeTemplate) -> Result<Self, std::io::Error> {
         template.serialize()
+    }
+}
+
+impl fmt::Debug for WardrobeTemplate {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_map()
+            .entries(SlotType::iter().map(|slot| (slot, self.get_slot(&slot))))
+            .finish()
     }
 }
