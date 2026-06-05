@@ -39,12 +39,14 @@ impl WardrobeTemplate {
         Ok(WardrobeTemplate{slots})
     }
 
-    pub fn get_slot(&self, slot_type: SlotType) -> Option<&EquipmentSlot> {
-        self.slots.get(&slot_type)
+    pub fn get_slot(&self, slot_type: &SlotType) -> Option<&EquipmentSlot> {
+        self.slots.get(slot_type)
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = (&SlotType, &EquipmentSlot)> {
-        self.slots.iter()
+    pub fn iter(&self) -> impl Iterator<Item = (SlotType, &EquipmentSlot)> {
+        SlotType::iter().map(|slot_type| {
+            (slot_type, self.get_slot(&slot_type).unwrap())
+        })
     }
 
     fn visibility(&self) -> Visibility {
@@ -67,21 +69,12 @@ impl WardrobeTemplate {
     }
 }
 
-impl IntoIterator for WardrobeTemplate {
-    type Item = (SlotType, EquipmentSlot);
-    type IntoIter = std::collections::hash_map::IntoIter<SlotType, EquipmentSlot>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.slots.into_iter()
-    }
-}
-
 impl<'a> IntoIterator for &'a WardrobeTemplate {
-    type Item = (&'a SlotType, &'a EquipmentSlot);
-    type IntoIter = std::collections::hash_map::Iter<'a, SlotType, EquipmentSlot>;
+    type Item = (SlotType, &'a EquipmentSlot);
+    type IntoIter = Box<dyn Iterator<Item = (SlotType, &'a EquipmentSlot)> + 'a>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.slots.iter()
+        Box::new(self.iter())
     }
 }
 
