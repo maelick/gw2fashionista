@@ -27,6 +27,12 @@ impl From<SkinId> for u16 {
     }
 }
 
+impl Default for SkinId {
+    fn default() -> Self {
+        SkinId(0)
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DyeId(u16);
 
@@ -52,6 +58,12 @@ impl From<DyeId> for u16 {
     }
 }
 
+impl Default for DyeId {
+    fn default() -> Self {
+        DyeId(1)
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Dyes(DyeId, DyeId, DyeId, DyeId);
 
@@ -67,6 +79,12 @@ impl Dyes {
             DyeId::from_cursor(cursor)?,
             DyeId::from_cursor(cursor)?,
         ))
+    }
+}
+
+impl Default for Dyes {
+    fn default() -> Self {
+        Dyes(DyeId::default(), DyeId::default(), DyeId::default(), DyeId::default())
     }
 }
 

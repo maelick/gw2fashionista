@@ -108,6 +108,14 @@ pub enum EquipmentSlot {
 }
 
 impl EquipmentSlot {
+    pub fn empty(slot_type: SlotType) -> Self {
+        if slot_type.dyable() {
+            Self::Dyable { skin: SkinId::default(), visible: true, dyes: Dyes::default() }
+        } else {
+            Self::NonDyable { skin: SkinId::default(), visible: true }
+        }
+    }
+
     pub fn is_visible(self) -> bool {
         match self {
             EquipmentSlot::NonDyable { skin: _, visible } | EquipmentSlot::Dyable { skin: _, visible, dyes: _ } => {
