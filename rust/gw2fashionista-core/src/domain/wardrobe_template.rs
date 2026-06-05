@@ -30,7 +30,7 @@ impl WardrobeTemplate {
         let mut slots = HashMap::with_capacity(SkinType::COUNT);
 
         for skin_type in SkinType::iter() {
-            let slot = EquipmentSlot::from_cursor(&mut cursor, skin_type, visibility)?;
+            let slot = EquipmentSlot::read(&mut cursor, skin_type, visibility)?;
             slots.insert(skin_type, slot);
         }
 
@@ -121,7 +121,7 @@ impl EquipmentSlot {
         }
     }
 
-    fn from_cursor(cursor: &mut Cursor<&[u8]>, skin_type: SkinType, visibility: SkinVisibility) -> Result<Self, std::io::Error> {
+    fn read(cursor: &mut Cursor<&[u8]>, skin_type: SkinType, visibility: SkinVisibility) -> Result<Self, std::io::Error> {
         let skin = SkinId::from_cursor(cursor)?;
         let visible =  visibility.contains(skin_type.visibility());
         if skin_type.dyable() {
