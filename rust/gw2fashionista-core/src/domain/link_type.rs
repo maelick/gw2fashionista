@@ -2,7 +2,7 @@ use num_enum::{IntoPrimitive, TryFromPrimitive};
 
 use super::error::ChatLinkError;
 
-#[derive(IntoPrimitive, TryFromPrimitive, Debug)]
+#[derive(IntoPrimitive, TryFromPrimitive, Debug, Copy, Clone)]
 #[num_enum(error_type(name = ChatLinkError, constructor = ChatLinkError::UnknownType))]
 #[repr(u8)]
 pub enum ChatLinkType {

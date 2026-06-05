@@ -32,18 +32,81 @@ pub enum ChatLink {
     WardrobeTemplate(WardrobeTemplate),
 }
 
+impl ChatLink {
+    pub fn from_string(raw_chat_link: &str) -> Result<Self, ChatLinkError> {
+        let serialized = SerializedChatLink::try_from(raw_chat_link)?;
+        Self::from_serialized(&serialized)
+    }
+
+    pub fn from_serialized(serialized: &SerializedChatLink) -> Result<Self, ChatLinkError> {
+        match serialized.link_type {
+            ChatLinkType::WardrobeTemplate => {
+                let template = WardrobeTemplate::try_from(serialized.bytes.as_slice())?;
+                Ok(Self::WardrobeTemplate(template))
+            }
+            _ => Err(ChatLinkError::UnsupportedType(serialized.link_type)),
+        }
+    }
+    
+    pub fn to_string(&self) -> Result<String, ChatLinkError> {
+        let serialized = SerializedChatLink::from_chat_link(self)?;
+        Ok(serialized.to_string())
+    }
+}
+
 #[derive(Debug)]
 pub struct SerializedChatLink {
     link_type: ChatLinkType,
     bytes: Vec<u8>,
 }
 
+impl SerializedChatLink {
+    pub fn new(link_type: ChatLinkType, bytes: Vec<u8>) -> Self {
+        return SerializedChatLink { link_type, bytes }
+    }
+
+    pub fn from_chat_link(chat_link: &ChatLink) -> Result<Self, ChatLinkError> {
+        match chat_link {
+            ChatLink::WardrobeTemplate(template) => {
+                let bytes = template.serialize()?;
+                return Ok(Self::new(ChatLinkType::WardrobeTemplate, bytes))
+            }
+            _ => Err(ChatLinkError::NotImplemented),
+        }
+    }
+
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, ChatLinkError> {
+        let (header, payload) = bytes
+            .split_first()
+            .ok_or(ChatLinkError::EmptyPayload)?;
+        let link_type = ChatLinkType::try_from(*header)?;
+        Ok(Self::new(link_type, payload.to_vec()))
+    }
+
+    pub fn from_string(raw_chat_link: &str) -> Result<Self, ChatLinkError> {
+        let caps = CHAT_LINK_REGEX.captures(raw_chat_link).ok_or(ChatLinkError::InvalidString)?;
+        let base64_str = caps.get(1).ok_or(ChatLinkError::InvalidString)?.as_str();
+        let decoded = base64::engine::general_purpose::STANDARD.decode(base64_str)?;
+        Self::from_bytes(decoded.as_slice())
+    }
+
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::with_capacity(self.bytes.len() + 1);
+        bytes.push(self.link_type.into());
+        bytes.extend_from_slice(&self.bytes);
+        bytes
+    }
+
+    pub fn to_string(&self) -> String {
+        base64::engine::general_purpose::STANDARD.encode::<Vec<u8>>(self.to_bytes())
+    }
+}
+
 impl TryFrom<&str> for ChatLink {
     type Error = ChatLinkError;
 
     fn try_from(raw_chat_link: &str) -> Result<Self, ChatLinkError> {
-        let serialized = SerializedChatLink::try_from(raw_chat_link)?;
-        serialized.try_into()
+        Self::from_string(raw_chat_link)
     }
 }
 
@@ -51,8 +114,7 @@ impl TryFrom<&ChatLink> for String {
     type Error = ChatLinkError;
 
     fn try_from(chat_link: &ChatLink) -> Result<Self, ChatLinkError> {
-        let serialized = SerializedChatLink::try_from(chat_link)?;
-        Ok(serialized.into())
+        chat_link.to_string()
     }
 }
 
@@ -60,19 +122,7 @@ impl TryFrom<SerializedChatLink> for ChatLink {
     type Error = ChatLinkError;
 
     fn try_from(serialized: SerializedChatLink) -> Result<Self, ChatLinkError> {
-        match serialized.link_type {
-            ChatLinkType::WardrobeTemplate => {
-                let template = WardrobeTemplate::try_from(serialized.bytes.as_slice())?;
-                Ok(ChatLink::WardrobeTemplate(template))
-            }
-            _ => Err(ChatLinkError::UnsupportedType(serialized.link_type)),
-        }
-    }
-}
-
-impl SerializedChatLink {
-    pub fn new(link_type: ChatLinkType, bytes: Vec<u8>) -> Self {
-        return SerializedChatLink { link_type, bytes }
+        Self::from_serialized(&serialized)
     }
 }
 
@@ -80,13 +130,7 @@ impl TryFrom<&ChatLink> for SerializedChatLink {
     type Error = ChatLinkError;
 
     fn try_from(chat_link: &ChatLink) -> Result<Self, ChatLinkError> {
-        match chat_link {
-            ChatLink::WardrobeTemplate(template) => {
-                let bytes = template.try_into()?;
-                return Ok(SerializedChatLink::new(ChatLinkType::WardrobeTemplate, bytes))
-            }
-            _ => Err(ChatLinkError::NotImplemented),
-        }
+        Self::from_chat_link(chat_link)
     }
 }
 
@@ -94,11 +138,7 @@ impl TryFrom<&[u8]> for SerializedChatLink {
     type Error = ChatLinkError;
 
     fn try_from(bytes: &[u8]) -> Result<Self, ChatLinkError> {
-        let (header, payload) = bytes
-            .split_first()
-            .ok_or(ChatLinkError::EmptyPayload)?;
-        let link_type = ChatLinkType::try_from(*header)?;
-        Ok(SerializedChatLink::new(link_type, payload.to_vec()))
+        Self::from_bytes(bytes)
     }
 }
 
@@ -106,24 +146,18 @@ impl TryFrom<&str> for SerializedChatLink {
     type Error = ChatLinkError;
 
     fn try_from(raw_chat_link: &str) -> Result<Self, ChatLinkError> {
-        let caps = CHAT_LINK_REGEX.captures(raw_chat_link).ok_or(ChatLinkError::InvalidString)?;
-        let base64_str = caps.get(1).ok_or(ChatLinkError::InvalidString)?.as_str();
-        let decoded = base64::engine::general_purpose::STANDARD.decode(base64_str)?;
-        decoded.as_slice().try_into()
+        Self::from_string(raw_chat_link)
     }
 }
 
 impl From<SerializedChatLink> for Vec<u8> {
     fn from(chat_link: SerializedChatLink) -> Self {
-        let mut bytes = Vec::with_capacity(chat_link.bytes.len() + 1);
-        bytes.push(chat_link.link_type.into());
-        bytes.extend_from_slice(&chat_link.bytes);
-        bytes
+        chat_link.to_bytes()
     }
 }
 
 impl From<SerializedChatLink> for String {
     fn from(chat_link: SerializedChatLink) -> Self {
-        base64::engine::general_purpose::STANDARD.encode::<Vec<u8>>(chat_link.into())
+        chat_link.to_string()
     }
 }

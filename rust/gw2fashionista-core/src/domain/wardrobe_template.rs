@@ -20,6 +20,23 @@ impl WardrobeTemplate {
         WardrobeTemplate { slots }
     }
 
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, ChatLinkError> {
+        if bytes.len() != TEMPLATE_PAYLOAD_SIZE {
+            return Err(ChatLinkError::TruncatedData(bytes.to_vec()))
+        }
+
+        let visibility = SkinVisibility::try_from(bytes)?;
+        let mut cursor = Cursor::new(bytes);
+        let mut slots = HashMap::with_capacity(SkinType::COUNT);
+
+        for skin_type in SkinType::iter() {
+            let slot = EquipmentSlot::from_cursor(&mut cursor, skin_type, visibility)?;
+            slots.insert(skin_type, slot);
+        }
+
+        Ok(WardrobeTemplate{slots})
+    }
+
     pub fn get_slot(&self, skin_type: SkinType) -> Option<&EquipmentSlot> {
         self.slots.get(&skin_type)
     }
@@ -33,6 +50,18 @@ impl WardrobeTemplate {
             .filter(|(skin_type, slot)| skin_type.always_visible() || slot.is_visible())
             .map(|(skin_type, _)| skin_type.visibility())
             .fold(SkinVisibility::empty(), |acc, v| acc | v)
+    }
+
+    pub fn serialize(&self) -> Result<Vec<u8>, std::io::Error> {
+        let mut buffer = Vec::with_capacity(TEMPLATE_PAYLOAD_SIZE);
+
+        for (_, slot) in self {
+            slot.serialize(&mut buffer)?;
+        }
+
+        let visibility = self.visibility();
+        buffer.write_u16::<LittleEndian>(visibility.bits())?;
+        Ok(buffer)
     }
 }
 
@@ -58,20 +87,7 @@ impl TryFrom<&[u8]> for WardrobeTemplate {
     type Error = ChatLinkError;
 
     fn try_from(bytes: &[u8]) -> Result<Self, ChatLinkError> {
-        if bytes.len() != TEMPLATE_PAYLOAD_SIZE {
-            return Err(ChatLinkError::TruncatedData(bytes.to_vec()))
-        }
-
-        let visibility = SkinVisibility::try_from(bytes)?;
-        let mut cursor = Cursor::new(bytes);
-        let mut slots = HashMap::with_capacity(SkinType::COUNT);
-
-        for skin_type in SkinType::iter() {
-            let slot = EquipmentSlot::from_cursor(&mut cursor, skin_type, visibility)?;
-            slots.insert(skin_type, slot);
-        }
-
-        Ok(WardrobeTemplate{slots})
+        Self::from_bytes(bytes)
     }
 }
 
@@ -79,15 +95,7 @@ impl TryFrom<&WardrobeTemplate> for Vec<u8> {
     type Error = std::io::Error;
 
     fn try_from(template: &WardrobeTemplate) -> Result<Self, std::io::Error> {
-        let mut buffer = Vec::with_capacity(TEMPLATE_PAYLOAD_SIZE);
-
-        for (_, slot) in template {
-            slot.serialize(&mut buffer)?;
-        }
-
-        let visibility = template.visibility();
-        buffer.write_u16::<LittleEndian>(visibility.bits())?;
-        Ok(buffer)
+        template.serialize()
     }
 }
 
