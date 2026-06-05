@@ -76,28 +76,28 @@ use strum::IntoEnumIterator;
         }).collect();
         let expected_template = WardrobeTemplate::new(expected_slots);
         
-        let result = ChatLink::try_from(raw);
-        assert_matches!(&result, Ok(ChatLink::WardrobeTemplate(actual)) if actual == &expected_template);
+        let result = &ChatLink::try_from(raw).unwrap();
+        assert_matches!(result, ChatLink::WardrobeTemplate(actual) if actual == &expected_template);
 
         let raw_with_brackets = format!("[&{}]", raw);
         let result_with_brackets = ChatLink::try_from(raw_with_brackets.as_str());
 
         assert_matches!(&result_with_brackets, Ok(ChatLink::WardrobeTemplate(actual)) if actual == &expected_template);
 
-        let actual_encoded: String = result.unwrap().try_into().unwrap();
+        let actual_encoded: String = result.try_into().unwrap();
         assert_eq!(actual_encoded, raw);
     }
 
     #[test]
     fn test_parse_zizi() {
         let raw = ZIZI_TEMPLATE;
-        let result = ChatLink::try_from(raw);
+        let result = &ChatLink::try_from(raw).unwrap();
 
-        let Ok(ChatLink::WardrobeTemplate(actual)) = result else {
+        let ChatLink::WardrobeTemplate(actual) = result else {
            panic!("Expected WardrobeTemplate, got {result:?}");
         };
 
-        for (skin_type, slot) in &actual {
+        for (skin_type, slot) in actual {
             match slot {
                 EquipmentSlot::NonDyable{ skin, visible } => {
                     match skin_type {
@@ -139,20 +139,20 @@ use strum::IntoEnumIterator;
             }
         }
 
-        let actual_encoded: String = ChatLink::WardrobeTemplate(actual).try_into().unwrap();
+        let actual_encoded: String = result.try_into().unwrap();
         assert_eq!(actual_encoded, raw);
     }
 
     #[test]
     fn test_parse_zizi_armor_only() {
         let raw = ZIZI_ARMOR_TEMPLATE;
-        let result = ChatLink::try_from(raw);
+        let result = &ChatLink::try_from(raw).unwrap();
 
-        let Ok(ChatLink::WardrobeTemplate(actual)) = result else {
+        let ChatLink::WardrobeTemplate(actual) = result else {
            panic!("Expected WardrobeTemplate, got {result:?}");
         };
 
-        for (skin_type, slot) in &actual {
+        for (skin_type, slot) in actual {
             match slot {
                 EquipmentSlot::NonDyable{ skin, visible } => {
                     match skin_type {
@@ -186,7 +186,7 @@ use strum::IntoEnumIterator;
             }
         }
 
-        let actual_encoded: String = ChatLink::WardrobeTemplate(actual).try_into().unwrap();
+        let actual_encoded: String = result.try_into().unwrap();
         assert_eq!(actual_encoded, raw);
     }
 

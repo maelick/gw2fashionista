@@ -47,10 +47,10 @@ impl TryFrom<&str> for ChatLink {
     }
 }
 
-impl TryFrom<ChatLink> for String {
+impl TryFrom<&ChatLink> for String {
     type Error = ChatLinkError;
 
-    fn try_from(chat_link: ChatLink) -> Result<Self, ChatLinkError> {
+    fn try_from(chat_link: &ChatLink) -> Result<Self, ChatLinkError> {
         let serialized = SerializedChatLink::try_from(chat_link)?;
         Ok(serialized.into())
     }
@@ -76,10 +76,10 @@ impl SerializedChatLink {
     }
 }
 
-impl TryFrom<ChatLink> for SerializedChatLink {
+impl TryFrom<&ChatLink> for SerializedChatLink {
     type Error = ChatLinkError;
 
-    fn try_from(chat_link: ChatLink) -> Result<Self, ChatLinkError> {
+    fn try_from(chat_link: &ChatLink) -> Result<Self, ChatLinkError> {
         match chat_link {
             ChatLink::WardrobeTemplate(template) => {
                 let bytes = template.try_into()?;

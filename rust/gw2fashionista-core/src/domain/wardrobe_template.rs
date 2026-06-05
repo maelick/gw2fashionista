@@ -75,13 +75,13 @@ impl TryFrom<&[u8]> for WardrobeTemplate {
     }
 }
 
-impl TryFrom<WardrobeTemplate> for Vec<u8> {
+impl TryFrom<&WardrobeTemplate> for Vec<u8> {
     type Error = std::io::Error;
 
-    fn try_from(template: WardrobeTemplate) -> Result<Self, std::io::Error> {
+    fn try_from(template: &WardrobeTemplate) -> Result<Self, std::io::Error> {
         let mut buffer = Vec::with_capacity(TEMPLATE_PAYLOAD_SIZE);
 
-        for (_, slot) in &template {
+        for (_, slot) in template {
             slot.serialize(&mut buffer)?;
         }
 
@@ -124,14 +124,14 @@ impl EquipmentSlot {
         }
     }
 
-    fn serialize(self, buffer: &mut Vec<u8>) -> Result<(), std::io::Error> {
+    fn serialize(&self, buffer: &mut dyn std::io::Write) -> Result<(), std::io::Error> {
         match self {
             EquipmentSlot::NonDyable { skin, visible: _ } => {
-                buffer.write_u16::<LittleEndian>(skin.into())?;
+                buffer.write_u16::<LittleEndian>((*skin).into())?;
             },
             EquipmentSlot::Dyable { skin, visible: _, dyes } => {
-                let (dye1, dye2, dye3, dye4) = dyes.into();
-                buffer.write_u16::<LittleEndian>(skin.into())?;
+                let (dye1, dye2, dye3, dye4) = (*dyes).into();
+                buffer.write_u16::<LittleEndian>((*skin).into())?;
                 buffer.write_u16::<LittleEndian>(dye1)?;
                 buffer.write_u16::<LittleEndian>(dye2)?;
                 buffer.write_u16::<LittleEndian>(dye3)?;
