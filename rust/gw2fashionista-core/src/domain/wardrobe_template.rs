@@ -2,10 +2,13 @@ use std::io::Cursor;
 use std::collections::HashMap;
 
 use strum::{EnumCount, IntoEnumIterator};
+use byteorder::{LittleEndian, WriteBytesExt};
 
 use super::error::ChatLinkError;
 use super::skin_type::{SkinType, SkinVisibility};
 use super::skins::{SkinId, Dyes};
+
+const TEMPLATE_PAYLOAD_SIZE: usize = 96;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct WardrobeTemplate {
@@ -21,8 +24,15 @@ impl WardrobeTemplate {
         self.slots.get(&skin_type)
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = &EquipmentSlot> {
-        self.slots.values()
+    pub fn iter(&self) -> impl Iterator<Item = (&SkinType, &EquipmentSlot)> {
+        self.slots.iter()
+    }
+
+    fn visibility(&self) -> SkinVisibility {
+        self.iter()
+            .filter(|(skin_type, slot)| skin_type.always_visible() || slot.is_visible())
+            .map(|(skin_type, _)| skin_type.visibility())
+            .fold(SkinVisibility::empty(), |acc, v| acc | v)
     }
 }
 
@@ -48,7 +58,7 @@ impl TryFrom<&[u8]> for WardrobeTemplate {
     type Error = ChatLinkError;
 
     fn try_from(bytes: &[u8]) -> Result<Self, ChatLinkError> {
-        if bytes.len() != 96 {
+        if bytes.len() != TEMPLATE_PAYLOAD_SIZE {
             return Err(ChatLinkError::TruncatedData(bytes.to_vec()))
         }
 
@@ -65,9 +75,19 @@ impl TryFrom<&[u8]> for WardrobeTemplate {
     }
 }
 
-impl From<WardrobeTemplate> for Vec<u8> {
-    fn from(_: WardrobeTemplate) -> Vec<u8> {
-        return Vec::new() // TODO implement
+impl TryFrom<WardrobeTemplate> for Vec<u8> {
+    type Error = std::io::Error;
+
+    fn try_from(template: WardrobeTemplate) -> Result<Self, std::io::Error> {
+        let mut buffer = Vec::with_capacity(TEMPLATE_PAYLOAD_SIZE);
+
+        for (_, slot) in &template {
+            slot.serialize(&mut buffer)?;
+        }
+
+        let visibility = template.visibility();
+        buffer.write_u16::<LittleEndian>(visibility.bits())?;
+        Ok(buffer)
     }
 }
 
@@ -85,6 +105,14 @@ pub enum EquipmentSlot {
 }
 
 impl EquipmentSlot {
+    pub fn is_visible(self) -> bool {
+        match self {
+            EquipmentSlot::NonDyable { skin: _, visible } | EquipmentSlot::Dyable { skin: _, visible, dyes: _ } => {
+                visible
+            }
+        }
+    }
+
     fn from_cursor(cursor: &mut Cursor<&[u8]>, skin_type: SkinType, visibility: SkinVisibility) -> Result<Self, std::io::Error> {
         let skin = SkinId::from_cursor(cursor)?;
         let visible =  visibility.contains(skin_type.visibility());
@@ -94,5 +122,22 @@ impl EquipmentSlot {
         } else {
             Ok(Self::NonDyable { skin, visible })
         }
+    }
+
+    fn serialize(self, buffer: &mut Vec<u8>) -> Result<(), std::io::Error> {
+        match self {
+            EquipmentSlot::NonDyable { skin, visible: _ } => {
+                buffer.write_u16::<LittleEndian>(skin.into())?;
+            },
+            EquipmentSlot::Dyable { skin, visible: _, dyes } => {
+                let (dye1, dye2, dye3, dye4) = dyes.into();
+                buffer.write_u16::<LittleEndian>(skin.into())?;
+                buffer.write_u16::<LittleEndian>(dye1)?;
+                buffer.write_u16::<LittleEndian>(dye2)?;
+                buffer.write_u16::<LittleEndian>(dye3)?;
+                buffer.write_u16::<LittleEndian>(dye4)?;
+            },
+        }
+        Ok(())
     }
 }

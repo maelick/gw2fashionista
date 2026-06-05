@@ -77,12 +77,15 @@ use strum::IntoEnumIterator;
         let expected_template = WardrobeTemplate::new(expected_slots);
         
         let result = ChatLink::try_from(raw);
-        assert_matches!(result, Ok(ChatLink::WardrobeTemplate(actual)) if actual == expected_template);
+        assert_matches!(&result, Ok(ChatLink::WardrobeTemplate(actual)) if actual == &expected_template);
 
         let raw_with_brackets = format!("[&{}]", raw);
         let result_with_brackets = ChatLink::try_from(raw_with_brackets.as_str());
 
-        assert_matches!(result_with_brackets, Ok(ChatLink::WardrobeTemplate(actual)) if actual == expected_template);
+        assert_matches!(&result_with_brackets, Ok(ChatLink::WardrobeTemplate(actual)) if actual == &expected_template);
+
+        let actual_encoded: String = result.unwrap().try_into().unwrap();
+        assert_eq!(actual_encoded, raw);
     }
 
     #[test]
@@ -94,20 +97,20 @@ use strum::IntoEnumIterator;
            panic!("Expected WardrobeTemplate, got {result:?}");
         };
 
-        for (skin_type, slot) in actual {
+        for (skin_type, slot) in &actual {
             match slot {
                 EquipmentSlot::NonDyable{ skin, visible } => {
                     match skin_type {
                         SkinType::WeaponB2 => {
-                            assert_eq!(skin, 0.into(), "Expected unset skin_id for {skin:?}");
+                            assert_eq!(skin, &0.into(), "Expected unset skin_id for {skin:?}");
                             assert!(visible, "Expected skin to be visible for {skin:?}");
                         },
                         SkinType::Aquabreather => {
-                            assert_ne!(skin, 0.into(), "Expected skin_id set for {skin:?}");
+                            assert_ne!(skin, &0.into(), "Expected skin_id set for {skin:?}");
                             assert!(!visible, "Expected skin to not be visible for {skin:?}");
                         },
                         SkinType::WeaponAquaticA | SkinType::WeaponAquaticB | SkinType::WeaponA1 | SkinType::WeaponA2 | SkinType::WeaponB1 => {
-                            assert_ne!(skin, 0.into(), "Expected skin_id set for {skin:?}");
+                            assert_ne!(skin, &0.into(), "Expected skin_id set for {skin:?}");
                             assert!(visible, "Expected skin to be visible for {skin:?}");
                         },
                         _ => panic!("Dyable skin should not be non-dyable {skin:?}")
@@ -116,25 +119,28 @@ use strum::IntoEnumIterator;
                 EquipmentSlot::Dyable{ skin, visible, dyes } => {
                     match skin_type {
                         SkinType::Outfit => {
-                            assert_ne!(skin, 0.into(), "Expected skin_id set for {skin:?}");
+                            assert_ne!(skin, &0.into(), "Expected skin_id set for {skin:?}");
                             assert!(!visible, "Expected skin to not be visible for {skin:?}");
-                            assert_eq!(dyes, (1, 1, 1, 1).into(), "Expected unset dyes for {skin:?}");
+                            assert_eq!(dyes, &(1, 1, 1, 1).into(), "Expected unset dyes for {skin:?}");
                         },
                         SkinType::Backpack => {
-                            assert_ne!(skin, 0.into(), "Expected skin_id set for {skin:?}");
+                            assert_ne!(skin, &0.into(), "Expected skin_id set for {skin:?}");
                             assert!(visible, "Expected skin to be visible for {skin:?}");
-                            assert_eq!(dyes, (1, 1, 1, 1).into(), "Expected unset dyes for {skin:?}");
+                            assert_eq!(dyes, &(1, 1, 1, 1).into(), "Expected unset dyes for {skin:?}");
                         },
                         SkinType::Chest | SkinType::Shoes | SkinType::Gloves | SkinType::Head | SkinType::Legs | SkinType::Shoulders => {
-                            assert_ne!(skin, 0.into(), "Expected skin_id set for {skin:?}");
+                            assert_ne!(skin, &0.into(), "Expected skin_id set for {skin:?}");
                             assert!(visible, "Expected skin to be visible for {skin:?}");
-                            assert_ne!(dyes, (1, 1, 1, 1).into(), "Expected dyes set for {skin:?}");
+                            assert_ne!(dyes, &(1, 1, 1, 1).into(), "Expected dyes set for {skin:?}");
                         },
                         _ => panic!("Skin should not be dyable {skin:?}")
                     }
                 }
             }
         }
+
+        let actual_encoded: String = ChatLink::WardrobeTemplate(actual).try_into().unwrap();
+        assert_eq!(actual_encoded, raw);
     }
 
     #[test]
@@ -146,12 +152,12 @@ use strum::IntoEnumIterator;
            panic!("Expected WardrobeTemplate, got {result:?}");
         };
 
-        for (skin_type, slot) in actual {
+        for (skin_type, slot) in &actual {
             match slot {
                 EquipmentSlot::NonDyable{ skin, visible } => {
                     match skin_type {
                         SkinType::WeaponAquaticA | SkinType::WeaponAquaticB | SkinType::WeaponA1 | SkinType::WeaponA2 | SkinType::WeaponB1 | SkinType::WeaponB2 | SkinType::Aquabreather => {
-                            assert_eq!(skin, 0.into(), "Expected unset skin_id for {skin:?}");
+                            assert_eq!(skin, &0.into(), "Expected unset skin_id for {skin:?}");
                             assert!(visible, "Expected skin to be visible for {skin:?}");
                         },
                         _ => panic!("Dyable skin should not be non-dyable {skin:?}")
@@ -160,25 +166,28 @@ use strum::IntoEnumIterator;
                 EquipmentSlot::Dyable{ skin, visible, dyes } => {
                     match skin_type {
                         SkinType::Outfit => {
-                            assert_eq!(skin, 0.into(), "Expected unset skin_id for {skin:?}");
+                            assert_eq!(skin, &0.into(), "Expected unset skin_id for {skin:?}");
                             assert!(visible, "Expected skin to be visible for {skin:?}");
-                            assert_eq!(dyes, (1, 1, 1, 1).into(), "Expected unset dyes for {skin:?}");
+                            assert_eq!(dyes, &(1, 1, 1, 1).into(), "Expected unset dyes for {skin:?}");
                         },
                         SkinType::Backpack => {
-                            assert_ne!(skin, 0.into(), "Expected skin_id set for {skin:?}");
+                            assert_ne!(skin, &0.into(), "Expected skin_id set for {skin:?}");
                             assert!(visible, "Expected skin to be visible for {skin:?}");
-                            assert_eq!(dyes, (1, 1, 1, 1).into(), "Expected unset dyes for {skin:?}");
+                            assert_eq!(dyes, &(1, 1, 1, 1).into(), "Expected unset dyes for {skin:?}");
                         },
                         SkinType::Chest | SkinType::Shoes | SkinType::Gloves | SkinType::Head | SkinType::Legs | SkinType::Shoulders => {
-                            assert_ne!(skin, 0.into(), "Expected skin_id set for {skin:?}");
+                            assert_ne!(skin, &0.into(), "Expected skin_id set for {skin:?}");
                             assert!(visible, "Expected skin to be visible for {skin:?}");
-                            assert_ne!(dyes, (1, 1, 1, 1).into(), "Expected dyes set for {skin:?}");
+                            assert_ne!(dyes, &(1, 1, 1, 1).into(), "Expected dyes set for {skin:?}");
                         },
                         _ => panic!("Skin should not be dyable {skin:?}")
                     }
                 }
             }
         }
+
+        let actual_encoded: String = ChatLink::WardrobeTemplate(actual).try_into().unwrap();
+        assert_eq!(actual_encoded, raw);
     }
 
     fn empty_skin(skin_type: SkinType) -> EquipmentSlot {

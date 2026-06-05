@@ -82,7 +82,7 @@ impl TryFrom<ChatLink> for SerializedChatLink {
     fn try_from(chat_link: ChatLink) -> Result<Self, ChatLinkError> {
         match chat_link {
             ChatLink::WardrobeTemplate(template) => {
-                let bytes = template.into();
+                let bytes = template.try_into()?;
                 return Ok(SerializedChatLink::new(ChatLinkType::WardrobeTemplate, bytes))
             }
             _ => Err(ChatLinkError::NotImplemented),
