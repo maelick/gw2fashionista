@@ -4,7 +4,7 @@ use serde::{Serialize, Deserialize};
 use strum::EnumCount;
 
 use crate::domain::wardrobe_template::slot::EquipmentSlot;
-use crate::models::skin::{Skin, DyableSkin};
+use crate::models::skin::Skin;
 use crate::models::error::{ModelError, SlotVariant};
 use crate::domain::wardrobe_template::WardrobeTemplate;
 use crate::domain::wardrobe_template::slot::SlotType;
@@ -14,21 +14,21 @@ pub struct WardrobeTemplateData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub aquabreather: Option<Skin>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub backpack: Option<DyableSkin>,
+    pub backpack: Option<Skin>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub chest: Option<DyableSkin>,
+    pub chest: Option<Skin>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub shoes: Option<DyableSkin>,
+    pub shoes: Option<Skin>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub gloves: Option<DyableSkin>,
+    pub gloves: Option<Skin>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub head: Option<DyableSkin>,
+    pub head: Option<Skin>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub legs: Option<DyableSkin>,
+    pub legs: Option<Skin>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub shoulders: Option<DyableSkin>,
+    pub shoulders: Option<Skin>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub outfit: Option<DyableSkin>,
+    pub outfit: Option<Skin>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub weapon_aquatic_a: Option<Skin>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -98,18 +98,18 @@ fn skin_from_map(map: &HashMap<SlotType, EquipmentSlot>, slot_type: SlotType) ->
     let res = map.get(&slot_type);
     res.map_or(Ok(None), |slot| {
         match slot {
-            EquipmentSlot::NonDyable { skin, visible } => Ok(Some(Skin { id: (*skin).into(), name: None, visible: Some(*visible) })),
+            EquipmentSlot::NonDyable { skin, visible } => Ok(Some(Skin { id: (*skin).into(), name: None, dyes: None, visible: Some(*visible) })),
             EquipmentSlot::Dyable { skin: _, visible: _, dyes: _ } => Err(ModelError::IncorrectSlotVariant{ slot_type, expected: SlotVariant::Dyable, found: SlotVariant::NonDyable }),
         }
     })
 }
 
-fn dyable_skin_from_map(map: &HashMap<SlotType, EquipmentSlot>, slot_type: SlotType) -> Result<Option<DyableSkin>, ModelError> {
+fn dyable_skin_from_map(map: &HashMap<SlotType, EquipmentSlot>, slot_type: SlotType) -> Result<Option<Skin>, ModelError> {
     let res = map.get(&slot_type);
     res.map_or(Ok(None), |slot| {
         match slot {
             EquipmentSlot::NonDyable { skin: _, visible: _ } => Err(ModelError::IncorrectSlotVariant{ slot_type, expected: SlotVariant::NonDyable, found: SlotVariant::Dyable }),
-            EquipmentSlot::Dyable { skin, visible, dyes } => Ok(Some(DyableSkin { id: (*skin).into(), name: None, visible: Some(*visible), dyes: (*dyes).into() })),
+            EquipmentSlot::Dyable { skin, visible, dyes } => Ok(Some(Skin { id: (*skin).into(), name: None, dyes: Some((*dyes).into()) , visible: Some(*visible) })),
         }
     })
 }
@@ -120,7 +120,7 @@ fn insert_slot(slots: &mut HashMap<SlotType, EquipmentSlot>, skin: &Option<Skin>
     }
 }
 
-fn insert_dyable_slot(slots: &mut HashMap<SlotType, EquipmentSlot>, skin: &Option<DyableSkin>, slot_type: SlotType) {
+fn insert_dyable_slot(slots: &mut HashMap<SlotType, EquipmentSlot>, skin: &Option<Skin>, slot_type: SlotType) {
     if let Some(skin) = skin {
         slots.insert(slot_type, skin.into());
     }
