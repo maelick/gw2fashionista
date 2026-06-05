@@ -1,3 +1,4 @@
+use std::io;
 use clap::{Args};
 use gw2fashionista_core::domain::chatlink::ChatLink;
 
@@ -7,24 +8,44 @@ pub struct Command {
     chat_links: Vec<String>,
 }
 
+impl Command {
+    fn get_links(&self) -> anyhow::Result<Vec<String>> {
+        if self.chat_links.is_empty() {
+            Ok(self.read_links(io::stdin().lock())?)
+        } else {
+            Ok(self.chat_links.clone())
+        }
+    }
+
+    fn read_links<R: io::BufRead>(&self, reader: R) -> io::Result<Vec<String>> {
+        Ok(reader
+            .lines()
+            .collect::<io::Result<Vec<_>>>()?
+            .into_iter()
+            .filter(|l| !l.is_empty())
+            .collect()
+        )
+    }
+}
+
 impl super::Command for Command {
     fn name(&self) -> &str {
         return "read"
     }
 
     fn execute(&self) -> anyhow::Result<()> {
-        if self.chat_links.is_empty() {
-            Err(anyhow::anyhow!("reading from stdin not implemented"))
-        } else {
-            parse_and_print(&self.chat_links)
-        }
+        let links = self.get_links()?;
+        parse_and_print(&links)
     }
 }
 
 fn parse_and_print(chat_links: &Vec<String>) -> anyhow::Result<()> {
     for raw_link in chat_links {
-        let link = ChatLink::try_from(raw_link.as_str())?;
-        println!("{:?}", link);
+        print(ChatLink::try_from(raw_link.as_str())?);
     }
     Ok(())
+}
+
+fn print(link: ChatLink) {
+    println!("{:?}", link);
 }
