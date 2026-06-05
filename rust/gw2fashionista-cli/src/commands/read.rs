@@ -50,7 +50,7 @@ fn print(link: ChatLink) -> anyhow::Result<()> {
     match link {
         ChatLink::WardrobeTemplate(template) => {
             let data = WardrobeTemplateData::from(&template);
-            println!("{:?}", data);
+            serde_json::to_writer_pretty(io::stdout(), &data)?;
             Ok(())
         },
         _ => Err(ChatLinkError::NotImplemented.into())
