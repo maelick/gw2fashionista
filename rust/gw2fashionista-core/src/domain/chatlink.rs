@@ -1,6 +1,7 @@
 use regex::Regex;
 use once_cell::sync::Lazy;
 use base64::Engine;
+use base64::engine::general_purpose::STANDARD as BASE64;
 
 use super::error::ChatLinkError;
 use super::link_type::ChatLinkType;
@@ -86,7 +87,7 @@ impl SerializedChatLink {
     pub fn from_string(raw_chat_link: &str) -> Result<Self, ChatLinkError> {
         let caps = CHAT_LINK_REGEX.captures(raw_chat_link).ok_or(ChatLinkError::InvalidString)?;
         let base64_str = caps.get(1).ok_or(ChatLinkError::InvalidString)?.as_str();
-        let decoded = base64::engine::general_purpose::STANDARD.decode(base64_str)?;
+        let decoded = BASE64.decode(base64_str)?;
         Self::from_bytes(decoded.as_slice())
     }
 
@@ -98,7 +99,9 @@ impl SerializedChatLink {
     }
 
     pub fn to_string(&self) -> String {
-        base64::engine::general_purpose::STANDARD.encode::<Vec<u8>>(self.to_bytes())
+        let bytes = self.to_bytes();
+        let b64_encoded = BASE64.encode(bytes);
+        format!("[&{}]", b64_encoded)
     }
 }
 

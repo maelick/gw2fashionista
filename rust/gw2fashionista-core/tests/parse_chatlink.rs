@@ -80,18 +80,18 @@ use strum::IntoEnumIterator;
         assert_matches!(result, ChatLink::WardrobeTemplate(actual) if actual == &expected_template);
 
         let raw_with_brackets = format!("[&{}]", raw);
-        let result_with_brackets = ChatLink::try_from(raw_with_brackets.as_str());
+        let result_with_brackets = &ChatLink::try_from(raw_with_brackets.as_str()).unwrap();
 
-        assert_matches!(&result_with_brackets, Ok(ChatLink::WardrobeTemplate(actual)) if actual == &expected_template);
+        assert_matches!(result_with_brackets, ChatLink::WardrobeTemplate(actual) if actual == &expected_template);
 
-        let actual_encoded: String = result.try_into().unwrap();
-        assert_eq!(actual_encoded, raw);
+        let actual_encoded: String = result_with_brackets.try_into().unwrap();
+        assert_eq!(actual_encoded, raw_with_brackets);
     }
 
     #[test]
     fn test_parse_zizi() {
-        let raw = ZIZI_TEMPLATE;
-        let result = &ChatLink::try_from(raw).unwrap();
+        let raw = format!("[&{}]", ZIZI_TEMPLATE);
+        let result = &ChatLink::try_from(raw.as_str()).unwrap();
 
         let ChatLink::WardrobeTemplate(actual) = result else {
            panic!("Expected WardrobeTemplate, got {result:?}");
@@ -145,8 +145,8 @@ use strum::IntoEnumIterator;
 
     #[test]
     fn test_parse_zizi_armor_only() {
-        let raw = ZIZI_ARMOR_TEMPLATE;
-        let result = &ChatLink::try_from(raw).unwrap();
+        let raw = format!("[&{}]", ZIZI_ARMOR_TEMPLATE);
+        let result = &ChatLink::try_from(raw.as_str()).unwrap();
 
         let ChatLink::WardrobeTemplate(actual) = result else {
            panic!("Expected WardrobeTemplate, got {result:?}");
