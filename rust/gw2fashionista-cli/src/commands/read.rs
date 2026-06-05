@@ -1,6 +1,6 @@
 use std::io;
 use clap::{Args};
-use gw2fashionista_core::domain::chatlink::ChatLink;
+use gw2fashionista_core::{domain::{chatlink::ChatLink, error::ChatLinkError}, models::wardrobe_template::WardrobeTemplateData};
 
 #[derive(Args, Debug)]
 pub struct Command {
@@ -41,11 +41,18 @@ impl super::Command for Command {
 
 fn parse_and_print(chat_links: &Vec<String>) -> anyhow::Result<()> {
     for raw_link in chat_links {
-        print(ChatLink::try_from(raw_link.as_str())?);
+        print(ChatLink::try_from(raw_link.as_str())?)?;
     }
     Ok(())
 }
 
-fn print(link: ChatLink) {
-    println!("{:?}", link);
+fn print(link: ChatLink) -> anyhow::Result<()> {
+    match link {
+        ChatLink::WardrobeTemplate(template) => {
+            let data = WardrobeTemplateData::from(&template);
+            println!("{:?}", data);
+            Ok(())
+        },
+        _ => Err(ChatLinkError::NotImplemented.into())
+    }
 }
