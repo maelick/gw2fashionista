@@ -4,9 +4,8 @@ use std::collections::HashMap;
 use strum::{EnumCount, IntoEnumIterator};
 use byteorder::{LittleEndian, WriteBytesExt};
 
-use super::error::ChatLinkError;
-use slot::{SlotType, Visibility};
-use super::skins::{SkinId, Dyes};
+use crate::domain::error::ChatLinkError;
+use slot::{SlotType, Visibility, EquipmentSlot};
 
 const TEMPLATE_PAYLOAD_SIZE: usize = 96;
 
@@ -100,64 +99,5 @@ impl TryFrom<&WardrobeTemplate> for Vec<u8> {
 
     fn try_from(template: &WardrobeTemplate) -> Result<Self, std::io::Error> {
         template.serialize()
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum EquipmentSlot {
-    NonDyable {
-        skin: SkinId,
-        visible: bool,
-    },
-    Dyable {
-        skin: SkinId,
-        visible: bool,
-        dyes: Dyes,
-    },
-}
-
-impl EquipmentSlot {
-    pub fn empty(slot_type: SlotType) -> Self {
-        if slot_type.dyable() {
-            Self::Dyable { skin: SkinId::default(), visible: true, dyes: Dyes::default() }
-        } else {
-            Self::NonDyable { skin: SkinId::default(), visible: true }
-        }
-    }
-
-    pub fn is_visible(self) -> bool {
-        match self {
-            EquipmentSlot::NonDyable { skin: _, visible } | EquipmentSlot::Dyable { skin: _, visible, dyes: _ } => {
-                visible
-            }
-        }
-    }
-
-    fn read(cursor: &mut Cursor<&[u8]>, slot_type: SlotType, visibility: Visibility) -> Result<Self, std::io::Error> {
-        let skin = SkinId::from_cursor(cursor)?;
-        let visible =  visibility.contains(slot_type.visibility());
-        if slot_type.dyable() {
-            let dyes = Dyes::from_cursor(cursor)?;
-            Ok(Self::Dyable { skin, visible, dyes })
-        } else {
-            Ok(Self::NonDyable { skin, visible })
-        }
-    }
-
-    fn serialize(&self, buffer: &mut dyn std::io::Write) -> Result<(), std::io::Error> {
-        match self {
-            EquipmentSlot::NonDyable { skin, visible: _ } => {
-                buffer.write_u16::<LittleEndian>((*skin).into())?;
-            },
-            EquipmentSlot::Dyable { skin, visible: _, dyes } => {
-                let (dye1, dye2, dye3, dye4) = (*dyes).into();
-                buffer.write_u16::<LittleEndian>((*skin).into())?;
-                buffer.write_u16::<LittleEndian>(dye1)?;
-                buffer.write_u16::<LittleEndian>(dye2)?;
-                buffer.write_u16::<LittleEndian>(dye3)?;
-                buffer.write_u16::<LittleEndian>(dye4)?;
-            },
-        }
-        Ok(())
     }
 }

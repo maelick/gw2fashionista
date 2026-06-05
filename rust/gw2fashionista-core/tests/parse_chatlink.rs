@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use gw2fashionista_core::domain::{chatlink::ChatLink, error::ChatLinkError, wardrobe_template::{EquipmentSlot, WardrobeTemplate, slot::SlotType}};
+    use gw2fashionista_core::domain::{chatlink::ChatLink, error::ChatLinkError, wardrobe_template::{WardrobeTemplate, slot::{SlotType, EquipmentSlot}}};
 use strum::IntoEnumIterator;
     use std::assert_matches;
 

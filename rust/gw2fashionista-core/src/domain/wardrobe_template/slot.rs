@@ -2,9 +2,10 @@ use std::io::Cursor;
 
 use strum::{EnumCount, EnumIter};
 use bitflags::bitflags;
-use byteorder::{LittleEndian, ReadBytesExt};
+use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 
 use crate::domain::error::ChatLinkError;
+use crate::domain::skins::{SkinId, Dyes};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, EnumIter, EnumCount)]
 #[repr(u8)]
@@ -24,27 +25,6 @@ pub enum SlotType {
     WeaponA2,
     WeaponB1,
     WeaponB2,
-}
-
-bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-    pub struct Visibility: u16 {
-        const AQUABREATHER = 1 << 0;
-        const BACKPACK = 1 << 1;
-        const CHEST = 1 << 2;
-        const SHOES = 1 << 3;
-        const GLOVES = 1 << 4;
-        const HEAD = 1 << 5;
-        const LEGS = 1 << 6;
-        const SHOULDERS = 1 << 7;
-        const OUTFIT = 1 << 8;
-        const WEAPON_AQUATIC_A = 1 << 9;
-        const WEAPON_AQUATIC_B = 1 << 10;
-        const WEAPON_A1 = 1 << 11;
-        const WEAPON_A2 = 1 << 12;
-        const WEAPON_B1 = 1 << 13;
-        const WEAPON_B2 = 1 << 14;
-    }
 }
 
 impl SlotType {
@@ -98,6 +78,27 @@ impl SlotType {
     }
 }
 
+bitflags! {
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+    pub struct Visibility: u16 {
+        const AQUABREATHER = 1 << 0;
+        const BACKPACK = 1 << 1;
+        const CHEST = 1 << 2;
+        const SHOES = 1 << 3;
+        const GLOVES = 1 << 4;
+        const HEAD = 1 << 5;
+        const LEGS = 1 << 6;
+        const SHOULDERS = 1 << 7;
+        const OUTFIT = 1 << 8;
+        const WEAPON_AQUATIC_A = 1 << 9;
+        const WEAPON_AQUATIC_B = 1 << 10;
+        const WEAPON_A1 = 1 << 11;
+        const WEAPON_A2 = 1 << 12;
+        const WEAPON_B1 = 1 << 13;
+        const WEAPON_B2 = 1 << 14;
+    }
+}
+
 impl Visibility {
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, ChatLinkError> {
         if bytes.len() < 2 {
@@ -119,5 +120,64 @@ impl TryFrom<&[u8]> for Visibility {
 
     fn try_from(bytes: &[u8]) -> Result<Self, ChatLinkError> {
         Self::from_bytes(bytes)
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EquipmentSlot {
+    NonDyable {
+        skin: SkinId,
+        visible: bool,
+    },
+    Dyable {
+        skin: SkinId,
+        visible: bool,
+        dyes: Dyes,
+    },
+}
+
+impl EquipmentSlot {
+    pub fn empty(slot_type: SlotType) -> Self {
+        if slot_type.dyable() {
+            Self::Dyable { skin: SkinId::default(), visible: true, dyes: Dyes::default() }
+        } else {
+            Self::NonDyable { skin: SkinId::default(), visible: true }
+        }
+    }
+
+    pub fn is_visible(self) -> bool {
+        match self {
+            EquipmentSlot::NonDyable { skin: _, visible } | EquipmentSlot::Dyable { skin: _, visible, dyes: _ } => {
+                visible
+            }
+        }
+    }
+
+    pub fn read(cursor: &mut Cursor<&[u8]>, slot_type: SlotType, visibility: Visibility) -> Result<Self, std::io::Error> {
+        let skin = SkinId::from_cursor(cursor)?;
+        let visible =  visibility.contains(slot_type.visibility());
+        if slot_type.dyable() {
+            let dyes = Dyes::from_cursor(cursor)?;
+            Ok(Self::Dyable { skin, visible, dyes })
+        } else {
+            Ok(Self::NonDyable { skin, visible })
+        }
+    }
+
+    pub fn serialize(&self, buffer: &mut dyn std::io::Write) -> Result<(), std::io::Error> {
+        match self {
+            EquipmentSlot::NonDyable { skin, visible: _ } => {
+                buffer.write_u16::<LittleEndian>((*skin).into())?;
+            },
+            EquipmentSlot::Dyable { skin, visible: _, dyes } => {
+                let (dye1, dye2, dye3, dye4) = (*dyes).into();
+                buffer.write_u16::<LittleEndian>((*skin).into())?;
+                buffer.write_u16::<LittleEndian>(dye1)?;
+                buffer.write_u16::<LittleEndian>(dye2)?;
+                buffer.write_u16::<LittleEndian>(dye3)?;
+                buffer.write_u16::<LittleEndian>(dye4)?;
+            },
+        }
+        Ok(())
     }
 }
