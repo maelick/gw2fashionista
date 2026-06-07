@@ -25,7 +25,7 @@ pub struct Command {
     no_default_name: bool,
 
     #[command(flatten)]
-    filters: args::SkinFilters,
+    filters: args::EquipmentFilters,
 }
 
 impl super::Command for Command {

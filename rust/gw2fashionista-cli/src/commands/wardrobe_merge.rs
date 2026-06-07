@@ -14,7 +14,7 @@ pub struct Command {
     skin_dyes_only: args::SkinsOrDyes,
 
     #[command(flatten)]
-    filters: args::SkinFilters,
+    filters: args::EquipmentFilters,
 }
 
 impl super::Command for Command {

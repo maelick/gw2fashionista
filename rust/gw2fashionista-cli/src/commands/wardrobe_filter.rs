@@ -1,14 +1,15 @@
 use clap::{Args};
 
 use super::args;
+use gw2fashionista_core::domain::{chatlink::ChatLink, error::ChatLinkError};
 
 #[derive(Args, Debug)]
 pub struct Command {
-    /// Chat link of the fashion template to filter
-    fashion_template: String,
+    /// Chat link of the wardrobe template to filter
+    wardrobe_template: String,
 
     #[command(flatten)]
-    filters: args::SkinFilters,
+    filters: args::EquipmentFilters,
 }
 
 impl super::Command for Command {
@@ -17,6 +18,15 @@ impl super::Command for Command {
     }
 
     fn execute(&self) -> anyhow::Result<()> {
-        return Err(anyhow::anyhow!("not implemented"))
+        let link = ChatLink::try_from(self.wardrobe_template.as_str())?;
+        let template = match link {
+            ChatLink::WardrobeTemplate(wardrobe_template) => Ok(wardrobe_template),
+            _ => Err(ChatLinkError::NotImplemented),
+        }?;
+
+        let filter = (&self.filters).into();
+        let filtered = ChatLink::WardrobeTemplate(template.filter(&filter));
+        println!("{}", filtered.to_string()?);
+        Ok(())
     }
 }
