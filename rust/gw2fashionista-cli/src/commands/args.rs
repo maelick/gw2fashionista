@@ -47,8 +47,8 @@ impl From<&EquipmentFilters> for SlotFilter {
         if value.no_backpack {
             filter.no_backpack();
         }
-        if value.no_weapons {
-            filter.no_weapons();
+        if value.no_outfit {
+            filter.no_outfit();
         }
 
         let underwater = (&value.underwater).into();
