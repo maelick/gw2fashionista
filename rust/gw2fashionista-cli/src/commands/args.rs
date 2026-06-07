@@ -86,9 +86,9 @@ impl From<&UnderwaterFilters> for SlotFilter {
 pub struct SkinsOrDyes {
     /// Only merge dyes (i.e. original skin will be preserved)
     #[arg(long, default_value_t = false, display_order = 20)]
-    dyes_only: bool,
+    pub dyes_only: bool,
 
     /// Only merge skin (i.e. original dyes will be preserved)
     #[arg(long, default_value_t = false, display_order = 20)]
-    skins_only: bool,
+    pub skins_only: bool,
 }

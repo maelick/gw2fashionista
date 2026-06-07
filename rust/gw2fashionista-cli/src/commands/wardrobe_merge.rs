@@ -1,14 +1,15 @@
 use clap::{Args};
 
 use super::args;
+use gw2fashionista_core::domain::{chatlink::ChatLink, error::ChatLinkError};
 
 #[derive(Args, Debug)]
 pub struct Command {
     /// Chat link of the base fashion template to override
-    base_fashion_template: String,
+    base_wardrobe_template: String,
 
     /// Chat link of the fashion template with new values to apply to the base one
-    new_fashion_template: String,
+    new_wardrobe_template: String,
 
     #[command(flatten)]
     skin_dyes_only: args::SkinsOrDyes,
@@ -23,6 +24,21 @@ impl super::Command for Command {
     }
 
     fn execute(&self) -> anyhow::Result<()> {
-        return Err(anyhow::anyhow!("not implemented"))
+        let base_template = match ChatLink::try_from(self.base_wardrobe_template.as_str())? {
+            ChatLink::WardrobeTemplate(wardrobe_template) => Ok(wardrobe_template),
+            _ => Err(ChatLinkError::NotImplemented),
+        }?;
+
+        let filter = (&self.filters).into();
+        let new_template = match ChatLink::try_from(self.new_wardrobe_template.as_str())? {
+            ChatLink::WardrobeTemplate(wardrobe_template) => Ok(wardrobe_template),
+            _ => Err(ChatLinkError::NotImplemented),
+        }?;
+
+        let new_template = new_template.filter(&filter);
+        let merged = base_template.merge(&new_template, self.skin_dyes_only.dyes_only, self.skin_dyes_only.skins_only);
+
+        println!("{}", ChatLink::WardrobeTemplate(merged).to_string()?);
+        Ok(())
     }
 }
