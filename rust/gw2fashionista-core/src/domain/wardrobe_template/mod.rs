@@ -22,7 +22,7 @@ impl WardrobeTemplate {
         let slots_vec = SlotType::iter().map(|slot_type| {
             match slots.get(&slot_type) {
                 Some(slot) => *slot,
-                None => EquipmentSlot::empty(slot_type),
+                None => EquipmentSlot::empty(slot_type.dyable()),
             }
         }).collect();
         Self::from_vector(slots_vec)
@@ -36,7 +36,7 @@ impl WardrobeTemplate {
         let visibility = Visibility::from_bytes(bytes)?;
         let mut cursor = Cursor::new(bytes);
         let slots: Result<Vec<_>, _> = SlotType::iter()
-            .map(|slot_type| EquipmentSlot::read(&mut cursor, slot_type, visibility))
+            .map(|slot_type| EquipmentSlot::read(&mut cursor, slot_type.dyable(), visibility.contains(slot_type.visibility())))
             .collect();
 
         Ok(Self::from_vector(slots?))

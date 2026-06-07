@@ -222,8 +222,8 @@ pub enum EquipmentSlot {
 }
 
 impl EquipmentSlot {
-    pub fn empty(slot_type: SlotType) -> Self {
-        if slot_type.dyable() {
+    pub fn empty(dyable: bool) -> Self {
+        if dyable {
             Self::Dyable { skin: SkinId::default(), visible: true, dyes: Dyes::default() }
         } else {
             Self::NonDyable { skin: SkinId::default(), visible: true }
@@ -278,10 +278,9 @@ impl EquipmentSlot {
         }
     }
 
-    pub fn read(cursor: &mut Cursor<&[u8]>, slot_type: SlotType, visibility: Visibility) -> Result<Self, std::io::Error> {
+    pub fn read(cursor: &mut Cursor<&[u8]>, dyable: bool, visible: bool) -> Result<Self, std::io::Error> {
         let skin = SkinId::from_cursor(cursor)?;
-        let visible =  visibility.contains(slot_type.visibility());
-        if slot_type.dyable() {
+        if dyable {
             let dyes = Dyes::from_cursor(cursor)?;
             Ok(Self::Dyable { skin, visible, dyes })
         } else {
