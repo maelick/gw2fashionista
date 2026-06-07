@@ -260,6 +260,24 @@ impl EquipmentSlot {
         }
     }
 
+    pub fn merge(&self, other: &EquipmentSlot, ignore_skin: bool, ignore_dies: bool) -> EquipmentSlot {
+        if other.is_empty() || (ignore_skin && ignore_dies) {
+            *self
+        } else if ignore_skin {
+            match other {
+                EquipmentSlot::NonDyable { skin: _, visible: _ } => EquipmentSlot::NonDyable { skin: self.skin(), visible: self.is_visible() },
+                EquipmentSlot::Dyable { skin: _, visible: _, dyes } => EquipmentSlot::Dyable { skin: self.skin(), visible: self.is_visible(), dyes: *dyes },
+            }
+        } else if ignore_dies {
+            match self {
+                EquipmentSlot::NonDyable { skin: _, visible: _ } => EquipmentSlot::NonDyable { skin: other.skin(), visible: other.is_visible() },
+                EquipmentSlot::Dyable { skin: _, visible: _, dyes } => EquipmentSlot::Dyable { skin: other.skin(), visible: other.is_visible(), dyes: *dyes },
+            }
+        } else {
+            *other
+        }
+    }
+
     pub fn read(cursor: &mut Cursor<&[u8]>, slot_type: SlotType, visibility: Visibility) -> Result<Self, std::io::Error> {
         let skin = SkinId::from_cursor(cursor)?;
         let visible =  visibility.contains(slot_type.visibility());

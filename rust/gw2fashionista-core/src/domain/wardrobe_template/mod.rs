@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use strum::{EnumCount, IntoEnumIterator};
 use byteorder::{LittleEndian, WriteBytesExt};
 
-use crate::domain::error::ChatLinkError;
+use crate::domain::{error::ChatLinkError};
 use slot::{SlotType, Visibility, EquipmentSlot, SlotFilter};
 
 const TEMPLATE_PAYLOAD_SIZE: usize = 96;
@@ -91,6 +91,15 @@ impl WardrobeTemplate {
         let mut filtered = self.as_map(true);
         filtered.retain(|slot_type, _| filter.contains(slot_type));
         Self::new(filtered)
+    }
+
+    pub fn merge(&self, other: &Self, ignore_skin: bool, ignore_dies: bool) -> Self {
+        let mut slots = self.as_map(false);
+        for slot_type in SlotType::iter() {
+            let merged = self.get_slot(&slot_type).merge(other.get_slot(&slot_type), ignore_skin, ignore_dies);
+            slots.insert(slot_type, merged);
+        }
+        Self::new(slots)
     }
 }
 
