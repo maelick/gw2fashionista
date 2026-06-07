@@ -6,7 +6,7 @@ use strum::{EnumCount, IntoEnumIterator};
 use byteorder::{LittleEndian, WriteBytesExt};
 
 use crate::domain::error::ChatLinkError;
-use slot::{SlotType, Visibility, EquipmentSlot};
+use slot::{SlotType, Visibility, EquipmentSlot, SlotFilter};
 
 const TEMPLATE_PAYLOAD_SIZE: usize = 96;
 
@@ -85,6 +85,12 @@ impl WardrobeTemplate {
             }
         }
         slots
+    }
+
+    pub fn filter(&self, filter: &SlotFilter) -> Self {
+        let mut filtered = self.as_map(true);
+        filtered.retain(|slot_type, _| filter.contains(slot_type));
+        Self::new(filtered)
     }
 }
 

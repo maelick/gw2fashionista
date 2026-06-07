@@ -1,6 +1,7 @@
+use std::collections::HashSet;
 use std::io::Cursor;
 
-use strum::{EnumCount, EnumIter};
+use strum::{EnumCount, EnumIter, IntoEnumIterator};
 use bitflags::bitflags;
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 
@@ -75,6 +76,90 @@ impl SlotType {
 
     pub fn index(self) -> usize {
         self as usize
+    }
+}
+
+pub type SlotFilter = HashSet<SlotType>;
+
+pub trait SlotFilterExt {
+    fn all() -> Self;
+
+    fn invert(&mut self);
+    fn remove_all<I: IntoIterator<Item = &'static SlotType>>(&mut self, slots: I);
+    fn filter<I: IntoIterator<Item = &'static SlotType>>(&mut self, slots: I);
+    fn no_weapons(&mut self);
+    fn no_armors(&mut self);
+    fn no_backpack(&mut self);
+    fn no_outfit(&mut self);
+    fn no_underwater(&mut self);
+    fn only_underwater(&mut self);
+}
+
+const WEAPONS: &[SlotType] = &[
+    SlotType::WeaponAquaticA,
+    SlotType::WeaponAquaticB,
+    SlotType::WeaponA1,
+    SlotType::WeaponA2,
+    SlotType::WeaponB1,
+    SlotType::WeaponB2,
+];
+const ARMORS: &[SlotType] = &[
+    SlotType::Aquabreather,
+    SlotType::Chest,
+    SlotType::Shoes,
+    SlotType::Gloves,
+    SlotType::Head,
+    SlotType::Legs,
+    SlotType::Shoulders,
+];
+const UNDERWATER: &[SlotType] = &[
+    SlotType::Aquabreather,
+    SlotType::WeaponAquaticA,
+    SlotType::WeaponAquaticB,
+];
+
+impl SlotFilterExt for SlotFilter {
+    fn all() -> Self {
+        SlotFilter::from_iter(SlotType::iter())
+    }
+
+    fn invert(&mut self) {
+        *self = Self::all().difference(self).map(|s| *s).collect()
+    }
+
+    fn filter<I: IntoIterator<Item = &'static SlotType>>(&mut self, slots: I) {
+        let slots = Self::from_iter(slots.into_iter().copied());
+        self.retain(|s| slots.contains(s))
+    }
+
+    fn remove_all<I: IntoIterator<Item = &'static SlotType>>(&mut self, slots: I) {
+        for s in slots {
+            self.remove(s);
+        }
+    }
+
+    fn no_weapons(&mut self) {
+        self.remove_all(WEAPONS)
+    }
+
+    fn no_armors(&mut self) {
+        self.remove_all(ARMORS)
+    }
+
+    fn no_backpack(&mut self) {
+        self.remove(&SlotType::Backpack);
+    }
+
+    fn no_outfit(&mut self) {
+        self.remove(&SlotType::Outfit);
+    }
+
+    fn no_underwater(&mut self) {
+        self.remove_all(UNDERWATER)
+    }
+
+    fn only_underwater(&mut self) {
+        self.filter(UNDERWATER)
     }
 }
 
