@@ -230,11 +230,26 @@ impl EquipmentSlot {
         }
     }
 
+    pub fn skin(self) -> SkinId {
+        match self {
+            EquipmentSlot::NonDyable { skin, visible: _ } | EquipmentSlot::Dyable { skin, visible: _, dyes: _ } => {
+                skin
+            }
+        }
+    }
+
     pub fn is_visible(self) -> bool {
         match self {
             EquipmentSlot::NonDyable { skin: _, visible } | EquipmentSlot::Dyable { skin: _, visible, dyes: _ } => {
                 visible
             }
+        }
+    }
+
+    pub fn dyes(self) -> Option<Dyes> {
+        match self {
+            EquipmentSlot::Dyable { skin: _, visible: _, dyes } => Some(dyes),
+            EquipmentSlot::NonDyable { skin: _, visible: _ } => None,
         }
     }
 
