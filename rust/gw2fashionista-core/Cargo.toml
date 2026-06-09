@@ -15,3 +15,13 @@ regex = "1.12.3"
 serde = { version = "1.0.228", features = ["derive"] }
 strum = { version = "0.28.0", features = ["derive"] }
 thiserror = "2.0.18"
+
+[dependencies.hyper]
+version = "0.14.26"
+default-features = false
+features = ["runtime", "http1", "client"]
+
+[dependencies.hyper-rustls]
+version = "0.24.0"
+default-features = false
+features = ["http1", "native-tokio", "logging", "tls12"]

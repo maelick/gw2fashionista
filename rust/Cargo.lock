@@ -431,6 +431,8 @@ dependencies = [
  "bitflags 2.12.1",
  "byteorder",
  "gw2lib",
+ "hyper",
+ "hyper-rustls",
  "itertools",
  "num_enum",
  "once_cell",
