@@ -1,6 +1,8 @@
 use std::io;
 use clap::{Args};
-use gw2fashionista_core::{domain::{chatlink::ChatLink, error::ChatLinkError}, models::wardrobe_template::WardrobeTemplateData};
+use gw2fashionista_core::models::wardrobe_template::WardrobeTemplateData;
+use gw2fashionista_core::domain::{chatlink::ChatLink, error::ChatLinkError, wardrobe_template::WardrobeTemplate};
+use gw2fashionista_core::gw2_data::Resolver;
 
 #[derive(Args, Debug)]
 pub struct Command {
@@ -34,25 +36,38 @@ impl super::Command for Command {
     }
 
     fn execute(&self) -> anyhow::Result<()> {
-        let links = self.get_links()?;
-        parse_and_print(&links)
+        let raw_links = self.get_links()?;
+        let links = parse(&raw_links)?;
+        let templates = wardrobe_templates(&links);
+
+        let mut resolver = Resolver::default();
+        resolver.cache_wardrobe_templates(templates)?;
+
+        for link in links {
+            let data = resolver.resolve_chat_link(&link)?;
+            print(&data)?;
+        }
+        Ok(())
     }
 }
 
-fn parse_and_print(chat_links: &Vec<String>) -> anyhow::Result<()> {
-    for raw_link in chat_links {
-        print(ChatLink::try_from(raw_link.as_str())?)?;
-    }
+fn wardrobe_templates(chat_links: &Vec<ChatLink>) -> Vec<&WardrobeTemplate> {
+    chat_links.iter().filter_map(|link| {
+        match link {
+            ChatLink::WardrobeTemplate(template) => Some(template),
+            _ => None,
+        }
+    }).collect()
+}
+
+fn parse(chat_links: &Vec<String>) -> Result<Vec<ChatLink>, ChatLinkError> {
+    let links: Result<Vec<_>, _> = chat_links.iter().map(|raw_link| {
+        ChatLink::try_from(raw_link.as_str())
+    }).collect();
+    Ok(links?)
+}
+
+fn print(data: &WardrobeTemplateData) -> anyhow::Result<()> {
+    serde_json::to_writer_pretty(io::stdout(), data)?;
     Ok(())
-}
-
-fn print(link: ChatLink) -> anyhow::Result<()> {
-    match link {
-        ChatLink::WardrobeTemplate(template) => {
-            let data = WardrobeTemplateData::from(&template);
-            serde_json::to_writer_pretty(io::stdout(), &data)?;
-            Ok(())
-        },
-        _ => Err(ChatLinkError::NotImplemented.into())
-    }
 }

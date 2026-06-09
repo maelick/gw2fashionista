@@ -6,7 +6,6 @@ mod tests {
     use gw2fashionista_core::gw2_data::Resolver;
     use gw2fashionista_core::models::skin::Skin;
     use gw2fashionista_core::models::wardrobe_template::WardrobeTemplateData;
-    use gw2lib::Client;
 
     const EMPTY_TEMPLATE: &str = "DwAAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAAAAAAAAAAAAAD/fw==";
     const ZIZI_ARMOR_TEMPLATE: &str = "DwAAPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAAAAAQABAAEAAQAAAAAAAAAAAAAAAAD/fw==";
@@ -14,7 +13,7 @@ mod tests {
 
     #[test]
     fn test_resolve_empty() {
-        let mut resolver = Resolver::new(Client::default());
+        let mut resolver = Resolver::default();
         let template = parse_template(EMPTY_TEMPLATE);
 
         resolver.cache_wardrobe_template(&template).unwrap();
@@ -40,7 +39,7 @@ mod tests {
 
     #[test]
     fn test_resolve_zizi_armor() {
-        let mut resolver = Resolver::new(Client::default());
+        let mut resolver = Resolver::default();
         let template = parse_template(ZIZI_ARMOR_TEMPLATE);
 
         resolver.cache_wardrobe_template(&template).unwrap();
@@ -61,7 +60,7 @@ mod tests {
 
     #[test]
     fn test_resolve_zizi() {
-        let mut resolver = Resolver::new(Client::default());
+        let mut resolver = Resolver::default();
         let template = parse_template(ZIZI_TEMPLATE);
 
         resolver.cache_wardrobe_template(&template).unwrap();

@@ -1,8 +1,12 @@
 use std::collections::HashSet;
 use std::sync::Arc;
 
-use gw2lib::{EndpointError, Requester};
+use gw2lib::cache::InMemoryCache;
+use gw2lib::rate_limit::BucketRateLimiter;
+use gw2lib::{Client, EndpointError, Requester};
 use gw2lib::model::{items::{Item, skins::Skin}, misc::colors::Color};
+use hyper::client::HttpConnector;
+use hyper_rustls::HttpsConnector;
 
 use crate::domain::skins::{DyeId, SkinId};
 use crate::domain::wardrobe_template::WardrobeTemplate;
@@ -140,5 +144,11 @@ where
             name: Some(self.dye(dye.id.into()).unwrap().name),
             ..*dye
         }
+    }
+}
+
+impl Default for Resolver<Client<InMemoryCache, BucketRateLimiter, HttpsConnector<HttpConnector>, false>> {
+    fn default() -> Self {
+        Self::new(Client::default())
     }
 }
