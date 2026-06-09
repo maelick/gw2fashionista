@@ -42,8 +42,8 @@ where
         self.skins.get(id.into())
     }
 
-    pub fn dye(&mut self, id: DyeId) -> Result<Item, EndpointError> {
-        self.items.get(id.into())
+    pub fn dye(&mut self, id: DyeId) -> Result<Color, EndpointError> {
+        self.colors.get(id.into())
     }
 
     pub fn item(&mut self, id: u32) -> Result<Item, EndpointError> {
