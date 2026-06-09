@@ -135,3 +135,13 @@ impl From<Dyes> for (u16, u16, u16, u16) {
         (dye1.into(), dye2.into(), dye3.into(), dye4.into())
     }
 }
+
+impl IntoIterator for Dyes {
+    type Item = DyeId;
+    type IntoIter = std::array::IntoIter<DyeId, 4>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        let Dyes(dye1, dye2, dye3, dye4) = self;
+        [dye1, dye2, dye3, dye4].into_iter()
+    }
+}

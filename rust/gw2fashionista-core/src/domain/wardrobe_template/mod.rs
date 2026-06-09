@@ -1,10 +1,12 @@
 use std::fmt;
+use std::collections::HashSet;
 use std::io::Cursor;
 use std::collections::HashMap;
 
 use strum::{EnumCount, IntoEnumIterator};
 use byteorder::{LittleEndian, WriteBytesExt};
 
+use crate::domain::skins::{DyeId, SkinId};
 use crate::domain::{error::ChatLinkError};
 use slot::{SlotType, Visibility, EquipmentSlot, SlotFilter};
 
@@ -100,6 +102,22 @@ impl WardrobeTemplate {
             slots.insert(slot_type, merged);
         }
         Self::new(slots)
+    }
+
+    pub fn all_skin_ids(&self) -> HashSet<SkinId> {
+        HashSet::from_iter(self.iter().filter_map(|(slot_type, slot)| {
+            match slot_type {
+                SlotType::Outfit => None,
+                _ => Some(slot.skin()).filter(|skin| !skin.is_empty())
+            }
+        }))
+    }
+
+    pub fn all_dye_ids(&self) -> HashSet<DyeId> {
+        let dyes = self.iter().filter_map(|(_, slot)| {
+            slot.dyes()
+        }).flat_map(|dyes| dyes.into_iter());
+        HashSet::from_iter(dyes)
     }
 }
 
