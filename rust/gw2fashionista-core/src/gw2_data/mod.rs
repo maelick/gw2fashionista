@@ -8,6 +8,8 @@ use gw2lib::model::{items::{Item, skins::Skin}, misc::colors::Color};
 use hyper::client::HttpConnector;
 use hyper_rustls::HttpsConnector;
 
+use crate::domain::chatlink::ChatLink;
+use crate::domain::error::ChatLinkError;
 use crate::domain::skins::{DyeId, SkinId};
 use crate::domain::wardrobe_template::WardrobeTemplate;
 use crate::models::wardrobe_template::WardrobeTemplateData;
@@ -73,6 +75,15 @@ where
     fn fetch_missing_fashion_data<Skins: IntoIterator<Item=SkinId>, Dyes:IntoIterator<Item=DyeId>>(&mut self, skins: Skins, dyes: Dyes) -> Result<(), EndpointError> {
         self.skins.ensure(skins.into_iter().map(|id| id.into()))?;
         self.colors.ensure(dyes.into_iter().map(|id| id.into()))
+    }
+
+    pub fn resolve_chat_link(&mut self, chat_link: &ChatLink) -> Result<WardrobeTemplateData, ChatLinkError> {
+        match chat_link {
+            ChatLink::WardrobeTemplate(template) => {
+                Ok(self.resolve_wardrobe_template(template))
+            },
+            _ => Err(ChatLinkError::NotImplemented)
+        }
     }
 
     pub fn resolve_wardrobe_template(&mut self, template: &WardrobeTemplate) -> WardrobeTemplateData {
