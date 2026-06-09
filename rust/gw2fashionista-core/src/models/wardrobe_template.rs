@@ -109,7 +109,7 @@ fn dyable_skin_from_map(map: &HashMap<SlotType, EquipmentSlot>, slot_type: SlotT
     res.map_or(Ok(None), |slot| {
         match slot {
             EquipmentSlot::NonDyable { skin: _, visible: _ } => Err(ModelError::IncorrectSlotVariant{ slot_type, expected: SlotVariant::NonDyable, found: SlotVariant::Dyable }),
-            EquipmentSlot::Dyable { skin, visible, dyes } => Ok(Some(Skin { id: (*skin).into(), name: None, dyes: Some((*dyes).into()) , visible: Some(*visible) })),
+            EquipmentSlot::Dyable { skin, visible, dyes } => Ok(Some(Skin { id: (*skin).into(), name: None, dyes: Some(dyes.clone().into()) , visible: Some(*visible) })),
         }
     })
 }
