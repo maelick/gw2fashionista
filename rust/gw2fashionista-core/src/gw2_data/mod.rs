@@ -6,10 +6,12 @@ use gw2lib::model::{items::{Item, skins::Skin}, misc::colors::Color};
 
 use crate::domain::skins::{DyeId, SkinId};
 use crate::domain::wardrobe_template::WardrobeTemplate;
+use crate::models::wardrobe_template::WardrobeTemplateData;
+use crate::models::skin;
 
 mod cache;
 
-pub struct GW2DataClient<Req>
+pub struct Resolver<Req>
 where
     Req: Requester<false, false>,
 {
@@ -19,13 +21,13 @@ where
     // outfits: cache::Cache<Outfit, u32, Req>,
 }
 
-impl<Req> GW2DataClient<Req>
+impl<Req> Resolver<Req>
 where
     Req: Requester<false, false>,
 {
     pub fn new(req: Req) -> Self {
         let req = Arc::new(req);
-        GW2DataClient{
+        Resolver{
             items: cache::Cache::new(req.clone()),
             skins: cache::Cache::new(req.clone()),
             colors: cache::Cache::new(req.clone()),
@@ -67,5 +69,76 @@ where
     fn fetch_missing_fashion_data<Skins: IntoIterator<Item=SkinId>, Dyes:IntoIterator<Item=DyeId>>(&mut self, skins: Skins, dyes: Dyes) -> Result<(), EndpointError> {
         self.skins.ensure(skins.into_iter().map(|id| id.into()))?;
         self.colors.ensure(dyes.into_iter().map(|id| id.into()))
+    }
+
+    pub fn resolve_wardrobe_template(&mut self, template: &WardrobeTemplate) -> WardrobeTemplateData {
+        let data = template.into();
+        self.resolve_wardrobe_template_data(&data)
+    }
+
+    pub fn resolve_wardrobe_template_data(&mut self, template: &WardrobeTemplateData) -> WardrobeTemplateData {
+        WardrobeTemplateData {
+            aquabreather: self.resolve_equipment(&template.aquabreather),
+            backpack: self.resolve_equipment(&template.backpack),
+            chest: self.resolve_equipment(&template.chest),
+            shoes: self.resolve_equipment(&template.shoes),
+            gloves: self.resolve_equipment(&template.gloves),
+            head: self.resolve_equipment(&template.head),
+            legs: self.resolve_equipment(&template.legs),
+            shoulders: self.resolve_equipment(&template.shoulders),
+            outfit: self.resolve_outfit(&template.outfit),
+            weapon_aquatic_a: self.resolve_equipment(&template.weapon_aquatic_a),
+            weapon_aquatic_b: self.resolve_equipment(&template.weapon_aquatic_b),
+            weapon_a1: self.resolve_equipment(&template.weapon_a1),
+            weapon_a2: self.resolve_equipment(&template.weapon_a2),
+            weapon_b1: self.resolve_equipment(&template.weapon_b1),
+            weapon_b2: self.resolve_equipment(&template.weapon_b2),
+        }
+    }
+
+    fn resolve_outfit(&mut self, skin: &Option<skin::Skin>) -> Option<skin::Skin> {
+        skin.as_ref().map(|skin| {
+            skin::Skin{
+                name: self.resolve_outfit_name(skin.id),
+                dyes: self.resolve_dyes(&skin.dyes),
+                ..*skin
+            }
+        })
+    }
+
+    fn resolve_equipment(&mut self, skin: &Option<skin::Skin>) -> Option<skin::Skin> {
+        skin.as_ref().map(|skin| {
+            skin::Skin{
+                name: self.resolve_skin(skin.id),
+                dyes: self.resolve_dyes(&skin.dyes),
+                ..*skin
+            }
+        })
+    }
+
+    fn resolve_outfit_name(&mut self, _id: u16) -> Option<String> {
+        None
+    }
+
+    fn resolve_skin(&mut self, id: u16) -> Option<String> {
+        Some(self.skin(id.into()).unwrap().name)
+    }
+
+    fn resolve_dyes(&mut self, dyes: &Option<skin::Dyes>) -> Option<skin::Dyes> {
+        dyes.as_ref().map(|(dye1, dye2, dye3, dye4)| {
+            (
+                self.resolve_dye(dye1),
+                self.resolve_dye(dye2),
+                self.resolve_dye(dye3),
+                self.resolve_dye(dye4)
+            )
+        })
+    }
+
+    fn resolve_dye(&mut self, dye: &skin::Dye) -> skin::Dye {
+        skin::Dye{
+            name: Some(self.dye(dye.id.into()).unwrap().name),
+            ..*dye
+        }
     }
 }
