@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use gw2lib::{EndpointError, model::{authenticated::characters::{Equip, EquipmentTab, Slot}, items::{Item, ItemId}, misc::colors::ColorId}};
 
-use crate::{domain::{skins::{DyeId, Dyes, SkinId}, wardrobe_template::{WardrobeTemplate, slot::{EquipmentSlot, SlotType}}}, gw2_data::cache};
+use crate::{domain::{skins::{DyeId, Dyes, SkinId}, wardrobe_template::{WardrobeTemplate, slot::{WardrobeSlot, SlotType}}}, gw2_data::cache};
 
 #[derive(Clone, Debug)]
 pub struct Equipment {
@@ -66,7 +66,7 @@ impl From<&Vec<Equip>> for WardrobeTemplate {
         let mut slots = HashMap::new();
         for equip in equipment {
             if let Some(Ok(slot)) = equip.slot.as_ref().map(SlotType::try_from) {
-                slots.insert(slot, EquipmentSlot::from((&slot, equip)));
+                slots.insert(slot, WardrobeSlot::from((&slot, equip)));
             }
         }
         Self::new(slots)
@@ -97,14 +97,14 @@ impl TryFrom<&Slot> for SlotType {
     }
 }
 
-impl From<(&SlotType, &Equip)> for EquipmentSlot {
+impl From<(&SlotType, &Equip)> for WardrobeSlot {
     fn from((slot_type, equip): (&SlotType, &Equip)) -> Self {
         let skin = equip.skin.unwrap_or(0).into();
         if slot_type.dyable() {
             let dyes = equip.dyes.as_ref().map_or(Dyes::default(), Dyes::from);
-            EquipmentSlot::Dyable { skin, visible: true, dyes }
+            WardrobeSlot::Dyable { skin, visible: true, dyes }
         } else {
-            EquipmentSlot::NonDyable { skin, visible: true }
+            WardrobeSlot::NonDyable { skin, visible: true }
         }
     }
 }

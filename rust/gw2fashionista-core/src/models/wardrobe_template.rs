@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
 use strum::EnumCount;
 
-use crate::domain::wardrobe_template::slot::EquipmentSlot;
+use crate::domain::wardrobe_template::slot::WardrobeSlot;
 use crate::models::skin::Skin;
 use crate::models::error::{ModelError, SlotVariant};
 use crate::domain::wardrobe_template::WardrobeTemplate;
@@ -44,7 +44,7 @@ pub struct WardrobeTemplateData {
 }
 
 impl WardrobeTemplateData {
-    fn from_map(map: &HashMap<SlotType, EquipmentSlot>) -> Result<Self, ModelError> {
+    fn from_map(map: &HashMap<SlotType, WardrobeSlot>) -> Result<Self, ModelError> {
         Ok(WardrobeTemplateData{
             aquabreather: skin_from_map(map, SlotType::Aquabreather)?,
             backpack: dyable_skin_from_map(map, SlotType::Backpack)?,
@@ -74,7 +74,7 @@ impl From<&WardrobeTemplate> for WardrobeTemplateData {
 
 impl From<&WardrobeTemplateData> for WardrobeTemplate {
     fn from(template: &WardrobeTemplateData) -> Self {
-        let mut slots: HashMap<SlotType, EquipmentSlot>= HashMap::<SlotType, EquipmentSlot>::with_capacity(SlotType::COUNT);
+        let mut slots: HashMap<SlotType, WardrobeSlot>= HashMap::<SlotType, WardrobeSlot>::with_capacity(SlotType::COUNT);
         insert_slot(&mut slots, &template.aquabreather, SlotType::Aquabreather);
         insert_dyable_slot(&mut slots, &template.backpack, SlotType::Backpack);
         insert_dyable_slot(&mut slots, &template.chest, SlotType::Chest);
@@ -94,33 +94,33 @@ impl From<&WardrobeTemplateData> for WardrobeTemplate {
     }
 }
 
-fn skin_from_map(map: &HashMap<SlotType, EquipmentSlot>, slot_type: SlotType) -> Result<Option<Skin>, ModelError> {
+fn skin_from_map(map: &HashMap<SlotType, WardrobeSlot>, slot_type: SlotType) -> Result<Option<Skin>, ModelError> {
     let res = map.get(&slot_type);
     res.map_or(Ok(None), |slot| {
         match slot {
-            EquipmentSlot::NonDyable { skin, visible } => Ok(Some(Skin { id: (*skin).into(), name: None, dyes: None, visible: Some(*visible) })),
-            EquipmentSlot::Dyable { skin: _, visible: _, dyes: _ } => Err(ModelError::IncorrectSlotVariant{ slot_type, expected: SlotVariant::Dyable, found: SlotVariant::NonDyable }),
+            WardrobeSlot::NonDyable { skin, visible } => Ok(Some(Skin { id: (*skin).into(), name: None, dyes: None, visible: Some(*visible) })),
+            WardrobeSlot::Dyable { skin: _, visible: _, dyes: _ } => Err(ModelError::IncorrectSlotVariant{ slot_type, expected: SlotVariant::Dyable, found: SlotVariant::NonDyable }),
         }
     })
 }
 
-fn dyable_skin_from_map(map: &HashMap<SlotType, EquipmentSlot>, slot_type: SlotType) -> Result<Option<Skin>, ModelError> {
+fn dyable_skin_from_map(map: &HashMap<SlotType, WardrobeSlot>, slot_type: SlotType) -> Result<Option<Skin>, ModelError> {
     let res = map.get(&slot_type);
     res.map_or(Ok(None), |slot| {
         match slot {
-            EquipmentSlot::NonDyable { skin: _, visible: _ } => Err(ModelError::IncorrectSlotVariant{ slot_type, expected: SlotVariant::NonDyable, found: SlotVariant::Dyable }),
-            EquipmentSlot::Dyable { skin, visible, dyes } => Ok(Some(Skin { id: (*skin).into(), name: None, dyes: Some(dyes.clone().into()) , visible: Some(*visible) })),
+            WardrobeSlot::NonDyable { skin: _, visible: _ } => Err(ModelError::IncorrectSlotVariant{ slot_type, expected: SlotVariant::NonDyable, found: SlotVariant::Dyable }),
+            WardrobeSlot::Dyable { skin, visible, dyes } => Ok(Some(Skin { id: (*skin).into(), name: None, dyes: Some(dyes.clone().into()) , visible: Some(*visible) })),
         }
     })
 }
 
-fn insert_slot(slots: &mut HashMap<SlotType, EquipmentSlot>, skin: &Option<Skin>, slot_type: SlotType) {
+fn insert_slot(slots: &mut HashMap<SlotType, WardrobeSlot>, skin: &Option<Skin>, slot_type: SlotType) {
     if let Some(skin) = skin {
         slots.insert(slot_type, skin.into());
     }
 }
 
-fn insert_dyable_slot(slots: &mut HashMap<SlotType, EquipmentSlot>, skin: &Option<Skin>, slot_type: SlotType) {
+fn insert_dyable_slot(slots: &mut HashMap<SlotType, WardrobeSlot>, skin: &Option<Skin>, slot_type: SlotType) {
     if let Some(skin) = skin {
         slots.insert(slot_type, skin.into());
     }

@@ -209,7 +209,7 @@ impl TryFrom<&[u8]> for Visibility {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum EquipmentSlot {
+pub enum WardrobeSlot {
     NonDyable {
         skin: SkinId,
         visible: bool,
@@ -221,7 +221,7 @@ pub enum EquipmentSlot {
     },
 }
 
-impl EquipmentSlot {
+impl WardrobeSlot {
     pub fn empty(dyable: bool) -> Self {
         if dyable {
             Self::Dyable { skin: SkinId::default(), visible: true, dyes: Dyes::default() }
@@ -232,7 +232,7 @@ impl EquipmentSlot {
 
     pub fn skin(self) -> SkinId {
         match self {
-            EquipmentSlot::NonDyable { skin, visible: _ } | EquipmentSlot::Dyable { skin, visible: _, dyes: _ } => {
+            WardrobeSlot::NonDyable { skin, visible: _ } | WardrobeSlot::Dyable { skin, visible: _, dyes: _ } => {
                 skin
             }
         }
@@ -240,7 +240,7 @@ impl EquipmentSlot {
 
     pub fn is_visible(self) -> bool {
         match self {
-            EquipmentSlot::NonDyable { skin: _, visible } | EquipmentSlot::Dyable { skin: _, visible, dyes: _ } => {
+            WardrobeSlot::NonDyable { skin: _, visible } | WardrobeSlot::Dyable { skin: _, visible, dyes: _ } => {
                 visible
             }
         }
@@ -248,30 +248,30 @@ impl EquipmentSlot {
 
     pub fn dyes(self) -> Option<Dyes> {
         match self {
-            EquipmentSlot::Dyable { skin: _, visible: _, dyes } => Some(dyes),
-            EquipmentSlot::NonDyable { skin: _, visible: _ } => None,
+            WardrobeSlot::Dyable { skin: _, visible: _, dyes } => Some(dyes),
+            WardrobeSlot::NonDyable { skin: _, visible: _ } => None,
         }
     }
 
     pub fn is_empty(self) -> bool {
         match self {
-            EquipmentSlot::NonDyable { skin, visible: _ } => skin.is_empty(),
-            EquipmentSlot::Dyable { skin, visible: _, dyes } => skin.is_empty() && dyes.is_empty(),
+            WardrobeSlot::NonDyable { skin, visible: _ } => skin.is_empty(),
+            WardrobeSlot::Dyable { skin, visible: _, dyes } => skin.is_empty() && dyes.is_empty(),
         }
     }
 
-    pub fn merge(&self, other: &EquipmentSlot, ignore_skin: bool, ignore_dies: bool) -> EquipmentSlot {
+    pub fn merge(&self, other: &WardrobeSlot, ignore_skin: bool, ignore_dies: bool) -> WardrobeSlot {
         if other.is_empty() || (ignore_skin && ignore_dies) {
             *self
         } else if ignore_skin {
             match other {
-                EquipmentSlot::NonDyable { skin: _, visible: _ } => EquipmentSlot::NonDyable { skin: self.skin(), visible: self.is_visible() },
-                EquipmentSlot::Dyable { skin: _, visible: _, dyes } => EquipmentSlot::Dyable { skin: self.skin(), visible: self.is_visible(), dyes: *dyes },
+                WardrobeSlot::NonDyable { skin: _, visible: _ } => WardrobeSlot::NonDyable { skin: self.skin(), visible: self.is_visible() },
+                WardrobeSlot::Dyable { skin: _, visible: _, dyes } => WardrobeSlot::Dyable { skin: self.skin(), visible: self.is_visible(), dyes: *dyes },
             }
         } else if ignore_dies {
             match self {
-                EquipmentSlot::NonDyable { skin: _, visible: _ } => EquipmentSlot::NonDyable { skin: other.skin(), visible: other.is_visible() },
-                EquipmentSlot::Dyable { skin: _, visible: _, dyes } => EquipmentSlot::Dyable { skin: other.skin(), visible: other.is_visible(), dyes: *dyes },
+                WardrobeSlot::NonDyable { skin: _, visible: _ } => WardrobeSlot::NonDyable { skin: other.skin(), visible: other.is_visible() },
+                WardrobeSlot::Dyable { skin: _, visible: _, dyes } => WardrobeSlot::Dyable { skin: other.skin(), visible: other.is_visible(), dyes: *dyes },
             }
         } else {
             *other
@@ -290,10 +290,10 @@ impl EquipmentSlot {
 
     pub fn serialize(&self, buffer: &mut dyn std::io::Write) -> Result<(), std::io::Error> {
         match self {
-            EquipmentSlot::NonDyable { skin, visible: _ } => {
+            WardrobeSlot::NonDyable { skin, visible: _ } => {
                 buffer.write_u16::<LittleEndian>((*skin).into())?;
             },
-            EquipmentSlot::Dyable { skin, visible: _, dyes } => {
+            WardrobeSlot::Dyable { skin, visible: _, dyes } => {
                 let (dye1, dye2, dye3, dye4) = (*dyes).into();
                 buffer.write_u16::<LittleEndian>((*skin).into())?;
                 buffer.write_u16::<LittleEndian>(dye1)?;

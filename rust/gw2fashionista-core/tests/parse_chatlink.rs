@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use gw2fashionista_core::domain::{chatlink::ChatLink, error::ChatLinkError, skins::{Dyes, SkinId}, wardrobe_template::{WardrobeTemplate, slot::{EquipmentSlot, SlotType}}};
+    use gw2fashionista_core::domain::{chatlink::ChatLink, error::ChatLinkError, skins::{Dyes, SkinId}, wardrobe_template::{WardrobeTemplate, slot::{WardrobeSlot, SlotType}}};
     use strum::IntoEnumIterator;
     use std::assert_matches;
 
@@ -106,7 +106,7 @@ mod tests {
 
         for (slot_type, slot) in actual {
             match slot {
-                EquipmentSlot::NonDyable{ skin, visible } => {
+                WardrobeSlot::NonDyable{ skin, visible } => {
                     match slot_type {
                         SlotType::WeaponB2 => {
                             assert_eq!(skin, &SkinId::default(), "Expected unset skin_id for {skin:?}");
@@ -126,7 +126,7 @@ mod tests {
                         _ => panic!("Dyable skin should not be non-dyable {skin:?}")
                     }
                 }
-                EquipmentSlot::Dyable{ skin, visible, dyes } => {
+                WardrobeSlot::Dyable{ skin, visible, dyes } => {
                     assert!(!slot.is_empty(), "Expect not empty slot {slot_type:?}");
                     match slot_type {
                         SlotType::Outfit => {
@@ -165,7 +165,7 @@ mod tests {
 
         for (slot_type, slot) in actual {
             match slot {
-                EquipmentSlot::NonDyable{ skin, visible } => {
+                WardrobeSlot::NonDyable{ skin, visible } => {
                     match slot_type {
                         SlotType::WeaponAquaticA | SlotType::WeaponAquaticB | SlotType::WeaponA1 | SlotType::WeaponA2 | SlotType::WeaponB1 | SlotType::WeaponB2 | SlotType::Aquabreather => {
                             assert_eq!(skin, &SkinId::default(), "Expected unset skin_id for {skin:?}");
@@ -175,7 +175,7 @@ mod tests {
                         _ => panic!("Dyable skin should not be non-dyable {slot:?}")
                     }
                 }
-                EquipmentSlot::Dyable{ skin, visible, dyes } => {
+                WardrobeSlot::Dyable{ skin, visible, dyes } => {
                     match slot_type {
                         SlotType::Outfit => {
                             assert_eq!(skin, &SkinId::default(), "Expected unset skin_id for {skin:?}");
@@ -205,11 +205,11 @@ mod tests {
         assert_eq!(actual_encoded, raw);
     }
 
-    fn empty_skin(slot_type: SlotType) -> EquipmentSlot {
+    fn empty_skin(slot_type: SlotType) -> WardrobeSlot {
         if slot_type.dyable() {
-            EquipmentSlot::Dyable{ skin: SkinId::default(), visible: true, dyes: Dyes::default() }
+            WardrobeSlot::Dyable{ skin: SkinId::default(), visible: true, dyes: Dyes::default() }
         } else {
-            EquipmentSlot::NonDyable { skin: SkinId::default(), visible: true }
+            WardrobeSlot::NonDyable { skin: SkinId::default(), visible: true }
         }
     }
 }
