@@ -1,4 +1,5 @@
 use clap::{Args};
+use gw2fashionista_core::{domain::chatlink::ChatLink, gw2_data::import::Importer};
 
 use super::args;
 
@@ -34,6 +35,13 @@ impl super::Command for Command {
     }
 
     fn execute(&self) -> anyhow::Result<()> {
-        return Err(anyhow::anyhow!("not implemented"))
+        let api_key = self.api_key.as_ref().unwrap();
+        let importer = Importer::with_api_key(api_key);
+        let equipments = importer.fetch_equipment(&self.characters)?;
+        for e in &equipments {
+            let chatlink = ChatLink::WardrobeTemplate(e.into());
+            println!("{}", chatlink.to_string()?);
+        }
+        Ok(())
     }
 }
