@@ -16,6 +16,8 @@ use crate::models::wardrobe_template::WardrobeTemplateData;
 use crate::models::skin;
 
 mod cache;
+pub mod equipment;
+pub mod import;
 
 pub struct Resolver<Req>
 where
