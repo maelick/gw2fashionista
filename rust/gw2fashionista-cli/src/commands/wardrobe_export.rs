@@ -1,5 +1,5 @@
 use clap::{Args};
-use gw2fashionista_core::{domain::chatlink::ChatLink, gw2_data::import::Importer};
+use gw2fashionista_core::{domain::chatlink::ChatLink, gw2_data::{Resolver, import::Importer}};
 
 use super::args;
 
@@ -38,6 +38,10 @@ impl super::Command for Command {
         let api_key = self.api_key.as_ref().unwrap();
         let importer = Importer::with_api_key(api_key);
         let equipments = importer.fetch_equipment(&self.characters)?;
+
+        let mut resolver = Resolver::default();
+        let equipments = resolver.resolve_equipment(equipments)?;
+
         for e in &equipments {
             let chatlink = ChatLink::WardrobeTemplate(e.into());
             println!("{}", chatlink.to_string()?);

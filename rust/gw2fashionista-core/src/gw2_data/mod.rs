@@ -13,6 +13,7 @@ use crate::domain::error::ChatLinkError;
 use crate::domain::skins::{DyeId, SkinId};
 use crate::domain::wardrobe_template::WardrobeTemplate;
 use crate::gw2_data::cache::{Cache, Resolver as CacheResolver};
+use crate::gw2_data::equipment::Equipment;
 use crate::models::wardrobe_template::WardrobeTemplateData;
 use crate::models::skin;
 
@@ -82,6 +83,17 @@ where
         self.colors.ensure(dyes.into_iter().map(|id| id.into()))
     }
 
+    pub fn resolve_equipment(&mut self, equipments: Vec<Equipment>) -> Result<Vec<Equipment>, EndpointError> {
+        let mut items = HashSet::new();
+        for e in &equipments {
+            items.extend(e.all_item_ids().into_iter());
+        }
+        log::info!("Retrieving item data");
+        self.items.ensure(items.into_iter())?;
+
+        equipments.into_iter().map(|e| e.resolve_default_skins(&mut self.items)).collect()
+    }
+
     pub fn resolve_chat_link(&mut self, chat_link: &ChatLink) -> Result<WardrobeTemplateData, ChatLinkError> {
         match chat_link {
             ChatLink::WardrobeTemplate(template) => {
@@ -98,21 +110,21 @@ where
 
     pub fn resolve_wardrobe_template_data(&mut self, template: &WardrobeTemplateData) -> WardrobeTemplateData {
         WardrobeTemplateData {
-            aquabreather: self.resolve_equipment(&template.aquabreather),
-            backpack: self.resolve_equipment(&template.backpack),
-            chest: self.resolve_equipment(&template.chest),
-            shoes: self.resolve_equipment(&template.shoes),
-            gloves: self.resolve_equipment(&template.gloves),
-            head: self.resolve_equipment(&template.head),
-            legs: self.resolve_equipment(&template.legs),
-            shoulders: self.resolve_equipment(&template.shoulders),
+            aquabreather: self.resolve_wardrobe_slot(&template.aquabreather),
+            backpack: self.resolve_wardrobe_slot(&template.backpack),
+            chest: self.resolve_wardrobe_slot(&template.chest),
+            shoes: self.resolve_wardrobe_slot(&template.shoes),
+            gloves: self.resolve_wardrobe_slot(&template.gloves),
+            head: self.resolve_wardrobe_slot(&template.head),
+            legs: self.resolve_wardrobe_slot(&template.legs),
+            shoulders: self.resolve_wardrobe_slot(&template.shoulders),
             outfit: self.resolve_outfit(&template.outfit),
-            weapon_aquatic_a: self.resolve_equipment(&template.weapon_aquatic_a),
-            weapon_aquatic_b: self.resolve_equipment(&template.weapon_aquatic_b),
-            weapon_a1: self.resolve_equipment(&template.weapon_a1),
-            weapon_a2: self.resolve_equipment(&template.weapon_a2),
-            weapon_b1: self.resolve_equipment(&template.weapon_b1),
-            weapon_b2: self.resolve_equipment(&template.weapon_b2),
+            weapon_aquatic_a: self.resolve_wardrobe_slot(&template.weapon_aquatic_a),
+            weapon_aquatic_b: self.resolve_wardrobe_slot(&template.weapon_aquatic_b),
+            weapon_a1: self.resolve_wardrobe_slot(&template.weapon_a1),
+            weapon_a2: self.resolve_wardrobe_slot(&template.weapon_a2),
+            weapon_b1: self.resolve_wardrobe_slot(&template.weapon_b1),
+            weapon_b2: self.resolve_wardrobe_slot(&template.weapon_b2),
         }
     }
 
@@ -126,10 +138,10 @@ where
         })
     }
 
-    fn resolve_equipment(&mut self, skin: &Option<skin::Skin>) -> Option<skin::Skin> {
+    fn resolve_wardrobe_slot(&mut self, skin: &Option<skin::Skin>) -> Option<skin::Skin> {
         skin.as_ref().map(|skin| {
             skin::Skin{
-                name: self.resolve_skin(skin.id),
+                name: self.resolve_skin_name(skin.id),
                 dyes: self.resolve_dyes(&skin.dyes),
                 ..*skin
             }
@@ -140,22 +152,22 @@ where
         None
     }
 
-    fn resolve_skin(&mut self, id: u16) -> Option<String> {
+    fn resolve_skin_name(&mut self, id: u16) -> Option<String> {
         Some(self.skin(id.into()).unwrap().name)
     }
 
     fn resolve_dyes(&mut self, dyes: &Option<skin::Dyes>) -> Option<skin::Dyes> {
         dyes.as_ref().map(|(dye1, dye2, dye3, dye4)| {
             (
-                self.resolve_dye(dye1),
-                self.resolve_dye(dye2),
-                self.resolve_dye(dye3),
-                self.resolve_dye(dye4)
+                self.resolve_dye_name(dye1),
+                self.resolve_dye_name(dye2),
+                self.resolve_dye_name(dye3),
+                self.resolve_dye_name(dye4)
             )
         })
     }
 
-    fn resolve_dye(&mut self, dye: &skin::Dye) -> skin::Dye {
+    fn resolve_dye_name(&mut self, dye: &skin::Dye) -> skin::Dye {
         skin::Dye{
             name: Some(self.dye(dye.id.into()).unwrap().name),
             ..*dye

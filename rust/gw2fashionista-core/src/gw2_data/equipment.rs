@@ -1,9 +1,10 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
-use gw2lib::model::{authenticated::characters::{Equip, EquipmentTab, Slot}, misc::colors::ColorId};
+use gw2lib::{EndpointError, model::{authenticated::characters::{Equip, EquipmentTab, Slot}, items::{Item, ItemId}, misc::colors::ColorId}};
 
-use crate::domain::{skins::{DyeId, Dyes, SkinId}, wardrobe_template::{WardrobeTemplate, slot::{EquipmentSlot, SlotType}}};
+use crate::{domain::{skins::{DyeId, Dyes, SkinId}, wardrobe_template::{WardrobeTemplate, slot::{EquipmentSlot, SlotType}}}, gw2_data::cache};
 
+#[derive(Clone, Debug)]
 pub struct Equipment {
     pub char_name: String,
     pub tab_id: usize,
@@ -19,6 +20,38 @@ impl Equipment {
             tab_name: api_data.name.clone(),
             slots: api_data.equipment.clone(),
         }
+    }
+
+    pub fn all_item_ids(&self) -> HashSet<ItemId> {
+        HashSet::from_iter(self.slots.iter().filter_map(|s| {
+            if s.skin.is_none() {
+                Some(s.id)
+            } else {
+                None
+            }
+        }))
+    }
+
+    pub fn resolve_default_skins<R: cache::Resolver<Item, ItemId>>(self, cache: &mut R) -> Result<Self, EndpointError> {
+        Ok(Equipment {
+            char_name: self.char_name.clone(),
+            tab_id: self.tab_id,
+            tab_name: self.tab_name.clone(),
+            slots: self.resolve_slots_default_skins(cache)?,
+        })
+    }
+
+    fn resolve_slots_default_skins<R: cache::Resolver<Item, ItemId>>(self, cache: &mut R) -> Result<Vec<Equip>, EndpointError> {
+        self.slots.into_iter().map(|s| {
+            if s.skin.is_none() {
+                Ok::<_, EndpointError>(Equip{
+                    skin: cache.get(s.id)?.default_skin,
+                    ..s
+                })
+            } else {
+                Ok(s)
+            }
+        }).collect()
     }
 }
 
