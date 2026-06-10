@@ -21,10 +21,12 @@ where
     }
 
     pub fn characters(&self) -> Result<Vec<String>, EndpointError> {
+        log::info!("Retrieving character list");
         Requester::ids::<Character, CharacterId>(&self.req)
     }
 
     pub fn character(&self, name: &str) -> Result<Character, EndpointError> {
+        log::info!("Retrieving character data for {}", name);
         Requester::single::<Character, CharacterId>(&self.req, name.to_string())
     }
 
@@ -37,8 +39,11 @@ where
 
         let mut result = Vec::new();
         for c in chars {
-            result.extend(self.fetch_char_equipment(c.as_ref())?);
+            let tabs = self.fetch_char_equipment(c.as_ref())?;
+            log::info!("Successfully retrieved {} equipment tabs for {}", tabs.len(), c);
+            result.extend(tabs);
         }
+        log::info!("Successfully retrieved {} equipment tabs", result.len());
         Ok(result)
     }
 

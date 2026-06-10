@@ -75,7 +75,9 @@ where
     }
 
     fn fetch_missing_fashion_data<Skins: IntoIterator<Item=SkinId>, Dyes:IntoIterator<Item=DyeId>>(&mut self, skins: Skins, dyes: Dyes) -> Result<(), EndpointError> {
+        log::info!("Retrieving skin data");
         self.skins.ensure(skins.into_iter().map(|id| id.into()))?;
+        log::info!("Retrieving color data");
         self.colors.ensure(dyes.into_iter().map(|id| id.into()))
     }
 

@@ -34,6 +34,7 @@ where
 
     pub fn ensure<Ids: IntoIterator<Item=I>>(&mut self, ids: Ids) -> Result<(), EndpointError> {
         let ids: Vec<_> = ids.into_iter().filter(|id| !self.items.contains_key(id)).collect();
+        log::info!("Retrieving {} missing objects from GW2 API", ids.len());
         let items = self.fetch_many(ids.clone())?;
         let items = ids.into_iter().zip(items);
         self.items.extend(items);
