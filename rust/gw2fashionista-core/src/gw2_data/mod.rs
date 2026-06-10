@@ -12,6 +12,7 @@ use crate::domain::chatlink::ChatLink;
 use crate::domain::error::ChatLinkError;
 use crate::domain::skins::{DyeId, SkinId};
 use crate::domain::wardrobe_template::WardrobeTemplate;
+use crate::gw2_data::cache::{Cache, Resolver as CacheResolver};
 use crate::models::wardrobe_template::WardrobeTemplateData;
 use crate::models::skin;
 
@@ -23,9 +24,9 @@ pub struct Resolver<Req>
 where
     Req: Requester<false, false>,
 {
-    items: cache::Cache<Item, u32, Req>,
-    skins: cache::Cache<Skin, u32, Req>,
-    colors: cache::Cache<Color, u16, Req>,
+    items: Cache<Item, u32, Req>,
+    skins: Cache<Skin, u32, Req>,
+    colors: Cache<Color, u16, Req>,
     // outfits: cache::Cache<Outfit, u32, Req>,
 }
 
