@@ -36,7 +36,7 @@ impl super::Command for Command {
         }?;
 
         let new_template = new_template.filter(&filter);
-        let merged = base_template.merge(&new_template, self.skin_dyes_only.dyes_only, self.skin_dyes_only.skins_only);
+        let merged = base_template.merge(&new_template, self.skin_dyes_only.no_skins, self.skin_dyes_only.no_dyes);
 
         println!("{}", ChatLink::WardrobeTemplate(merged).to_string()?);
         Ok(())
