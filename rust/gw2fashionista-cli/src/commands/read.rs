@@ -58,7 +58,8 @@ impl Command {
     }
 
     fn read_multiple_columns<R: io::BufRead>(&self, headers: csv::StringRecord, reader: &mut csv::Reader<R>) -> anyhow::Result<Vec<String>> {
-        let col = self.find_column(headers, "fashion_link")?;
+        let col_name = self.column.as_ref().unwrap().as_str();
+        let col = self.find_column(headers, col_name)?;
         self.read_from_column(reader, col).collect()
     }
 
