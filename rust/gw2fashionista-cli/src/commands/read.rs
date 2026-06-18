@@ -96,7 +96,7 @@ impl super::Command for Command {
 
         for link in links {
             let data = resolver.resolve_chat_link(&link)?;
-            print(&data)?;
+            print(&data, self.pretty)?;
         }
         Ok(())
     }
@@ -118,7 +118,11 @@ fn parse(chat_links: &Vec<String>) -> Result<Vec<ChatLink>, ChatLinkError> {
     Ok(links?)
 }
 
-fn print(data: &WardrobeTemplateData) -> anyhow::Result<()> {
-    serde_json::to_writer_pretty(io::stdout(), data)?;
+fn print(data: &WardrobeTemplateData, pretty: bool) -> anyhow::Result<()> {
+    if pretty {
+        serde_json::to_writer_pretty(io::stdout(), data)?;
+    } else {
+        serde_json::to_writer(io::stdout(), data)?;
+    }
     Ok(())
 }
