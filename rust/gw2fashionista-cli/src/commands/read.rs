@@ -126,7 +126,7 @@ impl super::Command for Command {
                     let data = if self.skip_names {
                         (&template).into()
                     } else {
-                        resolver.resolve_wardrobe_template(&template)
+                        resolver.resolve_wardrobe_template(&template)?
                     };
 
                     print(&data, self.pretty)?;

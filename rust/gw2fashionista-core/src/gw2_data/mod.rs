@@ -108,81 +108,87 @@ where
     pub fn resolve_chat_link(&mut self, chat_link: &ChatLink) -> Result<WardrobeTemplateData, ChatLinkError> {
         match chat_link {
             ChatLink::WardrobeTemplate(template) => {
-                Ok(self.resolve_wardrobe_template(template))
+                Ok(self.resolve_wardrobe_template(template).unwrap())
             },
             _ => Err(ChatLinkError::NotImplemented)
         }
     }
 
-    pub fn resolve_wardrobe_template(&mut self, template: &WardrobeTemplate) -> WardrobeTemplateData {
+    pub fn resolve_wardrobe_template(&mut self, template: &WardrobeTemplate) -> Result<WardrobeTemplateData, EndpointError> {
         let data = template.into();
         self.resolve_wardrobe_template_data(&data)
     }
 
-    pub fn resolve_wardrobe_template_data(&mut self, template: &WardrobeTemplateData) -> WardrobeTemplateData {
-        WardrobeTemplateData {
-            aquabreather: self.resolve_wardrobe_slot(&template.aquabreather),
-            backpack: self.resolve_wardrobe_slot(&template.backpack),
-            chest: self.resolve_wardrobe_slot(&template.chest),
-            shoes: self.resolve_wardrobe_slot(&template.shoes),
-            gloves: self.resolve_wardrobe_slot(&template.gloves),
-            head: self.resolve_wardrobe_slot(&template.head),
-            legs: self.resolve_wardrobe_slot(&template.legs),
-            shoulders: self.resolve_wardrobe_slot(&template.shoulders),
-            outfit: self.resolve_outfit(&template.outfit),
-            weapon_aquatic_a: self.resolve_wardrobe_slot(&template.weapon_aquatic_a),
-            weapon_aquatic_b: self.resolve_wardrobe_slot(&template.weapon_aquatic_b),
-            weapon_a1: self.resolve_wardrobe_slot(&template.weapon_a1),
-            weapon_a2: self.resolve_wardrobe_slot(&template.weapon_a2),
-            weapon_b1: self.resolve_wardrobe_slot(&template.weapon_b1),
-            weapon_b2: self.resolve_wardrobe_slot(&template.weapon_b2),
+    pub fn resolve_wardrobe_template_data(&mut self, template: &WardrobeTemplateData) -> Result<WardrobeTemplateData, EndpointError> {
+        Ok(WardrobeTemplateData {
+            aquabreather: self.resolve_wardrobe_slot(&template.aquabreather)?,
+            backpack: self.resolve_wardrobe_slot(&template.backpack)?,
+            chest: self.resolve_wardrobe_slot(&template.chest)?,
+            shoes: self.resolve_wardrobe_slot(&template.shoes)?,
+            gloves: self.resolve_wardrobe_slot(&template.gloves)?,
+            head: self.resolve_wardrobe_slot(&template.head)?,
+            legs: self.resolve_wardrobe_slot(&template.legs)?,
+            shoulders: self.resolve_wardrobe_slot(&template.shoulders)?,
+            outfit: self.resolve_outfit(&template.outfit)?,
+            weapon_aquatic_a: self.resolve_wardrobe_slot(&template.weapon_aquatic_a)?,
+            weapon_aquatic_b: self.resolve_wardrobe_slot(&template.weapon_aquatic_b)?,
+            weapon_a1: self.resolve_wardrobe_slot(&template.weapon_a1)?,
+            weapon_a2: self.resolve_wardrobe_slot(&template.weapon_a2)?,
+            weapon_b1: self.resolve_wardrobe_slot(&template.weapon_b1)?,
+            weapon_b2: self.resolve_wardrobe_slot(&template.weapon_b2)?,
+        })
+    }
+
+    fn resolve_outfit(&mut self, skin: &Option<skin::Skin>) -> Result<Option<skin::Skin>, EndpointError> {
+        if let Some(skin) = skin {
+            Ok(Some(skin::Skin{
+                name: self.resolve_outfit_name(skin.id)?,
+                dyes: self.resolve_dyes(&skin.dyes)?,
+                ..*skin
+            }))
+        } else {
+            Ok(None)
         }
     }
 
-    fn resolve_outfit(&mut self, skin: &Option<skin::Skin>) -> Option<skin::Skin> {
-        skin.as_ref().map(|skin| {
-            skin::Skin{
-                name: self.resolve_outfit_name(skin.id),
-                dyes: self.resolve_dyes(&skin.dyes),
+    fn resolve_wardrobe_slot(&mut self, skin: &Option<skin::Skin>) -> Result<Option<skin::Skin>, EndpointError> {
+        if let Some(skin) = skin {
+            Ok(Some(skin::Skin{
+                name: self.resolve_skin_name(skin.id)?,
+                dyes: self.resolve_dyes(&skin.dyes)?,
                 ..*skin
-            }
-        })
+            }))
+        } else {
+            Ok(None)
+        }
     }
 
-    fn resolve_wardrobe_slot(&mut self, skin: &Option<skin::Skin>) -> Option<skin::Skin> {
-        skin.as_ref().map(|skin| {
-            skin::Skin{
-                name: self.resolve_skin_name(skin.id),
-                dyes: self.resolve_dyes(&skin.dyes),
-                ..*skin
-            }
-        })
+    fn resolve_outfit_name(&mut self, id: u16) -> Result<Option<String>, EndpointError> {
+        Ok(Some(self.outfit(id.into())?.name))
     }
 
-    fn resolve_outfit_name(&mut self, id: u16) -> Option<String> {
-        Some(self.outfit(id.into()).unwrap().name)
+    fn resolve_skin_name(&mut self, id: u16) -> Result<Option<String>, EndpointError> {
+        Ok(Some(self.skin(id.into())?.name))
     }
 
-    fn resolve_skin_name(&mut self, id: u16) -> Option<String> {
-        Some(self.skin(id.into()).unwrap().name)
+    fn resolve_dyes(&mut self, dyes: &Option<skin::Dyes>) -> Result<Option<skin::Dyes>, EndpointError> {
+        if let Some((dye1, dye2, dye3, dye4)) = dyes {
+            Ok(Some((
+                self.resolve_dye_name(dye1)?,
+                self.resolve_dye_name(dye2)?,
+                self.resolve_dye_name(dye3)?,
+                self.resolve_dye_name(dye4)?
+            )))
+        } else {
+            Ok(None)
+        }
     }
 
-    fn resolve_dyes(&mut self, dyes: &Option<skin::Dyes>) -> Option<skin::Dyes> {
-        dyes.as_ref().map(|(dye1, dye2, dye3, dye4)| {
-            (
-                self.resolve_dye_name(dye1),
-                self.resolve_dye_name(dye2),
-                self.resolve_dye_name(dye3),
-                self.resolve_dye_name(dye4)
-            )
-        })
-    }
-
-    fn resolve_dye_name(&mut self, dye: &skin::Dye) -> skin::Dye {
-        skin::Dye{
-            name: Some(self.dye(dye.id.into()).unwrap().name),
+    fn resolve_dye_name(&mut self, dye: &skin::Dye) -> Result<skin::Dye, EndpointError> {
+        Ok(skin::Dye{
+            name: Some(self.dye(dye.id.into())?.name),
             ..*dye
-        }
+        })
     }
 }
 
