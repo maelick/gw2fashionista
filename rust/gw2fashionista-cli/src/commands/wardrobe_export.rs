@@ -45,7 +45,7 @@ impl super::Command for Command {
         let equipments: Result<Vec<_>, _> = resolver
             .resolve_equipment(equipments)?
             .iter()
-            .map(ExportedEquipment::new)
+            .map(|e| self.export_equipment(e))
             .collect();
 
         self.output_equipments(equipments?)?;
@@ -54,6 +54,15 @@ impl super::Command for Command {
 }
 
 impl Command {
+    fn export_equipment(&self, equipment: &Equipment) -> Result<ExportedEquipment, ChatLinkError> {
+        let equipment = ExportedEquipment::new(equipment)?;
+        if !self.no_default_name {
+            Ok(equipment.with_default_name())
+        } else {
+            Ok(equipment)
+        }
+    }
+
     fn output_equipments(&self, equipments: Vec<ExportedEquipment>) -> anyhow::Result<()> {
         let format = match self.format {
             args::Format::Auto => self.detect_format(),
@@ -114,6 +123,17 @@ impl ExportedEquipment {
             tab_name: equipment.tab_name.clone(),
             fashion_link: chat_link.to_string()?,
         })
+    }
+
+    pub fn with_default_name(self) -> Self {
+        if self.tab_name.is_empty() {
+            ExportedEquipment{
+                tab_name: format!("{} {}", self.char_name, self.tab_id),
+                ..self
+            }
+        } else {
+            self
+        }
     }
 }
 
