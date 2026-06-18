@@ -6,8 +6,28 @@ use gw2fashionista_core::gw2_data::Resolver;
 
 #[derive(Args, Debug)]
 pub struct Command {
-    /// Chat link of the fashion template(s) to read. If empty, chat links will be read from stdin, either as a CSV file from the column fashion_link, or as one link per row
+    /// Chat links to read.
+    /// If empty, chat links will be read from stdin,
+    /// either as a CSV file from a specific column (with headers),
+    /// or as one link per row (without headers).
     chat_links: Vec<String>,
+
+    /// Do not exit on parse errors.
+    /// Attempt to parse all chat links and log the encountered errors on stderr.
+    #[arg(long)]
+    lenient: bool,
+
+    /// Skip skin/outfit/dye API name resolution.
+    #[arg(long)]
+    skip_names: bool,
+
+    /// Pretty print (JSON) output.
+    #[arg(short, long)]
+    pretty: bool,
+
+    /// Name of the CSV column containing the chat link to parse.
+    #[arg(short, long, default_value = "fashion_link")]
+    column: Option<String>,
 }
 
 impl Command {
