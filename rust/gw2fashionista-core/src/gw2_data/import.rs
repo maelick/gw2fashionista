@@ -4,12 +4,14 @@ use hyper::client::HttpConnector;
 use hyper_rustls::HttpsConnector;
 
 use crate::gw2_data::equipment::Equipment;
+use crate::gw2_data::retry::Retry;
 
 pub struct Importer<Req>
 where
     Req: Requester<true, false>,
 {
     req: Req,
+    retry: Retry,
 }
 
 impl<Req> Importer<Req>
@@ -17,17 +19,20 @@ where
     Req: Requester<true, false>,
 {
     pub fn new(req: Req) -> Self {
-        Importer{ req }
+        Importer{
+            req,
+            retry: Retry::default(),
+        }
     }
 
     pub fn characters(&self) -> Result<Vec<String>, EndpointError> {
         log::info!("Retrieving character list");
-        Requester::ids::<Character, CharacterId>(&self.req)
+        self.retry.retry(|| Requester::ids::<Character, CharacterId>(&self.req))
     }
 
     pub fn character(&self, name: &str) -> Result<Character, EndpointError> {
         log::info!("Retrieving character data for {}", name);
-        Requester::single::<Character, CharacterId>(&self.req, name.to_string())
+        self.retry.retry(|| Requester::single::<Character, CharacterId>(&self.req, name.to_string()))
     }
 
     pub fn fetch_equipment(&self, chars: &Vec<String>) -> Result<Vec<Equipment>, EndpointError> {

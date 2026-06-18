@@ -14,10 +14,12 @@ use crate::domain::skins::{DyeId, SkinId};
 use crate::domain::wardrobe_template::WardrobeTemplate;
 use crate::gw2_data::cache::{Cache, Resolver as CacheResolver};
 use crate::gw2_data::equipment::Equipment;
+use crate::gw2_data::retry::Retry;
 use crate::models::wardrobe_template::WardrobeTemplateData;
 use crate::models::skin;
 
 mod cache;
+mod retry;
 pub mod equipment;
 pub mod import;
 
@@ -29,6 +31,7 @@ where
     skins: Cache<Skin, u32, Req>,
     colors: Cache<Color, u16, Req>,
     // outfits: cache::Cache<Outfit, u32, Req>,
+    retry: Retry,
 }
 
 impl<Req> Resolver<Req>
@@ -41,6 +44,7 @@ where
             items: cache::Cache::new(req.clone()),
             skins: cache::Cache::new(req.clone()),
             colors: cache::Cache::new(req.clone()),
+            retry: Retry::default(),
         }
     }
 
@@ -51,15 +55,15 @@ where
     }
 
     pub fn skin(&mut self, id: SkinId) -> Result<Skin, EndpointError> {
-        self.skins.get(id.into())
+        self.retry.retry(|| self.skins.get(id.into()))
     }
 
     pub fn dye(&mut self, id: DyeId) -> Result<Color, EndpointError> {
-        self.colors.get(id.into())
+        self.retry.retry(|| self.colors.get(id.into()))
     }
 
     pub fn item(&mut self, id: u32) -> Result<Item, EndpointError> {
-        self.items.get(id)
+        self.retry.retry(|| self.items.get(id))
     }
 
     pub fn cache_wardrobe_templates<'a, Templates: IntoIterator<Item=&'a WardrobeTemplate>>(&mut self, templates: Templates) -> Result<(), EndpointError> {
