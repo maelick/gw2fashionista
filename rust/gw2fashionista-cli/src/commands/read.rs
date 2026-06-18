@@ -54,13 +54,17 @@ impl Command {
     fn read_single_column<R: io::BufRead>(&self, headers: csv::StringRecord, reader: &mut csv::Reader<R>) -> anyhow::Result<Vec<String>> {
         let first = iter::once(Ok(headers.get(0).unwrap().to_string()));
         let others = self.read_from_column(reader, 0);
-        first.chain(others).collect()
+        self.collect(first.chain(others).map(|r| ((), r)), |_, err| {
+            log::error!("Error reading raw chat links: {}", err);
+        })
     }
 
     fn read_multiple_columns<R: io::BufRead>(&self, headers: csv::StringRecord, reader: &mut csv::Reader<R>) -> anyhow::Result<Vec<String>> {
         let col_name = self.column.as_ref().unwrap().as_str();
         let col = self.find_column(headers, col_name)?;
-        self.read_from_column(reader, col).collect()
+        self.collect(self.read_from_column(reader, col).map(|r| ((), r)), |_, err| {
+            log::error!("Error reading chat links from CSV: {}", err);
+        })
     }
 
     fn read_from_column<R: io::BufRead>(&self, reader: &mut csv::Reader<R>, col: usize) -> impl Iterator<Item = anyhow::Result<String>> {
@@ -70,7 +74,7 @@ impl Command {
     fn read_chat_link(&self, record: csv::StringRecord, col: usize) -> anyhow::Result<String> {
         match record.get(col) {
             Some(value) => Ok(value.to_string()),
-            None => Err(anyhow::anyhow!("Invalid CSV file: row {} missing column {}", 0, col)),
+            None => Err(anyhow::anyhow!("Invalid CSV file: missing column {}", col)), // Should not be possible
         }
     }
 
@@ -78,6 +82,27 @@ impl Command {
         match headers.iter().position(|header| header == col_name) {
             Some(value) => Ok(value),
             None => Err(anyhow::anyhow!("Missing column {} in CSV input", col_name))
+        }
+    }
+
+    fn parse(&self, chat_links: &Vec<String>) -> Result<Vec<ChatLink>, ChatLinkError> {
+        let iter = chat_links.iter().map(|raw_link| {
+            (raw_link, ChatLink::try_from(raw_link.as_str()))
+        });
+        self.collect(iter, |link, err| {
+            log::error!("Error parsing chat link '{}': {}", link, err);
+        })
+    }
+
+    fn collect<V, T, E, I, F>(&self, iter: I, on_error: F) -> Result<Vec<T>, E>
+    where
+        I: IntoIterator<Item = (V, Result<T, E>)>,
+        F: Fn(V, E),
+    {
+        if self.lenient {
+            collect_lenient(iter, on_error)
+        } else {
+            iter.into_iter().map(|(_, res)| res).collect()
         }
     }
 }
@@ -89,7 +114,7 @@ impl super::Command for Command {
 
     fn execute(&self) -> anyhow::Result<()> {
         let raw_links = self.get_links()?;
-        let links = parse(&raw_links)?;
+        let links = self.parse(&raw_links)?;
         let mut resolver = Resolver::default();
         if !self.skip_names {
             resolver.cache_wardrobe_templates(wardrobe_templates(&links))?;
@@ -122,13 +147,6 @@ fn wardrobe_templates(chat_links: &Vec<ChatLink>) -> Vec<&WardrobeTemplate> {
     }).collect()
 }
 
-fn parse(chat_links: &Vec<String>) -> Result<Vec<ChatLink>, ChatLinkError> {
-    let links: Result<Vec<_>, _> = chat_links.iter().map(|raw_link| {
-        ChatLink::try_from(raw_link.as_str())
-    }).collect();
-    Ok(links?)
-}
-
 fn print(data: &WardrobeTemplateData, pretty: bool) -> anyhow::Result<()> {
     if pretty {
         serde_json::to_writer_pretty(io::stdout(), data)?;
@@ -136,4 +154,17 @@ fn print(data: &WardrobeTemplateData, pretty: bool) -> anyhow::Result<()> {
         serde_json::to_writer(io::stdout(), data)?;
     }
     Ok(())
+}
+
+fn collect_lenient<V, T, E, I, F>(iter: I, on_error: F) -> Result<Vec<T>, E>
+where
+    I: IntoIterator<Item = (V, Result<T, E>)>,
+    F: Fn(V, E),
+{
+    Ok(iter.into_iter().filter_map(|(value, result)| {
+        result.map_or_else(|err| {
+            on_error(value, err);
+            None
+        }, Some)
+    }).collect())
 }
