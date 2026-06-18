@@ -68,7 +68,7 @@ mod tests {
         let data = &resolver.resolve_wardrobe_template(&template);
 
         assert_matches!(&data.aquabreather.as_ref().unwrap().name, Some(name) if name == "Black Earth Aquabreather");
-        assert_matches!(&data.outfit.as_ref().unwrap().name, None);
+        assert_matches!(&data.outfit.as_ref().unwrap().name, Some(name) if name == "Hologram Outfit");
         assert_matches!(&data.weapon_aquatic_a.as_ref().unwrap().name, Some(name) if name == "Steam Speargun");
         assert_matches!(&data.weapon_aquatic_b.as_ref().unwrap().name, Some(name) if name == "Iron Spear");
         assert_matches!(&data.weapon_a1.as_ref().unwrap().name, Some(name) if name == "Quip");
