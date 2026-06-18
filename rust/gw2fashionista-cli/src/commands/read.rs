@@ -90,14 +90,24 @@ impl super::Command for Command {
     fn execute(&self) -> anyhow::Result<()> {
         let raw_links = self.get_links()?;
         let links = parse(&raw_links)?;
-        let templates = wardrobe_templates(&links);
-
         let mut resolver = Resolver::default();
-        resolver.cache_wardrobe_templates(templates)?;
+        if !self.skip_names {
+            resolver.cache_wardrobe_templates(wardrobe_templates(&links))?;
+        }
 
         for link in links {
-            let data = resolver.resolve_chat_link(&link)?;
-            print(&data, self.pretty)?;
+            match link {
+                ChatLink::WardrobeTemplate(template) => {
+                    let data = if self.skip_names {
+                        (&template).into()
+                    } else {
+                        resolver.resolve_wardrobe_template(&template)
+                    };
+
+                    print(&data, self.pretty)?;
+                },
+                _ => Err(anyhow::anyhow!("Unsupported chat link type"))?,
+            }
         }
         Ok(())
     }

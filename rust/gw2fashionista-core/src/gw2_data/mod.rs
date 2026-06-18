@@ -31,7 +31,7 @@ where
 {
     items: Cache<Item, u32, Req>,
     skins: Cache<Skin, u32, Req>,
-    outfits: cache::Cache<Outfit, u32, Req>,
+    outfits: Cache<Outfit, u32, Req>,
     colors: Cache<Color, u16, Req>,
     retry: Retry,
 }
@@ -43,10 +43,10 @@ where
     pub fn new(req: Req) -> Self {
         let req = Arc::new(req);
         Resolver{
-            items: cache::Cache::new(req.clone()),
-            skins: cache::Cache::new(req.clone()),
-            outfits: cache::Cache::new(req.clone()),
-            colors: cache::Cache::new(req.clone()),
+            items: Cache::new(req.clone()),
+            skins: Cache::new(req.clone()),
+            outfits: Cache::new(req.clone()),
+            colors: Cache::new(req.clone()),
             retry: Retry::default(),
         }
     }
