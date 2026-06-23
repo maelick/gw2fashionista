@@ -18,7 +18,7 @@ mod tests {
 
         resolver.cache_wardrobe_template(&template).unwrap();
 
-        let data = resolver.resolve_wardrobe_template(&template);
+        let data = resolver.resolve_wardrobe_template(&template).unwrap();
 
         assert_matches!(data.aquabreather, None);
         assert_matches!(data.backpack, None);
@@ -44,7 +44,7 @@ mod tests {
 
         resolver.cache_wardrobe_template(&template).unwrap();
 
-        let data = resolver.resolve_wardrobe_template(&template);
+        let data = resolver.resolve_wardrobe_template(&template).unwrap();
 
         assert_matches!(data.aquabreather, None);
         assert_matches!(data.outfit, None);
@@ -65,7 +65,7 @@ mod tests {
 
         resolver.cache_wardrobe_template(&template).unwrap();
 
-        let data = &resolver.resolve_wardrobe_template(&template);
+        let data = &resolver.resolve_wardrobe_template(&template).unwrap();
 
         assert_matches!(&data.aquabreather.as_ref().unwrap().name, Some(name) if name == "Black Earth Aquabreather");
         assert_matches!(&data.outfit.as_ref().unwrap().name, Some(name) if name == "Hologram Outfit");
