@@ -1,6 +1,6 @@
 use clap::{Args, ValueEnum};
 
-use gw2fashionista_core::domain::wardrobe_template::slot::{SlotFilter, SlotFilterExt};
+use gw2fashionista_core::domain::wardrobe_template::slot::{EquipmentCategory, SlotFilter, SlotFilterExt, SlotType};
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
 pub enum Format {
@@ -39,16 +39,16 @@ impl From<&EquipmentFilters> for SlotFilter {
     fn from(value: &EquipmentFilters) -> Self {
         let mut filter = SlotFilter::all();
         if value.no_weapons {
-            filter.no_weapons();
+            filter.filter_out(EquipmentCategory::Weapon);
         }
         if value.no_armor {
-            filter.no_armors();
+            filter.filter_out(EquipmentCategory::Armor);
         }
         if value.no_backpack {
-            filter.no_backpack();
+            filter.remove(&SlotType::Backpack);
         }
         if value.no_outfit {
-            filter.no_outfit();
+            filter.remove(&SlotType::Outfit);
         }
 
         let underwater = (&value.underwater).into();
@@ -72,10 +72,10 @@ impl From<&UnderwaterFilters> for SlotFilter {
     fn from(value: &UnderwaterFilters) -> Self {
         let mut filter = SlotFilter::all();
         if value.no_underwater {
-            filter.no_underwater();
+            filter.filter_out(EquipmentCategory::Underwater);
         }
         if value.only_underwater {
-            filter.only_underwater();
+            filter.keep_only(EquipmentCategory::Underwater);
         }
         filter
     }
