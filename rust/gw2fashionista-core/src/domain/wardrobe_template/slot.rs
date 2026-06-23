@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 use std::io::Cursor;
 
+use serde::{Deserialize, Serialize};
 use strum::{EnumCount, EnumIter, IntoEnumIterator};
 use bitflags::bitflags;
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
@@ -9,7 +10,9 @@ use crate::domain::error::ChatLinkError;
 use crate::domain::skins::{SkinId, Dyes};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, EnumIter, EnumCount)]
+#[derive(Serialize, Deserialize, strum_macros::EnumString, strum_macros::Display)]
 #[repr(u8)]
+#[strum(serialize_all = "snake_case")]
 pub enum SlotType {
     Aquabreather,
     Backpack,
@@ -120,7 +123,8 @@ impl SlotFilterExt for SlotFilter {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize, strum_macros::EnumString, strum_macros::Display)]
+#[strum(serialize_all = "snake_case")]
 pub enum EquipmentCategory {
     Underwater,
     Armor,
