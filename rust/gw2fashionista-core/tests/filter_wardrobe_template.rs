@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use gw2fashionista_core::domain::{chatlink::ChatLink, wardrobe_template::slot::{SlotFilter, SlotFilterExt}};
+    use gw2fashionista_core::domain::{chatlink::ChatLink, wardrobe_template::slot::{EquipmentCategory, SlotFilter, SlotFilterExt, SlotType}};
 
     const ZIZI_TEMPLATE: &str = "D1sDPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAHwAAQABAAEAAQDjE6APPBI8Ej0SAAD+fg==";
     const ZIZI_ARMOR_TEMPLATE: &str = "DwAAPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAAAAAQABAAEAAQAAAAAAAAAAAAAAAAD/fw==";
@@ -14,9 +14,9 @@ mod tests {
         };
 
         let mut filter = SlotFilter::all();
-        filter.no_outfit();
-        filter.no_underwater();
-        filter.no_weapons();
+        filter.remove(&SlotType::Outfit);
+        filter.remove_all(EquipmentCategory::Underwater.slots());
+        filter.remove_all(EquipmentCategory::Weapon.slots());
 
         let filtered = template.filter(&filter);
 
