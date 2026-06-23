@@ -90,8 +90,6 @@ pub trait SlotFilterExt {
     fn invert(&mut self);
     fn remove_all<I: IntoIterator<Item = &'static SlotType>>(&mut self, slots: I);
     fn retain_all<I: IntoIterator<Item = &'static SlotType>>(&mut self, slots: I);
-    fn filter_out(&mut self, category: EquipmentCategory);
-    fn keep_only(&mut self, category: EquipmentCategory);
 }
 
 impl SlotFilterExt for SlotFilter {
@@ -112,14 +110,6 @@ impl SlotFilterExt for SlotFilter {
         for s in slots {
             self.remove(s);
         }
-    }
-
-    fn filter_out(&mut self, category: EquipmentCategory) {
-        self.remove_all(category.slots());
-    }
-
-    fn keep_only(&mut self, category: EquipmentCategory) {
-        self.retain_all(category.slots());
     }
 }
 

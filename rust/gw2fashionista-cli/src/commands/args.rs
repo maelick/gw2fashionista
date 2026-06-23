@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use clap::{Args, ValueEnum};
 
 use gw2fashionista_core::domain::wardrobe_template::slot::{EquipmentCategory, SlotFilter, SlotFilterExt, SlotType};
@@ -15,67 +17,56 @@ pub enum Format {
 #[derive(Args, Debug)]
 #[group(multiple = true)]
 pub struct EquipmentFilters {
-    /// Filter out weapon skins
-    #[arg(long, default_value_t = false, display_order = 10)]
-    no_weapons: bool,
+    /// Only keep the provided comma-separated skins (or skin categories)
+    #[arg(long, value_delimiter = ',')]
+    only: Vec<FilterOption>,
 
-    /// Filter out armor skins
-    #[arg(long, default_value_t = false, display_order = 10)]
-    no_armor: bool,
+    /// Exclude the provided comma-separated skins (or skin categories)
+    #[arg(long, value_delimiter = ',')]
+    exclude: Vec<FilterOption>,
+}
 
-    /// Filter out backpack skin
-    #[arg(long, default_value_t = false, display_order = 10)]
-    no_backpack: bool,
+#[derive(Debug, Clone)]
+enum FilterOption {
+    Category(EquipmentCategory),
+    Slot(SlotType),
+}
 
-    /// Filter out outfit
-    #[arg(long, default_value_t = false, display_order = 10)]
-    no_outfit: bool,
-
-    #[command(flatten)]
-    underwater: UnderwaterFilters,
+impl FromStr for FilterOption {
+    type Err = String;
+    
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        // Try parsing as category first
+        if let Ok(category) = EquipmentCategory::from_str(s) {
+            return Ok(FilterOption::Category(category));
+        }
+        // Then try as slot
+        if let Ok(slot) = SlotType::from_str(s) {
+            return Ok(FilterOption::Slot(slot));
+        }
+        Err(format!("Unknown filter: {}", s))
+    }
 }
 
 impl From<&EquipmentFilters> for SlotFilter {
     fn from(value: &EquipmentFilters) -> Self {
         let mut filter = SlotFilter::all();
-        if value.no_weapons {
-            filter.filter_out(EquipmentCategory::Weapon);
-        }
-        if value.no_armor {
-            filter.filter_out(EquipmentCategory::Armor);
-        }
-        if value.no_backpack {
-            filter.remove(&SlotType::Backpack);
-        }
-        if value.no_outfit {
-            filter.remove(&SlotType::Outfit);
+        for f in &value.only {
+            match f {
+                FilterOption::Category(category) => filter.retain_all(category.slots()),
+                FilterOption::Slot(slot) => {
+                    filter.retain(|s| s == slot);
+                },
+            };
         }
 
-        let underwater = (&value.underwater).into();
-        filter.intersection(&underwater).copied().collect()
-    }
-}
-
-#[derive(Args, Debug)]
-#[group(multiple = false)]
-pub struct UnderwaterFilters {
-    /// Filter out underwater skins
-    #[arg(long, default_value_t = false, display_order = 11)]
-    no_underwater: bool,
-
-    /// Filter out overland skins
-    #[arg(long, default_value_t = false, display_order = 11)]
-    only_underwater: bool,
-}
-
-impl From<&UnderwaterFilters> for SlotFilter {
-    fn from(value: &UnderwaterFilters) -> Self {
-        let mut filter = SlotFilter::all();
-        if value.no_underwater {
-            filter.filter_out(EquipmentCategory::Underwater);
-        }
-        if value.only_underwater {
-            filter.keep_only(EquipmentCategory::Underwater);
+        for f in &value.exclude {
+            match f {
+                FilterOption::Category(category) => filter.remove_all(category.slots()),
+                FilterOption::Slot(slot) => {
+                    filter.remove(&slot);
+                },
+            };
         }
         filter
     }
