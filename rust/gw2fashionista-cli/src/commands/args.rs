@@ -1,6 +1,8 @@
 use std::str::FromStr;
 
-use clap::{Args, ValueEnum};
+use clap::{Args, ValueEnum, builder::TypedValueParser};
+use once_cell::sync::Lazy;
+use strum::{IntoEnumIterator};
 
 use gw2fashionista_core::domain::wardrobe_template::slot::{EquipmentCategory, SlotFilter, SlotFilterExt, SlotType};
 
@@ -30,6 +32,52 @@ pub struct EquipmentFilters {
 enum FilterOption {
     Category(EquipmentCategory),
     Slot(SlotType),
+}
+
+static FILTER_VARIANTS: Lazy<Vec<FilterOption>> = Lazy::new(|| {
+    let categories = EquipmentCategory::iter().map(FilterOption::Category);
+    let slots = SlotType::iter().map(FilterOption::Slot);
+    categories.chain(slots).collect()
+});
+
+impl ValueEnum for FilterOption {
+    fn value_variants<'a>() -> &'a [Self] {
+        &FILTER_VARIANTS
+    }
+
+    fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
+        Some(match self {
+            FilterOption::Category(cat) => {
+                clap::builder::PossibleValue::new(cat.to_string())
+            }
+            FilterOption::Slot(slot) => {
+                clap::builder::PossibleValue::new(slot.to_string())
+            }
+        })
+    }
+}
+
+impl TypedValueParser for FilterOption {
+    type Value = Self;
+
+    fn parse_ref(
+        &self,
+        _cmd: &clap::Command,
+        _arg: Option<&clap::Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, clap::Error> {
+        value.to_string_lossy().parse()
+            .map_err(|_| clap::Error::raw(clap::error::ErrorKind::InvalidValue, "Invalid filter"))
+    }
+
+    fn possible_values(&self) -> Option<Box<dyn Iterator<Item = clap::builder::PossibleValue> + '_>> {
+        let categories = EquipmentCategory::iter()
+            .map(|c| clap::builder::PossibleValue::new(format!("{:?}", c).to_lowercase()));
+        let slots = SlotType::iter()
+            .map(|s| clap::builder::PossibleValue::new(format!("{:?}", s).to_lowercase()));
+
+        Some(Box::new(categories.chain(slots)))
+    }
 }
 
 impl FromStr for FilterOption {

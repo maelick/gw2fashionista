@@ -442,8 +442,10 @@ dependencies = [
  "env_logger",
  "gw2fashionista-core",
  "log",
+ "once_cell",
  "serde",
  "serde_json",
+ "strum",
 ]
 
 [[package]]

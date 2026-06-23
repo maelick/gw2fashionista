@@ -113,7 +113,7 @@ impl SlotFilterExt for SlotFilter {
     }
 }
 
-#[derive(Debug, Copy, Clone, Serialize, Deserialize, strum_macros::EnumString, strum_macros::Display)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize, EnumIter, strum_macros::EnumString, strum_macros::Display)]
 #[strum(serialize_all = "snake_case")]
 pub enum EquipmentCategory {
     Underwater,
