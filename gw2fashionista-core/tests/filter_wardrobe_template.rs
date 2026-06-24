@@ -16,7 +16,7 @@ mod tests {
         let mut filter = SlotFilter::all();
         filter.remove(&SlotType::Outfit);
         filter.remove_all(EquipmentCategory::Underwater.slots());
-        filter.remove_all(EquipmentCategory::Weapon.slots());
+        filter.remove_all(EquipmentCategory::Weapons.slots());
 
         let filtered = template.filter(&filter);
 

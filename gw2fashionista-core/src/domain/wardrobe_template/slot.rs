@@ -117,8 +117,8 @@ impl SlotFilterExt for SlotFilter {
 #[strum(serialize_all = "snake_case")]
 pub enum EquipmentCategory {
     Underwater,
-    Armor,
-    Weapon,
+    Armors,
+    Weapons,
 }
 
 impl EquipmentCategory {
@@ -129,7 +129,7 @@ impl EquipmentCategory {
                 SlotType::WeaponAquaticA,
                 SlotType::WeaponAquaticB,
             ],
-            EquipmentCategory::Armor => &[
+            EquipmentCategory::Armors => &[
                 SlotType::Aquabreather,
                 SlotType::Chest,
                 SlotType::Shoes,
@@ -138,7 +138,7 @@ impl EquipmentCategory {
                 SlotType::Legs,
                 SlotType::Shoulders,
             ],
-            EquipmentCategory::Weapon => &[
+            EquipmentCategory::Weapons => &[
                 SlotType::WeaponAquaticA,
                 SlotType::WeaponAquaticB,
                 SlotType::WeaponA1,
