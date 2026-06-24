@@ -96,7 +96,7 @@ class Export(FilterBaseCommand):
                 raise ValueError('Invalid output type: ' + output_format)
 
     def write_csv_output(self, f, fashion_templates: list[EquipmentTabFashion]):
-        w = csv.DictWriter(f, fieldnames=['char_name', 'tab_id', 'tab_name', 'fashion_link'])
+        w = csv.DictWriter(f, fieldnames=['char_name', 'tab_id', 'tab_name', 'fashion_link'], lineterminator='\n')
         w.writeheader()
         for t in fashion_templates:
             w.writerow(t.to_dict())

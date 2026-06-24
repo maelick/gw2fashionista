@@ -66,8 +66,8 @@ class GW2API:
     def fetch_char_equipment_tabs(self, char_name: str):
         tabs = self.client.charactersequipmenttabs.get(char_id=char_name, tabs='all')
         logging.info(f'Retrieved {char_name}\'s {len(tabs)} equipment tabs')
-        for i, t in enumerate(tabs):
-            tab = EquipmentTab(char_name, i, t['name'], t['equipment'])
+        for t in tabs:
+            tab = EquipmentTab(char_name, t['tab'], t['name'], t['equipment'])
             tab.fill_missing_skins(self.cache)
             yield tab
 
