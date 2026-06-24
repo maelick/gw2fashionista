@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+poetry --directory python run python3 -m gw2fashionista "$@"
