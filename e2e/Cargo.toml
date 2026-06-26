@@ -1,0 +1,10 @@
+[package]
+name = "e2e"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+assert_cmd = "2.2.2"
+gw2fashionista-cli = { version = "0.1.0", path = "../cli" }
+gw2fashionista-fixtures = { version = "0.1.0", path = "../fixtures" }
+serde_json = "1.0.150"
