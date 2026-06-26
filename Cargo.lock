@@ -470,6 +470,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "gw2fashionista-fixtures"
+version = "0.1.0"
+
+[[package]]
 name = "gw2lib"
 version = "3.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
