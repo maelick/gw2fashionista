@@ -455,6 +455,7 @@ dependencies = [
  "base64 0.22.1",
  "bitflags 2.12.1",
  "byteorder",
+ "gw2fashionista-fixtures",
  "gw2lib",
  "hyper",
  "hyper-rustls",

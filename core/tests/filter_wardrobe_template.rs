@@ -1,9 +1,7 @@
 #[cfg(test)]
 mod tests {
     use gw2fashionista_core::domain::{chatlink::ChatLink, wardrobe_template::slot::{EquipmentCategory, SlotFilter, SlotFilterExt, SlotType}};
-
-    const ZIZI_TEMPLATE: &str = "D1sDPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAHwAAQABAAEAAQDjE6APPBI8Ej0SAAD+fg==";
-    const ZIZI_ARMOR_TEMPLATE: &str = "DwAAPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAAAAAQABAAEAAQAAAAAAAAAAAAAAAAD/fw==";
+    use gw2fashionista_fixtures::wardrobe::{ZIZI_TEMPLATE, ZIZI_ARMOR_TEMPLATE};
 
     #[test]
     fn test_filter_zizi() {
