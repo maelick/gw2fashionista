@@ -34,3 +34,15 @@ fn test_read_command_pretty(#[case] template: WardrobeTemplate) {
     let json: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
     insta::assert_json_snapshot!(template.snapshot_name("read"), json);
 }
+
+#[rstest]
+#[case(EMPTY_TEMPLATE)]
+#[case(PEEKABOO_TEMPLATE)]
+#[case(ZIZI_TEMPLATE)]
+#[case(ZIZI_ARMOR_TEMPLATE)]
+fn test_read_command_skip_names(#[case] template: WardrobeTemplate) {
+    let output = spawn_cli(&["read", template.chat_link, "--skip-names"]);
+    assert!(output.status.success());
+    let json: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    insta::assert_json_snapshot!(template.snapshot_name("read_skip_names"), json);
+}
