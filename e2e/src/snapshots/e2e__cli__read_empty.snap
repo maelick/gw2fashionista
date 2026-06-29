@@ -1,0 +1,5 @@
+---
+source: e2e/src/cli.rs
+expression: json
+---
+{}

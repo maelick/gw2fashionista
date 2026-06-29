@@ -1,0 +1,167 @@
+---
+source: e2e/src/cli.rs
+expression: json
+---
+{
+  "backpack": {
+    "dyes": [
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 2365,
+    "name": "Pink Quaggan Backpack",
+    "visible": true
+  },
+  "chest": {
+    "dyes": [
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 12,
+    "name": "Sneakthief Coat",
+    "visible": true
+  },
+  "gloves": {
+    "dyes": [
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      }
+    ],
+    "id": 252,
+    "name": "Noble Gloves",
+    "visible": true
+  },
+  "head": {
+    "dyes": [
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 978,
+    "name": "Fuzzy Cat Hat",
+    "visible": true
+  },
+  "legs": {
+    "dyes": [
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 11,
+    "name": "Sneakthief Leggings",
+    "visible": true
+  },
+  "shoes": {
+    "dyes": [
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 35,
+    "name": "Sneakthief Sandals",
+    "visible": true
+  },
+  "shoulders": {
+    "dyes": [
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 5794,
+    "name": "Shoulder Scarf",
+    "visible": true
+  }
+}
