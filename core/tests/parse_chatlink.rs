@@ -68,7 +68,7 @@ mod tests {
 
     #[test]
     fn test_parse_empty() {
-        let raw = EMPTY_TEMPLATE;
+        let raw = EMPTY_TEMPLATE.chat_link;
         let expected_slots = SlotType::iter().map(|slot_type| {
             (slot_type, empty_skin(slot_type))
         }).collect();
@@ -95,7 +95,7 @@ mod tests {
 
     #[test]
     fn test_parse_zizi() {
-        let raw = format!("[&{}]", ZIZI_TEMPLATE);
+        let raw = format!("[&{}]", ZIZI_TEMPLATE.chat_link);
         let result = &ChatLink::try_from(raw.as_str()).unwrap();
 
         let ChatLink::WardrobeTemplate(actual) = result else {
@@ -154,7 +154,7 @@ mod tests {
 
     #[test]
     fn test_parse_zizi_armor_only() {
-        let raw = format!("[&{}]", ZIZI_ARMOR_TEMPLATE);
+        let raw = format!("[&{}]", ZIZI_ARMOR_TEMPLATE.chat_link);
         let result = &ChatLink::try_from(raw.as_str()).unwrap();
 
         let ChatLink::WardrobeTemplate(actual) = result else {

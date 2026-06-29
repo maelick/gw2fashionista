@@ -12,6 +12,6 @@ fn spawn_cli(args: &[&str]) -> std::process::Output {
 
 #[test]
 fn test_read_command() {
-    let output = spawn_cli(&["read", EMPTY_TEMPLATE]);
+    let output = spawn_cli(&["read", EMPTY_TEMPLATE.chat_link]);
     assert!(output.status.success());
 }
