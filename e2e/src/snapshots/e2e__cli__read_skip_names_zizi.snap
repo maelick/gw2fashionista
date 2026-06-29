@@ -1,0 +1,174 @@
+---
+source: e2e/src/cli.rs
+expression: json
+---
+{
+  "aquabreather": {
+    "id": 859,
+    "visible": false
+  },
+  "backpack": {
+    "dyes": [
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 2365,
+    "visible": true
+  },
+  "chest": {
+    "dyes": [
+      {
+        "id": 1304
+      },
+      {
+        "id": 1553
+      },
+      {
+        "id": 1553
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 12,
+    "visible": true
+  },
+  "gloves": {
+    "dyes": [
+      {
+        "id": 1
+      },
+      {
+        "id": 1553
+      },
+      {
+        "id": 1304
+      },
+      {
+        "id": 1304
+      }
+    ],
+    "id": 252,
+    "visible": true
+  },
+  "head": {
+    "dyes": [
+      {
+        "id": 1304
+      },
+      {
+        "id": 1553
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 978,
+    "visible": true
+  },
+  "legs": {
+    "dyes": [
+      {
+        "id": 1
+      },
+      {
+        "id": 1553
+      },
+      {
+        "id": 1553
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 11,
+    "visible": true
+  },
+  "outfit": {
+    "dyes": [
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 124,
+    "visible": false
+  },
+  "shoes": {
+    "dyes": [
+      {
+        "id": 1304
+      },
+      {
+        "id": 1553
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 35,
+    "visible": true
+  },
+  "shoulders": {
+    "dyes": [
+      {
+        "id": 1304
+      },
+      {
+        "id": 1553
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 5794,
+    "visible": true
+  },
+  "weapon_a1": {
+    "id": 4668,
+    "visible": true
+  },
+  "weapon_a2": {
+    "id": 4668,
+    "visible": true
+  },
+  "weapon_aquatic_a": {
+    "id": 5091,
+    "visible": true
+  },
+  "weapon_aquatic_b": {
+    "id": 4000,
+    "visible": true
+  },
+  "weapon_b1": {
+    "id": 4669,
+    "visible": true
+  }
+}

@@ -1,0 +1,132 @@
+---
+source: e2e/src/cli.rs
+expression: json
+---
+{
+  "backpack": {
+    "dyes": [
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 2365,
+    "visible": true
+  },
+  "chest": {
+    "dyes": [
+      {
+        "id": 1304
+      },
+      {
+        "id": 1553
+      },
+      {
+        "id": 1553
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 12,
+    "visible": true
+  },
+  "gloves": {
+    "dyes": [
+      {
+        "id": 1
+      },
+      {
+        "id": 1553
+      },
+      {
+        "id": 1304
+      },
+      {
+        "id": 1304
+      }
+    ],
+    "id": 252,
+    "visible": true
+  },
+  "head": {
+    "dyes": [
+      {
+        "id": 1304
+      },
+      {
+        "id": 1553
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 978,
+    "visible": true
+  },
+  "legs": {
+    "dyes": [
+      {
+        "id": 1
+      },
+      {
+        "id": 1553
+      },
+      {
+        "id": 1553
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 11,
+    "visible": true
+  },
+  "shoes": {
+    "dyes": [
+      {
+        "id": 1304
+      },
+      {
+        "id": 1553
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 35,
+    "visible": true
+  },
+  "shoulders": {
+    "dyes": [
+      {
+        "id": 1304
+      },
+      {
+        "id": 1553
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 5794,
+    "visible": true
+  }
+}
