@@ -1,8 +1,8 @@
 use std::fmt::Display;
-use std::collections::HashMap;
 use std::hash::Hash;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
+use dashmap::DashMap;
 use gw2lib::model::{BulkEndpoint, EndpointWithId};
 use gw2lib::{Requester, EndpointError};
 use serde::Serialize;
@@ -13,17 +13,17 @@ where
     T: DeserializeOwned + Serialize + Clone + Send + Sync + EndpointWithId<IdType = I> + BulkEndpoint + 'static,
     I: Display + DeserializeOwned + Serialize + Hash + Clone + Send + Sync + Eq + Copy + 'static,
 {
-    fn clear(&mut self);
-    fn ensure<Ids: IntoIterator<Item=I>>(&mut self, ids: Ids) -> Result<(), EndpointError>;
-    fn get(&mut self, id: I) -> Result<T, EndpointError>;
-    fn get_many(&mut self, ids: Vec<I>) -> Result<Vec<T>, EndpointError>;
-    fn get_all(&mut self) -> Result<Vec<T>, EndpointError>;
+    fn clear(&self);
+    fn ensure<Ids: IntoIterator<Item=I>>(&self, ids: Ids) -> Result<(), EndpointError>;
+    fn get(&self, id: I) -> Result<T, EndpointError>;
+    fn get_many(&self, ids: Vec<I>) -> Result<Vec<T>, EndpointError>;
+    fn get_all(&self) -> Result<Vec<T>, EndpointError>;
 }
 
 pub struct Cache<T, I, Req> {
     client: Arc<Req>,
-    _ids: Vec<I>,
-    items: HashMap<I, T>,
+    _ids: Mutex<Vec<I>>,
+    items: DashMap<I, T>,
 }
 
 impl<T, I, Req> Cache<T, I, Req>
@@ -35,8 +35,8 @@ where
     pub fn new(client: Arc<Req>) -> Self {
         Cache {
             client,
-            _ids: Vec::new(),
-            items: HashMap::new(),
+            _ids: Mutex::new(Vec::new()),
+            items: DashMap::new(),
         }
     }
 
@@ -59,36 +59,39 @@ where
     T: DeserializeOwned + Serialize + Clone + Send + Sync + EndpointWithId<IdType = I> + BulkEndpoint + 'static,
     I: Display + DeserializeOwned + Serialize + Hash + Clone + Send + Sync + Eq + Copy + 'static,
 {
-    fn clear(&mut self) {
-        self.items.drain();
+    fn clear(&self) {
+        self.items.clear()
     }
 
-    fn ensure<Ids: IntoIterator<Item=I>>(&mut self, ids: Ids) -> Result<(), EndpointError> {
+    fn ensure<Ids: IntoIterator<Item=I>>(&self, ids: Ids) -> Result<(), EndpointError> {
         let ids: Vec<_> = ids.into_iter().filter(|id| !self.items.contains_key(id)).collect();
         log::info!("Retrieving {} missing objects from GW2 API", ids.len());
         let items = self.fetch_many(ids.clone())?;
-        let items = ids.into_iter().zip(items);
-        self.items.extend(items);
+        for (id, item) in ids.into_iter().zip(items) {
+            self.items.insert(id, item);
+        }
         Ok(())
     }
 
-    fn get(&mut self, id: I) -> Result<T, EndpointError> {
+    fn get(&self, id: I) -> Result<T, EndpointError> {
         if !self.items.contains_key(&id) {
             self.items.insert(id, self.fetch_single(id)?);
         }
         Ok(self.items.get(&id).unwrap().clone())
     }
 
-    fn get_many(&mut self, ids: Vec<I>) -> Result<Vec<T>, EndpointError> {
+    fn get_many(&self, ids: Vec<I>) -> Result<Vec<T>, EndpointError> {
         self.ensure(ids.clone())?;
-        let items = ids.iter().filter_map(|id| self.items.get(id).cloned());
+        let items = ids.iter().filter_map(|id| self.items.get(id).map(|guard| guard.clone()));
         Ok(items.collect())
     }
 
-    fn get_all(&mut self) -> Result<Vec<T>, EndpointError> {
-        if self._ids.is_empty() {
-            self._ids = self._fetch_ids()?;
+    fn get_all(&self) -> Result<Vec<T>, EndpointError> {
+        let mut ids = self._ids.lock().unwrap();
+        if ids.is_empty() {
+            let new_ids = self._fetch_ids()?;
+            *ids = new_ids;
         }
-        self.get_many(self._ids.clone())
+        self.get_many(ids.clone())
     }
 }
