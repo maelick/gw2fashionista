@@ -1,0 +1,87 @@
+name: Create release
+
+on:
+  workflow_dispatch:
+    inputs:
+      crate:
+        description: Crate to release
+        required: true
+        type: choice
+        options:
+          - core
+          - cli
+      version:
+        description: Version to release
+        required: false
+        type: string
+      level:
+        description: Version to release
+        required: false
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+          - alpha
+          - beta
+          - rc
+      dry_run:
+        description: Run cargo-release in dry run mode 
+        required: true
+        type: boolean
+      run_tests:
+        description: Run tests before running cargo-release 
+        required: true
+        type: boolean
+
+jobs:
+  create-release:
+    permissions:
+      id-token: write
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log release info
+        run: |
+          echo "Releasing ${{ inputs.crate }}"
+          echo "Version: ${{ inputs.version || inputs.level }}"
+          echo "Dry run: ${{ inputs.dry_run }}"
+          echo "Run tests: ${{ inputs.run_tests }}"
+
+      - name: Validate inputs
+        run: |
+          if [[ -z "${{ inputs.version }}" && -z "${{ inputs.level }}" ]]; then
+            echo "Error: Either version or level must be provided"
+            exit 1
+          fi
+          if [[ -n "${{ inputs.version }}" && -n "${{ inputs.level }}" ]]; then
+            echo "Error: Provide either version or level, not both"
+            exit 1
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - name: Install cargo-release
+        run: cargo install cargo-release
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Run Rust tests
+        if: ${{ inputs.run_tests }}
+        run: cargo test
+
+      - name: Run cargo-release
+        run: |
+          CMD="cargo release --no-confirm --all-features --no-publish -p ${{ inputs.crate }}"
+          VERSION="${{ inputs.version || inputs.level }}"
+          if [[ "${{ inputs.dry_run }}" == "false" ]]; then
+            CMD="$CMD --execute"
+          fi
+          $CMD $VERSION
