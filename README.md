@@ -30,7 +30,6 @@ GW2_API_KEY='<your-api-key-here>' cargo run wardrobe export -o fashion.csv
 alias gw2fashionista='cargo run'
 
 # Export all character fashion to fashion.csv
-# This can take several minutes if you have a lot of characters
 GW2_API_KEY='<your-api-key-here>' gw2fashionista wardrobe export -o fashion.csv
 
 # Output exported fashion
