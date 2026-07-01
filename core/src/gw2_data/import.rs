@@ -45,22 +45,15 @@ where
         self.retry.retry(async || Requester::single::<Character, CharacterId>(&self.req, name.to_string()).await).await
     }
 
-    pub async fn fetch_equipment(&self, chars: &Vec<String>) -> Result<Vec<Equipment>, EndpointError> {
-        let chars = if chars.is_empty() {
-            self.characters().await?
-        } else {
-            chars.clone()
-        };
-        let num_chars = chars.len();
-
-        let all_tabs: Vec<_> = stream::iter(chars)
+    pub async fn fetch_equipment(&self, characters: &Vec<String>) -> Result<Vec<Equipment>, EndpointError> {
+        let all_tabs: Vec<_> = stream::iter(characters.clone())
             .map(async |c| self.fetch_char_equipment(c.as_ref()).await)
             .buffered(self.buffer_size)
             .try_collect()
             .await?;
 
         let tabs: Vec<_> = all_tabs.into_iter().flatten().collect();
-        log::info!("Successfully retrieved {} equipment tabs for {} characters", tabs.len(), num_chars);
+        log::info!("Successfully retrieved {} equipment tabs for {} characters", tabs.len(), characters.len());
         Ok(tabs)
     }
 

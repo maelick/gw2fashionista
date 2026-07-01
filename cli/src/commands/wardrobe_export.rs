@@ -41,7 +41,14 @@ impl super::Command for Command {
     async fn execute(&self) -> anyhow::Result<()> {
         let api_key = self.api_key.as_ref().unwrap();
         let importer = Importer::with_api_key(api_key);
-        let equipments = importer.fetch_equipment(&self.characters).await?;
+
+        let characters = if self.characters.is_empty() {
+            importer.characters().await?
+        } else {
+            self.characters.clone()
+        };
+
+        let equipments = importer.fetch_equipment(&characters).await?;
 
         let resolver = Resolver::default();
         let equipments: Result<Vec<_>, _> = resolver
