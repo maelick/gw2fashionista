@@ -89,8 +89,11 @@ where
     }
 
     async fn fetch_missing_fashion_data<Skins: IntoIterator<Item=SkinId>, Dyes:IntoIterator<Item=DyeId>>(&self, skins: Skins, dyes: Dyes) -> Result<(), EndpointError> {
-        self.skins.ensure(skins.into_iter().map(|id| id.into()).collect()).await?;
-        self.colors.ensure(dyes.into_iter().map(|id| id.into()).collect()).await
+        tokio::try_join!(
+            self.skins.ensure(skins.into_iter().map(|id| id.into()).collect()),
+            self.colors.ensure(dyes.into_iter().map(|id| id.into()).collect()),
+        )?;
+        Ok(())
     }
 
     pub async fn resolve_equipment(&self, equipments: Vec<Equipment>) -> Result<Vec<Equipment>, EndpointError> {
@@ -140,9 +143,13 @@ where
 
     async fn resolve_outfit(&self, skin: &Option<skin::Skin>) -> Result<Option<skin::Skin>, EndpointError> {
         if let Some(skin) = skin {
+            let (name, dyes) = tokio::try_join!(
+                self.resolve_outfit_name(skin.id),
+                self.resolve_dyes(&skin.dyes),
+            )?;
             Ok(Some(skin::Skin{
-                name: self.resolve_outfit_name(skin.id).await?,
-                dyes: self.resolve_dyes(&skin.dyes).await?,
+                name,
+                dyes,
                 ..*skin
             }))
         } else {
@@ -152,9 +159,13 @@ where
 
     async fn resolve_wardrobe_slot(&self, skin: &Option<skin::Skin>) -> Result<Option<skin::Skin>, EndpointError> {
         if let Some(skin) = skin {
+            let (name, dyes) = tokio::try_join!(
+                self.resolve_skin_name(skin.id),
+                self.resolve_dyes(&skin.dyes),
+            )?;
             Ok(Some(skin::Skin{
-                name: self.resolve_skin_name(skin.id).await?,
-                dyes: self.resolve_dyes(&skin.dyes).await?,
+                name,
+                dyes,
                 ..*skin
             }))
         } else {
@@ -172,12 +183,12 @@ where
 
     async fn resolve_dyes(&self, dyes: &Option<skin::Dyes>) -> Result<Option<skin::Dyes>, EndpointError> {
         if let Some((dye1, dye2, dye3, dye4)) = dyes {
-            Ok(Some((
-                self.resolve_dye_name(dye1).await?,
-                self.resolve_dye_name(dye2).await?,
-                self.resolve_dye_name(dye3).await?,
-                self.resolve_dye_name(dye4).await?
-            )))
+            Ok(Some(tokio::try_join!(
+                self.resolve_dye_name(dye1),
+                self.resolve_dye_name(dye2),
+                self.resolve_dye_name(dye3),
+                self.resolve_dye_name(dye4),
+            )?))
         } else {
             Ok(None)
         }
