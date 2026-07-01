@@ -1,3 +1,4 @@
+use futures::stream::{self, StreamExt, TryStreamExt};
 use gw2lib::{Client, EndpointError, Requester, cache::InMemoryCache, rate_limit::BucketRateLimiter};
 use gw2lib::model::authenticated::characters::{Character, CharacterId};
 use hyper::client::HttpConnector;
@@ -37,25 +38,28 @@ where
 
     pub async fn fetch_equipment(&self, chars: &Vec<String>) -> Result<Vec<Equipment>, EndpointError> {
         let chars = if chars.is_empty() {
-            &self.characters().await?
+            self.characters().await?
         } else {
-            chars
+            chars.clone()
         };
+        let num_chars = chars.len();
 
-        let mut result = Vec::new();
-        for c in chars {
-            let tabs = self.fetch_char_equipment(c.as_ref()).await?;
-            log::info!("Successfully retrieved {} equipment tabs for {}", tabs.len(), c);
-            result.extend(tabs);
-        }
-        log::info!("Successfully retrieved {} equipment tabs", result.len());
-        Ok(result)
+        let all_tabs: Vec<_> = stream::iter(chars)
+            .map(async |c| self.fetch_char_equipment(c.as_ref()).await)
+            .buffered(10)
+            .try_collect()
+            .await?;
+
+        let tabs: Vec<_> = all_tabs.into_iter().flatten().collect();
+        log::info!("Successfully retrieved {} equipment tabs for {} characters", tabs.len(), num_chars);
+        Ok(tabs)
     }
 
     pub async fn fetch_char_equipment(&self, char_name: &str) -> Result<Vec<Equipment>, EndpointError> {
         let char = self.character(char_name).await?;
-        let tabs = char.equipment_tabs.iter().map(|t| Equipment::new(char_name, t));
-        Ok(tabs.collect())
+        let tabs: Vec<_> = char.equipment_tabs.iter().map(|t| Equipment::new(char_name, t)).collect();
+        log::info!("Successfully retrieved {} equipment tabs for {}", tabs.len(), char_name);
+        Ok(tabs)
     }
 }
 
