@@ -43,7 +43,7 @@ impl Equipment {
     }
 
     async fn resolve_slots_default_skins<R: cache::Resolver<Item, ItemId>>(self, cache: &R) -> Result<Vec<Equip>, EndpointError> {
-        stream::iter(self.slots).then(async |s| {
+        stream::iter(self.slots).map(async |s| {
             if s.skin.is_none() {
                 Ok::<_, EndpointError>(Equip{
                     skin: cache.get(s.id).await?.default_skin,
@@ -52,7 +52,7 @@ impl Equipment {
             } else {
                 Ok(s)
             }
-        }).try_collect().await
+        }).buffered(10).try_collect().await
     }
 }
 

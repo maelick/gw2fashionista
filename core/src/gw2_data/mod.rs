@@ -104,7 +104,7 @@ where
         log::info!("Retrieving item data");
         self.items.ensure(items.into_iter().collect()).await?;
 
-        stream::iter(equipments).then(async |e| e.resolve_default_skins(&self.items).await).try_collect().await
+        stream::iter(equipments).map(async |e| e.resolve_default_skins(&self.items).await).buffered(10).try_collect().await
     }
 
     pub async fn resolve_chat_link(&self, chat_link: &ChatLink) -> Result<WardrobeTemplateData, ChatLinkError> {
