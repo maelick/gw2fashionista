@@ -25,26 +25,26 @@ where
         }
     }
 
-    pub fn characters(&self) -> Result<Vec<String>, EndpointError> {
+    pub async fn characters(&self) -> Result<Vec<String>, EndpointError> {
         log::info!("Retrieving character list");
-        self.retry.retry(|| Requester::ids::<Character, CharacterId>(&self.req))
+        self.retry.retry(async || Requester::ids::<Character, CharacterId>(&self.req).await).await
     }
 
-    pub fn character(&self, name: &str) -> Result<Character, EndpointError> {
+    pub async fn character(&self, name: &str) -> Result<Character, EndpointError> {
         log::info!("Retrieving character data for {}", name);
-        self.retry.retry(|| Requester::single::<Character, CharacterId>(&self.req, name.to_string()))
+        self.retry.retry(async || Requester::single::<Character, CharacterId>(&self.req, name.to_string()).await).await
     }
 
-    pub fn fetch_equipment(&self, chars: &Vec<String>) -> Result<Vec<Equipment>, EndpointError> {
+    pub async fn fetch_equipment(&self, chars: &Vec<String>) -> Result<Vec<Equipment>, EndpointError> {
         let chars = if chars.is_empty() {
-            &self.characters()?
+            &self.characters().await?
         } else {
             chars
         };
 
         let mut result = Vec::new();
         for c in chars {
-            let tabs = self.fetch_char_equipment(c.as_ref())?;
+            let tabs = self.fetch_char_equipment(c.as_ref()).await?;
             log::info!("Successfully retrieved {} equipment tabs for {}", tabs.len(), c);
             result.extend(tabs);
         }
@@ -52,8 +52,8 @@ where
         Ok(result)
     }
 
-    pub fn fetch_char_equipment(&self, char_name: &str) -> Result<Vec<Equipment>, EndpointError> {
-        let char = self.character(char_name)?;
+    pub async fn fetch_char_equipment(&self, char_name: &str) -> Result<Vec<Equipment>, EndpointError> {
+        let char = self.character(char_name).await?;
         let tabs = char.equipment_tabs.iter().map(|t| Equipment::new(char_name, t));
         Ok(tabs.collect())
     }

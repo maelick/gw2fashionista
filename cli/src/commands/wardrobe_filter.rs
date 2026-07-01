@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use clap::{Args};
 
 use super::args;
@@ -12,12 +13,13 @@ pub struct Command {
     filters: args::EquipmentFilters,
 }
 
+#[async_trait]
 impl super::Command for Command {
     fn name(&self) -> &str {
         return "filter"
     }
 
-    fn execute(&self) -> anyhow::Result<()> {
+    async fn execute(&self) -> anyhow::Result<()> {
         let link = ChatLink::try_from(self.wardrobe_template.as_str())?;
         let template = match link {
             ChatLink::WardrobeTemplate(wardrobe_template) => Ok(wardrobe_template),

@@ -20,10 +20,10 @@ impl Cli {
             .init();
     }
 
-    fn execute(&self) {
+    async fn execute(&self) {
         let cmd = self.command.as_command();
         log::debug!("Executing command {}: {:?}", cmd.name(), cmd);
-        match cmd.execute() {
+        match cmd.execute().await {
             Ok(_) => {
                 log::debug!("Command {} successful", cmd.name())
             },
@@ -35,8 +35,9 @@ impl Cli {
     }
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let cli = Cli::parse();
     cli.init();
-    cli.execute();
+    cli.execute().await;
 }

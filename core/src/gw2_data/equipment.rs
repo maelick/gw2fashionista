@@ -1,5 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
+use futures::stream::{self, StreamExt, TryStreamExt};
 use gw2lib::{EndpointError, model::{authenticated::characters::{Equip, EquipmentTab, Slot}, items::{Item, ItemId}, misc::colors::ColorId}};
 
 use crate::{domain::{skins::{DyeId, Dyes, SkinId}, wardrobe_template::{WardrobeTemplate, slot::{WardrobeSlot, SlotType}}}, gw2_data::cache};
@@ -32,26 +33,26 @@ impl Equipment {
         }))
     }
 
-    pub fn resolve_default_skins<R: cache::Resolver<Item, ItemId>>(self, cache: &R) -> Result<Self, EndpointError> {
+    pub async fn resolve_default_skins<R: cache::Resolver<Item, ItemId>>(self, cache: &R) -> Result<Self, EndpointError> {
         Ok(Equipment {
             char_name: self.char_name.clone(),
             tab_id: self.tab_id,
             tab_name: self.tab_name.clone(),
-            slots: self.resolve_slots_default_skins(cache)?,
+            slots: self.resolve_slots_default_skins(cache).await?,
         })
     }
 
-    fn resolve_slots_default_skins<R: cache::Resolver<Item, ItemId>>(self, cache: &R) -> Result<Vec<Equip>, EndpointError> {
-        self.slots.into_iter().map(|s| {
+    async fn resolve_slots_default_skins<R: cache::Resolver<Item, ItemId>>(self, cache: &R) -> Result<Vec<Equip>, EndpointError> {
+        stream::iter(self.slots).then(async |s| {
             if s.skin.is_none() {
                 Ok::<_, EndpointError>(Equip{
-                    skin: cache.get(s.id)?.default_skin,
+                    skin: cache.get(s.id).await?.default_skin,
                     ..s
                 })
             } else {
                 Ok(s)
             }
-        }).collect()
+        }).try_collect().await
     }
 }
 

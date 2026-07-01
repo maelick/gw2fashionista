@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use clap::{Args};
 
 use super::args;
@@ -18,12 +19,13 @@ pub struct Command {
     filters: args::EquipmentFilters,
 }
 
+#[async_trait]
 impl super::Command for Command {
     fn name(&self) -> &str {
         return "merge"
     }
 
-    fn execute(&self) -> anyhow::Result<()> {
+    async fn execute(&self) -> anyhow::Result<()> {
         let base_template = match ChatLink::try_from(self.base_wardrobe_template.as_str())? {
             ChatLink::WardrobeTemplate(wardrobe_template) => Ok(wardrobe_template),
             _ => Err(ChatLinkError::NotImplemented),

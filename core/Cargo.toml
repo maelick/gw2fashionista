@@ -4,12 +4,14 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+async-trait = "0.1.89"
 base64 = "0.22.1"
 bitflags = "2.12.1"
 byteorder = "1.5.0"
 dashmap = "6.2.1"
+futures = "0.3.32"
 gw2fashionista-fixtures = { version = "0.1.0", path = "../fixtures" }
-gw2lib = { version = "3.0.2", features = ["blocking"] }
+gw2lib = { version = "3.0.2" }
 itertools = "0.14.0"
 log = "0.4.32"
 num_enum = "0.7.6"
@@ -19,6 +21,7 @@ serde = { version = "1.0.228", features = ["derive"] }
 strum = { version = "0.28.0", features = ["derive"] }
 strum_macros = "0.28.0"
 thiserror = "2.0.18"
+tokio = { version = "1.52.3", features = ["macros", "sync", "time"] }
 
 [dependencies.hyper]
 version = "0.14.26"

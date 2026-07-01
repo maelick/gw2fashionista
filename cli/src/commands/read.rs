@@ -1,4 +1,5 @@
 use std::{io, iter};
+use async_trait::async_trait;
 use clap::{Args};
 use gw2fashionista_core::models::wardrobe_template::WardrobeTemplateData;
 use gw2fashionista_core::domain::{chatlink::ChatLink, error::ChatLinkError, wardrobe_template::WardrobeTemplate};
@@ -107,17 +108,18 @@ impl Command {
     }
 }
 
+#[async_trait]
 impl super::Command for Command {
     fn name(&self) -> &str {
         return "read"
     }
 
-    fn execute(&self) -> anyhow::Result<()> {
+    async fn execute(&self) -> anyhow::Result<()> {
         let raw_links = self.get_links()?;
         let links = self.parse(&raw_links)?;
         let resolver = Resolver::default();
         if !self.skip_names {
-            resolver.cache_wardrobe_templates(wardrobe_templates(&links))?;
+            resolver.cache_wardrobe_templates(wardrobe_templates(&links)).await?;
         }
 
         for link in links {
@@ -126,7 +128,7 @@ impl super::Command for Command {
                     let data = if self.skip_names {
                         (&template).into()
                     } else {
-                        resolver.resolve_wardrobe_template(&template)?
+                        resolver.resolve_wardrobe_template(&template).await?
                     };
 
                     print(&data, self.pretty)?;

@@ -556,6 +556,7 @@ name = "gw2fashionista-cli"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "async-trait",
  "clap",
  "clap-verbosity-flag",
  "csv",
@@ -566,16 +567,19 @@ dependencies = [
  "serde",
  "serde_json",
  "strum",
+ "tokio",
 ]
 
 [[package]]
 name = "gw2fashionista-core"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "base64 0.22.1",
  "bitflags 2.12.1",
  "byteorder",
  "dashmap 6.2.1",
+ "futures",
  "gw2fashionista-fixtures",
  "gw2lib",
  "hyper",
@@ -589,6 +593,7 @@ dependencies = [
  "strum",
  "strum_macros",
  "thiserror 2.0.18",
+ "tokio",
 ]
 
 [[package]]
@@ -1471,7 +1476,19 @@ dependencies = [
  "mio",
  "pin-project-lite",
  "socket2 0.6.4",
+ "tokio-macros",
  "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "tokio-macros"
+version = "2.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "385a6cb71ab9ab790c5fe8d67f1645e6c450a7ce006a33de03daa956cf70a496"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
 ]
 
 [[package]]

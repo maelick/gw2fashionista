@@ -1,4 +1,5 @@
 use clap::{Subcommand, Args};
+use async_trait::async_trait;
 
 mod args;
 mod read;
@@ -43,7 +44,8 @@ impl Commands {
     }
 }
 
+#[async_trait]
 pub trait Command: std::fmt::Debug {
     fn name(&self) -> &str;
-    fn execute(&self) -> anyhow::Result<()>;
+    async fn execute(&self) -> anyhow::Result<()>;
 }

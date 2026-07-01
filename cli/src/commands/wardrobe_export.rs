@@ -1,4 +1,5 @@
 use std::{io, fs};
+use async_trait::async_trait;
 use clap::{Args};
 use serde::{Deserialize, Serialize};
 use gw2fashionista_core::{domain::{chatlink::ChatLink, error::ChatLinkError}, gw2_data::{Resolver, equipment::Equipment, import::Importer}};
@@ -31,19 +32,20 @@ pub struct Command {
     filters: args::EquipmentFilters,
 }
 
+#[async_trait]
 impl super::Command for Command {
     fn name(&self) -> &str {
         return "export"
     }
 
-    fn execute(&self) -> anyhow::Result<()> {
+    async fn execute(&self) -> anyhow::Result<()> {
         let api_key = self.api_key.as_ref().unwrap();
         let importer = Importer::with_api_key(api_key);
-        let equipments = importer.fetch_equipment(&self.characters)?;
+        let equipments = importer.fetch_equipment(&self.characters).await?;
 
         let resolver = Resolver::default();
         let equipments: Result<Vec<_>, _> = resolver
-            .resolve_equipment(equipments)?
+            .resolve_equipment(equipments).await?
             .iter()
             .map(|e| self.export_equipment(e))
             .collect();
