@@ -26,6 +26,8 @@ mod outfit;
 pub mod equipment;
 pub mod import;
 
+const DEFAULT_BUFFER_SIZE: usize = 10;
+
 pub struct Resolver<Req>
 where
     Req: Requester<false, false> + Send + Sync,
@@ -35,6 +37,7 @@ where
     outfits: Cache<Outfit, u32, Req>,
     colors: Cache<Color, u16, Req>,
     retry: Retry,
+    buffer_size: usize,
 }
 
 impl<Req> Resolver<Req>
@@ -49,7 +52,13 @@ where
             outfits: Cache::new(req.clone(), "outfit"),
             colors: Cache::new(req.clone(), "color"),
             retry: Retry::default(),
+            buffer_size: DEFAULT_BUFFER_SIZE,
         }
+    }
+
+    pub fn with_buffer_size(mut self, size: usize) -> Self {
+        self.buffer_size = size;
+        return self
     }
 
     pub fn clear(&self) {
@@ -104,7 +113,7 @@ where
         log::info!("Retrieving item data");
         self.items.ensure(items.into_iter().collect()).await?;
 
-        stream::iter(equipments).map(async |e| e.resolve_default_skins(&self.items).await).buffered(10).try_collect().await
+        stream::iter(equipments).map(async |e| e.resolve_default_skins(&self.items).await).buffered(self.buffer_size).try_collect().await
     }
 
     pub async fn resolve_chat_link(&self, chat_link: &ChatLink) -> Result<WardrobeTemplateData, ChatLinkError> {

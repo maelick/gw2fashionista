@@ -7,12 +7,15 @@ use hyper_rustls::HttpsConnector;
 use crate::gw2_data::equipment::Equipment;
 use crate::gw2_data::retry::Retry;
 
+const DEFAULT_BUFFER_SIZE: usize = 10;
+
 pub struct Importer<Req>
 where
     Req: Requester<true, false>,
 {
     req: Req,
     retry: Retry,
+    buffer_size: usize,
 }
 
 impl<Req> Importer<Req>
@@ -23,7 +26,13 @@ where
         Importer{
             req,
             retry: Retry::default(),
+            buffer_size: DEFAULT_BUFFER_SIZE,
         }
+    }
+
+    pub fn with_buffer_size(mut self, size: usize) -> Self {
+        self.buffer_size = size;
+        return self
     }
 
     pub async fn characters(&self) -> Result<Vec<String>, EndpointError> {
@@ -46,7 +55,7 @@ where
 
         let all_tabs: Vec<_> = stream::iter(chars)
             .map(async |c| self.fetch_char_equipment(c.as_ref()).await)
-            .buffered(10)
+            .buffered(self.buffer_size)
             .try_collect()
             .await?;
 
