@@ -44,10 +44,10 @@ where
     pub fn new(req: Req) -> Self {
         let req = Arc::new(req);
         Resolver{
-            items: Cache::new(req.clone()),
-            skins: Cache::new(req.clone()),
-            outfits: Cache::new(req.clone()),
-            colors: Cache::new(req.clone()),
+            items: Cache::new(req.clone(), "item"),
+            skins: Cache::new(req.clone(), "skin"),
+            outfits: Cache::new(req.clone(), "outfit"),
+            colors: Cache::new(req.clone(), "color"),
             retry: Retry::default(),
         }
     }
@@ -89,9 +89,7 @@ where
     }
 
     async fn fetch_missing_fashion_data<Skins: IntoIterator<Item=SkinId>, Dyes:IntoIterator<Item=DyeId>>(&self, skins: Skins, dyes: Dyes) -> Result<(), EndpointError> {
-        log::info!("Retrieving skin data");
         self.skins.ensure(skins.into_iter().map(|id| id.into()).collect()).await?;
-        log::info!("Retrieving color data");
         self.colors.ensure(dyes.into_iter().map(|id| id.into()).collect()).await
     }
 

@@ -27,6 +27,7 @@ pub struct Cache<T, I, Req> {
     client: Arc<Req>,
     _ids: Mutex<Vec<I>>,
     items: DashMap<I, T>,
+    item_type: String,
 }
 
 impl<T, I, Req> Cache<T, I, Req>
@@ -35,11 +36,12 @@ where
     T: DeserializeOwned + Serialize + Clone + Send + Sync + EndpointWithId<IdType = I> + BulkEndpoint + 'static,
     I: Display + DeserializeOwned + Serialize + Hash + Clone + Send + Sync + Eq + Copy + 'static,
 {
-    pub fn new(client: Arc<Req>) -> Self {
+    pub fn new(client: Arc<Req>, item_type: &str) -> Self {
         Cache {
             client,
             _ids: Mutex::new(Vec::new()),
             items: DashMap::new(),
+            item_type: item_type.to_string(),
         }
     }
 
@@ -68,8 +70,9 @@ where
     }
 
     async fn ensure(&self, ids: Vec<I>) -> Result<(), EndpointError> {
+        log::info!("Retrieving {} data", self.item_type);
         let ids: Vec<_> = ids.into_iter().filter(|id| !self.items.contains_key(id)).collect();
-        log::info!("Retrieving {} missing objects from GW2 API", ids.len());
+        log::info!("Retrieving {} missing {}s from GW2 API", ids.len(), self.item_type);
         let items = self.fetch_many(ids.clone()).await?;
         for (id, item) in ids.into_iter().zip(items) {
             self.items.insert(id, item);
