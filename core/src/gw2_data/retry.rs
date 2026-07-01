@@ -1,53 +1,46 @@
-use std::time::Duration;
+use tokio_retry::RetryIf;
+use tokio_retry::strategy::{ExponentialBackoff, jitter};
 
 use gw2lib::{ApiError, EndpointError};
 
 pub struct Retry {
-    max_retries: u32,
-    sleep_duration: Duration,
+    max_retries: usize,
+    sleep_millis: u64,
 }
 
 impl Retry {
-    pub fn new(max_retries: u32, sleep_duration: Duration) -> Self {
+    pub fn new(max_retries: usize, sleep_millis: u64) -> Self {
         Retry{
             max_retries,
-            sleep_duration,
+            sleep_millis,
         }
     }
 
-    pub async fn retry<T, F, Fut>(&self, mut f: F) -> Result<T, EndpointError>
+    pub async fn start<T, F, Fut>(&self, action: F) -> Result<T, EndpointError>
     where
         F: FnMut() -> Fut,
         Fut: Future<Output = Result<T, EndpointError>>,
     {
-        for attempt in 0..=self.max_retries {
-            match f().await {
-                Ok(result) => return Ok(result),
-                Err(e) if self.should_retry(&e) && attempt < self.max_retries => {
-                    let sleep_duration = self.sleep_duration * (attempt + 1);
-                    log::info!("GW2 API request failed with error {}, retrying in {:?}", e, sleep_duration);
-                    tokio::time::sleep(sleep_duration).await;
-                }
-                Err(e) => return Err(e),
-            }
-        }
-        unreachable!()
-    }
-
-    fn should_retry(&self, e: &EndpointError) -> bool {
-        match e {
-            EndpointError::ApiError(ApiError::Other(status, _)) => status.is_server_error(),
-            EndpointError::RateLimiterCrashed(_)
-            | EndpointError::RateLimiterBucketExceeded
-            | EndpointError::RequestFailed(_)
-            | EndpointError::ApiError(ApiError::RateLimited) => true,
-            _ => false
-        }
+        let retries = ExponentialBackoff::from_millis(self.sleep_millis)
+            .map(jitter)
+            .take(self.max_retries);
+        RetryIf::start(retries, action, retryable).await
     }
 }
 
 impl Default for Retry {
     fn default() -> Self {
-        Self::new(10, Duration::from_millis(1000))
+        Self::new(10, 1000)
+    }
+}
+
+fn retryable(e: &EndpointError) -> bool {
+    match e {
+        EndpointError::ApiError(ApiError::Other(status, _)) => status.is_server_error(),
+        EndpointError::RateLimiterCrashed(_)
+        | EndpointError::RateLimiterBucketExceeded
+        | EndpointError::RequestFailed(_)
+        | EndpointError::ApiError(ApiError::RateLimited) => true,
+        _ => false
     }
 }

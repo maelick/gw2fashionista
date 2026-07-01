@@ -37,12 +37,12 @@ where
 
     pub async fn characters(&self) -> Result<Vec<String>, EndpointError> {
         log::info!("Retrieving character list");
-        self.retry.retry(async || Requester::ids::<Character, CharacterId>(&self.req).await).await
+        self.retry.start(|| Requester::ids::<Character, CharacterId>(&self.req)).await
     }
 
     pub async fn character(&self, name: &str) -> Result<Character, EndpointError> {
         log::info!("Retrieving character data for {}", name);
-        self.retry.retry(async || Requester::single::<Character, CharacterId>(&self.req, name.to_string()).await).await
+        self.retry.start(|| Requester::single::<Character, CharacterId>(&self.req, name.to_string())).await
     }
 
     pub async fn fetch_equipment(&self, characters: &Vec<String>) -> Result<Vec<Equipment>, EndpointError> {

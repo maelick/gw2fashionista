@@ -68,19 +68,19 @@ where
     }
 
     pub async fn skin(&self, id: SkinId) -> Result<Skin, EndpointError> {
-        self.retry.retry(async || self.skins.get(id.into()).await).await
+        self.retry.start(|| self.skins.get(id.into())).await
     }
 
     pub async fn outfit(&self, id: SkinId) -> Result<Outfit, EndpointError> {
-        self.retry.retry(async || self.outfits.get(id.into()).await).await
+        self.retry.start(|| self.outfits.get(id.into())).await
     }
 
     pub async fn dye(&self, id: DyeId) -> Result<Color, EndpointError> {
-        self.retry.retry(async || self.colors.get(id.into()).await).await
+        self.retry.start(|| self.colors.get(id.into())).await
     }
 
     pub async fn item(&self, id: u32) -> Result<Item, EndpointError> {
-        self.retry.retry(async || self.items.get(id).await).await
+        self.retry.start(|| self.items.get(id)).await
     }
 
     pub async fn cache_wardrobe_templates<'a, Templates: IntoIterator<Item=&'a WardrobeTemplate>>(&self, templates: Templates) -> Result<(), EndpointError> {
