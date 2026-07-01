@@ -30,6 +30,10 @@ pub struct Command {
 
     #[command(flatten)]
     filters: args::EquipmentFilters,
+
+    /// Determine concurrency for API calls (maximum 255, default = number of characters)
+    #[arg(long)]
+    concurrency: Option<u8>,
 }
 
 #[async_trait]
@@ -48,17 +52,15 @@ impl super::Command for Command {
             self.characters.clone()
         };
 
-        let equipments = importer.fetch_equipment(&characters).await?;
+        let concurrency = self.concurrency.map_or(characters.len(), |c| c as usize);
+        let equipments = importer.with_buffer_size(concurrency).fetch_equipment(&characters).await?;
+        let resolved = Resolver::default().with_buffer_size(concurrency).resolve_equipment(equipments).await?;
 
-        let resolver = Resolver::default();
-        let equipments: Result<Vec<_>, _> = resolver
-            .resolve_equipment(equipments).await?
+        let exported: Result<Vec<_>, _> = resolved
             .iter()
             .map(|e| self.export_equipment(e))
             .collect();
-
-        self.output_equipments(equipments?)?;
-        Ok(())
+        self.output_equipments(exported?)
     }
 }
 

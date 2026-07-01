@@ -29,6 +29,10 @@ pub struct Command {
     /// Name of the CSV column containing the chat link to parse.
     #[arg(short, long, default_value = "fashion_link")]
     column: Option<String>,
+
+    /// Determine concurrency for API calls (maximum 255)
+    #[arg(long, default_value_t = 10)]
+    concurrency: u8,
 }
 
 impl Command {
@@ -117,7 +121,7 @@ impl super::Command for Command {
     async fn execute(&self) -> anyhow::Result<()> {
         let raw_links = self.get_links()?;
         let links = self.parse(&raw_links)?;
-        let resolver = Resolver::default();
+        let resolver = Resolver::default().with_buffer_size(self.concurrency as usize);
         if !self.skip_names {
             resolver.cache_wardrobe_templates(wardrobe_templates(&links)).await?;
         }
