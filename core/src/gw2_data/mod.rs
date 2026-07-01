@@ -51,29 +51,29 @@ where
         }
     }
 
-    pub fn clear(&mut self) {
+    pub fn clear(&self) {
         self.items.clear();
         self.skins.clear();
         self.colors.clear();
     }
 
-    pub fn skin(&mut self, id: SkinId) -> Result<Skin, EndpointError> {
+    pub fn skin(&self, id: SkinId) -> Result<Skin, EndpointError> {
         self.retry.retry(|| self.skins.get(id.into()))
     }
 
-    pub fn outfit(&mut self, id: SkinId) -> Result<Outfit, EndpointError> {
+    pub fn outfit(&self, id: SkinId) -> Result<Outfit, EndpointError> {
         self.retry.retry(|| self.outfits.get(id.into()))
     }
 
-    pub fn dye(&mut self, id: DyeId) -> Result<Color, EndpointError> {
+    pub fn dye(&self, id: DyeId) -> Result<Color, EndpointError> {
         self.retry.retry(|| self.colors.get(id.into()))
     }
 
-    pub fn item(&mut self, id: u32) -> Result<Item, EndpointError> {
+    pub fn item(&self, id: u32) -> Result<Item, EndpointError> {
         self.retry.retry(|| self.items.get(id))
     }
 
-    pub fn cache_wardrobe_templates<'a, Templates: IntoIterator<Item=&'a WardrobeTemplate>>(&mut self, templates: Templates) -> Result<(), EndpointError> {
+    pub fn cache_wardrobe_templates<'a, Templates: IntoIterator<Item=&'a WardrobeTemplate>>(&self, templates: Templates) -> Result<(), EndpointError> {
         let mut skins = HashSet::new();
         let mut dyes = HashSet::new();
         for t in templates {
@@ -83,18 +83,18 @@ where
         self.fetch_missing_fashion_data(skins, dyes)
     }
 
-    pub fn cache_wardrobe_template(&mut self, template: &WardrobeTemplate) -> Result<(), EndpointError> {
+    pub fn cache_wardrobe_template(&self, template: &WardrobeTemplate) -> Result<(), EndpointError> {
         self.fetch_missing_fashion_data(template.all_skin_ids(), template.all_dye_ids())
     }
 
-    fn fetch_missing_fashion_data<Skins: IntoIterator<Item=SkinId>, Dyes:IntoIterator<Item=DyeId>>(&mut self, skins: Skins, dyes: Dyes) -> Result<(), EndpointError> {
+    fn fetch_missing_fashion_data<Skins: IntoIterator<Item=SkinId>, Dyes:IntoIterator<Item=DyeId>>(&self, skins: Skins, dyes: Dyes) -> Result<(), EndpointError> {
         log::info!("Retrieving skin data");
         self.skins.ensure(skins.into_iter().map(|id| id.into()))?;
         log::info!("Retrieving color data");
         self.colors.ensure(dyes.into_iter().map(|id| id.into()))
     }
 
-    pub fn resolve_equipment(&mut self, equipments: Vec<Equipment>) -> Result<Vec<Equipment>, EndpointError> {
+    pub fn resolve_equipment(&self, equipments: Vec<Equipment>) -> Result<Vec<Equipment>, EndpointError> {
         let mut items = HashSet::new();
         for e in &equipments {
             items.extend(e.all_item_ids().into_iter());
@@ -102,10 +102,10 @@ where
         log::info!("Retrieving item data");
         self.items.ensure(items.into_iter())?;
 
-        equipments.into_iter().map(|e| e.resolve_default_skins(&mut self.items)).collect()
+        equipments.into_iter().map(|e| e.resolve_default_skins(&self.items)).collect()
     }
 
-    pub fn resolve_chat_link(&mut self, chat_link: &ChatLink) -> Result<WardrobeTemplateData, ChatLinkError> {
+    pub fn resolve_chat_link(&self, chat_link: &ChatLink) -> Result<WardrobeTemplateData, ChatLinkError> {
         match chat_link {
             ChatLink::WardrobeTemplate(template) => {
                 Ok(self.resolve_wardrobe_template(template).unwrap())
@@ -114,12 +114,12 @@ where
         }
     }
 
-    pub fn resolve_wardrobe_template(&mut self, template: &WardrobeTemplate) -> Result<WardrobeTemplateData, EndpointError> {
+    pub fn resolve_wardrobe_template(&self, template: &WardrobeTemplate) -> Result<WardrobeTemplateData, EndpointError> {
         let data = template.into();
         self.resolve_wardrobe_template_data(&data)
     }
 
-    pub fn resolve_wardrobe_template_data(&mut self, template: &WardrobeTemplateData) -> Result<WardrobeTemplateData, EndpointError> {
+    pub fn resolve_wardrobe_template_data(&self, template: &WardrobeTemplateData) -> Result<WardrobeTemplateData, EndpointError> {
         Ok(WardrobeTemplateData {
             aquabreather: self.resolve_wardrobe_slot(&template.aquabreather)?,
             backpack: self.resolve_wardrobe_slot(&template.backpack)?,
@@ -139,7 +139,7 @@ where
         })
     }
 
-    fn resolve_outfit(&mut self, skin: &Option<skin::Skin>) -> Result<Option<skin::Skin>, EndpointError> {
+    fn resolve_outfit(&self, skin: &Option<skin::Skin>) -> Result<Option<skin::Skin>, EndpointError> {
         if let Some(skin) = skin {
             Ok(Some(skin::Skin{
                 name: self.resolve_outfit_name(skin.id)?,
@@ -151,7 +151,7 @@ where
         }
     }
 
-    fn resolve_wardrobe_slot(&mut self, skin: &Option<skin::Skin>) -> Result<Option<skin::Skin>, EndpointError> {
+    fn resolve_wardrobe_slot(&self, skin: &Option<skin::Skin>) -> Result<Option<skin::Skin>, EndpointError> {
         if let Some(skin) = skin {
             Ok(Some(skin::Skin{
                 name: self.resolve_skin_name(skin.id)?,
@@ -163,15 +163,15 @@ where
         }
     }
 
-    fn resolve_outfit_name(&mut self, id: u16) -> Result<Option<String>, EndpointError> {
+    fn resolve_outfit_name(&self, id: u16) -> Result<Option<String>, EndpointError> {
         Ok(Some(self.outfit(id.into())?.name))
     }
 
-    fn resolve_skin_name(&mut self, id: u16) -> Result<Option<String>, EndpointError> {
+    fn resolve_skin_name(&self, id: u16) -> Result<Option<String>, EndpointError> {
         Ok(Some(self.skin(id.into())?.name))
     }
 
-    fn resolve_dyes(&mut self, dyes: &Option<skin::Dyes>) -> Result<Option<skin::Dyes>, EndpointError> {
+    fn resolve_dyes(&self, dyes: &Option<skin::Dyes>) -> Result<Option<skin::Dyes>, EndpointError> {
         if let Some((dye1, dye2, dye3, dye4)) = dyes {
             Ok(Some((
                 self.resolve_dye_name(dye1)?,
@@ -184,7 +184,7 @@ where
         }
     }
 
-    fn resolve_dye_name(&mut self, dye: &skin::Dye) -> Result<skin::Dye, EndpointError> {
+    fn resolve_dye_name(&self, dye: &skin::Dye) -> Result<skin::Dye, EndpointError> {
         Ok(skin::Dye{
             name: Some(self.dye(dye.id.into())?.name),
             ..*dye

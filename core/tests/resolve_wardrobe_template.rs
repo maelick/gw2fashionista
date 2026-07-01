@@ -11,7 +11,7 @@ mod tests {
 
     #[test]
     fn test_resolve_empty() {
-        let mut resolver = Resolver::default();
+        let resolver = Resolver::default();
         let template = parse_template(EMPTY_TEMPLATE.chat_link);
 
         resolver.cache_wardrobe_template(&template).unwrap();
@@ -37,7 +37,7 @@ mod tests {
 
     #[test]
     fn test_resolve_zizi_armor() {
-        let mut resolver = Resolver::default();
+        let resolver = Resolver::default();
         let template = parse_template(ZIZI_ARMOR_TEMPLATE.chat_link);
 
         resolver.cache_wardrobe_template(&template).unwrap();
@@ -58,7 +58,7 @@ mod tests {
 
     #[test]
     fn test_resolve_zizi() {
-        let mut resolver = Resolver::default();
+        let resolver = Resolver::default();
     let template = parse_template(ZIZI_TEMPLATE.chat_link);
 
         resolver.cache_wardrobe_template(&template).unwrap();

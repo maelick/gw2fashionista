@@ -41,7 +41,7 @@ impl super::Command for Command {
         let importer = Importer::with_api_key(api_key);
         let equipments = importer.fetch_equipment(&self.characters)?;
 
-        let mut resolver = Resolver::default();
+        let resolver = Resolver::default();
         let equipments: Result<Vec<_>, _> = resolver
             .resolve_equipment(equipments)?
             .iter()

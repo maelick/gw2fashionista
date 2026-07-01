@@ -32,7 +32,7 @@ impl Equipment {
         }))
     }
 
-    pub fn resolve_default_skins<R: cache::Resolver<Item, ItemId>>(self, cache: &mut R) -> Result<Self, EndpointError> {
+    pub fn resolve_default_skins<R: cache::Resolver<Item, ItemId>>(self, cache: &R) -> Result<Self, EndpointError> {
         Ok(Equipment {
             char_name: self.char_name.clone(),
             tab_id: self.tab_id,
@@ -41,7 +41,7 @@ impl Equipment {
         })
     }
 
-    fn resolve_slots_default_skins<R: cache::Resolver<Item, ItemId>>(self, cache: &mut R) -> Result<Vec<Equip>, EndpointError> {
+    fn resolve_slots_default_skins<R: cache::Resolver<Item, ItemId>>(self, cache: &R) -> Result<Vec<Equip>, EndpointError> {
         self.slots.into_iter().map(|s| {
             if s.skin.is_none() {
                 Ok::<_, EndpointError>(Equip{

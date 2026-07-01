@@ -115,7 +115,7 @@ impl super::Command for Command {
     fn execute(&self) -> anyhow::Result<()> {
         let raw_links = self.get_links()?;
         let links = self.parse(&raw_links)?;
-        let mut resolver = Resolver::default();
+        let resolver = Resolver::default();
         if !self.skip_names {
             resolver.cache_wardrobe_templates(wardrobe_templates(&links))?;
         }
