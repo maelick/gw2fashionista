@@ -110,7 +110,8 @@ where
         for e in &equipments {
             items.extend(e.all_item_ids().into_iter());
         }
-        log::info!("Retrieving item data");
+        #[cfg(feature = "tracing")]
+        tracing::info!("Retrieving item data");
         self.items.ensure(items.into_iter().collect()).await?;
 
         stream::iter(equipments).map(async |e| e.resolve_default_skins(&self.items).await).buffered(self.buffer_size).try_collect().await

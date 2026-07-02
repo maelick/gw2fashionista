@@ -36,12 +36,14 @@ where
     }
 
     pub async fn characters(&self) -> Result<Vec<String>, EndpointError> {
-        log::info!("Retrieving character list");
+        #[cfg(feature = "tracing")]
+        tracing::info!("Retrieving character list");
         self.retry.start(|| Requester::ids::<Character, CharacterId>(&self.req)).await
     }
 
     pub async fn character(&self, name: &str) -> Result<Character, EndpointError> {
-        log::info!("Retrieving character data for {}", name);
+        #[cfg(feature = "tracing")]
+        tracing::info!("Retrieving character data for {}", name);
         self.retry.start(|| Requester::single::<Character, CharacterId>(&self.req, name.to_string())).await
     }
 
@@ -53,14 +55,16 @@ where
             .await?;
 
         let tabs: Vec<_> = all_tabs.into_iter().flatten().collect();
-        log::info!("Successfully retrieved {} equipment tabs for {} characters", tabs.len(), characters.len());
+        #[cfg(feature = "tracing")]
+        tracing::info!("Successfully retrieved {} equipment tabs for {} characters", tabs.len(), characters.len());
         Ok(tabs)
     }
 
     pub async fn fetch_char_equipment(&self, char_name: &str) -> Result<Vec<Equipment>, EndpointError> {
         let char = self.character(char_name).await?;
         let tabs: Vec<_> = char.equipment_tabs.iter().map(|t| Equipment::new(char_name, t)).collect();
-        log::info!("Successfully retrieved {} equipment tabs for {}", tabs.len(), char_name);
+        #[cfg(feature = "tracing")]
+        tracing::info!("Successfully retrieved {} equipment tabs for {}", tabs.len(), char_name);
         Ok(tabs)
     }
 }

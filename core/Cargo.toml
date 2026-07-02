@@ -13,7 +13,6 @@ futures = "0.3.32"
 gw2fashionista-fixtures = { version = "0.1.0", path = "../fixtures" }
 gw2lib = { version = "3.0.2" }
 itertools = "0.14.0"
-log = "0.4.32"
 num_enum = "0.7.6"
 once_cell = "1.21.4"
 regex = "1.12.3"
@@ -24,6 +23,10 @@ thiserror = "2.0.18"
 tokio = { version = "1.52.3", features = ["macros", "sync", "time"] }
 tokio-retry = "0.3.2"
 
+[dependencies.tracing]
+version = "0.1.44"
+optional = true
+
 [dependencies.hyper]
 version = "0.14.26"
 default-features = false
@@ -33,3 +36,7 @@ features = ["runtime", "http1", "client"]
 version = "0.24.0"
 default-features = false
 features = ["http1", "native-tokio", "logging", "tls12"]
+
+[features]
+default = ["tracing"]
+tracing = ["dep:tracing", "gw2lib/tracing"]

@@ -70,9 +70,11 @@ where
     }
 
     async fn ensure(&self, ids: Vec<I>) -> Result<(), EndpointError> {
-        log::info!("Retrieving {} data", self.item_type);
+        #[cfg(feature = "tracing")]
+        tracing::info!("Retrieving {} data", self.item_type);
         let ids: Vec<_> = ids.into_iter().filter(|id| !self.items.contains_key(id)).collect();
-        log::info!("Retrieving {} missing {}s from GW2 API", ids.len(), self.item_type);
+        #[cfg(feature = "tracing")]
+        tracing::info!("Retrieving {} missing {}s from GW2 API", ids.len(), self.item_type);
         let items = self.fetch_many(ids.clone()).await?;
         for (id, item) in ids.into_iter().zip(items) {
             self.items.insert(id, item);
