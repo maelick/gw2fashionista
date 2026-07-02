@@ -19,6 +19,7 @@ impl super::Command for Command {
         return "wardrobe-filter"
     }
 
+    #[tracing::instrument(name = "wardrobe-filter", skip_all)]
     async fn execute(&self) -> anyhow::Result<()> {
         let link = ChatLink::try_from(self.wardrobe_template.as_str())?;
         let template = match link {

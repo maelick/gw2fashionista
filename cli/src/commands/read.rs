@@ -118,6 +118,7 @@ impl super::Command for Command {
         return "read"
     }
 
+    #[tracing::instrument(name = "read", skip_all)]
     async fn execute(&self) -> anyhow::Result<()> {
         let raw_links = self.get_links()?;
         let links = self.parse(&raw_links)?;

@@ -42,6 +42,7 @@ impl super::Command for Command {
         return "wardrobe-export"
     }
 
+    #[tracing::instrument(name = "wardrobe-export", skip_all)]
     async fn execute(&self) -> anyhow::Result<()> {
         let api_key = self.api_key.as_ref().unwrap();
         let importer = Importer::with_api_key(api_key);

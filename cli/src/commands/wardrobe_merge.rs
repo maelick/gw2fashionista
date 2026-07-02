@@ -25,6 +25,7 @@ impl super::Command for Command {
         return "wardrobe-merge"
     }
 
+    #[tracing::instrument(name = "wardrobe-merge", skip_all)]
     async fn execute(&self) -> anyhow::Result<()> {
         let base_template = match ChatLink::try_from(self.base_wardrobe_template.as_str())? {
             ChatLink::WardrobeTemplate(wardrobe_template) => Ok(wardrobe_template),
