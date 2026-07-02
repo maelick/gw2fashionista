@@ -1,0 +1,380 @@
+use std::collections::HashSet;
+use std::io::Cursor;
+
+use bitflags::bitflags;
+use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
+use serde::{Deserialize, Serialize};
+use strum::{EnumCount, EnumIter, IntoEnumIterator};
+
+use crate::domain::error::ChatLinkError;
+use crate::domain::skins::{Dyes, SkinId};
+
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumIter,
+    EnumCount,
+    Serialize,
+    Deserialize,
+    strum_macros::EnumString,
+    strum_macros::Display,
+)]
+#[repr(u8)]
+#[strum(serialize_all = "snake_case")]
+pub enum SlotType {
+    Aquabreather,
+    Backpack,
+    Chest,
+    Shoes,
+    Gloves,
+    Head,
+    Legs,
+    Shoulders,
+    Outfit,
+    WeaponAquaticA,
+    WeaponAquaticB,
+    WeaponA1,
+    WeaponA2,
+    WeaponB1,
+    WeaponB2,
+}
+
+impl SlotType {
+    pub const fn dyable(self) -> bool {
+        {
+            matches!(
+                self,
+                SlotType::Backpack
+                    | SlotType::Chest
+                    | SlotType::Shoes
+                    | SlotType::Gloves
+                    | SlotType::Head
+                    | SlotType::Legs
+                    | SlotType::Shoulders
+                    | SlotType::Outfit
+            )
+        }
+    }
+
+    pub const fn always_visible(self) -> bool {
+        matches!(self, SlotType::Chest | SlotType::Shoes | SlotType::Legs)
+    }
+
+    pub const fn visibility(self) -> Visibility {
+        match self {
+            SlotType::Aquabreather => Visibility::AQUABREATHER,
+            SlotType::Backpack => Visibility::BACKPACK,
+            SlotType::Chest => Visibility::CHEST,
+            SlotType::Shoes => Visibility::SHOES,
+            SlotType::Gloves => Visibility::GLOVES,
+            SlotType::Head => Visibility::HEAD,
+            SlotType::Legs => Visibility::LEGS,
+            SlotType::Shoulders => Visibility::SHOULDERS,
+            SlotType::Outfit => Visibility::OUTFIT,
+            SlotType::WeaponAquaticA => Visibility::WEAPON_AQUATIC_A,
+            SlotType::WeaponAquaticB => Visibility::WEAPON_AQUATIC_B,
+            SlotType::WeaponA1 => Visibility::WEAPON_A1,
+            SlotType::WeaponA2 => Visibility::WEAPON_A2,
+            SlotType::WeaponB1 => Visibility::WEAPON_B1,
+            SlotType::WeaponB2 => Visibility::WEAPON_B2,
+        }
+    }
+
+    pub fn index(self) -> usize {
+        self as usize
+    }
+}
+
+pub type SlotFilter = HashSet<SlotType>;
+
+pub trait SlotFilterExt {
+    fn all() -> Self;
+
+    fn invert(&mut self);
+    fn remove_all<I: IntoIterator<Item = &'static SlotType>>(&mut self, slots: I);
+    fn retain_all<I: IntoIterator<Item = &'static SlotType>>(&mut self, slots: I);
+}
+
+impl SlotFilterExt for SlotFilter {
+    fn all() -> Self {
+        SlotFilter::from_iter(SlotType::iter())
+    }
+
+    fn invert(&mut self) {
+        *self = Self::all().difference(self).copied().collect()
+    }
+
+    fn retain_all<I: IntoIterator<Item = &'static SlotType>>(&mut self, slots: I) {
+        let slots = Self::from_iter(slots.into_iter().copied());
+        self.retain(|s| slots.contains(s))
+    }
+
+    fn remove_all<I: IntoIterator<Item = &'static SlotType>>(&mut self, slots: I) {
+        for s in slots {
+            self.remove(s);
+        }
+    }
+}
+
+#[derive(
+    Debug,
+    Copy,
+    Clone,
+    Serialize,
+    Deserialize,
+    EnumIter,
+    strum_macros::EnumString,
+    strum_macros::Display,
+)]
+#[strum(serialize_all = "snake_case")]
+pub enum EquipmentCategory {
+    Underwater,
+    Armors,
+    Weapons,
+}
+
+impl EquipmentCategory {
+    pub const fn slots(&self) -> &'static [SlotType] {
+        match self {
+            EquipmentCategory::Underwater => &[
+                SlotType::Aquabreather,
+                SlotType::WeaponAquaticA,
+                SlotType::WeaponAquaticB,
+            ],
+            EquipmentCategory::Armors => &[
+                SlotType::Aquabreather,
+                SlotType::Chest,
+                SlotType::Shoes,
+                SlotType::Gloves,
+                SlotType::Head,
+                SlotType::Legs,
+                SlotType::Shoulders,
+            ],
+            EquipmentCategory::Weapons => &[
+                SlotType::WeaponAquaticA,
+                SlotType::WeaponAquaticB,
+                SlotType::WeaponA1,
+                SlotType::WeaponA2,
+                SlotType::WeaponB1,
+                SlotType::WeaponB2,
+            ],
+        }
+    }
+}
+
+bitflags! {
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+    pub struct Visibility: u16 {
+        const AQUABREATHER = 1 << 0;
+        const BACKPACK = 1 << 1;
+        const CHEST = 1 << 2;
+        const SHOES = 1 << 3;
+        const GLOVES = 1 << 4;
+        const HEAD = 1 << 5;
+        const LEGS = 1 << 6;
+        const SHOULDERS = 1 << 7;
+        const OUTFIT = 1 << 8;
+        const WEAPON_AQUATIC_A = 1 << 9;
+        const WEAPON_AQUATIC_B = 1 << 10;
+        const WEAPON_A1 = 1 << 11;
+        const WEAPON_A2 = 1 << 12;
+        const WEAPON_B1 = 1 << 13;
+        const WEAPON_B2 = 1 << 14;
+    }
+}
+
+impl Visibility {
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, ChatLinkError> {
+        if bytes.len() < 2 {
+            return Err(ChatLinkError::TruncatedData(bytes.to_vec()));
+        }
+        let visibility_offset = bytes.len() - 2;
+        let mut cursor = Cursor::new(&bytes[visibility_offset..]);
+        Visibility::read(&mut cursor)
+    }
+
+    pub fn read(cursor: &mut Cursor<&[u8]>) -> Result<Self, ChatLinkError> {
+        let visibility_bytes = cursor.read_u16::<LittleEndian>()?;
+        Visibility::from_bits(visibility_bytes)
+            .ok_or(ChatLinkError::InvalidVisibility(visibility_bytes))
+    }
+}
+
+impl TryFrom<&[u8]> for Visibility {
+    type Error = ChatLinkError;
+
+    fn try_from(bytes: &[u8]) -> Result<Self, ChatLinkError> {
+        Self::from_bytes(bytes)
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum WardrobeSlot {
+    NonDyable {
+        skin: SkinId,
+        visible: bool,
+    },
+    Dyable {
+        skin: SkinId,
+        visible: bool,
+        dyes: Dyes,
+    },
+}
+
+impl WardrobeSlot {
+    pub fn empty(dyable: bool) -> Self {
+        if dyable {
+            Self::Dyable {
+                skin: SkinId::default(),
+                visible: true,
+                dyes: Dyes::default(),
+            }
+        } else {
+            Self::NonDyable {
+                skin: SkinId::default(),
+                visible: true,
+            }
+        }
+    }
+
+    pub fn skin(self) -> SkinId {
+        match self {
+            WardrobeSlot::NonDyable { skin, visible: _ }
+            | WardrobeSlot::Dyable {
+                skin,
+                visible: _,
+                dyes: _,
+            } => skin,
+        }
+    }
+
+    pub fn is_visible(self) -> bool {
+        match self {
+            WardrobeSlot::NonDyable { skin: _, visible }
+            | WardrobeSlot::Dyable {
+                skin: _,
+                visible,
+                dyes: _,
+            } => visible,
+        }
+    }
+
+    pub fn dyes(self) -> Option<Dyes> {
+        match self {
+            WardrobeSlot::Dyable {
+                skin: _,
+                visible: _,
+                dyes,
+            } => Some(dyes),
+            WardrobeSlot::NonDyable {
+                skin: _,
+                visible: _,
+            } => None,
+        }
+    }
+
+    pub fn is_empty(self) -> bool {
+        match self {
+            WardrobeSlot::NonDyable { skin, visible: _ } => skin.is_empty(),
+            WardrobeSlot::Dyable {
+                skin,
+                visible: _,
+                dyes,
+            } => skin.is_empty() && dyes.is_empty(),
+        }
+    }
+
+    pub fn merge(
+        &self,
+        other: &WardrobeSlot,
+        ignore_skin: bool,
+        ignore_dies: bool,
+    ) -> WardrobeSlot {
+        if other.is_empty() || (ignore_skin && ignore_dies) {
+            *self
+        } else if ignore_skin {
+            match other {
+                WardrobeSlot::NonDyable {
+                    skin: _,
+                    visible: _,
+                } => WardrobeSlot::NonDyable {
+                    skin: self.skin(),
+                    visible: self.is_visible(),
+                },
+                WardrobeSlot::Dyable {
+                    skin: _,
+                    visible: _,
+                    dyes,
+                } => WardrobeSlot::Dyable {
+                    skin: self.skin(),
+                    visible: self.is_visible(),
+                    dyes: *dyes,
+                },
+            }
+        } else if ignore_dies {
+            match self {
+                WardrobeSlot::NonDyable {
+                    skin: _,
+                    visible: _,
+                } => WardrobeSlot::NonDyable {
+                    skin: other.skin(),
+                    visible: other.is_visible(),
+                },
+                WardrobeSlot::Dyable {
+                    skin: _,
+                    visible: _,
+                    dyes,
+                } => WardrobeSlot::Dyable {
+                    skin: other.skin(),
+                    visible: other.is_visible(),
+                    dyes: *dyes,
+                },
+            }
+        } else {
+            *other
+        }
+    }
+
+    pub fn read(
+        cursor: &mut Cursor<&[u8]>,
+        dyable: bool,
+        visible: bool,
+    ) -> Result<Self, std::io::Error> {
+        let skin = SkinId::from_cursor(cursor)?;
+        if dyable {
+            let dyes = Dyes::from_cursor(cursor)?;
+            Ok(Self::Dyable {
+                skin,
+                visible,
+                dyes,
+            })
+        } else {
+            Ok(Self::NonDyable { skin, visible })
+        }
+    }
+
+    pub fn serialize(&self, buffer: &mut dyn std::io::Write) -> Result<(), std::io::Error> {
+        match self {
+            WardrobeSlot::NonDyable { skin, visible: _ } => {
+                buffer.write_u16::<LittleEndian>((*skin).into())?;
+            }
+            WardrobeSlot::Dyable {
+                skin,
+                visible: _,
+                dyes,
+            } => {
+                let (dye1, dye2, dye3, dye4) = (*dyes).into();
+                buffer.write_u16::<LittleEndian>((*skin).into())?;
+                buffer.write_u16::<LittleEndian>(dye1)?;
+                buffer.write_u16::<LittleEndian>(dye2)?;
+                buffer.write_u16::<LittleEndian>(dye3)?;
+                buffer.write_u16::<LittleEndian>(dye4)?;
+            }
+        }
+        Ok(())
+    }
+}

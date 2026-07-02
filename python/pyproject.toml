@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Manage GW2 fashion templates"
 authors = ["Maëlick Claes <himself@maelick.net>"]
 license = "MIT"
-readme = "README.md"
+readme = "../README.md"
 
 packages = [
     { include = "gw2fashionista", from = "src" },

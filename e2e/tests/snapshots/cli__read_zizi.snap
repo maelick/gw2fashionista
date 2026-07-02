@@ -1,0 +1,220 @@
+---
+source: e2e/src/cli.rs
+expression: json
+---
+{
+  "aquabreather": {
+    "id": 859,
+    "name": "Black Earth Aquabreather",
+    "visible": false
+  },
+  "backpack": {
+    "dyes": [
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 2365,
+    "name": "Pink Quaggan Backpack",
+    "visible": true
+  },
+  "chest": {
+    "dyes": [
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 12,
+    "name": "Sneakthief Coat",
+    "visible": true
+  },
+  "gloves": {
+    "dyes": [
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      }
+    ],
+    "id": 252,
+    "name": "Noble Gloves",
+    "visible": true
+  },
+  "head": {
+    "dyes": [
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 978,
+    "name": "Fuzzy Cat Hat",
+    "visible": true
+  },
+  "legs": {
+    "dyes": [
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 11,
+    "name": "Sneakthief Leggings",
+    "visible": true
+  },
+  "outfit": {
+    "dyes": [
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 124,
+    "name": "Hologram Outfit",
+    "visible": false
+  },
+  "shoes": {
+    "dyes": [
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 35,
+    "name": "Sneakthief Sandals",
+    "visible": true
+  },
+  "shoulders": {
+    "dyes": [
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 5794,
+    "name": "Shoulder Scarf",
+    "visible": true
+  },
+  "weapon_a1": {
+    "id": 4668,
+    "name": "Quip",
+    "visible": true
+  },
+  "weapon_a2": {
+    "id": 4668,
+    "name": "Quip",
+    "visible": true
+  },
+  "weapon_aquatic_a": {
+    "id": 5091,
+    "name": "Steam Speargun",
+    "visible": true
+  },
+  "weapon_aquatic_b": {
+    "id": 4000,
+    "name": "Iron Spear",
+    "visible": true
+  },
+  "weapon_b1": {
+    "id": 4669,
+    "name": "The Dreamer",
+    "visible": true
+  }
+}
