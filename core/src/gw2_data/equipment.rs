@@ -1,9 +1,25 @@
 use std::collections::{HashMap, HashSet};
 
 use futures::stream::{self, StreamExt, TryStreamExt};
-use gw2lib::{EndpointError, model::{authenticated::characters::{Equip, EquipmentTab, Slot}, items::{Item, ItemId}, misc::colors::ColorId}};
+use gw2lib::{
+    EndpointError,
+    model::{
+        authenticated::characters::{Equip, EquipmentTab, Slot},
+        items::{Item, ItemId},
+        misc::colors::ColorId,
+    },
+};
 
-use crate::{domain::{skins::{DyeId, Dyes, SkinId}, wardrobe_template::{WardrobeTemplate, slot::{WardrobeSlot, SlotType}}}, gw2_data::cache};
+use crate::{
+    domain::{
+        skins::{DyeId, Dyes, SkinId},
+        wardrobe_template::{
+            WardrobeTemplate,
+            slot::{SlotType, WardrobeSlot},
+        },
+    },
+    gw2_data::cache,
+};
 
 #[derive(Clone, Debug)]
 pub struct Equipment {
@@ -24,16 +40,17 @@ impl Equipment {
     }
 
     pub fn all_item_ids(&self) -> HashSet<ItemId> {
-        HashSet::from_iter(self.slots.iter().filter_map(|s| {
-            if s.skin.is_none() {
-                Some(s.id)
-            } else {
-                None
-            }
-        }))
+        HashSet::from_iter(
+            self.slots
+                .iter()
+                .filter_map(|s| if s.skin.is_none() { Some(s.id) } else { None }),
+        )
     }
 
-    pub async fn resolve_default_skins<R: cache::Resolver<Item, ItemId>>(self, cache: &R) -> Result<Self, EndpointError> {
+    pub async fn resolve_default_skins<R: cache::Resolver<Item, ItemId>>(
+        self,
+        cache: &R,
+    ) -> Result<Self, EndpointError> {
         Ok(Equipment {
             char_name: self.char_name.clone(),
             tab_id: self.tab_id,
@@ -42,17 +59,23 @@ impl Equipment {
         })
     }
 
-    async fn resolve_slots_default_skins<R: cache::Resolver<Item, ItemId>>(self, cache: &R) -> Result<Vec<Equip>, EndpointError> {
-        stream::iter(self.slots).then(async |s| {
-            if s.skin.is_none() {
-                Ok::<_, EndpointError>(Equip{
-                    skin: cache.get(s.id).await?.default_skin,
-                    ..s
-                })
-            } else {
-                Ok(s)
-            }
-        }).try_collect().await
+    async fn resolve_slots_default_skins<R: cache::Resolver<Item, ItemId>>(
+        self,
+        cache: &R,
+    ) -> Result<Vec<Equip>, EndpointError> {
+        stream::iter(self.slots)
+            .then(async |s| {
+                if s.skin.is_none() {
+                    Ok::<_, EndpointError>(Equip {
+                        skin: cache.get(s.id).await?.default_skin,
+                        ..s
+                    })
+                } else {
+                    Ok(s)
+                }
+            })
+            .try_collect()
+            .await
     }
 }
 
@@ -103,9 +126,16 @@ impl From<(&SlotType, &Equip)> for WardrobeSlot {
         let skin = equip.skin.unwrap_or(0).into();
         if slot_type.dyable() {
             let dyes = equip.dyes.as_ref().map_or(Dyes::default(), Dyes::from);
-            WardrobeSlot::Dyable { skin, visible: true, dyes }
+            WardrobeSlot::Dyable {
+                skin,
+                visible: true,
+                dyes,
+            }
         } else {
-            WardrobeSlot::NonDyable { skin, visible: true }
+            WardrobeSlot::NonDyable {
+                skin,
+                visible: true,
+            }
         }
     }
 }
@@ -123,9 +153,7 @@ impl From<&Vec<Option<ColorId>>> for Dyes {
 
 impl From<Option<&Option<u16>>> for DyeId {
     fn from(dye: Option<&Option<u16>>) -> Self {
-        dye.unwrap_or(&None)
-            .map(DyeId::from)
-            .unwrap_or_default()
+        dye.unwrap_or(&None).map(DyeId::from).unwrap_or_default()
     }
 }
 

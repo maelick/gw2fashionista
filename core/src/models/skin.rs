@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::domain::{skins, wardrobe_template::slot::WardrobeSlot};
 
@@ -25,8 +25,15 @@ pub struct Dye {
 impl From<&Skin> for WardrobeSlot {
     fn from(skin: &Skin) -> Self {
         match &skin.dyes {
-            Some(dyes) => WardrobeSlot::Dyable { skin: skin.id.into(), visible: skin.visible.unwrap_or(true), dyes: dyes.clone().into() },
-            None => WardrobeSlot::NonDyable { skin: skin.id.into(), visible: skin.visible.unwrap_or(true) },
+            Some(dyes) => WardrobeSlot::Dyable {
+                skin: skin.id.into(),
+                visible: skin.visible.unwrap_or(true),
+                dyes: dyes.clone().into(),
+            },
+            None => WardrobeSlot::NonDyable {
+                skin: skin.id.into(),
+                visible: skin.visible.unwrap_or(true),
+            },
         }
     }
 }
@@ -54,7 +61,8 @@ impl From<Dyes> for skins::Dyes {
 
 impl From<skins::Dyes> for Dyes {
     fn from(dyes: skins::Dyes) -> Self {
-        let (dye1, dye2, dye3, dye4): (skins::DyeId, skins::DyeId, skins::DyeId, skins::DyeId) = dyes.into();
+        let (dye1, dye2, dye3, dye4): (skins::DyeId, skins::DyeId, skins::DyeId, skins::DyeId) =
+            dyes.into();
         (dye1.into(), dye2.into(), dye3.into(), dye4.into())
     }
 }

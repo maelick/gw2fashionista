@@ -1,8 +1,11 @@
-use std::{io, fs};
 use async_trait::async_trait;
-use clap::{Args};
+use clap::Args;
+use gw2fashionista_core::{
+    domain::{chatlink::ChatLink, error::ChatLinkError},
+    gw2_data::{Resolver, equipment::Equipment, import::Importer},
+};
 use serde::{Deserialize, Serialize};
-use gw2fashionista_core::{domain::{chatlink::ChatLink, error::ChatLinkError}, gw2_data::{Resolver, equipment::Equipment, import::Importer}};
+use std::{fs, io};
 
 use super::args;
 
@@ -39,7 +42,7 @@ pub struct Command {
 #[async_trait]
 impl super::Command for Command {
     fn name(&self) -> &str {
-        return "wardrobe-export"
+        return "wardrobe-export";
     }
 
     #[tracing::instrument(name = "wardrobe-export", skip_all)]
@@ -54,13 +57,17 @@ impl super::Command for Command {
         };
 
         let concurrency = self.concurrency.map_or(characters.len(), |c| c as usize);
-        let equipments = importer.with_buffer_size(concurrency).fetch_equipment(&characters).await?;
-        let resolved = Resolver::default().with_buffer_size(concurrency).resolve_equipment(equipments).await?;
+        let equipments = importer
+            .with_buffer_size(concurrency)
+            .fetch_equipment(&characters)
+            .await?;
+        let resolved = Resolver::default()
+            .with_buffer_size(concurrency)
+            .resolve_equipment(equipments)
+            .await?;
 
-        let exported: Result<Vec<_>, _> = resolved
-            .iter()
-            .map(|e| self.export_equipment(e))
-            .collect();
+        let exported: Result<Vec<_>, _> =
+            resolved.iter().map(|e| self.export_equipment(e)).collect();
         self.output_equipments(exported?)
     }
 }
@@ -91,7 +98,7 @@ impl Command {
         match &self.output {
             Some(path) => match path.extension() {
                 Some(ext) if ext == "json" => args::Format::JSON,
-                _ => args::Format::CSV
+                _ => args::Format::CSV,
             },
             None => args::Format::CSV,
         }
@@ -129,7 +136,7 @@ struct ExportedEquipment {
 impl ExportedEquipment {
     pub fn new(equipment: &Equipment) -> Result<Self, ChatLinkError> {
         let chat_link = ChatLink::WardrobeTemplate(equipment.into());
-        Ok(ExportedEquipment{
+        Ok(ExportedEquipment {
             char_name: equipment.char_name.clone(),
             tab_id: equipment.tab_id,
             tab_name: equipment.tab_name.clone(),
@@ -139,7 +146,7 @@ impl ExportedEquipment {
 
     pub fn with_default_name(self) -> Self {
         if self.tab_name.is_empty() {
-            ExportedEquipment{
+            ExportedEquipment {
                 tab_name: format!("{} {}", self.char_name, self.tab_id),
                 ..self
             }

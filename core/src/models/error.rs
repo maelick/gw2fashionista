@@ -9,7 +9,7 @@ pub enum SlotVariant {
 #[derive(Debug, thiserror::Error)]
 pub enum ModelError {
     #[error("{slot_type:?} should be {expected:?} but was {found:?}")]
-    IncorrectSlotVariant{
+    IncorrectSlotVariant {
         slot_type: SlotType,
         expected: SlotVariant,
         found: SlotVariant,

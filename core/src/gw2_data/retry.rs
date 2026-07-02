@@ -10,7 +10,7 @@ pub struct Retry {
 
 impl Retry {
     pub fn new(max_retries: usize, sleep_millis: u64) -> Self {
-        Retry{
+        Retry {
             max_retries,
             sleep_millis,
         }
@@ -41,6 +41,6 @@ fn retryable(e: &EndpointError) -> bool {
         | EndpointError::RateLimiterBucketExceeded
         | EndpointError::RequestFailed(_)
         | EndpointError::ApiError(ApiError::RateLimited) => true,
-        _ => false
+        _ => false,
     }
 }

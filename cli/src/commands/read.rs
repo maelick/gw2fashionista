@@ -1,9 +1,11 @@
-use std::{io, iter};
 use async_trait::async_trait;
-use clap::{Args};
-use gw2fashionista_core::models::wardrobe_template::WardrobeTemplateData;
-use gw2fashionista_core::domain::{chatlink::ChatLink, error::ChatLinkError, wardrobe_template::WardrobeTemplate};
+use clap::Args;
+use gw2fashionista_core::domain::{
+    chatlink::ChatLink, error::ChatLinkError, wardrobe_template::WardrobeTemplate,
+};
 use gw2fashionista_core::gw2_data::Resolver;
+use gw2fashionista_core::models::wardrobe_template::WardrobeTemplateData;
+use std::{io, iter};
 
 #[derive(Args, Debug)]
 pub struct Command {
@@ -56,7 +58,11 @@ impl Command {
         }
     }
 
-    fn read_single_column<R: io::BufRead>(&self, headers: csv::StringRecord, reader: &mut csv::Reader<R>) -> anyhow::Result<Vec<String>> {
+    fn read_single_column<R: io::BufRead>(
+        &self,
+        headers: csv::StringRecord,
+        reader: &mut csv::Reader<R>,
+    ) -> anyhow::Result<Vec<String>> {
         let first = iter::once(Ok(headers.get(0).unwrap().to_string()));
         let others = self.read_from_column(reader, 0);
         self.collect(first.chain(others).map(|r| ((), r)), |_, err| {
@@ -64,15 +70,26 @@ impl Command {
         })
     }
 
-    fn read_multiple_columns<R: io::BufRead>(&self, headers: csv::StringRecord, reader: &mut csv::Reader<R>) -> anyhow::Result<Vec<String>> {
+    fn read_multiple_columns<R: io::BufRead>(
+        &self,
+        headers: csv::StringRecord,
+        reader: &mut csv::Reader<R>,
+    ) -> anyhow::Result<Vec<String>> {
         let col_name = self.column.as_ref().unwrap().as_str();
         let col = self.find_column(headers, col_name)?;
-        self.collect(self.read_from_column(reader, col).map(|r| ((), r)), |_, err| {
-            tracing::error!(message = "Error reading chat links from CSV", error = ?err);
-        })
+        self.collect(
+            self.read_from_column(reader, col).map(|r| ((), r)),
+            |_, err| {
+                tracing::error!(message = "Error reading chat links from CSV", error = ?err);
+            },
+        )
     }
 
-    fn read_from_column<R: io::BufRead>(&self, reader: &mut csv::Reader<R>, col: usize) -> impl Iterator<Item = anyhow::Result<String>> {
+    fn read_from_column<R: io::BufRead>(
+        &self,
+        reader: &mut csv::Reader<R>,
+        col: usize,
+    ) -> impl Iterator<Item = anyhow::Result<String>> {
         reader.records().map(move |r| self.read_chat_link(r?, col))
     }
 
@@ -86,14 +103,14 @@ impl Command {
     fn find_column(&self, headers: csv::StringRecord, col_name: &str) -> anyhow::Result<usize> {
         match headers.iter().position(|header| header == col_name) {
             Some(value) => Ok(value),
-            None => Err(anyhow::anyhow!("Missing column {} in CSV input", col_name))
+            None => Err(anyhow::anyhow!("Missing column {} in CSV input", col_name)),
         }
     }
 
     fn parse(&self, chat_links: &Vec<String>) -> Result<Vec<ChatLink>, ChatLinkError> {
-        let iter = chat_links.iter().map(|raw_link| {
-            (raw_link, ChatLink::try_from(raw_link.as_str()))
-        });
+        let iter = chat_links
+            .iter()
+            .map(|raw_link| (raw_link, ChatLink::try_from(raw_link.as_str())));
         self.collect(iter, |link, err| {
             tracing::error!(message = "Error parsing chat link", chat_link = ?link, error = ?err);
         })
@@ -115,7 +132,7 @@ impl Command {
 #[async_trait]
 impl super::Command for Command {
     fn name(&self) -> &str {
-        return "read"
+        return "read";
     }
 
     #[tracing::instrument(name = "read", skip_all)]
@@ -124,7 +141,9 @@ impl super::Command for Command {
         let links = self.parse(&raw_links)?;
         let resolver = Resolver::default().with_buffer_size(self.concurrency as usize);
         if !self.skip_names {
-            resolver.cache_wardrobe_templates(wardrobe_templates(&links)).await?;
+            resolver
+                .cache_wardrobe_templates(wardrobe_templates(&links))
+                .await?;
         }
 
         for link in links {
@@ -137,7 +156,7 @@ impl super::Command for Command {
                     };
 
                     print(&data, self.pretty)?;
-                },
+                }
                 _ => Err(anyhow::anyhow!("Unsupported chat link type"))?,
             }
         }
@@ -146,12 +165,13 @@ impl super::Command for Command {
 }
 
 fn wardrobe_templates(chat_links: &Vec<ChatLink>) -> Vec<&WardrobeTemplate> {
-    chat_links.iter().filter_map(|link| {
-        match link {
+    chat_links
+        .iter()
+        .filter_map(|link| match link {
             ChatLink::WardrobeTemplate(template) => Some(template),
             _ => None,
-        }
-    }).collect()
+        })
+        .collect()
 }
 
 fn print(data: &WardrobeTemplateData, pretty: bool) -> anyhow::Result<()> {
@@ -168,10 +188,16 @@ where
     I: IntoIterator<Item = (V, Result<T, E>)>,
     F: Fn(V, E),
 {
-    Ok(iter.into_iter().filter_map(|(value, result)| {
-        result.map_or_else(|err| {
-            on_error(value, err);
-            None
-        }, Some)
-    }).collect())
+    Ok(iter
+        .into_iter()
+        .filter_map(|(value, result)| {
+            result.map_or_else(
+                |err| {
+                    on_error(value, err);
+                    None
+                },
+                Some,
+            )
+        })
+        .collect())
 }

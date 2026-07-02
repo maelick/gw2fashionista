@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use clap::{Args};
+use clap::Args;
 
 use super::args;
 use gw2fashionista_core::domain::{chatlink::ChatLink, error::ChatLinkError};
@@ -22,7 +22,7 @@ pub struct Command {
 #[async_trait]
 impl super::Command for Command {
     fn name(&self) -> &str {
-        return "wardrobe-merge"
+        return "wardrobe-merge";
     }
 
     #[tracing::instrument(name = "wardrobe-merge", skip_all)]
@@ -39,7 +39,11 @@ impl super::Command for Command {
         }?;
 
         let new_template = new_template.filter(&filter);
-        let merged = base_template.merge(&new_template, self.skin_dyes_only.no_skins, self.skin_dyes_only.no_dyes);
+        let merged = base_template.merge(
+            &new_template,
+            self.skin_dyes_only.no_skins,
+            self.skin_dyes_only.no_dyes,
+        );
 
         println!("{}", ChatLink::WardrobeTemplate(merged).to_string()?);
         Ok(())

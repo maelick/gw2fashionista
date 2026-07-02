@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use gw2lib::model::{items::ItemId, BulkEndpoint, Endpoint, EndpointWithId};
+use gw2lib::model::{BulkEndpoint, Endpoint, EndpointWithId, items::ItemId};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(test, serde(deny_unknown_fields))]

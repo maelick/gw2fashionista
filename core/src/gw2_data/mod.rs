@@ -3,9 +3,12 @@ use std::sync::Arc;
 
 use futures::stream::{self, StreamExt, TryStreamExt};
 use gw2lib::cache::InMemoryCache;
+use gw2lib::model::{
+    items::{Item, skins::Skin},
+    misc::colors::Color,
+};
 use gw2lib::rate_limit::BucketRateLimiter;
 use gw2lib::{Client, EndpointError, Requester};
-use gw2lib::model::{items::{Item, skins::Skin}, misc::colors::Color};
 use hyper::client::HttpConnector;
 use hyper_rustls::HttpsConnector;
 
@@ -17,14 +20,14 @@ use crate::gw2_data::cache::{Cache, Resolver as CacheResolver};
 use crate::gw2_data::equipment::Equipment;
 use crate::gw2_data::outfit::Outfit;
 use crate::gw2_data::retry::Retry;
-use crate::models::wardrobe_template::WardrobeTemplateData;
 use crate::models::skin;
+use crate::models::wardrobe_template::WardrobeTemplateData;
 
 mod cache;
-mod retry;
-mod outfit;
 pub mod equipment;
 pub mod import;
+mod outfit;
+mod retry;
 
 const DEFAULT_BUFFER_SIZE: usize = 10;
 
@@ -46,7 +49,7 @@ where
 {
     pub fn new(req: Req) -> Self {
         let req = Arc::new(req);
-        Resolver{
+        Resolver {
             items: Cache::new(req.clone()),
             skins: Cache::new(req.clone()),
             outfits: Cache::new(req.clone()),
@@ -58,7 +61,7 @@ where
 
     pub fn with_buffer_size(mut self, size: usize) -> Self {
         self.buffer_size = size;
-        return self
+        return self;
     }
 
     pub fn clear(&self) {
@@ -83,7 +86,13 @@ where
         self.retry.start(|| self.items.get(id)).await
     }
 
-    pub async fn cache_wardrobe_templates<'a, Templates: IntoIterator<Item=&'a WardrobeTemplate>>(&self, templates: Templates) -> Result<(), EndpointError> {
+    pub async fn cache_wardrobe_templates<
+        'a,
+        Templates: IntoIterator<Item = &'a WardrobeTemplate>,
+    >(
+        &self,
+        templates: Templates,
+    ) -> Result<(), EndpointError> {
         let mut skins = HashSet::new();
         let mut dyes = HashSet::new();
         for t in templates {
@@ -93,43 +102,72 @@ where
         self.fetch_missing_fashion_data(skins, dyes).await
     }
 
-    pub async fn cache_wardrobe_template(&self, template: &WardrobeTemplate) -> Result<(), EndpointError> {
-        self.fetch_missing_fashion_data(template.all_skin_ids(), template.all_dye_ids()).await
+    pub async fn cache_wardrobe_template(
+        &self,
+        template: &WardrobeTemplate,
+    ) -> Result<(), EndpointError> {
+        self.fetch_missing_fashion_data(template.all_skin_ids(), template.all_dye_ids())
+            .await
     }
 
-    async fn fetch_missing_fashion_data<Skins: IntoIterator<Item=SkinId>, Dyes:IntoIterator<Item=DyeId>>(&self, skins: Skins, dyes: Dyes) -> Result<(), EndpointError> {
+    async fn fetch_missing_fashion_data<
+        Skins: IntoIterator<Item = SkinId>,
+        Dyes: IntoIterator<Item = DyeId>,
+    >(
+        &self,
+        skins: Skins,
+        dyes: Dyes,
+    ) -> Result<(), EndpointError> {
         tokio::try_join!(
-            self.skins.ensure(skins.into_iter().map(|id| id.into()).collect()),
-            self.colors.ensure(dyes.into_iter().map(|id| id.into()).collect()),
+            self.skins
+                .ensure(skins.into_iter().map(|id| id.into()).collect()),
+            self.colors
+                .ensure(dyes.into_iter().map(|id| id.into()).collect()),
         )?;
         Ok(())
     }
 
-    pub async fn resolve_equipment(&self, equipments: Vec<Equipment>) -> Result<Vec<Equipment>, EndpointError> {
+    pub async fn resolve_equipment(
+        &self,
+        equipments: Vec<Equipment>,
+    ) -> Result<Vec<Equipment>, EndpointError> {
         let mut items = HashSet::new();
         for e in &equipments {
             items.extend(e.all_item_ids().into_iter());
         }
         self.items.ensure(items.into_iter().collect()).await?;
 
-        stream::iter(equipments).map(async |e| e.resolve_default_skins(&self.items).await).buffered(self.buffer_size).try_collect().await
+        stream::iter(equipments)
+            .map(async |e| e.resolve_default_skins(&self.items).await)
+            .buffered(self.buffer_size)
+            .try_collect()
+            .await
     }
 
-    pub async fn resolve_chat_link(&self, chat_link: &ChatLink) -> Result<WardrobeTemplateData, ChatLinkError> {
+    pub async fn resolve_chat_link(
+        &self,
+        chat_link: &ChatLink,
+    ) -> Result<WardrobeTemplateData, ChatLinkError> {
         match chat_link {
             ChatLink::WardrobeTemplate(template) => {
                 Ok(self.resolve_wardrobe_template(template).await.unwrap())
-            },
-            _ => Err(ChatLinkError::NotImplemented)
+            }
+            _ => Err(ChatLinkError::NotImplemented),
         }
     }
 
-    pub async fn resolve_wardrobe_template(&self, template: &WardrobeTemplate) -> Result<WardrobeTemplateData, EndpointError> {
+    pub async fn resolve_wardrobe_template(
+        &self,
+        template: &WardrobeTemplate,
+    ) -> Result<WardrobeTemplateData, EndpointError> {
         let data = template.into();
         self.resolve_wardrobe_template_data(&data).await
     }
 
-    pub async fn resolve_wardrobe_template_data(&self, template: &WardrobeTemplateData) -> Result<WardrobeTemplateData, EndpointError> {
+    pub async fn resolve_wardrobe_template_data(
+        &self,
+        template: &WardrobeTemplateData,
+    ) -> Result<WardrobeTemplateData, EndpointError> {
         Ok(WardrobeTemplateData {
             aquabreather: self.resolve_wardrobe_slot(&template.aquabreather).await?,
             backpack: self.resolve_wardrobe_slot(&template.backpack).await?,
@@ -140,8 +178,12 @@ where
             legs: self.resolve_wardrobe_slot(&template.legs).await?,
             shoulders: self.resolve_wardrobe_slot(&template.shoulders).await?,
             outfit: self.resolve_outfit(&template.outfit).await?,
-            weapon_aquatic_a: self.resolve_wardrobe_slot(&template.weapon_aquatic_a).await?,
-            weapon_aquatic_b: self.resolve_wardrobe_slot(&template.weapon_aquatic_b).await?,
+            weapon_aquatic_a: self
+                .resolve_wardrobe_slot(&template.weapon_aquatic_a)
+                .await?,
+            weapon_aquatic_b: self
+                .resolve_wardrobe_slot(&template.weapon_aquatic_b)
+                .await?,
             weapon_a1: self.resolve_wardrobe_slot(&template.weapon_a1).await?,
             weapon_a2: self.resolve_wardrobe_slot(&template.weapon_a2).await?,
             weapon_b1: self.resolve_wardrobe_slot(&template.weapon_b1).await?,
@@ -149,13 +191,16 @@ where
         })
     }
 
-    async fn resolve_outfit(&self, skin: &Option<skin::Skin>) -> Result<Option<skin::Skin>, EndpointError> {
+    async fn resolve_outfit(
+        &self,
+        skin: &Option<skin::Skin>,
+    ) -> Result<Option<skin::Skin>, EndpointError> {
         if let Some(skin) = skin {
             let (name, dyes) = tokio::try_join!(
                 self.resolve_outfit_name(skin.id),
                 self.resolve_dyes(&skin.dyes),
             )?;
-            Ok(Some(skin::Skin{
+            Ok(Some(skin::Skin {
                 name,
                 dyes,
                 ..*skin
@@ -165,13 +210,16 @@ where
         }
     }
 
-    async fn resolve_wardrobe_slot(&self, skin: &Option<skin::Skin>) -> Result<Option<skin::Skin>, EndpointError> {
+    async fn resolve_wardrobe_slot(
+        &self,
+        skin: &Option<skin::Skin>,
+    ) -> Result<Option<skin::Skin>, EndpointError> {
         if let Some(skin) = skin {
             let (name, dyes) = tokio::try_join!(
                 self.resolve_skin_name(skin.id),
                 self.resolve_dyes(&skin.dyes),
             )?;
-            Ok(Some(skin::Skin{
+            Ok(Some(skin::Skin {
                 name,
                 dyes,
                 ..*skin
@@ -189,7 +237,10 @@ where
         Ok(Some(self.skin(id.into()).await?.name))
     }
 
-    async fn resolve_dyes(&self, dyes: &Option<skin::Dyes>) -> Result<Option<skin::Dyes>, EndpointError> {
+    async fn resolve_dyes(
+        &self,
+        dyes: &Option<skin::Dyes>,
+    ) -> Result<Option<skin::Dyes>, EndpointError> {
         if let Some((dye1, dye2, dye3, dye4)) = dyes {
             Ok(Some(tokio::try_join!(
                 self.resolve_dye_name(dye1),
@@ -203,14 +254,16 @@ where
     }
 
     async fn resolve_dye_name(&self, dye: &skin::Dye) -> Result<skin::Dye, EndpointError> {
-        Ok(skin::Dye{
+        Ok(skin::Dye {
             name: Some(self.dye(dye.id.into()).await?.name),
             ..*dye
         })
     }
 }
 
-impl Default for Resolver<Client<InMemoryCache, BucketRateLimiter, HttpsConnector<HttpConnector>, false>> {
+impl Default
+    for Resolver<Client<InMemoryCache, BucketRateLimiter, HttpsConnector<HttpConnector>, false>>
+{
     fn default() -> Self {
         Self::new(Client::default())
     }

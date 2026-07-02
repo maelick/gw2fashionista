@@ -3,18 +3,35 @@ use std::hash::Hash;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
+use async_trait::async_trait;
 use dashmap::DashMap;
 use gw2lib::model::{BulkEndpoint, EndpointWithId};
-use gw2lib::{Requester, EndpointError};
+use gw2lib::{EndpointError, Requester};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
-use async_trait::async_trait;
 
 #[async_trait]
 pub trait Resolver<T, I>
 where
-    T: DeserializeOwned + Serialize + Clone + Send + Sync + EndpointWithId<IdType = I> + BulkEndpoint + 'static,
-    I: Display + Debug + DeserializeOwned + Serialize + Hash + Clone + Send + Sync + Eq + Copy + 'static,
+    T: DeserializeOwned
+        + Serialize
+        + Clone
+        + Send
+        + Sync
+        + EndpointWithId<IdType = I>
+        + BulkEndpoint
+        + 'static,
+    I: Display
+        + Debug
+        + DeserializeOwned
+        + Serialize
+        + Hash
+        + Clone
+        + Send
+        + Sync
+        + Eq
+        + Copy
+        + 'static,
 {
     fn clear(&self);
     async fn ensure(&self, ids: Vec<I>) -> Result<(), EndpointError>;
@@ -32,8 +49,25 @@ pub struct Cache<T, I, Req> {
 impl<T, I, Req> Cache<T, I, Req>
 where
     Req: Requester<false, false>,
-    T: DeserializeOwned + Serialize + Clone + Send + Sync + EndpointWithId<IdType = I> + BulkEndpoint + 'static,
-    I: Display + Debug + DeserializeOwned + Serialize + Hash + Clone + Send + Sync + Eq + Copy + 'static,
+    T: DeserializeOwned
+        + Serialize
+        + Clone
+        + Send
+        + Sync
+        + EndpointWithId<IdType = I>
+        + BulkEndpoint
+        + 'static,
+    I: Display
+        + Debug
+        + DeserializeOwned
+        + Serialize
+        + Hash
+        + Clone
+        + Send
+        + Sync
+        + Eq
+        + Copy
+        + 'static,
 {
     pub fn new(client: Arc<Req>) -> Self {
         Cache {
@@ -60,8 +94,25 @@ where
 impl<T, I, Req> Resolver<T, I> for Cache<T, I, Req>
 where
     Req: Requester<false, false> + Send + Sync,
-    T: DeserializeOwned + Serialize + Clone + Send + Sync + EndpointWithId<IdType = I> + BulkEndpoint + 'static,
-    I: Display + Debug + DeserializeOwned + Serialize + Hash + Clone + Send + Sync + Eq + Copy + 'static,
+    T: DeserializeOwned
+        + Serialize
+        + Clone
+        + Send
+        + Sync
+        + EndpointWithId<IdType = I>
+        + BulkEndpoint
+        + 'static,
+    I: Display
+        + Debug
+        + DeserializeOwned
+        + Serialize
+        + Hash
+        + Clone
+        + Send
+        + Sync
+        + Eq
+        + Copy
+        + 'static,
 {
     fn clear(&self) {
         self.items.clear()
@@ -69,7 +120,10 @@ where
 
     #[cfg_attr(feature = "tracing", tracing::instrument(skip_all, fields(endpoint = %T::URL)))]
     async fn ensure(&self, ids: Vec<I>) -> Result<(), EndpointError> {
-        let ids: Vec<_> = ids.into_iter().filter(|id| !self.items.contains_key(id)).collect();
+        let ids: Vec<_> = ids
+            .into_iter()
+            .filter(|id| !self.items.contains_key(id))
+            .collect();
 
         if ids.len() > 0 {
             #[cfg(feature = "tracing")]
@@ -92,7 +146,9 @@ where
 
     async fn get_many(&self, ids: Vec<I>) -> Result<Vec<T>, EndpointError> {
         self.ensure(ids.clone()).await?;
-        let items = ids.iter().filter_map(|id| self.items.get(id).map(|guard| guard.clone()));
+        let items = ids
+            .iter()
+            .filter_map(|id| self.items.get(id).map(|guard| guard.clone()));
         Ok(items.collect())
     }
 

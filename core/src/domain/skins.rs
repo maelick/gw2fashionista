@@ -108,7 +108,12 @@ impl Dyes {
 
 impl Default for Dyes {
     fn default() -> Self {
-        Dyes(DyeId::default(), DyeId::default(), DyeId::default(), DyeId::default())
+        Dyes(
+            DyeId::default(),
+            DyeId::default(),
+            DyeId::default(),
+            DyeId::default(),
+        )
     }
 }
 

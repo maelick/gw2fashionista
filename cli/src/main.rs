@@ -1,7 +1,7 @@
 use std::io::{self, IsTerminal};
 
-use clap::{Parser};
-use clap_verbosity_flag::{Verbosity, InfoLevel};
+use clap::Parser;
+use clap_verbosity_flag::{InfoLevel, Verbosity};
 use tracing::level_filters::LevelFilter;
 use tracing_subscriber::{Layer, layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -43,7 +43,7 @@ impl Cli {
         match cmd.execute().await {
             Ok(_) => {
                 tracing::debug!(message = "Command successful", name = cmd.name())
-            },
+            }
             Err(err) => {
                 tracing::error!(message = "Command error", name = cmd.name(), error = ?err);
                 std::process::exit(1)

@@ -1,18 +1,18 @@
-use clap::{Subcommand, Args};
 use async_trait::async_trait;
+use clap::{Args, Subcommand};
 
 mod args;
 mod read;
 mod wardrobe_export;
-mod wardrobe_merge;
 mod wardrobe_filter;
+mod wardrobe_merge;
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     /// Read a chat linkand prints its content, potentially resolving ids by retrieving values from the GW2 API.
     Read(read::Command),
     /// Wardrobe template commands
-    Wardrobe(WardrobeArgs)
+    Wardrobe(WardrobeArgs),
 }
 
 #[derive(Args, Debug)]
@@ -39,7 +39,7 @@ impl Commands {
                 WardrobeCommands::Export(cmd) => cmd,
                 WardrobeCommands::Merge(cmd) => cmd,
                 WardrobeCommands::Filter(cmd) => cmd,
-            }
+            },
         }
     }
 }

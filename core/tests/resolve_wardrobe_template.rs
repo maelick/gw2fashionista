@@ -1,11 +1,11 @@
 #[cfg(test)]
 mod tests {
-    use std::assert_matches;
     use gw2fashionista_core::domain::chatlink::ChatLink;
     use gw2fashionista_core::domain::wardrobe_template::WardrobeTemplate;
     use gw2fashionista_core::gw2_data::Resolver;
     use gw2fashionista_core::models::skin::Skin;
     use gw2fashionista_core::models::wardrobe_template::WardrobeTemplateData;
+    use std::assert_matches;
 
     use gw2fashionista_fixtures::wardrobe::{EMPTY_TEMPLATE, ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE};
 
@@ -78,16 +78,72 @@ mod tests {
     }
 
     fn assert_zizi_armor(data: &WardrobeTemplateData) {
-        assert_dyable_skin(data.backpack.as_ref().unwrap(), "Pink Quaggan Backpack", "Dye Remover", "Dye Remover", "Dye Remover", "Dye Remover");
-        assert_dyable_skin(data.chest.as_ref().unwrap(), "Sneakthief Coat", "Electro Pink", "Permafrost", "Permafrost", "Dye Remover");
-        assert_dyable_skin(data.shoes.as_ref().unwrap(), "Sneakthief Sandals", "Electro Pink", "Permafrost", "Dye Remover", "Dye Remover");
-        assert_dyable_skin(data.gloves.as_ref().unwrap(), "Noble Gloves", "Dye Remover", "Permafrost", "Electro Pink", "Electro Pink");
-        assert_dyable_skin(data.head.as_ref().unwrap(), "Fuzzy Cat Hat", "Electro Pink", "Permafrost", "Dye Remover", "Dye Remover");
-        assert_dyable_skin(data.legs.as_ref().unwrap(), "Sneakthief Leggings", "Dye Remover", "Permafrost", "Permafrost", "Dye Remover");
-        assert_dyable_skin(data.shoulders.as_ref().unwrap(), "Shoulder Scarf", "Electro Pink", "Permafrost", "Dye Remover", "Dye Remover");
+        assert_dyable_skin(
+            data.backpack.as_ref().unwrap(),
+            "Pink Quaggan Backpack",
+            "Dye Remover",
+            "Dye Remover",
+            "Dye Remover",
+            "Dye Remover",
+        );
+        assert_dyable_skin(
+            data.chest.as_ref().unwrap(),
+            "Sneakthief Coat",
+            "Electro Pink",
+            "Permafrost",
+            "Permafrost",
+            "Dye Remover",
+        );
+        assert_dyable_skin(
+            data.shoes.as_ref().unwrap(),
+            "Sneakthief Sandals",
+            "Electro Pink",
+            "Permafrost",
+            "Dye Remover",
+            "Dye Remover",
+        );
+        assert_dyable_skin(
+            data.gloves.as_ref().unwrap(),
+            "Noble Gloves",
+            "Dye Remover",
+            "Permafrost",
+            "Electro Pink",
+            "Electro Pink",
+        );
+        assert_dyable_skin(
+            data.head.as_ref().unwrap(),
+            "Fuzzy Cat Hat",
+            "Electro Pink",
+            "Permafrost",
+            "Dye Remover",
+            "Dye Remover",
+        );
+        assert_dyable_skin(
+            data.legs.as_ref().unwrap(),
+            "Sneakthief Leggings",
+            "Dye Remover",
+            "Permafrost",
+            "Permafrost",
+            "Dye Remover",
+        );
+        assert_dyable_skin(
+            data.shoulders.as_ref().unwrap(),
+            "Shoulder Scarf",
+            "Electro Pink",
+            "Permafrost",
+            "Dye Remover",
+            "Dye Remover",
+        );
     }
 
-    fn assert_dyable_skin(skin: &Skin, skin_name: &str, dye1_name: &str, dye2_name: &str, dye3_name: &str, dye4_name: &str) {
+    fn assert_dyable_skin(
+        skin: &Skin,
+        skin_name: &str,
+        dye1_name: &str,
+        dye2_name: &str,
+        dye3_name: &str,
+        dye4_name: &str,
+    ) {
         assert_matches!(&skin.name, Some(name) if name == skin_name);
         assert_matches!(&skin.dyes.as_ref().unwrap().0.name, Some(name) if name == dye1_name);
         assert_matches!(&skin.dyes.as_ref().unwrap().1.name, Some(name) if name == dye2_name);
@@ -98,7 +154,7 @@ mod tests {
     fn parse_template(raw_chat_link: &str) -> WardrobeTemplate {
         let chat_link = ChatLink::try_from(raw_chat_link).unwrap();
         let ChatLink::WardrobeTemplate(template) = chat_link else {
-           panic!("Expected WardrobeTemplate, got {chat_link:?}");
+            panic!("Expected WardrobeTemplate, got {chat_link:?}");
         };
         template
     }

@@ -4,7 +4,10 @@ use assert_cmd::Command;
 use rstest::rstest;
 use serde_json::Deserializer;
 
-use gw2fashionista_fixtures::wardrobe::{ALL_TEMPLATES, EMPTY_TEMPLATE, PEEKABOO_TEMPLATE, WardrobeTemplate, ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE};
+use gw2fashionista_fixtures::wardrobe::{
+    ALL_TEMPLATES, EMPTY_TEMPLATE, PEEKABOO_TEMPLATE, WardrobeTemplate, ZIZI_ARMOR_TEMPLATE,
+    ZIZI_TEMPLATE,
+};
 
 #[rstest]
 #[case(EMPTY_TEMPLATE)]
@@ -72,7 +75,10 @@ fn test_read_command_input_csv() {
 #[test]
 fn test_read_command_input_csv_wrong_row() {
     let templates = all_templates_as_csv();
-    let input = format!("name,fashion_link\n{}\nwrong row,not a chat link", templates.join("\n\n"));
+    let input = format!(
+        "name,fashion_link\n{}\nwrong row,not a chat link",
+        templates.join("\n\n")
+    );
     let output = spawn_cli::<String>(&["read"], Some(input));
     assert_fail(&output);
 }
@@ -80,7 +86,10 @@ fn test_read_command_input_csv_wrong_row() {
 #[test]
 fn test_read_command_input_csv_wrong_row_lenient() {
     let templates = all_templates_as_csv();
-    let input = format!("name,fashion_link\nwrong row,not a chat link\n{}", templates.join("\n\n"));
+    let input = format!(
+        "name,fashion_link\nwrong row,not a chat link\n{}",
+        templates.join("\n\n")
+    );
     let output = spawn_cli::<String>(&["read", "--lenient"], Some(input));
     assert_all_templates(&output);
 }
@@ -106,7 +115,7 @@ where
     S: Into<Vec<u8>>,
 {
     let mut cmd = Command::cargo_bin("gw2fashionista-cli").expect("Failed to find cli binary");
-    let cmd  = cmd.args(args);
+    let cmd = cmd.args(args);
     if let Some(input) = input {
         cmd.write_stdin(input);
     }

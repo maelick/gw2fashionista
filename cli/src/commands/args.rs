@@ -2,9 +2,11 @@ use std::str::FromStr;
 
 use clap::{Args, ValueEnum, builder::TypedValueParser};
 use once_cell::sync::Lazy;
-use strum::{IntoEnumIterator};
+use strum::IntoEnumIterator;
 
-use gw2fashionista_core::domain::wardrobe_template::slot::{EquipmentCategory, SlotFilter, SlotFilterExt, SlotType};
+use gw2fashionista_core::domain::wardrobe_template::slot::{
+    EquipmentCategory, SlotFilter, SlotFilterExt, SlotType,
+};
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
 pub enum Format {
@@ -13,7 +15,7 @@ pub enum Format {
     /// CSV
     CSV,
     /// JSON
-    JSON
+    JSON,
 }
 
 #[derive(Args, Debug)]
@@ -47,12 +49,8 @@ impl ValueEnum for FilterOption {
 
     fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
         Some(match self {
-            FilterOption::Category(cat) => {
-                clap::builder::PossibleValue::new(cat.to_string())
-            }
-            FilterOption::Slot(slot) => {
-                clap::builder::PossibleValue::new(slot.to_string())
-            }
+            FilterOption::Category(cat) => clap::builder::PossibleValue::new(cat.to_string()),
+            FilterOption::Slot(slot) => clap::builder::PossibleValue::new(slot.to_string()),
         })
     }
 }
@@ -66,11 +64,15 @@ impl TypedValueParser for FilterOption {
         _arg: Option<&clap::Arg>,
         value: &std::ffi::OsStr,
     ) -> Result<Self::Value, clap::Error> {
-        value.to_string_lossy().parse()
+        value
+            .to_string_lossy()
+            .parse()
             .map_err(|_| clap::Error::raw(clap::error::ErrorKind::InvalidValue, "Invalid filter"))
     }
 
-    fn possible_values(&self) -> Option<Box<dyn Iterator<Item = clap::builder::PossibleValue> + '_>> {
+    fn possible_values(
+        &self,
+    ) -> Option<Box<dyn Iterator<Item = clap::builder::PossibleValue> + '_>> {
         let categories = EquipmentCategory::iter()
             .map(|c| clap::builder::PossibleValue::new(format!("{:?}", c).to_lowercase()));
         let slots = SlotType::iter()
@@ -82,7 +84,7 @@ impl TypedValueParser for FilterOption {
 
 impl FromStr for FilterOption {
     type Err = String;
-    
+
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         // Try parsing as category first
         if let Ok(category) = EquipmentCategory::from_str(s) {
@@ -104,7 +106,7 @@ impl From<&EquipmentFilters> for SlotFilter {
                 FilterOption::Category(category) => filter.retain_all(category.slots()),
                 FilterOption::Slot(slot) => {
                     filter.retain(|s| s == slot);
-                },
+                }
             };
         }
 
@@ -113,7 +115,7 @@ impl From<&EquipmentFilters> for SlotFilter {
                 FilterOption::Category(category) => filter.remove_all(category.slots()),
                 FilterOption::Slot(slot) => {
                     filter.remove(&slot);
-                },
+                }
             };
         }
         filter

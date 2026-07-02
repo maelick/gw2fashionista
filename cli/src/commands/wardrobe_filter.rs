@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use clap::{Args};
+use clap::Args;
 
 use super::args;
 use gw2fashionista_core::domain::{chatlink::ChatLink, error::ChatLinkError};
@@ -16,7 +16,7 @@ pub struct Command {
 #[async_trait]
 impl super::Command for Command {
     fn name(&self) -> &str {
-        return "wardrobe-filter"
+        return "wardrobe-filter";
     }
 
     #[tracing::instrument(name = "wardrobe-filter", skip_all)]

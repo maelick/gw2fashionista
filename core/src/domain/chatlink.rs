@@ -1,5 +1,5 @@
-use regex::Regex;
 use once_cell::sync::Lazy;
+use regex::Regex;
 
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64;
@@ -70,7 +70,7 @@ impl ChatLink {
             _ => Err(ChatLinkError::UnsupportedType(serialized.link_type)),
         }
     }
-    
+
     pub fn to_string(&self) -> Result<String, ChatLinkError> {
         let serialized = SerializedChatLink::from_chat_link(self)?;
         Ok(serialized.to_string())
@@ -85,29 +85,29 @@ pub struct SerializedChatLink {
 
 impl SerializedChatLink {
     pub fn new(link_type: ChatLinkType, bytes: Vec<u8>) -> Self {
-        return SerializedChatLink { link_type, bytes }
+        return SerializedChatLink { link_type, bytes };
     }
 
     pub fn from_chat_link(chat_link: &ChatLink) -> Result<Self, ChatLinkError> {
         match chat_link {
             ChatLink::WardrobeTemplate(template) => {
                 let bytes = template.serialize()?;
-                return Ok(Self::new(ChatLinkType::WardrobeTemplate, bytes))
+                return Ok(Self::new(ChatLinkType::WardrobeTemplate, bytes));
             }
             _ => Err(ChatLinkError::NotImplemented),
         }
     }
 
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, ChatLinkError> {
-        let (header, payload) = bytes
-            .split_first()
-            .ok_or(ChatLinkError::EmptyPayload)?;
+        let (header, payload) = bytes.split_first().ok_or(ChatLinkError::EmptyPayload)?;
         let link_type = ChatLinkType::try_from(*header)?;
         Ok(Self::new(link_type, payload.to_vec()))
     }
 
     pub fn from_string(raw_chat_link: &str) -> Result<Self, ChatLinkError> {
-        let caps = CHAT_LINK_REGEX.captures(raw_chat_link).ok_or(ChatLinkError::InvalidString)?;
+        let caps = CHAT_LINK_REGEX
+            .captures(raw_chat_link)
+            .ok_or(ChatLinkError::InvalidString)?;
         let base64_str = caps.get(1).ok_or(ChatLinkError::InvalidString)?.as_str();
         let decoded = BASE64.decode(base64_str)?;
         Self::from_bytes(decoded.as_slice())
