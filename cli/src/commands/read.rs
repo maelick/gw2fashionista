@@ -49,7 +49,7 @@ impl Command {
     fn read_links<R: io::BufRead>(&self, reader: R) -> anyhow::Result<Vec<String>> {
         let mut reader = csv::Reader::from_reader(reader);
         let headers = reader.headers()?.clone();
-        if headers.len() == 0 {
+        if headers.is_empty() {
             Err(anyhow::anyhow!("Empty CSV input"))
         } else if headers.len() == 1 {
             self.read_single_column(headers, &mut reader)
@@ -107,7 +107,7 @@ impl Command {
         }
     }
 
-    fn parse(&self, chat_links: &Vec<String>) -> Result<Vec<ChatLink>, ChatLinkError> {
+    fn parse(&self, chat_links: &[String]) -> Result<Vec<ChatLink>, ChatLinkError> {
         let iter = chat_links
             .iter()
             .map(|raw_link| (raw_link, ChatLink::try_from(raw_link.as_str())));
@@ -132,7 +132,7 @@ impl Command {
 #[async_trait]
 impl super::Command for Command {
     fn name(&self) -> &str {
-        return "read";
+        "read"
     }
 
     #[tracing::instrument(name = "read", skip_all)]
@@ -164,7 +164,7 @@ impl super::Command for Command {
     }
 }
 
-fn wardrobe_templates(chat_links: &Vec<ChatLink>) -> Vec<&WardrobeTemplate> {
+fn wardrobe_templates(chat_links: &[ChatLink]) -> Vec<&WardrobeTemplate> {
     chat_links
         .iter()
         .filter_map(|link| match link {

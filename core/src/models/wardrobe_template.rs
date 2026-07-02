@@ -148,7 +148,7 @@ fn dyable_skin_from_map(
         } => Ok(Some(Skin {
             id: (*skin).into(),
             name: None,
-            dyes: Some(dyes.clone().into()),
+            dyes: Some((*dyes).into()),
             visible: Some(*visible),
         })),
     })

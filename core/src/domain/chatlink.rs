@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use once_cell::sync::Lazy;
 use regex::Regex;
 
@@ -85,14 +87,14 @@ pub struct SerializedChatLink {
 
 impl SerializedChatLink {
     pub fn new(link_type: ChatLinkType, bytes: Vec<u8>) -> Self {
-        return SerializedChatLink { link_type, bytes };
+        SerializedChatLink { link_type, bytes }
     }
 
     pub fn from_chat_link(chat_link: &ChatLink) -> Result<Self, ChatLinkError> {
         match chat_link {
             ChatLink::WardrobeTemplate(template) => {
                 let bytes = template.serialize()?;
-                return Ok(Self::new(ChatLinkType::WardrobeTemplate, bytes));
+                Ok(Self::new(ChatLinkType::WardrobeTemplate, bytes))
             }
             _ => Err(ChatLinkError::NotImplemented),
         }
@@ -119,11 +121,13 @@ impl SerializedChatLink {
         bytes.extend_from_slice(&self.bytes);
         bytes
     }
+}
 
-    pub fn to_string(&self) -> String {
+impl Display for SerializedChatLink {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let bytes = self.to_bytes();
         let b64_encoded = BASE64.encode(bytes);
-        format!("[&{}]", b64_encoded)
+        write!(f, "[&{}]", b64_encoded)
     }
 }
 

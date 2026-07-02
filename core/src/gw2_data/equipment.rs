@@ -143,7 +143,7 @@ impl From<(&SlotType, &Equip)> for WardrobeSlot {
 impl From<&Vec<Option<ColorId>>> for Dyes {
     fn from(dyes: &Vec<Option<ColorId>>) -> Self {
         Dyes::new(
-            dyes.get(0).into(),
+            dyes.first().into(),
             dyes.get(1).into(),
             dyes.get(2).into(),
             dyes.get(3).into(),

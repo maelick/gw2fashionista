@@ -2,7 +2,7 @@ use std::io::Cursor;
 
 use byteorder::{LittleEndian, ReadBytesExt};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct SkinId(u16);
 
 impl SkinId {
@@ -34,12 +34,6 @@ impl From<SkinId> for u16 {
 impl From<SkinId> for u32 {
     fn from(SkinId(id): SkinId) -> u32 {
         id as u32
-    }
-}
-
-impl Default for SkinId {
-    fn default() -> Self {
-        SkinId(0)
     }
 }
 
@@ -84,7 +78,7 @@ impl Default for DyeId {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct Dyes(DyeId, DyeId, DyeId, DyeId);
 
 impl Dyes {
@@ -103,17 +97,6 @@ impl Dyes {
 
     pub fn is_empty(self) -> bool {
         matches!(self, Dyes(dye1, dye2, dye3, dye4) if dye1.is_empty() && dye2.is_empty() && dye3.is_empty() && dye4.is_empty())
-    }
-}
-
-impl Default for Dyes {
-    fn default() -> Self {
-        Dyes(
-            DyeId::default(),
-            DyeId::default(),
-            DyeId::default(),
-            DyeId::default(),
-        )
     }
 }
 

@@ -42,7 +42,7 @@ pub struct Command {
 #[async_trait]
 impl super::Command for Command {
     fn name(&self) -> &str {
-        return "wardrobe-export";
+        "wardrobe-export"
     }
 
     #[tracing::instrument(name = "wardrobe-export", skip_all)]
@@ -87,20 +87,21 @@ impl Command {
             args::Format::Auto => self.detect_format(),
             _ => self.format,
         };
-        Ok(match format {
-            args::Format::CSV => self.output_csv(equipments)?,
-            args::Format::JSON => self.output_json(equipments)?,
+        match format {
+            args::Format::Csv => self.output_csv(equipments)?,
+            args::Format::Json => self.output_json(equipments)?,
             _ => todo!(),
-        })
+        };
+        Ok(())
     }
 
     fn detect_format(&self) -> args::Format {
         match &self.output {
             Some(path) => match path.extension() {
-                Some(ext) if ext == "json" => args::Format::JSON,
-                _ => args::Format::CSV,
+                Some(ext) if ext == "json" => args::Format::Json,
+                _ => args::Format::Csv,
             },
-            None => args::Format::CSV,
+            None => args::Format::Csv,
         }
     }
 
@@ -157,6 +158,10 @@ impl ExportedEquipment {
 }
 
 fn open_file(path: &std::path::PathBuf) -> anyhow::Result<Box<dyn io::Write>> {
-    let writer = fs::OpenOptions::new().write(true).create(true).open(path)?;
+    let writer = fs::OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .open(path)?;
     Ok(Box::new(writer))
 }

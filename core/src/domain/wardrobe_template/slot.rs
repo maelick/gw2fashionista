@@ -105,7 +105,7 @@ impl SlotFilterExt for SlotFilter {
     }
 
     fn invert(&mut self) {
-        *self = Self::all().difference(self).map(|s| *s).collect()
+        *self = Self::all().difference(self).copied().collect()
     }
 
     fn retain_all<I: IntoIterator<Item = &'static SlotType>>(&mut self, slots: I) {

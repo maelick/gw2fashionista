@@ -13,9 +13,9 @@ pub enum Format {
     /// Based on the output filename extension (default to CSV if missing filename or unknown extension)
     Auto,
     /// CSV
-    CSV,
+    Csv,
     /// JSON
-    JSON,
+    Json,
 }
 
 #[derive(Args, Debug)]
@@ -114,7 +114,7 @@ impl From<&EquipmentFilters> for SlotFilter {
             match f {
                 FilterOption::Category(category) => filter.remove_all(category.slots()),
                 FilterOption::Slot(slot) => {
-                    filter.remove(&slot);
+                    filter.remove(slot);
                 }
             };
         }

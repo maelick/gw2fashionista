@@ -16,7 +16,7 @@ pub struct Command {
 #[async_trait]
 impl super::Command for Command {
     fn name(&self) -> &str {
-        return "wardrobe-filter";
+        "wardrobe-filter"
     }
 
     #[tracing::instrument(name = "wardrobe-filter", skip_all)]

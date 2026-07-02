@@ -6,10 +6,7 @@ pub struct WardrobeTemplate {
 
 impl WardrobeTemplate {
     const fn new(name: &'static str, chat_link: &'static str) -> Self {
-        WardrobeTemplate {
-            name: name,
-            chat_link: chat_link,
-        }
+        WardrobeTemplate { name, chat_link }
     }
 
     pub fn snapshot_name(&self, prefix: &str) -> String {

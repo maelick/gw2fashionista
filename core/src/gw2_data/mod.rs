@@ -61,7 +61,7 @@ where
 
     pub fn with_buffer_size(mut self, size: usize) -> Self {
         self.buffer_size = size;
-        return self;
+        self
     }
 
     pub fn clear(&self) {
@@ -96,8 +96,8 @@ where
         let mut skins = HashSet::new();
         let mut dyes = HashSet::new();
         for t in templates {
-            skins.extend(t.all_skin_ids().into_iter());
-            dyes.extend(t.all_dye_ids().into_iter());
+            skins.extend(t.all_skin_ids());
+            dyes.extend(t.all_dye_ids());
         }
         self.fetch_missing_fashion_data(skins, dyes).await
     }
@@ -133,7 +133,7 @@ where
     ) -> Result<Vec<Equipment>, EndpointError> {
         let mut items = HashSet::new();
         for e in &equipments {
-            items.extend(e.all_item_ids().into_iter());
+            items.extend(e.all_item_ids());
         }
         self.items.ensure(items.into_iter().collect()).await?;
 

@@ -22,7 +22,7 @@ pub struct Command {
 #[async_trait]
 impl super::Command for Command {
     fn name(&self) -> &str {
-        return "wardrobe-merge";
+        "wardrobe-merge"
     }
 
     #[tracing::instrument(name = "wardrobe-merge", skip_all)]

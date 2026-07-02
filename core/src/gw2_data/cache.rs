@@ -125,7 +125,7 @@ where
             .filter(|id| !self.items.contains_key(id))
             .collect();
 
-        if ids.len() > 0 {
+        if !ids.is_empty() {
             #[cfg(feature = "tracing")]
             tracing::info!(message = "Retrieving missing data from GW2 API", ?ids);
 

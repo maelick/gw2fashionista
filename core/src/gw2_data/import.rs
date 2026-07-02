@@ -34,7 +34,7 @@ where
 
     pub fn with_buffer_size(mut self, size: usize) -> Self {
         self.buffer_size = size;
-        return self;
+        self
     }
 
     #[cfg_attr(feature = "tracing", tracing::instrument(skip(self)))]
@@ -58,9 +58,9 @@ where
     #[cfg_attr(feature = "tracing", tracing::instrument(skip_all))]
     pub async fn fetch_equipment(
         &self,
-        characters: &Vec<String>,
+        characters: &[String],
     ) -> Result<Vec<Equipment>, EndpointError> {
-        let all_tabs: Vec<_> = stream::iter(characters.clone())
+        let all_tabs: Vec<_> = stream::iter(characters.to_owned())
             .map(async |c| self.fetch_char_equipment(c.as_ref()).await)
             .buffered(self.buffer_size)
             .try_collect()
