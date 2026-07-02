@@ -60,7 +60,7 @@ impl Command {
         let first = iter::once(Ok(headers.get(0).unwrap().to_string()));
         let others = self.read_from_column(reader, 0);
         self.collect(first.chain(others).map(|r| ((), r)), |_, err| {
-            tracing::error!("Error reading raw chat links: {}", err);
+            tracing::error!(message = "Error reading raw chat links", error = ?err);
         })
     }
 
@@ -68,7 +68,7 @@ impl Command {
         let col_name = self.column.as_ref().unwrap().as_str();
         let col = self.find_column(headers, col_name)?;
         self.collect(self.read_from_column(reader, col).map(|r| ((), r)), |_, err| {
-            tracing::error!("Error reading chat links from CSV: {}", err);
+            tracing::error!(message = "Error reading chat links from CSV", error = ?err);
         })
     }
 
@@ -95,7 +95,7 @@ impl Command {
             (raw_link, ChatLink::try_from(raw_link.as_str()))
         });
         self.collect(iter, |link, err| {
-            tracing::error!("Error parsing chat link '{}': {}", link, err);
+            tracing::error!(message = "Error parsing chat link", chat_link = ?link, error = ?err);
         })
     }
 
