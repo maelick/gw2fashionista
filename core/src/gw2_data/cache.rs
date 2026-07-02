@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 use std::hash::Hash;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -14,7 +14,7 @@ use async_trait::async_trait;
 pub trait Resolver<T, I>
 where
     T: DeserializeOwned + Serialize + Clone + Send + Sync + EndpointWithId<IdType = I> + BulkEndpoint + 'static,
-    I: Display + DeserializeOwned + Serialize + Hash + Clone + Send + Sync + Eq + Copy + 'static,
+    I: Display + Debug + DeserializeOwned + Serialize + Hash + Clone + Send + Sync + Eq + Copy + 'static,
 {
     fn clear(&self);
     async fn ensure(&self, ids: Vec<I>) -> Result<(), EndpointError>;
@@ -27,21 +27,19 @@ pub struct Cache<T, I, Req> {
     client: Arc<Req>,
     _ids: Mutex<Vec<I>>,
     items: DashMap<I, T>,
-    item_type: String,
 }
 
 impl<T, I, Req> Cache<T, I, Req>
 where
     Req: Requester<false, false>,
     T: DeserializeOwned + Serialize + Clone + Send + Sync + EndpointWithId<IdType = I> + BulkEndpoint + 'static,
-    I: Display + DeserializeOwned + Serialize + Hash + Clone + Send + Sync + Eq + Copy + 'static,
+    I: Display + Debug + DeserializeOwned + Serialize + Hash + Clone + Send + Sync + Eq + Copy + 'static,
 {
-    pub fn new(client: Arc<Req>, item_type: &str) -> Self {
+    pub fn new(client: Arc<Req>) -> Self {
         Cache {
             client,
             _ids: Mutex::new(Vec::new()),
             items: DashMap::new(),
-            item_type: item_type.to_string(),
         }
     }
 
@@ -63,21 +61,24 @@ impl<T, I, Req> Resolver<T, I> for Cache<T, I, Req>
 where
     Req: Requester<false, false> + Send + Sync,
     T: DeserializeOwned + Serialize + Clone + Send + Sync + EndpointWithId<IdType = I> + BulkEndpoint + 'static,
-    I: Display + DeserializeOwned + Serialize + Hash + Clone + Send + Sync + Eq + Copy + 'static,
+    I: Display + Debug + DeserializeOwned + Serialize + Hash + Clone + Send + Sync + Eq + Copy + 'static,
 {
     fn clear(&self) {
         self.items.clear()
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip_all, fields(endpoint = %T::URL)))]
     async fn ensure(&self, ids: Vec<I>) -> Result<(), EndpointError> {
-        #[cfg(feature = "tracing")]
-        tracing::info!("Retrieving {} data", self.item_type);
         let ids: Vec<_> = ids.into_iter().filter(|id| !self.items.contains_key(id)).collect();
-        #[cfg(feature = "tracing")]
-        tracing::info!("Retrieving {} missing {}s from GW2 API", ids.len(), self.item_type);
-        let items = self.fetch_many(ids.clone()).await?;
-        for (id, item) in ids.into_iter().zip(items) {
-            self.items.insert(id, item);
+
+        if ids.len() > 0 {
+            #[cfg(feature = "tracing")]
+            tracing::info!(message = "Retrieving missing data from GW2 API", ?ids);
+
+            let items = self.fetch_many(ids.clone()).await?;
+            for (id, item) in ids.into_iter().zip(items) {
+                self.items.insert(id, item);
+            }
         }
         Ok(())
     }

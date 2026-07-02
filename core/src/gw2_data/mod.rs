@@ -47,10 +47,10 @@ where
     pub fn new(req: Req) -> Self {
         let req = Arc::new(req);
         Resolver{
-            items: Cache::new(req.clone(), "item"),
-            skins: Cache::new(req.clone(), "skin"),
-            outfits: Cache::new(req.clone(), "outfit"),
-            colors: Cache::new(req.clone(), "color"),
+            items: Cache::new(req.clone()),
+            skins: Cache::new(req.clone()),
+            outfits: Cache::new(req.clone()),
+            colors: Cache::new(req.clone()),
             retry: Retry::default(),
             buffer_size: DEFAULT_BUFFER_SIZE,
         }
@@ -110,8 +110,6 @@ where
         for e in &equipments {
             items.extend(e.all_item_ids().into_iter());
         }
-        #[cfg(feature = "tracing")]
-        tracing::info!("Retrieving item data");
         self.items.ensure(items.into_iter().collect()).await?;
 
         stream::iter(equipments).map(async |e| e.resolve_default_skins(&self.items).await).buffered(self.buffer_size).try_collect().await

@@ -35,18 +35,21 @@ where
         return self
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(self)))]
     pub async fn characters(&self) -> Result<Vec<String>, EndpointError> {
         #[cfg(feature = "tracing")]
-        tracing::info!("Retrieving character list");
+        tracing::info!(message = "Retrieving character list");
         self.retry.start(|| Requester::ids::<Character, CharacterId>(&self.req)).await
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(self)))]
     pub async fn character(&self, name: &str) -> Result<Character, EndpointError> {
         #[cfg(feature = "tracing")]
-        tracing::info!("Retrieving character data for {}", name);
+        tracing::info!(message = "Retrieving character data");
         self.retry.start(|| Requester::single::<Character, CharacterId>(&self.req, name.to_string())).await
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip_all))]
     pub async fn fetch_equipment(&self, characters: &Vec<String>) -> Result<Vec<Equipment>, EndpointError> {
         let all_tabs: Vec<_> = stream::iter(characters.clone())
             .map(async |c| self.fetch_char_equipment(c.as_ref()).await)
@@ -55,16 +58,19 @@ where
             .await?;
 
         let tabs: Vec<_> = all_tabs.into_iter().flatten().collect();
+
         #[cfg(feature = "tracing")]
-        tracing::info!("Successfully retrieved {} equipment tabs for {} characters", tabs.len(), characters.len());
+        tracing::info!(message = "Successfully retrieved equipment tabs", num_tabs = tabs.len());
         Ok(tabs)
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(self)))]
     pub async fn fetch_char_equipment(&self, char_name: &str) -> Result<Vec<Equipment>, EndpointError> {
         let char = self.character(char_name).await?;
         let tabs: Vec<_> = char.equipment_tabs.iter().map(|t| Equipment::new(char_name, t)).collect();
+
         #[cfg(feature = "tracing")]
-        tracing::info!("Successfully retrieved {} equipment tabs for {}", tabs.len(), char_name);
+        tracing::info!(message = "Successfully retrieved equipment tabs", num_tabs = tabs.len());
         Ok(tabs)
     }
 }
