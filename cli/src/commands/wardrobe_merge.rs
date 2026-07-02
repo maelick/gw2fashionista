@@ -22,7 +22,7 @@ pub struct Command {
 #[async_trait]
 impl super::Command for Command {
     fn name(&self) -> &str {
-        return "merge"
+        return "wardrobe-merge"
     }
 
     async fn execute(&self) -> anyhow::Result<()> {

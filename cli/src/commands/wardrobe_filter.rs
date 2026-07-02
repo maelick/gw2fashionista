@@ -16,7 +16,7 @@ pub struct Command {
 #[async_trait]
 impl super::Command for Command {
     fn name(&self) -> &str {
-        return "filter"
+        return "wardrobe-filter"
     }
 
     async fn execute(&self) -> anyhow::Result<()> {

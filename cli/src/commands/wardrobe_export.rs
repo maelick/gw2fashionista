@@ -39,7 +39,7 @@ pub struct Command {
 #[async_trait]
 impl super::Command for Command {
     fn name(&self) -> &str {
-        return "export"
+        return "wardrobe-export"
     }
 
     async fn execute(&self) -> anyhow::Result<()> {
