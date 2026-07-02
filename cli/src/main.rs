@@ -2,12 +2,12 @@ use std::io::{self, IsTerminal};
 
 use clap::{Parser};
 use clap_verbosity_flag::{Verbosity, InfoLevel};
-
-use gw2fashionista_cli::commands::{Commands};
 use tracing::level_filters::LevelFilter;
 use tracing_subscriber::{Layer, layer::SubscriberExt, util::SubscriberInitExt};
 
-#[derive(Parser)]
+use gw2fashionista_cli::commands::Commands;
+
+#[derive(Parser, Debug)]
 #[command(version, about = "GW2 Fashion Exporter CLI", long_about = None)]
 struct Cli {
     #[command(flatten)]
@@ -36,15 +36,16 @@ impl Cli {
         tracing_subscriber::registry().with(layer).init()
     }
 
+    #[tracing::instrument(name = "gw2fashionista", skip_all)]
     async fn execute(&self) {
         let cmd = self.command.as_command();
-        tracing::debug!("Executing command {}: {:?}", cmd.name(), cmd);
+        tracing::debug!(message = "Executing command", name = cmd.name(), args = ?cmd);
         match cmd.execute().await {
             Ok(_) => {
-                tracing::debug!("Command {} successful", cmd.name())
+                tracing::debug!(message = "Command successful", name = cmd.name())
             },
             Err(err) => {
-                tracing::error!("Command {} error: {}", cmd.name(), err);
+                tracing::error!(message = "Command error", name = cmd.name(), error = ?err);
                 std::process::exit(1)
             }
         }
