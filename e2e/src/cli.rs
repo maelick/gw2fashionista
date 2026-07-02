@@ -1,6 +1,8 @@
 use std::process::Output;
 
 use assert_cmd::{Command, assert::OutputAssertExt};
+use once_cell::sync::Lazy;
+use regex::Regex;
 use rstest::rstest;
 use serde_json::Deserializer;
 
@@ -8,6 +10,15 @@ use gw2fashionista_fixtures::wardrobe::{
     ALL_TEMPLATES, EMPTY_TEMPLATE, PEEKABOO_TEMPLATE, WardrobeTemplate, ZIZI_ARMOR_TEMPLATE,
     ZIZI_TEMPLATE,
 };
+
+const BASE64_RE: &str = r"[-A-Za-z0-9+/]*={0,3}";
+
+static CHAT_LINK_REGEX: Lazy<Regex> = Lazy::new(|| {
+    let pattern = format!(r"^\[?&?({})\]?$", BASE64_RE);
+    Regex::new(&pattern).unwrap()
+});
+
+static NUMBER_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^[0-9]$").unwrap());
 
 #[rstest]
 #[case(EMPTY_TEMPLATE)]
@@ -134,6 +145,48 @@ fn test_read_command_input_csv_column_missing() {
         .stdout("");
 }
 
+#[test]
+fn test_export_command_csv() {
+    fail_if_no_api_key();
+
+    let output = spawn_cli::<String>(&["wardrobe", "export"], None)
+        .assert()
+        .success();
+    let (headers, records) = read_csv(output.get_output());
+    assert!(records.len() > 0);
+    assert_eq!(headers.len(), 4);
+    assert_eq!(headers.get(0).unwrap(), "char_name");
+    assert_eq!(headers.get(1).unwrap(), "tab_id");
+    assert_eq!(headers.get(2).unwrap(), "tab_name");
+    assert_eq!(headers.get(3).unwrap(), "fashion_link");
+
+    for record in records {
+        assert_eq!(record.len(), 4);
+        for field in record.iter() {
+            assert_ne!(field, "");
+        }
+
+        assert!(
+            NUMBER_REGEX.is_match(record.get(1).unwrap()),
+            "second field should be a number"
+        );
+        assert!(
+            CHAT_LINK_REGEX.is_match(record.get(3).unwrap()),
+            "fourth field should be a chat link"
+        );
+    }
+}
+
+fn fail_if_no_api_key() {
+    if api_key().is_none() {
+        panic!("GW2_API_KEY not configured");
+    };
+}
+
+fn api_key() -> Option<String> {
+    std::env::var("GW2_API_KEY").ok()
+}
+
 fn spawn_cli<S>(args: &[&str], input: Option<S>) -> std::process::Output
 where
     S: Into<Vec<u8>>,
@@ -142,6 +195,9 @@ where
     let cmd = cmd.args(args);
     if let Some(input) = input {
         cmd.write_stdin(input);
+    }
+    if let Some(api_key) = api_key() {
+        cmd.env("GW2_API_KEY", api_key);
     }
     cmd.output().expect("Failed to run command")
 }
@@ -158,6 +214,13 @@ fn all_templates_as_list() -> Vec<String> {
         .iter()
         .map(|t| t.chat_link.to_string())
         .collect()
+}
+
+fn read_csv(output: &Output) -> (csv::StringRecord, Vec<csv::StringRecord>) {
+    let output = output.stdout.clone();
+    let mut reader = csv::Reader::from_reader(std::io::Cursor::new(output));
+    let records: Result<Vec<_>, _> = reader.records().collect();
+    (reader.headers().unwrap().clone(), records.unwrap())
 }
 
 fn assert_snapshot(output: &Output, snapshot_name: &str) {
