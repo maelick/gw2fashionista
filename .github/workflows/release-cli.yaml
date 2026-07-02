@@ -3,10 +3,12 @@ name: Release CLI
 on:
   push:
     tags:
-      - "cli-v*.*.*"
+      - "gw2fashionista-cli-v*"
 
 jobs:
   create-github-release:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -18,15 +20,17 @@ jobs:
           draft: true
 
   release-cli:
+    permissions:
+      contents: write
     strategy:
       matrix:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            binary-name: gw2fashionista-cli
+            extension: ""
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            binary-name: gw2fashionista-cli.exe
+            extension: ".exe"
     runs-on: ${{ matrix.os }}
     needs: create-github-release
     steps:
@@ -41,17 +45,19 @@ jobs:
 
       - name: Extract version
         id: version
+        shell: bash
         run: |
-          VERSION=${GITHUB_REF#refs/tags/cli-v}
+          VERSION=${GITHUB_REF#refs/tags/gw2fashionista-cli-v}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Rename binary
+        shell: bash
         run: |
-          cp target/${{ matrix.target }}/release/${{ matrix.binary-name }} \
-            gw2fashionista-cli-${{ steps.version.outputs.version }}-${{ matrix.target }}
+          cp target/${{ matrix.target }}/release/gw2fashionista-cli${{ matrix.extension }} \
+            gw2fashionista-cli-${{ steps.version.outputs.version }}-${{ matrix.target }}${{ matrix.extension }}
 
       - name: Upload binary to release
         uses: softprops/action-gh-release@v3
         with:
-          files: gw2fashionista-cli-${{ steps.version.outputs.version }}-${{ matrix.target }}
+          files: gw2fashionista-cli-${{ steps.version.outputs.version }}-${{ matrix.target }}${{ matrix.extension }}
           draft: true

@@ -8,23 +8,25 @@ on:
         required: true
         type: choice
         options:
-          - core
-          - cli
-      version:
-        description: Version to release
-        required: false
-        type: string
+          - gw2fashionista-core
+          - gw2fashionista-cli
       level:
-        description: Version to release
+        description: Bump version to release
         required: false
         type: choice
         options:
+          - ""
+          - release
           - major
           - minor
           - patch
           - alpha
           - beta
           - rc
+      version:
+        description: Version to release (manual)
+        required: false
+        type: string
       dry_run:
         description: Run cargo-release in dry run mode 
         required: true
@@ -35,11 +37,30 @@ on:
         type: boolean
 
 jobs:
-  create-release:
-    permissions:
-      id-token: write
-      contents: write
+  run-tests:
+    name: Test Rust code
     runs-on: ubuntu-latest
+    if: ${{ inputs.run_tests }}
+    env:
+      CARGO_TERM_COLOR: always
+      GW2_API_KEY: ${{ secrets.GW2_API_KEY }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - name: Run Rust tests
+        run: cargo build
+
+      - name: Run Rust tests
+        run: cargo test --all-features
+
+  create-release:
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: run-tests
     steps:
       - name: Log release info
         run: |
@@ -61,6 +82,8 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.RELEASE_PAT_TOKEN }}
 
       - name: Install Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -72,10 +95,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Run Rust tests
-        if: ${{ inputs.run_tests }}
-        run: cargo test
 
       - name: Run cargo-release
         run: |

@@ -367,7 +367,7 @@ checksum = "6184e33543162437515c2e2b48714794e37845ec9851711914eec9d308f6ebe8"
 
 [[package]]
 name = "e2e"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "assert_cmd",
  "csv",
@@ -577,7 +577,7 @@ checksum = "0cc23270f6e1808e30a928bdc84dea0b9b4136a8bc82338574f23baf47bbd280"
 
 [[package]]
 name = "gw2fashionista-cli"
-version = "0.1.0"
+version = "0.1.0-alpha.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -598,7 +598,7 @@ dependencies = [
 
 [[package]]
 name = "gw2fashionista-core"
-version = "0.1.0"
+version = "0.1.0-alpha.0"
 dependencies = [
  "async-trait",
  "base64 0.22.1",
