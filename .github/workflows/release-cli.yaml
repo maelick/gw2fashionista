@@ -7,6 +7,8 @@ on:
 
 jobs:
   create-github-release:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -18,6 +20,8 @@ jobs:
           draft: true
 
   release-cli:
+    permissions:
+      contents: write
     strategy:
       matrix:
         include:
@@ -42,7 +46,7 @@ jobs:
       - name: Extract version
         id: version
         run: |
-          VERSION=${GITHUB_REF#refs/tags/cli-v}
+          VERSION=${GITHUB_REF#refs/tags/gw2fashionista-cli-v}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Rename binary
