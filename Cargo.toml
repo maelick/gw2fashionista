@@ -1,3 +1,8 @@
 [workspace]
 resolver = "3"
 members = ["cli", "core", "fixtures", "e2e"]
+
+[workspace.metadata.release]
+consolidate-commits = false
+pre-release-commit-message = "chore: Release {{crate_name}} {{version}}"
+tag-message = "Release {{crate_name}} {{version}}"
