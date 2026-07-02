@@ -22,13 +22,6 @@ where
     cmd.output().expect("Failed to run command")
 }
 
-pub fn read_csv(output: &Output) -> (csv::StringRecord, Vec<csv::StringRecord>) {
-    let output = output.stdout.clone();
-    let mut reader = csv::Reader::from_reader(std::io::Cursor::new(output));
-    let records: Result<Vec<_>, _> = reader.records().collect();
-    (reader.headers().unwrap().clone(), records.unwrap())
-}
-
 pub fn assert_snapshot(output: &Output, snapshot_name: &str) {
     let json: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
     insta::assert_json_snapshot!(snapshot_name, json);

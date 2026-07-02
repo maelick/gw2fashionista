@@ -1,17 +1,17 @@
+use std::process::Output;
+
 use assert_cmd::assert::OutputAssertExt;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use rstest::rstest;
 
 use gw2fashionista_fixtures::wardrobe::{
-    EMPTY_TEMPLATE, PEEKABOO_TEMPLATE, WardrobeTemplate, ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE,
-    all_templates_as_csv, all_templates_as_list,
+    ALL_TEMPLATES, EMPTY_TEMPLATE, PEEKABOO_TEMPLATE, WardrobeTemplate, ZIZI_ARMOR_TEMPLATE,
+    ZIZI_TEMPLATE, all_templates_as_csv, all_templates_as_list,
 };
 
-use e2e::{
-    cli::{assert_all_templates, assert_snapshot, read_csv, spawn_cli},
-    fail_if_no_api_key,
-};
+use e2e::{cli::spawn_cli, fail_if_no_api_key, read_csv};
+use serde_json::Deserializer;
 
 const BASE64_RE: &str = r"[-A-Za-z0-9+/]*={0,3}";
 
@@ -154,7 +154,7 @@ fn test_export_command_csv() {
     let output = spawn_cli::<String>(&["wardrobe", "export"], None)
         .assert()
         .success();
-    let (headers, records) = read_csv(output.get_output());
+    let (headers, records) = read_csv(output.get_output().stdout.clone());
     assert!(records.len() > 0);
     assert_eq!(headers.len(), 4);
     assert_eq!(headers.get(0).unwrap(), "char_name");
@@ -177,4 +177,16 @@ fn test_export_command_csv() {
             "fourth field should be a chat link"
         );
     }
+}
+
+fn assert_snapshot(output: &Output, snapshot_name: &str) {
+    let json: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    insta::assert_json_snapshot!(snapshot_name, json);
+}
+
+fn assert_all_templates(output: &Output) {
+    let stream = Deserializer::from_slice(&output.stdout).into_iter::<serde_json::Value>();
+    let json: Vec<_> = stream.collect::<Result<_, _>>().unwrap();
+    assert_eq!(json.len(), ALL_TEMPLATES.len());
+    insta::assert_json_snapshot!("read_input_list", json);
 }
