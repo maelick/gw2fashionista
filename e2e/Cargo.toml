@@ -1,12 +1,12 @@
 [package]
 name = "e2e"
-version = "0.1.0"
+version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 assert_cmd = "2.2.2"
 csv = "1.4.0"
-gw2fashionista-cli = { version = "0.1.0", path = "../cli" }
+gw2fashionista-cli = { version = "0.1.0-alpha.0", path = "../cli" }
 gw2fashionista-fixtures = { version = "0.1.0", path = "../fixtures" }
 insta = { version = "1.48.0", features = ["json"] }
 once_cell = "1.21.4"
