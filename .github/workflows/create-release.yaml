@@ -10,12 +10,8 @@ on:
         options:
           - gw2fashionista-core
           - gw2fashionista-cli
-      version:
-        description: Version to release
-        required: false
-        type: string
       level:
-        description: Version to release
+        description: Bump version to release
         required: false
         type: choice
         options:
@@ -27,6 +23,10 @@ on:
           - alpha
           - beta
           - rc
+      version:
+        description: Version to release (manual)
+        required: false
+        type: string
       dry_run:
         description: Run cargo-release in dry run mode 
         required: true
