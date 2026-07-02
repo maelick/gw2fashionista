@@ -61,6 +61,7 @@ jobs:
       id-token: write
       contents: write
     runs-on: ubuntu-latest
+    if: ${{ always() }}
     needs: run-tests
     steps:
       - name: Log release info
