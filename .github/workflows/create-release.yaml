@@ -8,8 +8,8 @@ on:
         required: true
         type: choice
         options:
-          - core
-          - cli
+          - gw2fashionista-core
+          - gw2fashionista-cli
       version:
         description: Version to release
         required: false
