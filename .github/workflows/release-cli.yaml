@@ -3,7 +3,7 @@ name: Release CLI
 on:
   push:
     tags:
-      - "cli-v*.*.*"
+      - "gw2fashionista-cli-v*"
 
 jobs:
   create-github-release:
