@@ -1,4 +1,4 @@
-use crate::domain::wardrobe_template::slot::SlotType;
+use crate::domain::templates::wardrobe::slot::SlotType;
 
 #[derive(Debug, Clone, Copy)]
 pub enum SlotVariant {

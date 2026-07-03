@@ -2,7 +2,7 @@
 mod tests {
     use gw2fashionista_core::domain::{
         chatlink::ChatLink,
-        wardrobe_template::slot::{EquipmentCategory, SlotFilter, SlotFilterExt, SlotType},
+        templates::wardrobe::slot::{EquipmentCategory, SlotFilter, SlotFilterExt, SlotType},
     };
     use gw2fashionista_fixtures::wardrobe::{ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE};
 

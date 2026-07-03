@@ -4,7 +4,7 @@ use clap::{Args, ValueEnum, builder::TypedValueParser};
 use once_cell::sync::Lazy;
 use strum::IntoEnumIterator;
 
-use gw2fashionista_core::domain::wardrobe_template::slot::{
+use gw2fashionista_core::domain::templates::wardrobe::slot::{
     EquipmentCategory, SlotFilter, SlotFilterExt, SlotType,
 };
 

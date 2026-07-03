@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     use gw2fashionista_core::domain::chatlink::ChatLink;
-    use gw2fashionista_core::domain::wardrobe_template::WardrobeTemplate;
+    use gw2fashionista_core::domain::templates::wardrobe::WardrobeTemplate;
     use gw2fashionista_core::gw2_data::Resolver;
     use gw2fashionista_core::models::skin::Skin;
     use gw2fashionista_core::models::wardrobe_template::WardrobeTemplateData;

@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 use strum::EnumCount;
 
 use crate::domain::skins::Slot;
-use crate::domain::wardrobe_template::WardrobeTemplate;
-use crate::domain::wardrobe_template::slot::SlotType;
+use crate::domain::templates::wardrobe::WardrobeTemplate;
+use crate::domain::templates::wardrobe::slot::SlotType;
 use crate::models::error::{ModelError, SlotVariant};
 use crate::models::skin::Skin;
 
