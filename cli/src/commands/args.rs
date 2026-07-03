@@ -1,8 +1,8 @@
 use std::str::FromStr;
 
 use clap::{Args, ValueEnum, builder::TypedValueParser};
+use linearize::LinearizeExt;
 use once_cell::sync::Lazy;
-use strum::IntoEnumIterator;
 
 use gw2fashionista_core::domain::templates::{
     SlotFilter, SlotFilterExt,
@@ -38,8 +38,8 @@ enum FilterOption {
 }
 
 static FILTER_VARIANTS: Lazy<Vec<FilterOption>> = Lazy::new(|| {
-    let categories = EquipmentCategory::iter().map(FilterOption::Category);
-    let slots = WardrobeSlot::iter().map(FilterOption::Slot);
+    let categories = EquipmentCategory::variants().map(FilterOption::Category);
+    let slots = WardrobeSlot::variants().map(FilterOption::Slot);
     categories.chain(slots).collect()
 });
 
@@ -74,9 +74,9 @@ impl TypedValueParser for FilterOption {
     fn possible_values(
         &self,
     ) -> Option<Box<dyn Iterator<Item = clap::builder::PossibleValue> + '_>> {
-        let categories = EquipmentCategory::iter()
+        let categories = EquipmentCategory::variants()
             .map(|c| clap::builder::PossibleValue::new(format!("{:?}", c).to_lowercase()));
-        let slots = WardrobeSlot::iter()
+        let slots = WardrobeSlot::variants()
             .map(|s| clap::builder::PossibleValue::new(format!("{:?}", s).to_lowercase()));
 
         Some(Box::new(categories.chain(slots)))

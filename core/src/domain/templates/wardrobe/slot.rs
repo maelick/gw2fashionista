@@ -99,6 +99,7 @@ impl FashionSlot for WardrobeSlot {
     EnumIter,
     strum_macros::EnumString,
     strum_macros::Display,
+    Linearize,
 )]
 #[strum(serialize_all = "snake_case")]
 pub enum EquipmentCategory {
