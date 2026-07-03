@@ -155,6 +155,22 @@ impl<'a, S: FashionSlot> IntoIterator for &'a Template<S> {
     }
 }
 
+impl<S: FashionSlot> TryFrom<&[u8]> for Template<S> {
+    type Error = ChatLinkError;
+
+    fn try_from(bytes: &[u8]) -> Result<Self, ChatLinkError> {
+        Self::from_bytes(bytes)
+    }
+}
+
+impl<S: FashionSlot> TryFrom<&Template<S>> for Vec<u8> {
+    type Error = std::io::Error;
+
+    fn try_from(template: &Template<S>) -> Result<Self, std::io::Error> {
+        template.serialize()
+    }
+}
+
 impl<S: FashionSlot> fmt::Debug for Template<S> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_map().entries(self.iter()).finish()

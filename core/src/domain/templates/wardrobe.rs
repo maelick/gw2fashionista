@@ -3,7 +3,6 @@ use std::collections::HashSet;
 use linearize::Linearize;
 use serde::{Deserialize, Serialize};
 
-use crate::domain::error::ChatLinkError;
 use crate::domain::skins::SkinId;
 use crate::domain::templates::{FashionSlot, Template};
 
@@ -15,22 +14,6 @@ impl WardrobeTemplate {
             WardrobeSlot::Outfit => None,
             _ => Some(appearance.skin()).filter(|skin| !skin.is_empty()),
         }))
-    }
-}
-
-impl TryFrom<&[u8]> for WardrobeTemplate {
-    type Error = ChatLinkError;
-
-    fn try_from(bytes: &[u8]) -> Result<Self, ChatLinkError> {
-        Self::from_bytes(bytes)
-    }
-}
-
-impl TryFrom<&WardrobeTemplate> for Vec<u8> {
-    type Error = std::io::Error;
-
-    fn try_from(template: &WardrobeTemplate) -> Result<Self, std::io::Error> {
-        template.serialize()
     }
 }
 
@@ -141,6 +124,7 @@ impl EquipmentCategory {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::domain::error::ChatLinkError;
     use std::assert_matches;
 
     #[test]
