@@ -4,7 +4,7 @@ use futures::stream::{self, StreamExt, TryStreamExt};
 use gw2lib::{
     EndpointError,
     model::{
-        authenticated::characters::{Equip, EquipmentTab, Slot},
+        authenticated::characters::{Equip, EquipmentTab, Slot as EquipmentSlot},
         items::{Item, ItemId},
         misc::colors::ColorId,
     },
@@ -12,10 +12,10 @@ use gw2lib::{
 
 use crate::{
     domain::{
-        skins::{DyeId, Dyes, SkinId},
-        wardrobe_template::{
-            WardrobeTemplate,
-            slot::{SlotType, WardrobeSlot},
+        skins::{Appearance, DyeId, Dyes, SkinId},
+        templates::{
+            FashionSlot,
+            wardrobe::{WardrobeSlot, WardrobeTemplate},
         },
     },
     gw2_data::cache,
@@ -89,50 +89,50 @@ impl From<&Vec<Equip>> for WardrobeTemplate {
     fn from(equipment: &Vec<Equip>) -> Self {
         let mut slots = HashMap::new();
         for equip in equipment {
-            if let Some(Ok(slot)) = equip.slot.as_ref().map(SlotType::try_from) {
-                slots.insert(slot, WardrobeSlot::from((&slot, equip)));
+            if let Some(Ok(slot)) = equip.slot.as_ref().map(WardrobeSlot::try_from) {
+                slots.insert(slot, Appearance::from((&slot, equip)));
             }
         }
         Self::new(slots)
     }
 }
 
-impl TryFrom<&Slot> for SlotType {
+impl TryFrom<&EquipmentSlot> for WardrobeSlot {
     type Error = ();
 
-    fn try_from(slot: &Slot) -> Result<Self, Self::Error> {
+    fn try_from(slot: &EquipmentSlot) -> Result<Self, Self::Error> {
         match slot {
-            Slot::HelmAquatic => Ok(SlotType::Aquabreather),
-            Slot::Backpack => Ok(SlotType::Backpack),
-            Slot::Coat => Ok(SlotType::Chest),
-            Slot::Boots => Ok(SlotType::Shoes),
-            Slot::Gloves => Ok(SlotType::Gloves),
-            Slot::Helm => Ok(SlotType::Head),
-            Slot::Leggings => Ok(SlotType::Legs),
-            Slot::Shoulders => Ok(SlotType::Shoulders),
-            Slot::WeaponAquaticA => Ok(SlotType::WeaponAquaticA),
-            Slot::WeaponAquaticB => Ok(SlotType::WeaponAquaticB),
-            Slot::WeaponA1 => Ok(SlotType::WeaponA1),
-            Slot::WeaponA2 => Ok(SlotType::WeaponA2),
-            Slot::WeaponB1 => Ok(SlotType::WeaponB1),
-            Slot::WeaponB2 => Ok(SlotType::WeaponB2),
+            EquipmentSlot::HelmAquatic => Ok(WardrobeSlot::Aquabreather),
+            EquipmentSlot::Backpack => Ok(WardrobeSlot::Backpack),
+            EquipmentSlot::Coat => Ok(WardrobeSlot::Chest),
+            EquipmentSlot::Boots => Ok(WardrobeSlot::Shoes),
+            EquipmentSlot::Gloves => Ok(WardrobeSlot::Gloves),
+            EquipmentSlot::Helm => Ok(WardrobeSlot::Head),
+            EquipmentSlot::Leggings => Ok(WardrobeSlot::Legs),
+            EquipmentSlot::Shoulders => Ok(WardrobeSlot::Shoulders),
+            EquipmentSlot::WeaponAquaticA => Ok(WardrobeSlot::WeaponAquaticA),
+            EquipmentSlot::WeaponAquaticB => Ok(WardrobeSlot::WeaponAquaticB),
+            EquipmentSlot::WeaponA1 => Ok(WardrobeSlot::WeaponA1),
+            EquipmentSlot::WeaponA2 => Ok(WardrobeSlot::WeaponA2),
+            EquipmentSlot::WeaponB1 => Ok(WardrobeSlot::WeaponB1),
+            EquipmentSlot::WeaponB2 => Ok(WardrobeSlot::WeaponB2),
             _ => Err(()),
         }
     }
 }
 
-impl From<(&SlotType, &Equip)> for WardrobeSlot {
-    fn from((slot_type, equip): (&SlotType, &Equip)) -> Self {
+impl From<(&WardrobeSlot, &Equip)> for Appearance {
+    fn from((slot, equip): (&WardrobeSlot, &Equip)) -> Self {
         let skin = equip.skin.unwrap_or(0).into();
-        if slot_type.dyable() {
+        if slot.dyeable() {
             let dyes = equip.dyes.as_ref().map_or(Dyes::default(), Dyes::from);
-            WardrobeSlot::Dyable {
+            Appearance::Dyeable {
                 skin,
                 visible: true,
                 dyes,
             }
         } else {
-            WardrobeSlot::NonDyable {
+            Appearance::NonDyeable {
                 skin,
                 visible: true,
             }

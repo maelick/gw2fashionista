@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use clap::Args;
 use gw2fashionista_core::domain::{
-    chatlink::ChatLink, error::ChatLinkError, wardrobe_template::WardrobeTemplate,
+    chatlink::ChatLink, error::ChatLinkError, templates::wardrobe::WardrobeTemplate,
 };
 use gw2fashionista_core::gw2_data::Resolver;
 use gw2fashionista_core::models::wardrobe_template::WardrobeTemplateData;

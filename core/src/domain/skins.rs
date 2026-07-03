@@ -1,6 +1,6 @@
 use std::io::Cursor;
 
-use byteorder::{LittleEndian, ReadBytesExt};
+use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct SkinId(u16);
@@ -131,5 +131,175 @@ impl IntoIterator for Dyes {
     fn into_iter(self) -> Self::IntoIter {
         let Dyes(dye1, dye2, dye3, dye4) = self;
         [dye1, dye2, dye3, dye4].into_iter()
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Appearance {
+    NonDyeable {
+        skin: SkinId,
+        visible: bool,
+    },
+    Dyeable {
+        skin: SkinId,
+        visible: bool,
+        dyes: Dyes,
+    },
+}
+
+impl Appearance {
+    pub fn empty(dyeable: bool) -> Self {
+        if dyeable {
+            Self::Dyeable {
+                skin: SkinId::default(),
+                visible: true,
+                dyes: Dyes::default(),
+            }
+        } else {
+            Self::NonDyeable {
+                skin: SkinId::default(),
+                visible: true,
+            }
+        }
+    }
+
+    pub fn skin(self) -> SkinId {
+        match self {
+            Appearance::NonDyeable { skin, visible: _ }
+            | Appearance::Dyeable {
+                skin,
+                visible: _,
+                dyes: _,
+            } => skin,
+        }
+    }
+
+    pub fn is_visible(self) -> bool {
+        match self {
+            Appearance::NonDyeable { skin: _, visible }
+            | Appearance::Dyeable {
+                skin: _,
+                visible,
+                dyes: _,
+            } => visible,
+        }
+    }
+
+    pub fn dyes(self) -> Option<Dyes> {
+        match self {
+            Appearance::Dyeable {
+                skin: _,
+                visible: _,
+                dyes,
+            } => Some(dyes),
+            Appearance::NonDyeable {
+                skin: _,
+                visible: _,
+            } => None,
+        }
+    }
+
+    pub fn is_empty(self) -> bool {
+        match self {
+            Appearance::NonDyeable { skin, visible: _ } => skin.is_empty(),
+            Appearance::Dyeable {
+                skin,
+                visible: _,
+                dyes,
+            } => skin.is_empty() && dyes.is_empty(),
+        }
+    }
+
+    pub fn merge(&self, other: &Appearance, ignore_skin: bool, ignore_dyes: bool) -> Appearance {
+        if other.is_empty() || (ignore_skin && ignore_dyes) {
+            *self
+        } else if ignore_skin {
+            match other {
+                Appearance::NonDyeable {
+                    skin: _,
+                    visible: _,
+                } => Appearance::NonDyeable {
+                    skin: self.skin(),
+                    visible: self.is_visible(),
+                },
+                Appearance::Dyeable {
+                    skin: _,
+                    visible: _,
+                    dyes,
+                } => Appearance::Dyeable {
+                    skin: self.skin(),
+                    visible: self.is_visible(),
+                    dyes: *dyes,
+                },
+            }
+        } else if ignore_dyes {
+            match self {
+                Appearance::NonDyeable {
+                    skin: _,
+                    visible: _,
+                } => Appearance::NonDyeable {
+                    skin: other.skin(),
+                    visible: other.is_visible(),
+                },
+                Appearance::Dyeable {
+                    skin: _,
+                    visible: _,
+                    dyes,
+                } => Appearance::Dyeable {
+                    skin: other.skin(),
+                    visible: other.is_visible(),
+                    dyes: *dyes,
+                },
+            }
+        } else {
+            *other
+        }
+    }
+
+    pub const fn encoded_size(dyeable: bool) -> usize {
+        if dyeable {
+            size_of::<u16>() + 4 * size_of::<u16>()
+        } else {
+            size_of::<u16>()
+        }
+    }
+
+    pub fn read(
+        cursor: &mut Cursor<&[u8]>,
+        dyeable: bool,
+        visible: bool,
+    ) -> Result<Self, std::io::Error> {
+        let skin = SkinId::from_cursor(cursor)?;
+        if dyeable {
+            let dyes = Dyes::from_cursor(cursor)?;
+            Ok(Self::Dyeable {
+                skin,
+                visible,
+                dyes,
+            })
+        } else {
+            Ok(Self::NonDyeable { skin, visible })
+        }
+    }
+
+    pub fn serialize(&self, buffer: &mut dyn std::io::Write) -> Result<(), std::io::Error> {
+        match self {
+            Appearance::NonDyeable { skin, visible: _ } => {
+                buffer.write_u16::<LittleEndian>((*skin).into())?;
+            }
+            Appearance::Dyeable {
+                skin,
+                visible: _,
+                dyes,
+            } => {
+                let (dye1, dye2, dye3, dye4) = (*dyes).into();
+                buffer.write_u16::<LittleEndian>((*skin).into())?;
+                buffer.write_u16::<LittleEndian>(dye1)?;
+                buffer.write_u16::<LittleEndian>(dye2)?;
+                buffer.write_u16::<LittleEndian>(dye3)?;
+                buffer.write_u16::<LittleEndian>(dye4)?;
+            }
+        }
+        Ok(())
     }
 }

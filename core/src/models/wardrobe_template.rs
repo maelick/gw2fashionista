@@ -1,12 +1,11 @@
 use std::collections::HashMap;
 
+use linearize::Linearize;
 use serde::{Deserialize, Serialize};
-use strum::EnumCount;
 
-use crate::domain::wardrobe_template::WardrobeTemplate;
-use crate::domain::wardrobe_template::slot::SlotType;
-use crate::domain::wardrobe_template::slot::WardrobeSlot;
-use crate::models::error::{ModelError, SlotVariant};
+use crate::domain::skins::Appearance;
+use crate::domain::templates::wardrobe::{WardrobeSlot, WardrobeTemplate};
+use crate::models::error::{AppearanceKind, ModelError};
 use crate::models::skin::Skin;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -44,23 +43,23 @@ pub struct WardrobeTemplateData {
 }
 
 impl WardrobeTemplateData {
-    fn from_map(map: &HashMap<SlotType, WardrobeSlot>) -> Result<Self, ModelError> {
+    fn from_map(map: &HashMap<WardrobeSlot, Appearance>) -> Result<Self, ModelError> {
         Ok(WardrobeTemplateData {
-            aquabreather: skin_from_map(map, SlotType::Aquabreather)?,
-            backpack: dyable_skin_from_map(map, SlotType::Backpack)?,
-            chest: dyable_skin_from_map(map, SlotType::Chest)?,
-            shoes: dyable_skin_from_map(map, SlotType::Shoes)?,
-            gloves: dyable_skin_from_map(map, SlotType::Gloves)?,
-            head: dyable_skin_from_map(map, SlotType::Head)?,
-            legs: dyable_skin_from_map(map, SlotType::Legs)?,
-            shoulders: dyable_skin_from_map(map, SlotType::Shoulders)?,
-            outfit: dyable_skin_from_map(map, SlotType::Outfit)?,
-            weapon_aquatic_a: skin_from_map(map, SlotType::WeaponAquaticA)?,
-            weapon_aquatic_b: skin_from_map(map, SlotType::WeaponAquaticB)?,
-            weapon_a1: skin_from_map(map, SlotType::WeaponA1)?,
-            weapon_a2: skin_from_map(map, SlotType::WeaponA2)?,
-            weapon_b1: skin_from_map(map, SlotType::WeaponB1)?,
-            weapon_b2: skin_from_map(map, SlotType::WeaponB2)?,
+            aquabreather: skin_from_map(map, WardrobeSlot::Aquabreather)?,
+            backpack: dyeable_skin_from_map(map, WardrobeSlot::Backpack)?,
+            chest: dyeable_skin_from_map(map, WardrobeSlot::Chest)?,
+            shoes: dyeable_skin_from_map(map, WardrobeSlot::Shoes)?,
+            gloves: dyeable_skin_from_map(map, WardrobeSlot::Gloves)?,
+            head: dyeable_skin_from_map(map, WardrobeSlot::Head)?,
+            legs: dyeable_skin_from_map(map, WardrobeSlot::Legs)?,
+            shoulders: dyeable_skin_from_map(map, WardrobeSlot::Shoulders)?,
+            outfit: dyeable_skin_from_map(map, WardrobeSlot::Outfit)?,
+            weapon_aquatic_a: skin_from_map(map, WardrobeSlot::WeaponAquaticA)?,
+            weapon_aquatic_b: skin_from_map(map, WardrobeSlot::WeaponAquaticB)?,
+            weapon_a1: skin_from_map(map, WardrobeSlot::WeaponA1)?,
+            weapon_a2: skin_from_map(map, WardrobeSlot::WeaponA2)?,
+            weapon_b1: skin_from_map(map, WardrobeSlot::WeaponB1)?,
+            weapon_b2: skin_from_map(map, WardrobeSlot::WeaponB2)?,
         })
     }
 }
@@ -74,74 +73,78 @@ impl From<&WardrobeTemplate> for WardrobeTemplateData {
 
 impl From<&WardrobeTemplateData> for WardrobeTemplate {
     fn from(template: &WardrobeTemplateData) -> Self {
-        let mut slots: HashMap<SlotType, WardrobeSlot> =
-            HashMap::<SlotType, WardrobeSlot>::with_capacity(SlotType::COUNT);
-        insert_slot(&mut slots, &template.aquabreather, SlotType::Aquabreather);
-        insert_dyable_slot(&mut slots, &template.backpack, SlotType::Backpack);
-        insert_dyable_slot(&mut slots, &template.chest, SlotType::Chest);
-        insert_dyable_slot(&mut slots, &template.shoes, SlotType::Shoes);
-        insert_dyable_slot(&mut slots, &template.gloves, SlotType::Gloves);
-        insert_dyable_slot(&mut slots, &template.head, SlotType::Head);
-        insert_dyable_slot(&mut slots, &template.legs, SlotType::Legs);
-        insert_dyable_slot(&mut slots, &template.shoulders, SlotType::Shoulders);
-        insert_dyable_slot(&mut slots, &template.outfit, SlotType::Outfit);
+        let mut slots: HashMap<WardrobeSlot, Appearance> =
+            HashMap::<WardrobeSlot, Appearance>::with_capacity(WardrobeSlot::LENGTH);
+        insert_slot(
+            &mut slots,
+            &template.aquabreather,
+            WardrobeSlot::Aquabreather,
+        );
+        insert_dyeable_slot(&mut slots, &template.backpack, WardrobeSlot::Backpack);
+        insert_dyeable_slot(&mut slots, &template.chest, WardrobeSlot::Chest);
+        insert_dyeable_slot(&mut slots, &template.shoes, WardrobeSlot::Shoes);
+        insert_dyeable_slot(&mut slots, &template.gloves, WardrobeSlot::Gloves);
+        insert_dyeable_slot(&mut slots, &template.head, WardrobeSlot::Head);
+        insert_dyeable_slot(&mut slots, &template.legs, WardrobeSlot::Legs);
+        insert_dyeable_slot(&mut slots, &template.shoulders, WardrobeSlot::Shoulders);
+        insert_dyeable_slot(&mut slots, &template.outfit, WardrobeSlot::Outfit);
         insert_slot(
             &mut slots,
             &template.weapon_aquatic_a,
-            SlotType::WeaponAquaticA,
+            WardrobeSlot::WeaponAquaticA,
         );
         insert_slot(
             &mut slots,
             &template.weapon_aquatic_b,
-            SlotType::WeaponAquaticB,
+            WardrobeSlot::WeaponAquaticB,
         );
-        insert_slot(&mut slots, &template.weapon_a1, SlotType::WeaponA1);
-        insert_slot(&mut slots, &template.weapon_a2, SlotType::WeaponA2);
-        insert_slot(&mut slots, &template.weapon_b1, SlotType::WeaponB1);
-        insert_slot(&mut slots, &template.weapon_b2, SlotType::WeaponB2);
+        insert_slot(&mut slots, &template.weapon_a1, WardrobeSlot::WeaponA1);
+        insert_slot(&mut slots, &template.weapon_a2, WardrobeSlot::WeaponA2);
+        insert_slot(&mut slots, &template.weapon_b1, WardrobeSlot::WeaponB1);
+        insert_slot(&mut slots, &template.weapon_b2, WardrobeSlot::WeaponB2);
         Self::new(slots)
     }
 }
 
 fn skin_from_map(
-    map: &HashMap<SlotType, WardrobeSlot>,
-    slot_type: SlotType,
+    map: &HashMap<WardrobeSlot, Appearance>,
+    slot: WardrobeSlot,
 ) -> Result<Option<Skin>, ModelError> {
-    let res = map.get(&slot_type);
-    res.map_or(Ok(None), |slot| match slot {
-        WardrobeSlot::NonDyable { skin, visible } => Ok(Some(Skin {
+    let res = map.get(&slot);
+    res.map_or(Ok(None), |appearance| match appearance {
+        Appearance::NonDyeable { skin, visible } => Ok(Some(Skin {
             id: (*skin).into(),
             name: None,
             dyes: None,
             visible: Some(*visible),
         })),
-        WardrobeSlot::Dyable {
+        Appearance::Dyeable {
             skin: _,
             visible: _,
             dyes: _,
         } => Err(ModelError::IncorrectSlotVariant {
-            slot_type,
-            expected: SlotVariant::Dyable,
-            found: SlotVariant::NonDyable,
+            slot,
+            expected: AppearanceKind::Dyeable,
+            found: AppearanceKind::NonDyeable,
         }),
     })
 }
 
-fn dyable_skin_from_map(
-    map: &HashMap<SlotType, WardrobeSlot>,
-    slot_type: SlotType,
+fn dyeable_skin_from_map(
+    map: &HashMap<WardrobeSlot, Appearance>,
+    slot: WardrobeSlot,
 ) -> Result<Option<Skin>, ModelError> {
-    let res = map.get(&slot_type);
-    res.map_or(Ok(None), |slot| match slot {
-        WardrobeSlot::NonDyable {
+    let res = map.get(&slot);
+    res.map_or(Ok(None), |appearance| match appearance {
+        Appearance::NonDyeable {
             skin: _,
             visible: _,
         } => Err(ModelError::IncorrectSlotVariant {
-            slot_type,
-            expected: SlotVariant::NonDyable,
-            found: SlotVariant::Dyable,
+            slot,
+            expected: AppearanceKind::NonDyeable,
+            found: AppearanceKind::Dyeable,
         }),
-        WardrobeSlot::Dyable {
+        Appearance::Dyeable {
             skin,
             visible,
             dyes,
@@ -155,21 +158,21 @@ fn dyable_skin_from_map(
 }
 
 fn insert_slot(
-    slots: &mut HashMap<SlotType, WardrobeSlot>,
+    slots: &mut HashMap<WardrobeSlot, Appearance>,
     skin: &Option<Skin>,
-    slot_type: SlotType,
+    slot: WardrobeSlot,
 ) {
     if let Some(skin) = skin {
-        slots.insert(slot_type, skin.into());
+        slots.insert(slot, skin.into());
     }
 }
 
-fn insert_dyable_slot(
-    slots: &mut HashMap<SlotType, WardrobeSlot>,
+fn insert_dyeable_slot(
+    slots: &mut HashMap<WardrobeSlot, Appearance>,
     skin: &Option<Skin>,
-    slot_type: SlotType,
+    slot: WardrobeSlot,
 ) {
     if let Some(skin) = skin {
-        slots.insert(slot_type, skin.into());
+        slots.insert(slot, skin.into());
     }
 }

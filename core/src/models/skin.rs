@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::domain::{skins, wardrobe_template::slot::WardrobeSlot};
+use crate::domain::skins;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Skin {
@@ -22,15 +22,15 @@ pub struct Dye {
     pub name: Option<String>,
 }
 
-impl From<&Skin> for WardrobeSlot {
+impl From<&Skin> for skins::Appearance {
     fn from(skin: &Skin) -> Self {
         match &skin.dyes {
-            Some(dyes) => WardrobeSlot::Dyable {
+            Some(dyes) => skins::Appearance::Dyeable {
                 skin: skin.id.into(),
                 visible: skin.visible.unwrap_or(true),
                 dyes: dyes.clone().into(),
             },
-            None => WardrobeSlot::NonDyable {
+            None => skins::Appearance::NonDyeable {
                 skin: skin.id.into(),
                 visible: skin.visible.unwrap_or(true),
             },

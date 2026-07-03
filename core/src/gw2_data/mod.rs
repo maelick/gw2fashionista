@@ -15,7 +15,7 @@ use hyper_rustls::HttpsConnector;
 use crate::domain::chatlink::ChatLink;
 use crate::domain::error::ChatLinkError;
 use crate::domain::skins::{DyeId, SkinId};
-use crate::domain::wardrobe_template::WardrobeTemplate;
+use crate::domain::templates::wardrobe::WardrobeTemplate;
 use crate::gw2_data::cache::{Cache, Resolver as CacheResolver};
 use crate::gw2_data::equipment::Equipment;
 use crate::gw2_data::outfit::Outfit;

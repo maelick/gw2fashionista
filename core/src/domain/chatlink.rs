@@ -8,7 +8,7 @@ use base64::engine::general_purpose::STANDARD as BASE64;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 
 use crate::domain::error::ChatLinkError;
-use crate::domain::wardrobe_template::WardrobeTemplate;
+use crate::domain::templates::wardrobe::WardrobeTemplate;
 
 const BASE64_RE: &str = r"[-A-Za-z0-9+/]*={0,3}";
 
