@@ -123,9 +123,17 @@ impl TravelCategory {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::assert_matches;
 
     #[test]
     fn test_payload_size() {
         assert_eq!(TravelTemplate::payload_size(), 122)
+    }
+
+    #[test]
+    fn test_invalid_visibility() {
+        let bytes = &[0xFF, 0xFF];
+        let result = TravelTemplate::read_visibility(bytes);
+        assert_matches!(result, Err(ChatLinkError::InvalidVisibility(_)))
     }
 }
