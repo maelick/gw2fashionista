@@ -124,15 +124,15 @@ impl TryFrom<&EquipmentSlot> for WardrobeSlot {
 impl From<(&WardrobeSlot, &Equip)> for Appearance {
     fn from((slot, equip): (&WardrobeSlot, &Equip)) -> Self {
         let skin = equip.skin.unwrap_or(0).into();
-        if slot.dyable() {
+        if slot.dyeable() {
             let dyes = equip.dyes.as_ref().map_or(Dyes::default(), Dyes::from);
-            Appearance::Dyable {
+            Appearance::Dyeable {
                 skin,
                 visible: true,
                 dyes,
             }
         } else {
-            Appearance::NonDyable {
+            Appearance::NonDyeable {
                 skin,
                 visible: true,
             }

@@ -115,7 +115,7 @@ mod tests {
 
         for (slot, appearance) in actual {
             match appearance {
-                Appearance::NonDyable { skin, visible } => match slot {
+                Appearance::NonDyeable { skin, visible } => match slot {
                     WardrobeSlot::WeaponB2 => {
                         assert_eq!(
                             skin,
@@ -150,9 +150,9 @@ mod tests {
                         assert!(visible, "Expected skin to be visible for {skin:?}");
                         assert!(!appearance.is_empty(), "Expect not empty slot {slot:?}");
                     }
-                    _ => panic!("Dyable skin should not be non-dyable {skin:?}"),
+                    _ => panic!("Dyeable skin should not be non-dyeable {skin:?}"),
                 },
-                Appearance::Dyable {
+                Appearance::Dyeable {
                     skin,
                     visible,
                     dyes,
@@ -203,7 +203,7 @@ mod tests {
                                 "Expected dyes set for {skin:?}"
                             );
                         }
-                        _ => panic!("Skin should not be dyable {skin:?}"),
+                        _ => panic!("Skin should not be dyeable {skin:?}"),
                     }
                 }
             }
@@ -224,7 +224,7 @@ mod tests {
 
         for (slot, appearance) in actual {
             match appearance {
-                Appearance::NonDyable { skin, visible } => match slot {
+                Appearance::NonDyeable { skin, visible } => match slot {
                     WardrobeSlot::WeaponAquaticA
                     | WardrobeSlot::WeaponAquaticB
                     | WardrobeSlot::WeaponA1
@@ -243,9 +243,9 @@ mod tests {
                             "Expect empty slot {slot:?} but got {appearance:?}"
                         );
                     }
-                    _ => panic!("Dyable skin should not be non-dyable {appearance:?}"),
+                    _ => panic!("Dyeable skin should not be non-dyeable {appearance:?}"),
                 },
-                Appearance::Dyable {
+                Appearance::Dyeable {
                     skin,
                     visible,
                     dyes,
@@ -296,7 +296,7 @@ mod tests {
                         assert_ne!(dyes, &(1, 1, 1, 1).into(), "Expected dyes set for {skin:?}");
                         assert!(!appearance.is_empty(), "Expect not empty slot {slot:?}");
                     }
-                    _ => panic!("Skin should not be dyable {skin:?}"),
+                    _ => panic!("Skin should not be dyeable {skin:?}"),
                 },
             }
         }
@@ -306,14 +306,14 @@ mod tests {
     }
 
     fn empty_skin(slot: WardrobeSlot) -> Appearance {
-        if slot.dyable() {
-            Appearance::Dyable {
+        if slot.dyeable() {
+            Appearance::Dyeable {
                 skin: SkinId::default(),
                 visible: true,
                 dyes: Dyes::default(),
             }
         } else {
-            Appearance::NonDyable {
+            Appearance::NonDyeable {
                 skin: SkinId::default(),
                 visible: true,
             }

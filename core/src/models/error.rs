@@ -2,8 +2,8 @@ use crate::domain::templates::wardrobe::slot::WardrobeSlot;
 
 #[derive(Debug, Clone, Copy)]
 pub enum AppearanceKind {
-    Dyable,
-    NonDyable,
+    Dyeable,
+    NonDyeable,
 }
 
 #[derive(Debug, thiserror::Error)]

@@ -136,11 +136,11 @@ impl IntoIterator for Dyes {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Appearance {
-    NonDyable {
+    NonDyeable {
         skin: SkinId,
         visible: bool,
     },
-    Dyable {
+    Dyeable {
         skin: SkinId,
         visible: bool,
         dyes: Dyes,
@@ -148,15 +148,15 @@ pub enum Appearance {
 }
 
 impl Appearance {
-    pub fn empty(dyable: bool) -> Self {
-        if dyable {
-            Self::Dyable {
+    pub fn empty(dyeable: bool) -> Self {
+        if dyeable {
+            Self::Dyeable {
                 skin: SkinId::default(),
                 visible: true,
                 dyes: Dyes::default(),
             }
         } else {
-            Self::NonDyable {
+            Self::NonDyeable {
                 skin: SkinId::default(),
                 visible: true,
             }
@@ -165,8 +165,8 @@ impl Appearance {
 
     pub fn skin(self) -> SkinId {
         match self {
-            Appearance::NonDyable { skin, visible: _ }
-            | Appearance::Dyable {
+            Appearance::NonDyeable { skin, visible: _ }
+            | Appearance::Dyeable {
                 skin,
                 visible: _,
                 dyes: _,
@@ -176,8 +176,8 @@ impl Appearance {
 
     pub fn is_visible(self) -> bool {
         match self {
-            Appearance::NonDyable { skin: _, visible }
-            | Appearance::Dyable {
+            Appearance::NonDyeable { skin: _, visible }
+            | Appearance::Dyeable {
                 skin: _,
                 visible,
                 dyes: _,
@@ -187,12 +187,12 @@ impl Appearance {
 
     pub fn dyes(self) -> Option<Dyes> {
         match self {
-            Appearance::Dyable {
+            Appearance::Dyeable {
                 skin: _,
                 visible: _,
                 dyes,
             } => Some(dyes),
-            Appearance::NonDyable {
+            Appearance::NonDyeable {
                 skin: _,
                 visible: _,
             } => None,
@@ -201,8 +201,8 @@ impl Appearance {
 
     pub fn is_empty(self) -> bool {
         match self {
-            Appearance::NonDyable { skin, visible: _ } => skin.is_empty(),
-            Appearance::Dyable {
+            Appearance::NonDyeable { skin, visible: _ } => skin.is_empty(),
+            Appearance::Dyeable {
                 skin,
                 visible: _,
                 dyes,
@@ -210,42 +210,42 @@ impl Appearance {
         }
     }
 
-    pub fn merge(&self, other: &Appearance, ignore_skin: bool, ignore_dies: bool) -> Appearance {
-        if other.is_empty() || (ignore_skin && ignore_dies) {
+    pub fn merge(&self, other: &Appearance, ignore_skin: bool, ignore_dyes: bool) -> Appearance {
+        if other.is_empty() || (ignore_skin && ignore_dyes) {
             *self
         } else if ignore_skin {
             match other {
-                Appearance::NonDyable {
+                Appearance::NonDyeable {
                     skin: _,
                     visible: _,
-                } => Appearance::NonDyable {
+                } => Appearance::NonDyeable {
                     skin: self.skin(),
                     visible: self.is_visible(),
                 },
-                Appearance::Dyable {
+                Appearance::Dyeable {
                     skin: _,
                     visible: _,
                     dyes,
-                } => Appearance::Dyable {
+                } => Appearance::Dyeable {
                     skin: self.skin(),
                     visible: self.is_visible(),
                     dyes: *dyes,
                 },
             }
-        } else if ignore_dies {
+        } else if ignore_dyes {
             match self {
-                Appearance::NonDyable {
+                Appearance::NonDyeable {
                     skin: _,
                     visible: _,
-                } => Appearance::NonDyable {
+                } => Appearance::NonDyeable {
                     skin: other.skin(),
                     visible: other.is_visible(),
                 },
-                Appearance::Dyable {
+                Appearance::Dyeable {
                     skin: _,
                     visible: _,
                     dyes,
-                } => Appearance::Dyable {
+                } => Appearance::Dyeable {
                     skin: other.skin(),
                     visible: other.is_visible(),
                     dyes: *dyes,
@@ -258,28 +258,28 @@ impl Appearance {
 
     pub fn read(
         cursor: &mut Cursor<&[u8]>,
-        dyable: bool,
+        dyeable: bool,
         visible: bool,
     ) -> Result<Self, std::io::Error> {
         let skin = SkinId::from_cursor(cursor)?;
-        if dyable {
+        if dyeable {
             let dyes = Dyes::from_cursor(cursor)?;
-            Ok(Self::Dyable {
+            Ok(Self::Dyeable {
                 skin,
                 visible,
                 dyes,
             })
         } else {
-            Ok(Self::NonDyable { skin, visible })
+            Ok(Self::NonDyeable { skin, visible })
         }
     }
 
     pub fn serialize(&self, buffer: &mut dyn std::io::Write) -> Result<(), std::io::Error> {
         match self {
-            Appearance::NonDyable { skin, visible: _ } => {
+            Appearance::NonDyeable { skin, visible: _ } => {
                 buffer.write_u16::<LittleEndian>((*skin).into())?;
             }
-            Appearance::Dyable {
+            Appearance::Dyeable {
                 skin,
                 visible: _,
                 dyes,

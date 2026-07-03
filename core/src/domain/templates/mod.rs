@@ -14,7 +14,7 @@ pub mod wardrobe;
 pub type SlotFilter<S> = HashSet<S>;
 
 pub trait FashionSlot: Eq + Hash + Copy + Linearize + fmt::Debug {
-    fn dyable(self) -> bool;
+    fn dyeable(self) -> bool;
     fn always_visible(self) -> bool;
 }
 
@@ -28,7 +28,7 @@ impl<S: FashionSlot> Template<S> {
         Template {
             slots: StaticMap::from_fn(|slot| match slots.get(&slot) {
                 Some(slot) => *slot,
-                None => Appearance::empty(slot.dyable()),
+                None => Appearance::empty(slot.dyeable()),
             }),
         }
     }

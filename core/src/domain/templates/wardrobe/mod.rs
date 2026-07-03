@@ -29,7 +29,7 @@ impl WardrobeTemplate {
             slots: static_map! {
                 slot => Appearance::read(
                     &mut cursor,
-                    slot.dyable(),
+                    slot.dyeable(),
                     visibility.contains(slot.visibility()),
                 )?
             },

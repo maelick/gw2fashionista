@@ -78,7 +78,7 @@ mod tests {
     }
 
     fn assert_zizi_armor(data: &WardrobeTemplateData) {
-        assert_dyable_skin(
+        assert_dyeable_skin(
             data.backpack.as_ref().unwrap(),
             "Pink Quaggan Backpack",
             "Dye Remover",
@@ -86,7 +86,7 @@ mod tests {
             "Dye Remover",
             "Dye Remover",
         );
-        assert_dyable_skin(
+        assert_dyeable_skin(
             data.chest.as_ref().unwrap(),
             "Sneakthief Coat",
             "Electro Pink",
@@ -94,7 +94,7 @@ mod tests {
             "Permafrost",
             "Dye Remover",
         );
-        assert_dyable_skin(
+        assert_dyeable_skin(
             data.shoes.as_ref().unwrap(),
             "Sneakthief Sandals",
             "Electro Pink",
@@ -102,7 +102,7 @@ mod tests {
             "Dye Remover",
             "Dye Remover",
         );
-        assert_dyable_skin(
+        assert_dyeable_skin(
             data.gloves.as_ref().unwrap(),
             "Noble Gloves",
             "Dye Remover",
@@ -110,7 +110,7 @@ mod tests {
             "Electro Pink",
             "Electro Pink",
         );
-        assert_dyable_skin(
+        assert_dyeable_skin(
             data.head.as_ref().unwrap(),
             "Fuzzy Cat Hat",
             "Electro Pink",
@@ -118,7 +118,7 @@ mod tests {
             "Dye Remover",
             "Dye Remover",
         );
-        assert_dyable_skin(
+        assert_dyeable_skin(
             data.legs.as_ref().unwrap(),
             "Sneakthief Leggings",
             "Dye Remover",
@@ -126,7 +126,7 @@ mod tests {
             "Permafrost",
             "Dye Remover",
         );
-        assert_dyable_skin(
+        assert_dyeable_skin(
             data.shoulders.as_ref().unwrap(),
             "Shoulder Scarf",
             "Electro Pink",
@@ -136,7 +136,7 @@ mod tests {
         );
     }
 
-    fn assert_dyable_skin(
+    fn assert_dyeable_skin(
         skin: &Skin,
         skin_name: &str,
         dye1_name: &str,

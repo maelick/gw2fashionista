@@ -63,7 +63,7 @@ impl WardrobeSlot {
 }
 
 impl FashionSlot for WardrobeSlot {
-    fn dyable(self) -> bool {
+    fn dyeable(self) -> bool {
         {
             matches!(
                 self,

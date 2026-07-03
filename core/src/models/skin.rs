@@ -25,12 +25,12 @@ pub struct Dye {
 impl From<&Skin> for skins::Appearance {
     fn from(skin: &Skin) -> Self {
         match &skin.dyes {
-            Some(dyes) => skins::Appearance::Dyable {
+            Some(dyes) => skins::Appearance::Dyeable {
                 skin: skin.id.into(),
                 visible: skin.visible.unwrap_or(true),
                 dyes: dyes.clone().into(),
             },
-            None => skins::Appearance::NonDyable {
+            None => skins::Appearance::NonDyeable {
                 skin: skin.id.into(),
                 visible: skin.visible.unwrap_or(true),
             },
