@@ -8,6 +8,7 @@ use base64::engine::general_purpose::STANDARD as BASE64;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 
 use crate::domain::error::ChatLinkError;
+use crate::domain::templates::travel::TravelTemplate;
 use crate::domain::templates::wardrobe::WardrobeTemplate;
 
 const BASE64_RE: &str = r"[-A-Za-z0-9+/]*={0,3}";
@@ -36,6 +37,7 @@ pub enum ChatLinkType {
     BuildTemplate = 0x0D,
     Achivement = 0x0E,
     WardrobeTemplate = 0x0F,
+    TravelTemplate = 0x10,
 }
 
 #[derive(Debug)]
@@ -55,6 +57,7 @@ pub enum ChatLink {
     BuildTemplate,
     Achivement,
     WardrobeTemplate(WardrobeTemplate),
+    TravelTemplate(TravelTemplate),
 }
 
 impl ChatLink {
@@ -68,6 +71,10 @@ impl ChatLink {
             ChatLinkType::WardrobeTemplate => {
                 let template = WardrobeTemplate::try_from(serialized.bytes.as_slice())?;
                 Ok(Self::WardrobeTemplate(template))
+            }
+            ChatLinkType::TravelTemplate => {
+                let template = TravelTemplate::try_from(serialized.bytes.as_slice())?;
+                Ok(Self::TravelTemplate(template))
             }
             _ => Err(ChatLinkError::UnsupportedType(serialized.link_type)),
         }
@@ -95,6 +102,10 @@ impl SerializedChatLink {
             ChatLink::WardrobeTemplate(template) => {
                 let bytes = template.serialize()?;
                 Ok(Self::new(ChatLinkType::WardrobeTemplate, bytes))
+            }
+            ChatLink::TravelTemplate(template) => {
+                let bytes = template.serialize()?;
+                Ok(Self::new(ChatLinkType::TravelTemplate, bytes))
             }
             _ => Err(ChatLinkError::NotImplemented),
         }
