@@ -39,7 +39,7 @@ impl<S: FashionSlot> Template<S> {
     }
 
     pub fn iter(&self) -> impl Iterator<Item = (S, &Appearance)> {
-        S::iter().map(|slot| (slot, self.get_slot(&slot)))
+        self.slots.iter()
     }
 
     pub fn as_map(&self, include_empty: bool) -> HashMap<S, Appearance> {
@@ -60,10 +60,8 @@ impl<S: FashionSlot> Template<S> {
 
     pub fn merge(&self, other: &Self, ignore_skin: bool, ignore_dyes: bool) -> Self {
         let mut slots = self.as_map(false);
-        for slot in S::iter() {
-            let merged =
-                self.get_slot(&slot)
-                    .merge(other.get_slot(&slot), ignore_skin, ignore_dyes);
+        for (slot, appearance) in self.slots.iter() {
+            let merged = appearance.merge(other.get_slot(&slot), ignore_skin, ignore_dyes);
             slots.insert(slot, merged);
         }
         Self::new(slots)
@@ -89,9 +87,7 @@ impl<'a, S: FashionSlot> IntoIterator for &'a Template<S> {
 
 impl<S: FashionSlot> fmt::Debug for Template<S> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_map()
-            .entries(S::iter().map(|slot| (slot, self.get_slot(&slot))))
-            .finish()
+        f.debug_map().entries(self.slots.iter()).finish()
     }
 }
 
