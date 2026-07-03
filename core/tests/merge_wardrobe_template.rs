@@ -1,8 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use gw2fashionista_core::domain::{
-        chatlink::ChatLink, templates::wardrobe::slot::WardrobeSlot,
-    };
+    use gw2fashionista_core::domain::{chatlink::ChatLink, templates::wardrobe::WardrobeSlot};
     use gw2fashionista_fixtures::wardrobe::{PEEKABOO_TEMPLATE, ZIZI_ARMOR_TEMPLATE};
 
     #[test]

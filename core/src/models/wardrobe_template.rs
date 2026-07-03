@@ -4,8 +4,7 @@ use linearize::Linearize;
 use serde::{Deserialize, Serialize};
 
 use crate::domain::skins::Appearance;
-use crate::domain::templates::wardrobe::WardrobeTemplate;
-use crate::domain::templates::wardrobe::slot::WardrobeSlot;
+use crate::domain::templates::wardrobe::{WardrobeSlot, WardrobeTemplate};
 use crate::models::error::{AppearanceKind, ModelError};
 use crate::models::skin::Skin;
 

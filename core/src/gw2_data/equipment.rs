@@ -15,7 +15,7 @@ use crate::{
         skins::{Appearance, DyeId, Dyes, SkinId},
         templates::{
             FashionSlot,
-            wardrobe::{WardrobeTemplate, slot::WardrobeSlot},
+            wardrobe::{WardrobeSlot, WardrobeTemplate},
         },
     },
     gw2_data::cache,

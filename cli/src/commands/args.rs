@@ -6,7 +6,7 @@ use once_cell::sync::Lazy;
 
 use gw2fashionista_core::domain::templates::{
     SlotFilter, SlotFilterExt,
-    wardrobe::slot::{EquipmentCategory, WardrobeSlot},
+    wardrobe::{EquipmentCategory, WardrobeSlot},
 };
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]

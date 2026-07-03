@@ -1,4 +1,4 @@
-use crate::domain::templates::wardrobe::slot::WardrobeSlot;
+use crate::domain::templates::wardrobe::WardrobeSlot;
 
 #[derive(Debug, Clone, Copy)]
 pub enum AppearanceKind {

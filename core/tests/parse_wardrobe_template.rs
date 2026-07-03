@@ -6,7 +6,7 @@ mod tests {
         skins::{Appearance, Dyes, SkinId},
         templates::{
             FashionSlot,
-            wardrobe::{WardrobeTemplate, slot::WardrobeSlot},
+            wardrobe::{WardrobeSlot, WardrobeTemplate},
         },
     };
     use linearize::LinearizeExt;
