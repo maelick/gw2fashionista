@@ -14,6 +14,7 @@ use crate::domain::{
     skins::{Appearance, DyeId},
 };
 
+pub mod travel;
 pub mod wardrobe;
 
 pub type SlotFilter<S> = HashSet<S>;
