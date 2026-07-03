@@ -2,6 +2,7 @@ use std::io::Cursor;
 
 use bitflags::bitflags;
 use byteorder::{LittleEndian, ReadBytesExt};
+use linearize::Linearize;
 use serde::{Deserialize, Serialize};
 use strum::{EnumCount, EnumIter};
 
@@ -20,6 +21,7 @@ use crate::domain::{error::ChatLinkError, templates::FashionSlot};
     Deserialize,
     strum_macros::EnumString,
     strum_macros::Display,
+    Linearize,
 )]
 #[repr(u8)]
 #[strum(serialize_all = "snake_case")]
@@ -85,10 +87,6 @@ impl FashionSlot for WardrobeSlot {
             self,
             WardrobeSlot::Chest | WardrobeSlot::Shoes | WardrobeSlot::Legs
         )
-    }
-
-    fn index(self) -> usize {
-        self as usize
     }
 }
 
