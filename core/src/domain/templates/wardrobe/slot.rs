@@ -4,7 +4,6 @@ use bitflags::bitflags;
 use byteorder::{LittleEndian, ReadBytesExt};
 use linearize::Linearize;
 use serde::{Deserialize, Serialize};
-use strum::{EnumCount, EnumIter};
 
 use crate::domain::{error::ChatLinkError, templates::FashionSlot};
 
@@ -15,8 +14,6 @@ use crate::domain::{error::ChatLinkError, templates::FashionSlot};
     PartialEq,
     Eq,
     Hash,
-    EnumIter,
-    EnumCount,
     Serialize,
     Deserialize,
     strum_macros::EnumString,
@@ -96,7 +93,6 @@ impl FashionSlot for WardrobeSlot {
     Clone,
     Serialize,
     Deserialize,
-    EnumIter,
     strum_macros::EnumString,
     strum_macros::Display,
     Linearize,

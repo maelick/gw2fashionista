@@ -9,8 +9,8 @@ mod tests {
             wardrobe::{WardrobeTemplate, slot::WardrobeSlot},
         },
     };
+    use linearize::LinearizeExt;
     use std::assert_matches;
-    use strum::IntoEnumIterator;
 
     use gw2fashionista_fixtures::wardrobe::{EMPTY_TEMPLATE, ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE};
 
@@ -77,7 +77,7 @@ mod tests {
     #[test]
     fn test_parse_empty() {
         let raw = EMPTY_TEMPLATE.chat_link;
-        let expected_slots = WardrobeSlot::iter()
+        let expected_slots = WardrobeSlot::variants()
             .map(|slot| (slot, empty_skin(slot)))
             .collect();
         let expected_template = WardrobeTemplate::new(expected_slots);

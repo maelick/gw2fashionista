@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
+use linearize::Linearize;
 use serde::{Deserialize, Serialize};
-use strum::EnumCount;
 
 use crate::domain::skins::Appearance;
 use crate::domain::templates::wardrobe::WardrobeTemplate;
@@ -75,7 +75,7 @@ impl From<&WardrobeTemplate> for WardrobeTemplateData {
 impl From<&WardrobeTemplateData> for WardrobeTemplate {
     fn from(template: &WardrobeTemplateData) -> Self {
         let mut slots: HashMap<WardrobeSlot, Appearance> =
-            HashMap::<WardrobeSlot, Appearance>::with_capacity(WardrobeSlot::COUNT);
+            HashMap::<WardrobeSlot, Appearance>::with_capacity(WardrobeSlot::LENGTH);
         insert_slot(
             &mut slots,
             &template.aquabreather,

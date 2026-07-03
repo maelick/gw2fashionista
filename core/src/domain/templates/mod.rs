@@ -5,8 +5,7 @@ use std::{
     hash::Hash,
 };
 
-use linearize::{Linearize, StaticMap};
-use strum::IntoEnumIterator;
+use linearize::{Linearize, LinearizeExt, StaticMap};
 
 use crate::domain::skins::{Appearance, DyeId};
 
@@ -14,7 +13,7 @@ pub mod wardrobe;
 
 pub type SlotFilter<S> = HashSet<S>;
 
-pub trait FashionSlot: Eq + Hash + Copy + IntoEnumIterator + Linearize + fmt::Debug {
+pub trait FashionSlot: Eq + Hash + Copy + Linearize + fmt::Debug {
     fn dyable(self) -> bool;
     fn always_visible(self) -> bool;
 }
@@ -113,7 +112,7 @@ where
     S: FashionSlot,
 {
     fn all() -> Self {
-        SlotFilter::from_iter(S::iter())
+        SlotFilter::from_iter(S::variants())
     }
 
     fn invert(&mut self) {
