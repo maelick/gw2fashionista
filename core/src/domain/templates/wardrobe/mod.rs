@@ -2,7 +2,7 @@ use std::collections::HashSet;
 use std::io::Cursor;
 
 use byteorder::{LittleEndian, WriteBytesExt};
-use linearize::StaticMap;
+use linearize::static_map;
 
 use crate::domain::error::ChatLinkError;
 use crate::domain::skins::{Appearance, SkinId};
@@ -25,25 +25,15 @@ impl WardrobeTemplate {
         let visibility = WardrobeVisibility::from_bytes(bytes)?;
         let mut cursor = Cursor::new(bytes);
 
-        // ugly trick due to lack of StaticMap::try_from_fn
-        // TODO: rewrite if added to linearize
-        let mut first_err = None;
-        let slots = StaticMap::from_fn(|slot: WardrobeSlot| {
-            Appearance::read(
-                &mut cursor,
-                slot.dyable(),
-                visibility.contains(slot.visibility()),
-            )
-            .unwrap_or_else(|e| {
-                first_err.get_or_insert(e);
-                Appearance::empty(slot.dyable())
-            })
-        });
-
-        match first_err {
-            None => Ok(Self { slots }),
-            Some(e) => Err(ChatLinkError::InvalidPayload(e)),
-        }
+        Ok(Self {
+            slots: static_map! {
+                slot => Appearance::read(
+                    &mut cursor,
+                    slot.dyable(),
+                    visibility.contains(slot.visibility()),
+                )?
+            },
+        })
     }
 
     fn visibility(&self) -> WardrobeVisibility {
