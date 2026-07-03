@@ -3,11 +3,8 @@ mod tests {
     use gw2fashionista_core::domain::{
         chatlink::ChatLink,
         error::ChatLinkError,
-        skins::{Dyes, SkinId},
-        wardrobe_template::{
-            WardrobeTemplate,
-            slot::{SlotType, WardrobeSlot},
-        },
+        skins::{Dyes, SkinId, Slot},
+        wardrobe_template::{WardrobeTemplate, slot::SlotType},
     };
     use std::assert_matches;
     use strum::IntoEnumIterator;
@@ -115,7 +112,7 @@ mod tests {
 
         for (slot_type, slot) in actual {
             match slot {
-                WardrobeSlot::NonDyable { skin, visible } => match slot_type {
+                Slot::NonDyable { skin, visible } => match slot_type {
                     SlotType::WeaponB2 => {
                         assert_eq!(
                             skin,
@@ -152,7 +149,7 @@ mod tests {
                     }
                     _ => panic!("Dyable skin should not be non-dyable {skin:?}"),
                 },
-                WardrobeSlot::Dyable {
+                Slot::Dyable {
                     skin,
                     visible,
                     dyes,
@@ -224,7 +221,7 @@ mod tests {
 
         for (slot_type, slot) in actual {
             match slot {
-                WardrobeSlot::NonDyable { skin, visible } => match slot_type {
+                Slot::NonDyable { skin, visible } => match slot_type {
                     SlotType::WeaponAquaticA
                     | SlotType::WeaponAquaticB
                     | SlotType::WeaponA1
@@ -245,7 +242,7 @@ mod tests {
                     }
                     _ => panic!("Dyable skin should not be non-dyable {slot:?}"),
                 },
-                WardrobeSlot::Dyable {
+                Slot::Dyable {
                     skin,
                     visible,
                     dyes,
@@ -305,15 +302,15 @@ mod tests {
         assert_eq!(actual_encoded, raw);
     }
 
-    fn empty_skin(slot_type: SlotType) -> WardrobeSlot {
+    fn empty_skin(slot_type: SlotType) -> Slot {
         if slot_type.dyable() {
-            WardrobeSlot::Dyable {
+            Slot::Dyable {
                 skin: SkinId::default(),
                 visible: true,
                 dyes: Dyes::default(),
             }
         } else {
-            WardrobeSlot::NonDyable {
+            Slot::NonDyable {
                 skin: SkinId::default(),
                 visible: true,
             }

@@ -1,6 +1,6 @@
 use std::io::Cursor;
 
-use byteorder::{LittleEndian, ReadBytesExt};
+use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct SkinId(u16);
@@ -131,5 +131,167 @@ impl IntoIterator for Dyes {
     fn into_iter(self) -> Self::IntoIter {
         let Dyes(dye1, dye2, dye3, dye4) = self;
         [dye1, dye2, dye3, dye4].into_iter()
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Slot {
+    NonDyable {
+        skin: SkinId,
+        visible: bool,
+    },
+    Dyable {
+        skin: SkinId,
+        visible: bool,
+        dyes: Dyes,
+    },
+}
+
+impl Slot {
+    pub fn empty(dyable: bool) -> Self {
+        if dyable {
+            Self::Dyable {
+                skin: SkinId::default(),
+                visible: true,
+                dyes: Dyes::default(),
+            }
+        } else {
+            Self::NonDyable {
+                skin: SkinId::default(),
+                visible: true,
+            }
+        }
+    }
+
+    pub fn skin(self) -> SkinId {
+        match self {
+            Slot::NonDyable { skin, visible: _ }
+            | Slot::Dyable {
+                skin,
+                visible: _,
+                dyes: _,
+            } => skin,
+        }
+    }
+
+    pub fn is_visible(self) -> bool {
+        match self {
+            Slot::NonDyable { skin: _, visible }
+            | Slot::Dyable {
+                skin: _,
+                visible,
+                dyes: _,
+            } => visible,
+        }
+    }
+
+    pub fn dyes(self) -> Option<Dyes> {
+        match self {
+            Slot::Dyable {
+                skin: _,
+                visible: _,
+                dyes,
+            } => Some(dyes),
+            Slot::NonDyable {
+                skin: _,
+                visible: _,
+            } => None,
+        }
+    }
+
+    pub fn is_empty(self) -> bool {
+        match self {
+            Slot::NonDyable { skin, visible: _ } => skin.is_empty(),
+            Slot::Dyable {
+                skin,
+                visible: _,
+                dyes,
+            } => skin.is_empty() && dyes.is_empty(),
+        }
+    }
+
+    pub fn merge(&self, other: &Slot, ignore_skin: bool, ignore_dies: bool) -> Slot {
+        if other.is_empty() || (ignore_skin && ignore_dies) {
+            *self
+        } else if ignore_skin {
+            match other {
+                Slot::NonDyable {
+                    skin: _,
+                    visible: _,
+                } => Slot::NonDyable {
+                    skin: self.skin(),
+                    visible: self.is_visible(),
+                },
+                Slot::Dyable {
+                    skin: _,
+                    visible: _,
+                    dyes,
+                } => Slot::Dyable {
+                    skin: self.skin(),
+                    visible: self.is_visible(),
+                    dyes: *dyes,
+                },
+            }
+        } else if ignore_dies {
+            match self {
+                Slot::NonDyable {
+                    skin: _,
+                    visible: _,
+                } => Slot::NonDyable {
+                    skin: other.skin(),
+                    visible: other.is_visible(),
+                },
+                Slot::Dyable {
+                    skin: _,
+                    visible: _,
+                    dyes,
+                } => Slot::Dyable {
+                    skin: other.skin(),
+                    visible: other.is_visible(),
+                    dyes: *dyes,
+                },
+            }
+        } else {
+            *other
+        }
+    }
+
+    pub fn read(
+        cursor: &mut Cursor<&[u8]>,
+        dyable: bool,
+        visible: bool,
+    ) -> Result<Self, std::io::Error> {
+        let skin = SkinId::from_cursor(cursor)?;
+        if dyable {
+            let dyes = Dyes::from_cursor(cursor)?;
+            Ok(Self::Dyable {
+                skin,
+                visible,
+                dyes,
+            })
+        } else {
+            Ok(Self::NonDyable { skin, visible })
+        }
+    }
+
+    pub fn serialize(&self, buffer: &mut dyn std::io::Write) -> Result<(), std::io::Error> {
+        match self {
+            Slot::NonDyable { skin, visible: _ } => {
+                buffer.write_u16::<LittleEndian>((*skin).into())?;
+            }
+            Slot::Dyable {
+                skin,
+                visible: _,
+                dyes,
+            } => {
+                let (dye1, dye2, dye3, dye4) = (*dyes).into();
+                buffer.write_u16::<LittleEndian>((*skin).into())?;
+                buffer.write_u16::<LittleEndian>(dye1)?;
+                buffer.write_u16::<LittleEndian>(dye2)?;
+                buffer.write_u16::<LittleEndian>(dye3)?;
+                buffer.write_u16::<LittleEndian>(dye4)?;
+            }
+        }
+        Ok(())
     }
 }
