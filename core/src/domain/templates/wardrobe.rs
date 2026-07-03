@@ -141,9 +141,17 @@ impl EquipmentCategory {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::assert_matches;
 
     #[test]
     fn test_payload_size() {
         assert_eq!(WardrobeTemplate::payload_size(), 96)
+    }
+
+    #[test]
+    fn test_invalid_visibility() {
+        let bytes = &[0xFF, 0xFF];
+        let result = WardrobeTemplate::read_visibility(bytes);
+        assert_matches!(result, Err(ChatLinkError::InvalidVisibility(_)))
     }
 }
