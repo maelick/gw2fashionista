@@ -4,7 +4,10 @@ mod tests {
         chatlink::ChatLink,
         error::ChatLinkError,
         skins::{Dyes, SkinId, Slot},
-        templates::wardrobe::{WardrobeTemplate, slot::SlotType},
+        templates::{
+            FashionSlot,
+            wardrobe::{WardrobeTemplate, slot::SlotType},
+        },
     };
     use std::assert_matches;
     use strum::IntoEnumIterator;

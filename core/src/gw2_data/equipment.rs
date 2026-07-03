@@ -13,7 +13,10 @@ use gw2lib::{
 use crate::{
     domain::{
         skins::{DyeId, Dyes, SkinId, Slot},
-        templates::wardrobe::{WardrobeTemplate, slot::SlotType},
+        templates::{
+            FashionSlot,
+            wardrobe::{WardrobeTemplate, slot::SlotType},
+        },
     },
     gw2_data::cache,
 };

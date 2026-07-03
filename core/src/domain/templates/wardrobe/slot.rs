@@ -42,26 +42,6 @@ pub enum SlotType {
 }
 
 impl SlotType {
-    pub const fn dyable(self) -> bool {
-        {
-            matches!(
-                self,
-                SlotType::Backpack
-                    | SlotType::Chest
-                    | SlotType::Shoes
-                    | SlotType::Gloves
-                    | SlotType::Head
-                    | SlotType::Legs
-                    | SlotType::Shoulders
-                    | SlotType::Outfit
-            )
-        }
-    }
-
-    pub const fn always_visible(self) -> bool {
-        matches!(self, SlotType::Chest | SlotType::Shoes | SlotType::Legs)
-    }
-
     pub const fn visibility(self) -> Visibility {
         match self {
             SlotType::Aquabreather => Visibility::AQUABREATHER,
@@ -81,13 +61,33 @@ impl SlotType {
             SlotType::WeaponB2 => Visibility::WEAPON_B2,
         }
     }
+}
 
-    pub fn index(self) -> usize {
+impl FashionSlot for SlotType {
+    fn dyable(self) -> bool {
+        {
+            matches!(
+                self,
+                SlotType::Backpack
+                    | SlotType::Chest
+                    | SlotType::Shoes
+                    | SlotType::Gloves
+                    | SlotType::Head
+                    | SlotType::Legs
+                    | SlotType::Shoulders
+                    | SlotType::Outfit
+            )
+        }
+    }
+
+    fn always_visible(self) -> bool {
+        matches!(self, SlotType::Chest | SlotType::Shoes | SlotType::Legs)
+    }
+
+    fn index(self) -> usize {
         self as usize
     }
 }
-
-impl FashionSlot for SlotType {}
 
 #[derive(
     Debug,

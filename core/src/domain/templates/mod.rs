@@ -6,7 +6,11 @@ pub mod wardrobe;
 
 pub type SlotFilter<S> = HashSet<S>;
 
-pub trait FashionSlot: Eq + Hash + Copy + IntoEnumIterator {}
+pub trait FashionSlot: Eq + Hash + Copy + IntoEnumIterator {
+    fn dyable(self) -> bool;
+    fn always_visible(self) -> bool;
+    fn index(self) -> usize;
+}
 
 pub trait SlotFilterExt<S>
 where

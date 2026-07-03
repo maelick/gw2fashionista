@@ -8,7 +8,7 @@ use strum::{EnumCount, IntoEnumIterator};
 
 use crate::domain::error::ChatLinkError;
 use crate::domain::skins::{DyeId, SkinId, Slot};
-use crate::domain::templates::SlotFilter;
+use crate::domain::templates::{FashionSlot, SlotFilter};
 use slot::{SlotType, Visibility};
 
 const TEMPLATE_PAYLOAD_SIZE: usize = 96;
