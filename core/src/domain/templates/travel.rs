@@ -3,7 +3,6 @@ use std::collections::HashSet;
 use linearize::Linearize;
 use serde::{Deserialize, Serialize};
 
-use crate::domain::error::ChatLinkError;
 use crate::domain::skins::SkinId;
 use crate::domain::templates::{FashionSlot, Template};
 
@@ -18,22 +17,6 @@ impl TravelTemplate {
                 Some(appearance.skin()).filter(|skin| !skin.is_empty())
             }
         }))
-    }
-}
-
-impl TryFrom<&[u8]> for TravelTemplate {
-    type Error = ChatLinkError;
-
-    fn try_from(bytes: &[u8]) -> Result<Self, ChatLinkError> {
-        Self::from_bytes(bytes)
-    }
-}
-
-impl TryFrom<&TravelTemplate> for Vec<u8> {
-    type Error = std::io::Error;
-
-    fn try_from(template: &TravelTemplate) -> Result<Self, std::io::Error> {
-        template.serialize()
     }
 }
 
@@ -123,6 +106,7 @@ impl TravelCategory {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::domain::error::ChatLinkError;
     use std::assert_matches;
 
     #[test]
