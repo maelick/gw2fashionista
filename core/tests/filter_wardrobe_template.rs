@@ -2,7 +2,8 @@
 mod tests {
     use gw2fashionista_core::domain::{
         chatlink::ChatLink,
-        templates::wardrobe::slot::{EquipmentCategory, SlotFilter, SlotFilterExt, SlotType},
+        templates::wardrobe::slot::{EquipmentCategory, SlotType},
+        templates::{SlotFilter, SlotFilterExt},
     };
     use gw2fashionista_fixtures::wardrobe::{ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE};
 
@@ -14,7 +15,7 @@ mod tests {
             panic!("Expected WardrobeTemplate, got {chat_link:?}");
         };
 
-        let mut filter = SlotFilter::all();
+        let mut filter = SlotFilter::<SlotType>::all();
         filter.remove(&SlotType::Outfit);
         filter.remove_all(EquipmentCategory::Underwater.slots());
         filter.remove_all(EquipmentCategory::Weapons.slots());

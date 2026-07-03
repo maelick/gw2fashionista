@@ -1,12 +1,11 @@
-use std::collections::HashSet;
 use std::io::Cursor;
 
 use bitflags::bitflags;
 use byteorder::{LittleEndian, ReadBytesExt};
 use serde::{Deserialize, Serialize};
-use strum::{EnumCount, EnumIter, IntoEnumIterator};
+use strum::{EnumCount, EnumIter};
 
-use crate::domain::error::ChatLinkError;
+use crate::domain::{error::ChatLinkError, templates::FashionSlot};
 
 #[derive(
     Clone,
@@ -88,36 +87,7 @@ impl SlotType {
     }
 }
 
-pub type SlotFilter = HashSet<SlotType>;
-
-pub trait SlotFilterExt {
-    fn all() -> Self;
-
-    fn invert(&mut self);
-    fn remove_all<I: IntoIterator<Item = &'static SlotType>>(&mut self, slots: I);
-    fn retain_all<I: IntoIterator<Item = &'static SlotType>>(&mut self, slots: I);
-}
-
-impl SlotFilterExt for SlotFilter {
-    fn all() -> Self {
-        SlotFilter::from_iter(SlotType::iter())
-    }
-
-    fn invert(&mut self) {
-        *self = Self::all().difference(self).copied().collect()
-    }
-
-    fn retain_all<I: IntoIterator<Item = &'static SlotType>>(&mut self, slots: I) {
-        let slots = Self::from_iter(slots.into_iter().copied());
-        self.retain(|s| slots.contains(s))
-    }
-
-    fn remove_all<I: IntoIterator<Item = &'static SlotType>>(&mut self, slots: I) {
-        for s in slots {
-            self.remove(s);
-        }
-    }
-}
+impl FashionSlot for SlotType {}
 
 #[derive(
     Debug,

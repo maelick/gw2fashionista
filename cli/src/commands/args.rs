@@ -4,8 +4,9 @@ use clap::{Args, ValueEnum, builder::TypedValueParser};
 use once_cell::sync::Lazy;
 use strum::IntoEnumIterator;
 
-use gw2fashionista_core::domain::templates::wardrobe::slot::{
-    EquipmentCategory, SlotFilter, SlotFilterExt, SlotType,
+use gw2fashionista_core::domain::templates::{
+    SlotFilter, SlotFilterExt,
+    wardrobe::slot::{EquipmentCategory, SlotType},
 };
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
@@ -98,9 +99,9 @@ impl FromStr for FilterOption {
     }
 }
 
-impl From<&EquipmentFilters> for SlotFilter {
+impl From<&EquipmentFilters> for SlotFilter<SlotType> {
     fn from(value: &EquipmentFilters) -> Self {
-        let mut filter = SlotFilter::all();
+        let mut filter = SlotFilter::<SlotType>::all();
         for f in &value.only {
             match f {
                 FilterOption::Category(category) => filter.retain_all(category.slots()),

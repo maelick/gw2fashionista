@@ -8,7 +8,8 @@ use strum::{EnumCount, IntoEnumIterator};
 
 use crate::domain::error::ChatLinkError;
 use crate::domain::skins::{DyeId, SkinId, Slot};
-use slot::{SlotFilter, SlotType, Visibility};
+use crate::domain::templates::SlotFilter;
+use slot::{SlotType, Visibility};
 
 const TEMPLATE_PAYLOAD_SIZE: usize = 96;
 
@@ -95,7 +96,7 @@ impl WardrobeTemplate {
         slots
     }
 
-    pub fn filter(&self, filter: &SlotFilter) -> Self {
+    pub fn filter(&self, filter: &SlotFilter<SlotType>) -> Self {
         let mut filtered = self.as_map(true);
         filtered.retain(|slot_type, _| filter.contains(slot_type));
         Self::new(filtered)
