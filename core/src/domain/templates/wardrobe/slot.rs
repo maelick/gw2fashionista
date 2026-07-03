@@ -1,11 +1,7 @@
-use std::io::Cursor;
-
-use bitflags::bitflags;
-use byteorder::{LittleEndian, ReadBytesExt};
 use linearize::Linearize;
 use serde::{Deserialize, Serialize};
 
-use crate::domain::{error::ChatLinkError, templates::FashionSlot};
+use crate::domain::templates::FashionSlot;
 
 #[derive(
     Clone,
@@ -38,28 +34,6 @@ pub enum WardrobeSlot {
     WeaponA2,
     WeaponB1,
     WeaponB2,
-}
-
-impl WardrobeSlot {
-    pub const fn visibility(self) -> WardrobeVisibility {
-        match self {
-            WardrobeSlot::Aquabreather => WardrobeVisibility::AQUABREATHER,
-            WardrobeSlot::Backpack => WardrobeVisibility::BACKPACK,
-            WardrobeSlot::Chest => WardrobeVisibility::CHEST,
-            WardrobeSlot::Shoes => WardrobeVisibility::SHOES,
-            WardrobeSlot::Gloves => WardrobeVisibility::GLOVES,
-            WardrobeSlot::Head => WardrobeVisibility::HEAD,
-            WardrobeSlot::Legs => WardrobeVisibility::LEGS,
-            WardrobeSlot::Shoulders => WardrobeVisibility::SHOULDERS,
-            WardrobeSlot::Outfit => WardrobeVisibility::OUTFIT,
-            WardrobeSlot::WeaponAquaticA => WardrobeVisibility::WEAPON_AQUATIC_A,
-            WardrobeSlot::WeaponAquaticB => WardrobeVisibility::WEAPON_AQUATIC_B,
-            WardrobeSlot::WeaponA1 => WardrobeVisibility::WEAPON_A1,
-            WardrobeSlot::WeaponA2 => WardrobeVisibility::WEAPON_A2,
-            WardrobeSlot::WeaponB1 => WardrobeVisibility::WEAPON_B1,
-            WardrobeSlot::WeaponB2 => WardrobeVisibility::WEAPON_B2,
-        }
-    }
 }
 
 impl FashionSlot for WardrobeSlot {
@@ -130,51 +104,5 @@ impl EquipmentCategory {
                 WardrobeSlot::WeaponB2,
             ],
         }
-    }
-}
-
-bitflags! {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-    pub struct WardrobeVisibility: u16 {
-        const AQUABREATHER = 1 << 0;
-        const BACKPACK = 1 << 1;
-        const CHEST = 1 << 2;
-        const SHOES = 1 << 3;
-        const GLOVES = 1 << 4;
-        const HEAD = 1 << 5;
-        const LEGS = 1 << 6;
-        const SHOULDERS = 1 << 7;
-        const OUTFIT = 1 << 8;
-        const WEAPON_AQUATIC_A = 1 << 9;
-        const WEAPON_AQUATIC_B = 1 << 10;
-        const WEAPON_A1 = 1 << 11;
-        const WEAPON_A2 = 1 << 12;
-        const WEAPON_B1 = 1 << 13;
-        const WEAPON_B2 = 1 << 14;
-    }
-}
-
-impl WardrobeVisibility {
-    pub fn from_bytes(bytes: &[u8]) -> Result<Self, ChatLinkError> {
-        if bytes.len() < 2 {
-            return Err(ChatLinkError::TruncatedData(bytes.to_vec()));
-        }
-        let visibility_offset = bytes.len() - 2;
-        let mut cursor = Cursor::new(&bytes[visibility_offset..]);
-        WardrobeVisibility::read(&mut cursor)
-    }
-
-    pub fn read(cursor: &mut Cursor<&[u8]>) -> Result<Self, ChatLinkError> {
-        let visibility_bytes = cursor.read_u16::<LittleEndian>()?;
-        WardrobeVisibility::from_bits(visibility_bytes)
-            .ok_or(ChatLinkError::InvalidVisibility(visibility_bytes))
-    }
-}
-
-impl TryFrom<&[u8]> for WardrobeVisibility {
-    type Error = ChatLinkError;
-
-    fn try_from(bytes: &[u8]) -> Result<Self, ChatLinkError> {
-        Self::from_bytes(bytes)
     }
 }

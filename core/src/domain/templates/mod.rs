@@ -7,7 +7,10 @@ use std::{
 
 use linearize::{Linearize, LinearizeExt, StaticMap};
 
-use crate::domain::skins::{Appearance, DyeId};
+use crate::domain::{
+    error::ChatLinkError,
+    skins::{Appearance, DyeId},
+};
 
 pub mod wardrobe;
 
@@ -16,6 +19,19 @@ pub type SlotFilter<S> = HashSet<S>;
 pub trait FashionSlot: Eq + Hash + Copy + Linearize + fmt::Debug {
     fn dyeable(self) -> bool;
     fn always_visible(self) -> bool;
+
+    fn visibility_bit(self) -> u16 {
+        1 << self.linearize()
+    }
+
+    fn visibility_mask() -> u16 {
+        const { assert!(Self::LENGTH <= 16) }
+        ((1u32 << Self::LENGTH) - 1) as u16
+    }
+
+    fn is_visible(self, visibility: u16) -> bool {
+        (visibility & self.visibility_bit()) != 0
+    }
 }
 
 #[derive(Clone, PartialEq, Eq)]
@@ -26,9 +42,11 @@ pub struct Template<S: FashionSlot> {
 impl<S: FashionSlot> Template<S> {
     pub fn new(slots: HashMap<S, Appearance>) -> Self {
         Template {
-            slots: StaticMap::from_fn(|slot| match slots.get(&slot) {
-                Some(slot) => *slot,
-                None => Appearance::empty(slot.dyeable()),
+            slots: StaticMap::from_fn(|slot| {
+                slots
+                    .get(&slot)
+                    .copied()
+                    .unwrap_or_else(|| Appearance::empty(slot.dyeable()))
             }),
         }
     }
@@ -59,7 +77,7 @@ impl<S: FashionSlot> Template<S> {
 
     pub fn merge(&self, other: &Self, ignore_skin: bool, ignore_dyes: bool) -> Self {
         let mut slots = self.as_map(false);
-        for (slot, appearance) in self.slots.iter() {
+        for (slot, appearance) in self.iter() {
             let merged = appearance.merge(other.get_slot(&slot), ignore_skin, ignore_dyes);
             slots.insert(slot, merged);
         }
@@ -72,6 +90,22 @@ impl<S: FashionSlot> Template<S> {
             .filter_map(|(_, appearance)| appearance.dyes())
             .flat_map(|dyes| dyes.into_iter());
         HashSet::from_iter(dyes)
+    }
+
+    fn read_visibility(bytes: &[u8]) -> Result<u16, ChatLinkError> {
+        let tail: &[u8; 2] = bytes.last_chunk().expect("caller validated payload size");
+        let visibility = u16::from_le_bytes(*tail);
+        if (visibility & !S::visibility_mask()) == 0 {
+            Ok(visibility)
+        } else {
+            Err(ChatLinkError::InvalidVisibility(visibility))
+        }
+    }
+
+    fn visibility(&self) -> u16 {
+        self.iter()
+            .filter(|(slot, a)| slot.always_visible() || a.is_visible())
+            .fold(0, |acc, (slot, _)| acc | slot.visibility_bit())
     }
 }
 
@@ -86,7 +120,7 @@ impl<'a, S: FashionSlot> IntoIterator for &'a Template<S> {
 
 impl<S: FashionSlot> fmt::Debug for Template<S> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_map().entries(self.slots.iter()).finish()
+        f.debug_map().entries(self.iter()).finish()
     }
 }
 
@@ -97,10 +131,12 @@ where
     fn all() -> Self;
 
     fn invert(&mut self);
+
     fn remove_all<I>(&mut self, slots: I)
     where
         I: IntoIterator,
         I::Item: Borrow<S>;
+
     fn retain_all<I>(&mut self, slots: I)
     where
         I: IntoIterator,

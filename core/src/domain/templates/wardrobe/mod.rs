@@ -8,7 +8,7 @@ use crate::domain::error::ChatLinkError;
 use crate::domain::skins::{Appearance, SkinId};
 use crate::domain::templates::FashionSlot;
 use crate::domain::templates::Template;
-use slot::{WardrobeSlot, WardrobeVisibility};
+use slot::WardrobeSlot;
 
 const TEMPLATE_PAYLOAD_SIZE: usize = 96;
 
@@ -22,7 +22,7 @@ impl WardrobeTemplate {
             return Err(ChatLinkError::TruncatedData(bytes.to_vec()));
         }
 
-        let visibility = WardrobeVisibility::from_bytes(bytes)?;
+        let visibility = Self::read_visibility(bytes)?;
         let mut cursor = Cursor::new(bytes);
 
         Ok(Self {
@@ -30,28 +30,18 @@ impl WardrobeTemplate {
                 slot => Appearance::read(
                     &mut cursor,
                     slot.dyeable(),
-                    visibility.contains(slot.visibility()),
+                    slot.is_visible(visibility),
                 )?
             },
         })
     }
 
-    fn visibility(&self) -> WardrobeVisibility {
-        self.iter()
-            .filter(|(slot, appearance)| slot.always_visible() || appearance.is_visible())
-            .map(|(slot, _)| slot.visibility())
-            .fold(WardrobeVisibility::empty(), |acc, v| acc | v)
-    }
-
     pub fn serialize(&self) -> Result<Vec<u8>, std::io::Error> {
         let mut buffer = Vec::with_capacity(TEMPLATE_PAYLOAD_SIZE);
-
         for (_, slot) in self {
             slot.serialize(&mut buffer)?;
         }
-
-        let visibility = self.visibility();
-        buffer.write_u16::<LittleEndian>(visibility.bits())?;
+        buffer.write_u16::<LittleEndian>(self.visibility())?;
         Ok(buffer)
     }
 

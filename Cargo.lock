@@ -602,7 +602,6 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "base64 0.22.1",
- "bitflags 2.12.1",
  "byteorder",
  "dashmap 6.2.1",
  "futures",
