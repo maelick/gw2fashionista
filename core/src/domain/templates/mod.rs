@@ -107,6 +107,13 @@ impl<S: FashionSlot> Template<S> {
             .filter(|(slot, a)| slot.always_visible() || a.is_visible())
             .fold(0, |acc, (slot, _)| acc | slot.visibility_bit())
     }
+
+    fn payload_size() -> usize {
+        S::variants()
+            .map(|slot| Appearance::encoded_size(slot.dyeable()))
+            .sum::<usize>()
+            + 2
+    }
 }
 
 impl<'a, S: FashionSlot> IntoIterator for &'a Template<S> {

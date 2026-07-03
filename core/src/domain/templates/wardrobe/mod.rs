@@ -10,15 +10,13 @@ use crate::domain::templates::FashionSlot;
 use crate::domain::templates::Template;
 use slot::WardrobeSlot;
 
-const TEMPLATE_PAYLOAD_SIZE: usize = 96;
-
 pub mod slot;
 
 pub type WardrobeTemplate = Template<WardrobeSlot>;
 
 impl WardrobeTemplate {
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, ChatLinkError> {
-        if bytes.len() != TEMPLATE_PAYLOAD_SIZE {
+        if bytes.len() != Self::payload_size() {
             return Err(ChatLinkError::TruncatedData(bytes.to_vec()));
         }
 
@@ -37,7 +35,7 @@ impl WardrobeTemplate {
     }
 
     pub fn serialize(&self) -> Result<Vec<u8>, std::io::Error> {
-        let mut buffer = Vec::with_capacity(TEMPLATE_PAYLOAD_SIZE);
+        let mut buffer = Vec::with_capacity(Self::payload_size());
         for (_, slot) in self {
             slot.serialize(&mut buffer)?;
         }
@@ -66,5 +64,15 @@ impl TryFrom<&WardrobeTemplate> for Vec<u8> {
 
     fn try_from(template: &WardrobeTemplate) -> Result<Self, std::io::Error> {
         template.serialize()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_payload_size() {
+        assert_eq!(WardrobeTemplate::payload_size(), 96)
     }
 }

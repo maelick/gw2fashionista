@@ -256,6 +256,14 @@ impl Appearance {
         }
     }
 
+    pub const fn encoded_size(dyeable: bool) -> usize {
+        if dyeable {
+            size_of::<u16>() + 4 * size_of::<u16>()
+        } else {
+            size_of::<u16>()
+        }
+    }
+
     pub fn read(
         cursor: &mut Cursor<&[u8]>,
         dyeable: bool,
