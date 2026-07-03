@@ -3,9 +3,11 @@ use std::{
     collections::{HashMap, HashSet},
     fmt,
     hash::Hash,
+    io::Cursor,
 };
 
-use linearize::{Linearize, LinearizeExt, StaticMap};
+use byteorder::{LittleEndian, WriteBytesExt};
+use linearize::{Linearize, LinearizeExt, StaticMap, static_map};
 
 use crate::domain::{
     error::ChatLinkError,
@@ -90,6 +92,34 @@ impl<S: FashionSlot> Template<S> {
             .filter_map(|(_, appearance)| appearance.dyes())
             .flat_map(|dyes| dyes.into_iter());
         HashSet::from_iter(dyes)
+    }
+
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, ChatLinkError> {
+        if bytes.len() != Self::payload_size() {
+            return Err(ChatLinkError::TruncatedData(bytes.to_vec()));
+        }
+
+        let visibility = Self::read_visibility(bytes)?;
+        let mut cursor = Cursor::new(bytes);
+
+        Ok(Self {
+            slots: static_map! {
+                slot => Appearance::read(
+                    &mut cursor,
+                    slot.dyeable(),
+                    slot.is_visible(visibility),
+                )?
+            },
+        })
+    }
+
+    pub fn serialize(&self) -> Result<Vec<u8>, std::io::Error> {
+        let mut buffer = Vec::with_capacity(Self::payload_size());
+        for (_, slot) in self {
+            slot.serialize(&mut buffer)?;
+        }
+        buffer.write_u16::<LittleEndian>(self.visibility())?;
+        Ok(buffer)
     }
 
     fn read_visibility(bytes: &[u8]) -> Result<u16, ChatLinkError> {
