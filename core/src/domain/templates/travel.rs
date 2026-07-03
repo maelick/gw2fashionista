@@ -62,18 +62,18 @@ impl FashionSlot for TravelSlot {
 
 impl TravelSlot {
     pub fn is_mount(self) -> bool {
-        match self {
+        matches!(
+            self,
             TravelSlot::Jackal
-            | TravelSlot::Griffon
-            | TravelSlot::Springer
-            | TravelSlot::Skimmer
-            | TravelSlot::Raptor
-            | TravelSlot::Beetle
-            | TravelSlot::Warclaw
-            | TravelSlot::Skyscale
-            | TravelSlot::Turtle => true,
-            _ => false,
-        }
+                | TravelSlot::Griffon
+                | TravelSlot::Springer
+                | TravelSlot::Skimmer
+                | TravelSlot::Raptor
+                | TravelSlot::Beetle
+                | TravelSlot::Warclaw
+                | TravelSlot::Skyscale
+                | TravelSlot::Turtle
+        )
     }
 }
 
