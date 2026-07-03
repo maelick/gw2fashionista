@@ -6,7 +6,7 @@ use strum::IntoEnumIterator;
 
 use gw2fashionista_core::domain::templates::{
     SlotFilter, SlotFilterExt,
-    wardrobe::slot::{EquipmentCategory, SlotType},
+    wardrobe::slot::{EquipmentCategory, WardrobeSlot},
 };
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
@@ -34,12 +34,12 @@ pub struct EquipmentFilters {
 #[derive(Debug, Clone)]
 enum FilterOption {
     Category(EquipmentCategory),
-    Slot(SlotType),
+    Slot(WardrobeSlot),
 }
 
 static FILTER_VARIANTS: Lazy<Vec<FilterOption>> = Lazy::new(|| {
     let categories = EquipmentCategory::iter().map(FilterOption::Category);
-    let slots = SlotType::iter().map(FilterOption::Slot);
+    let slots = WardrobeSlot::iter().map(FilterOption::Slot);
     categories.chain(slots).collect()
 });
 
@@ -76,7 +76,7 @@ impl TypedValueParser for FilterOption {
     ) -> Option<Box<dyn Iterator<Item = clap::builder::PossibleValue> + '_>> {
         let categories = EquipmentCategory::iter()
             .map(|c| clap::builder::PossibleValue::new(format!("{:?}", c).to_lowercase()));
-        let slots = SlotType::iter()
+        let slots = WardrobeSlot::iter()
             .map(|s| clap::builder::PossibleValue::new(format!("{:?}", s).to_lowercase()));
 
         Some(Box::new(categories.chain(slots)))
@@ -92,16 +92,16 @@ impl FromStr for FilterOption {
             return Ok(FilterOption::Category(category));
         }
         // Then try as slot
-        if let Ok(slot) = SlotType::from_str(s) {
+        if let Ok(slot) = WardrobeSlot::from_str(s) {
             return Ok(FilterOption::Slot(slot));
         }
         Err(format!("Unknown filter: {}", s))
     }
 }
 
-impl From<&EquipmentFilters> for SlotFilter<SlotType> {
+impl From<&EquipmentFilters> for SlotFilter<WardrobeSlot> {
     fn from(value: &EquipmentFilters) -> Self {
-        let mut filter = SlotFilter::<SlotType>::all();
+        let mut filter = SlotFilter::<WardrobeSlot>::all();
         for f in &value.only {
             match f {
                 FilterOption::Category(category) => filter.retain_all(category.slots()),

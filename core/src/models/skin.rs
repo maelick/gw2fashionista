@@ -22,15 +22,15 @@ pub struct Dye {
     pub name: Option<String>,
 }
 
-impl From<&Skin> for skins::Slot {
+impl From<&Skin> for skins::Appearance {
     fn from(skin: &Skin) -> Self {
         match &skin.dyes {
-            Some(dyes) => skins::Slot::Dyable {
+            Some(dyes) => skins::Appearance::Dyable {
                 skin: skin.id.into(),
                 visible: skin.visible.unwrap_or(true),
                 dyes: dyes.clone().into(),
             },
-            None => skins::Slot::NonDyable {
+            None => skins::Appearance::NonDyable {
                 skin: skin.id.into(),
                 visible: skin.visible.unwrap_or(true),
             },

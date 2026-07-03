@@ -1,17 +1,17 @@
-use crate::domain::templates::wardrobe::slot::SlotType;
+use crate::domain::templates::wardrobe::slot::WardrobeSlot;
 
 #[derive(Debug, Clone, Copy)]
-pub enum SlotVariant {
+pub enum AppearanceKind {
     Dyable,
     NonDyable,
 }
 
 #[derive(Debug, thiserror::Error)]
 pub enum ModelError {
-    #[error("{slot_type:?} should be {expected:?} but was {found:?}")]
+    #[error("{slot:?} should be {expected:?} but was {found:?}")]
     IncorrectSlotVariant {
-        slot_type: SlotType,
-        expected: SlotVariant,
-        found: SlotVariant,
+        slot: WardrobeSlot,
+        expected: AppearanceKind,
+        found: AppearanceKind,
     },
 }

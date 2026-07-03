@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use gw2fashionista_core::domain::{chatlink::ChatLink, templates::wardrobe::slot::SlotType};
+    use gw2fashionista_core::domain::{
+        chatlink::ChatLink, templates::wardrobe::slot::WardrobeSlot,
+    };
     use gw2fashionista_fixtures::wardrobe::{PEEKABOO_TEMPLATE, ZIZI_ARMOR_TEMPLATE};
 
     #[test]
@@ -17,19 +19,19 @@ mod tests {
 
         let merged = base_template.merge(&armor_template, false, false);
 
-        for (slot_type, slot) in &merged {
-            match slot_type {
-                SlotType::Backpack
-                | SlotType::Chest
-                | SlotType::Shoes
-                | SlotType::Gloves
-                | SlotType::Head
-                | SlotType::Legs
-                | SlotType::Shoulders => {
-                    assert_eq!(slot, armor_template.get_slot(&slot_type));
+        for (slot, appearance) in &merged {
+            match slot {
+                WardrobeSlot::Backpack
+                | WardrobeSlot::Chest
+                | WardrobeSlot::Shoes
+                | WardrobeSlot::Gloves
+                | WardrobeSlot::Head
+                | WardrobeSlot::Legs
+                | WardrobeSlot::Shoulders => {
+                    assert_eq!(appearance, armor_template.get_slot(&slot));
                 }
                 _ => {
-                    assert_eq!(slot, base_template.get_slot(&slot_type));
+                    assert_eq!(appearance, base_template.get_slot(&slot));
                 }
             }
         }
@@ -49,24 +51,24 @@ mod tests {
 
         let merged = base_template.merge(&armor_template, false, true);
 
-        for (slot_type, slot) in &merged {
-            match slot_type {
-                SlotType::Backpack
-                | SlotType::Chest
-                | SlotType::Shoes
-                | SlotType::Gloves
-                | SlotType::Head
-                | SlotType::Legs
-                | SlotType::Shoulders => {
-                    assert_eq!(slot.skin(), armor_template.get_slot(&slot_type).skin());
+        for (slot, appearance) in &merged {
+            match slot {
+                WardrobeSlot::Backpack
+                | WardrobeSlot::Chest
+                | WardrobeSlot::Shoes
+                | WardrobeSlot::Gloves
+                | WardrobeSlot::Head
+                | WardrobeSlot::Legs
+                | WardrobeSlot::Shoulders => {
+                    assert_eq!(appearance.skin(), armor_template.get_slot(&slot).skin());
                     assert_eq!(
-                        slot.is_visible(),
-                        armor_template.get_slot(&slot_type).is_visible()
+                        appearance.is_visible(),
+                        armor_template.get_slot(&slot).is_visible()
                     );
-                    assert_eq!(slot.dyes(), base_template.get_slot(&slot_type).dyes());
+                    assert_eq!(appearance.dyes(), base_template.get_slot(&slot).dyes());
                 }
                 _ => {
-                    assert_eq!(slot, base_template.get_slot(&slot_type));
+                    assert_eq!(appearance, base_template.get_slot(&slot));
                 }
             }
         }
@@ -86,24 +88,24 @@ mod tests {
 
         let merged = base_template.merge(&armor_template, true, false);
 
-        for (slot_type, slot) in &merged {
-            match slot_type {
-                SlotType::Backpack
-                | SlotType::Chest
-                | SlotType::Shoes
-                | SlotType::Gloves
-                | SlotType::Head
-                | SlotType::Legs
-                | SlotType::Shoulders => {
-                    assert_eq!(slot.skin(), base_template.get_slot(&slot_type).skin());
+        for (slot, appearance) in &merged {
+            match slot {
+                WardrobeSlot::Backpack
+                | WardrobeSlot::Chest
+                | WardrobeSlot::Shoes
+                | WardrobeSlot::Gloves
+                | WardrobeSlot::Head
+                | WardrobeSlot::Legs
+                | WardrobeSlot::Shoulders => {
+                    assert_eq!(appearance.skin(), base_template.get_slot(&slot).skin());
                     assert_eq!(
-                        slot.is_visible(),
-                        base_template.get_slot(&slot_type).is_visible()
+                        appearance.is_visible(),
+                        base_template.get_slot(&slot).is_visible()
                     );
-                    assert_eq!(slot.dyes(), armor_template.get_slot(&slot_type).dyes());
+                    assert_eq!(appearance.dyes(), armor_template.get_slot(&slot).dyes());
                 }
                 _ => {
-                    assert_eq!(slot, base_template.get_slot(&slot_type));
+                    assert_eq!(appearance, base_template.get_slot(&slot));
                 }
             }
         }

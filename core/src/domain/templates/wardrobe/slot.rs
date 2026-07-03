@@ -23,7 +23,7 @@ use crate::domain::{error::ChatLinkError, templates::FashionSlot};
 )]
 #[repr(u8)]
 #[strum(serialize_all = "snake_case")]
-pub enum SlotType {
+pub enum WardrobeSlot {
     Aquabreather,
     Backpack,
     Chest,
@@ -41,47 +41,50 @@ pub enum SlotType {
     WeaponB2,
 }
 
-impl SlotType {
-    pub const fn visibility(self) -> Visibility {
+impl WardrobeSlot {
+    pub const fn visibility(self) -> WardrobeVisibility {
         match self {
-            SlotType::Aquabreather => Visibility::AQUABREATHER,
-            SlotType::Backpack => Visibility::BACKPACK,
-            SlotType::Chest => Visibility::CHEST,
-            SlotType::Shoes => Visibility::SHOES,
-            SlotType::Gloves => Visibility::GLOVES,
-            SlotType::Head => Visibility::HEAD,
-            SlotType::Legs => Visibility::LEGS,
-            SlotType::Shoulders => Visibility::SHOULDERS,
-            SlotType::Outfit => Visibility::OUTFIT,
-            SlotType::WeaponAquaticA => Visibility::WEAPON_AQUATIC_A,
-            SlotType::WeaponAquaticB => Visibility::WEAPON_AQUATIC_B,
-            SlotType::WeaponA1 => Visibility::WEAPON_A1,
-            SlotType::WeaponA2 => Visibility::WEAPON_A2,
-            SlotType::WeaponB1 => Visibility::WEAPON_B1,
-            SlotType::WeaponB2 => Visibility::WEAPON_B2,
+            WardrobeSlot::Aquabreather => WardrobeVisibility::AQUABREATHER,
+            WardrobeSlot::Backpack => WardrobeVisibility::BACKPACK,
+            WardrobeSlot::Chest => WardrobeVisibility::CHEST,
+            WardrobeSlot::Shoes => WardrobeVisibility::SHOES,
+            WardrobeSlot::Gloves => WardrobeVisibility::GLOVES,
+            WardrobeSlot::Head => WardrobeVisibility::HEAD,
+            WardrobeSlot::Legs => WardrobeVisibility::LEGS,
+            WardrobeSlot::Shoulders => WardrobeVisibility::SHOULDERS,
+            WardrobeSlot::Outfit => WardrobeVisibility::OUTFIT,
+            WardrobeSlot::WeaponAquaticA => WardrobeVisibility::WEAPON_AQUATIC_A,
+            WardrobeSlot::WeaponAquaticB => WardrobeVisibility::WEAPON_AQUATIC_B,
+            WardrobeSlot::WeaponA1 => WardrobeVisibility::WEAPON_A1,
+            WardrobeSlot::WeaponA2 => WardrobeVisibility::WEAPON_A2,
+            WardrobeSlot::WeaponB1 => WardrobeVisibility::WEAPON_B1,
+            WardrobeSlot::WeaponB2 => WardrobeVisibility::WEAPON_B2,
         }
     }
 }
 
-impl FashionSlot for SlotType {
+impl FashionSlot for WardrobeSlot {
     fn dyable(self) -> bool {
         {
             matches!(
                 self,
-                SlotType::Backpack
-                    | SlotType::Chest
-                    | SlotType::Shoes
-                    | SlotType::Gloves
-                    | SlotType::Head
-                    | SlotType::Legs
-                    | SlotType::Shoulders
-                    | SlotType::Outfit
+                WardrobeSlot::Backpack
+                    | WardrobeSlot::Chest
+                    | WardrobeSlot::Shoes
+                    | WardrobeSlot::Gloves
+                    | WardrobeSlot::Head
+                    | WardrobeSlot::Legs
+                    | WardrobeSlot::Shoulders
+                    | WardrobeSlot::Outfit
             )
         }
     }
 
     fn always_visible(self) -> bool {
-        matches!(self, SlotType::Chest | SlotType::Shoes | SlotType::Legs)
+        matches!(
+            self,
+            WardrobeSlot::Chest | WardrobeSlot::Shoes | WardrobeSlot::Legs
+        )
     }
 
     fn index(self) -> usize {
@@ -107,29 +110,29 @@ pub enum EquipmentCategory {
 }
 
 impl EquipmentCategory {
-    pub const fn slots(&self) -> &'static [SlotType] {
+    pub const fn slots(&self) -> &'static [WardrobeSlot] {
         match self {
             EquipmentCategory::Underwater => &[
-                SlotType::Aquabreather,
-                SlotType::WeaponAquaticA,
-                SlotType::WeaponAquaticB,
+                WardrobeSlot::Aquabreather,
+                WardrobeSlot::WeaponAquaticA,
+                WardrobeSlot::WeaponAquaticB,
             ],
             EquipmentCategory::Armors => &[
-                SlotType::Aquabreather,
-                SlotType::Chest,
-                SlotType::Shoes,
-                SlotType::Gloves,
-                SlotType::Head,
-                SlotType::Legs,
-                SlotType::Shoulders,
+                WardrobeSlot::Aquabreather,
+                WardrobeSlot::Chest,
+                WardrobeSlot::Shoes,
+                WardrobeSlot::Gloves,
+                WardrobeSlot::Head,
+                WardrobeSlot::Legs,
+                WardrobeSlot::Shoulders,
             ],
             EquipmentCategory::Weapons => &[
-                SlotType::WeaponAquaticA,
-                SlotType::WeaponAquaticB,
-                SlotType::WeaponA1,
-                SlotType::WeaponA2,
-                SlotType::WeaponB1,
-                SlotType::WeaponB2,
+                WardrobeSlot::WeaponAquaticA,
+                WardrobeSlot::WeaponAquaticB,
+                WardrobeSlot::WeaponA1,
+                WardrobeSlot::WeaponA2,
+                WardrobeSlot::WeaponB1,
+                WardrobeSlot::WeaponB2,
             ],
         }
     }
@@ -137,7 +140,7 @@ impl EquipmentCategory {
 
 bitflags! {
     #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-    pub struct Visibility: u16 {
+    pub struct WardrobeVisibility: u16 {
         const AQUABREATHER = 1 << 0;
         const BACKPACK = 1 << 1;
         const CHEST = 1 << 2;
@@ -156,24 +159,24 @@ bitflags! {
     }
 }
 
-impl Visibility {
+impl WardrobeVisibility {
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, ChatLinkError> {
         if bytes.len() < 2 {
             return Err(ChatLinkError::TruncatedData(bytes.to_vec()));
         }
         let visibility_offset = bytes.len() - 2;
         let mut cursor = Cursor::new(&bytes[visibility_offset..]);
-        Visibility::read(&mut cursor)
+        WardrobeVisibility::read(&mut cursor)
     }
 
     pub fn read(cursor: &mut Cursor<&[u8]>) -> Result<Self, ChatLinkError> {
         let visibility_bytes = cursor.read_u16::<LittleEndian>()?;
-        Visibility::from_bits(visibility_bytes)
+        WardrobeVisibility::from_bits(visibility_bytes)
             .ok_or(ChatLinkError::InvalidVisibility(visibility_bytes))
     }
 }
 
-impl TryFrom<&[u8]> for Visibility {
+impl TryFrom<&[u8]> for WardrobeVisibility {
     type Error = ChatLinkError;
 
     fn try_from(bytes: &[u8]) -> Result<Self, ChatLinkError> {

@@ -7,9 +7,9 @@ use byteorder::{LittleEndian, WriteBytesExt};
 use strum::{EnumCount, IntoEnumIterator};
 
 use crate::domain::error::ChatLinkError;
-use crate::domain::skins::{DyeId, SkinId, Slot};
+use crate::domain::skins::{Appearance, DyeId, SkinId};
 use crate::domain::templates::{FashionSlot, SlotFilter};
-use slot::{SlotType, Visibility};
+use slot::{WardrobeSlot, WardrobeVisibility};
 
 const TEMPLATE_PAYLOAD_SIZE: usize = 96;
 
@@ -17,15 +17,15 @@ pub mod slot;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct WardrobeTemplate {
-    slots: [Slot; SlotType::COUNT],
+    slots: [Appearance; WardrobeSlot::COUNT],
 }
 
 impl WardrobeTemplate {
-    pub fn new(slots: HashMap<SlotType, Slot>) -> Self {
-        let slots_vec = SlotType::iter()
-            .map(|slot_type| match slots.get(&slot_type) {
+    pub fn new(slots: HashMap<WardrobeSlot, Appearance>) -> Self {
+        let slots_vec = WardrobeSlot::iter()
+            .map(|slot| match slots.get(&slot) {
                 Some(slot) => *slot,
-                None => Slot::empty(slot_type.dyable()),
+                None => Appearance::empty(slot.dyable()),
             })
             .collect();
         Self::from_vector(slots_vec)
@@ -36,14 +36,14 @@ impl WardrobeTemplate {
             return Err(ChatLinkError::TruncatedData(bytes.to_vec()));
         }
 
-        let visibility = Visibility::from_bytes(bytes)?;
+        let visibility = WardrobeVisibility::from_bytes(bytes)?;
         let mut cursor = Cursor::new(bytes);
-        let slots: Result<Vec<_>, _> = SlotType::iter()
-            .map(|slot_type| {
-                Slot::read(
+        let slots: Result<Vec<_>, _> = WardrobeSlot::iter()
+            .map(|slot| {
+                Appearance::read(
                     &mut cursor,
-                    slot_type.dyable(),
-                    visibility.contains(slot_type.visibility()),
+                    slot.dyable(),
+                    visibility.contains(slot.visibility()),
                 )
             })
             .collect();
@@ -51,7 +51,7 @@ impl WardrobeTemplate {
         Ok(Self::from_vector(slots?))
     }
 
-    fn from_vector(slots: Vec<Slot>) -> Self {
+    fn from_vector(slots: Vec<Appearance>) -> Self {
         WardrobeTemplate {
             slots: slots
                 .try_into()
@@ -59,19 +59,19 @@ impl WardrobeTemplate {
         }
     }
 
-    pub fn get_slot(&self, slot_type: &SlotType) -> &Slot {
-        &self.slots[slot_type.index()]
+    pub fn get_slot(&self, slot: &WardrobeSlot) -> &Appearance {
+        &self.slots[slot.index()]
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = (SlotType, &Slot)> {
-        SlotType::iter().map(|slot_type| (slot_type, self.get_slot(&slot_type)))
+    pub fn iter(&self) -> impl Iterator<Item = (WardrobeSlot, &Appearance)> {
+        WardrobeSlot::iter().map(|slot| (slot, self.get_slot(&slot)))
     }
 
-    fn visibility(&self) -> Visibility {
+    fn visibility(&self) -> WardrobeVisibility {
         self.iter()
-            .filter(|(slot_type, slot)| slot_type.always_visible() || slot.is_visible())
-            .map(|(slot_type, _)| slot_type.visibility())
-            .fold(Visibility::empty(), |acc, v| acc | v)
+            .filter(|(slot, appearance)| slot.always_visible() || appearance.is_visible())
+            .map(|(slot, _)| slot.visibility())
+            .fold(WardrobeVisibility::empty(), |acc, v| acc | v)
     }
 
     pub fn serialize(&self) -> Result<Vec<u8>, std::io::Error> {
@@ -86,54 +86,54 @@ impl WardrobeTemplate {
         Ok(buffer)
     }
 
-    pub fn as_map(&self, include_empty: bool) -> HashMap<SlotType, Slot> {
-        let mut slots = HashMap::with_capacity(SlotType::COUNT);
-        for (slot_type, slot) in self {
-            if include_empty || !slot.is_empty() {
-                slots.insert(slot_type, *slot);
+    pub fn as_map(&self, include_empty: bool) -> HashMap<WardrobeSlot, Appearance> {
+        let mut slots = HashMap::with_capacity(WardrobeSlot::COUNT);
+        for (slot, appearance) in self {
+            if include_empty || !appearance.is_empty() {
+                slots.insert(slot, *appearance);
             }
         }
         slots
     }
 
-    pub fn filter(&self, filter: &SlotFilter<SlotType>) -> Self {
+    pub fn filter(&self, filter: &SlotFilter<WardrobeSlot>) -> Self {
         let mut filtered = self.as_map(true);
-        filtered.retain(|slot_type, _| filter.contains(slot_type));
+        filtered.retain(|slot, _| filter.contains(slot));
         Self::new(filtered)
     }
 
     pub fn merge(&self, other: &Self, ignore_skin: bool, ignore_dies: bool) -> Self {
         let mut slots = self.as_map(false);
-        for slot_type in SlotType::iter() {
-            let merged = self.get_slot(&slot_type).merge(
-                other.get_slot(&slot_type),
+        for slot in WardrobeSlot::iter() {
+            let merged = self.get_slot(&slot).merge(
+                other.get_slot(&slot),
                 ignore_skin,
                 ignore_dies,
             );
-            slots.insert(slot_type, merged);
+            slots.insert(slot, merged);
         }
         Self::new(slots)
     }
 
     pub fn all_skin_ids(&self) -> HashSet<SkinId> {
-        HashSet::from_iter(self.iter().filter_map(|(slot_type, slot)| match slot_type {
-            SlotType::Outfit => None,
-            _ => Some(slot.skin()).filter(|skin| !skin.is_empty()),
+        HashSet::from_iter(self.iter().filter_map(|(slot, appearance)| match slot {
+            WardrobeSlot::Outfit => None,
+            _ => Some(appearance.skin()).filter(|skin| !skin.is_empty()),
         }))
     }
 
     pub fn all_dye_ids(&self) -> HashSet<DyeId> {
         let dyes = self
             .iter()
-            .filter_map(|(_, slot)| slot.dyes())
+            .filter_map(|(_, appearance)| appearance.dyes())
             .flat_map(|dyes| dyes.into_iter());
         HashSet::from_iter(dyes)
     }
 }
 
 impl<'a> IntoIterator for &'a WardrobeTemplate {
-    type Item = (SlotType, &'a Slot);
-    type IntoIter = Box<dyn Iterator<Item = (SlotType, &'a Slot)> + 'a>;
+    type Item = (WardrobeSlot, &'a Appearance);
+    type IntoIter = Box<dyn Iterator<Item = (WardrobeSlot, &'a Appearance)> + 'a>;
 
     fn into_iter(self) -> Self::IntoIter {
         Box::new(self.iter())
@@ -159,7 +159,7 @@ impl TryFrom<&WardrobeTemplate> for Vec<u8> {
 impl fmt::Debug for WardrobeTemplate {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_map()
-            .entries(SlotType::iter().map(|slot| (slot, self.get_slot(&slot))))
+            .entries(WardrobeSlot::iter().map(|slot| (slot, self.get_slot(&slot))))
             .finish()
     }
 }

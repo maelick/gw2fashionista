@@ -135,7 +135,7 @@ impl IntoIterator for Dyes {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Slot {
+pub enum Appearance {
     NonDyable {
         skin: SkinId,
         visible: bool,
@@ -147,7 +147,7 @@ pub enum Slot {
     },
 }
 
-impl Slot {
+impl Appearance {
     pub fn empty(dyable: bool) -> Self {
         if dyable {
             Self::Dyable {
@@ -165,8 +165,8 @@ impl Slot {
 
     pub fn skin(self) -> SkinId {
         match self {
-            Slot::NonDyable { skin, visible: _ }
-            | Slot::Dyable {
+            Appearance::NonDyable { skin, visible: _ }
+            | Appearance::Dyable {
                 skin,
                 visible: _,
                 dyes: _,
@@ -176,8 +176,8 @@ impl Slot {
 
     pub fn is_visible(self) -> bool {
         match self {
-            Slot::NonDyable { skin: _, visible }
-            | Slot::Dyable {
+            Appearance::NonDyable { skin: _, visible }
+            | Appearance::Dyable {
                 skin: _,
                 visible,
                 dyes: _,
@@ -187,12 +187,12 @@ impl Slot {
 
     pub fn dyes(self) -> Option<Dyes> {
         match self {
-            Slot::Dyable {
+            Appearance::Dyable {
                 skin: _,
                 visible: _,
                 dyes,
             } => Some(dyes),
-            Slot::NonDyable {
+            Appearance::NonDyable {
                 skin: _,
                 visible: _,
             } => None,
@@ -201,8 +201,8 @@ impl Slot {
 
     pub fn is_empty(self) -> bool {
         match self {
-            Slot::NonDyable { skin, visible: _ } => skin.is_empty(),
-            Slot::Dyable {
+            Appearance::NonDyable { skin, visible: _ } => skin.is_empty(),
+            Appearance::Dyable {
                 skin,
                 visible: _,
                 dyes,
@@ -210,23 +210,23 @@ impl Slot {
         }
     }
 
-    pub fn merge(&self, other: &Slot, ignore_skin: bool, ignore_dies: bool) -> Slot {
+    pub fn merge(&self, other: &Appearance, ignore_skin: bool, ignore_dies: bool) -> Appearance {
         if other.is_empty() || (ignore_skin && ignore_dies) {
             *self
         } else if ignore_skin {
             match other {
-                Slot::NonDyable {
+                Appearance::NonDyable {
                     skin: _,
                     visible: _,
-                } => Slot::NonDyable {
+                } => Appearance::NonDyable {
                     skin: self.skin(),
                     visible: self.is_visible(),
                 },
-                Slot::Dyable {
+                Appearance::Dyable {
                     skin: _,
                     visible: _,
                     dyes,
-                } => Slot::Dyable {
+                } => Appearance::Dyable {
                     skin: self.skin(),
                     visible: self.is_visible(),
                     dyes: *dyes,
@@ -234,18 +234,18 @@ impl Slot {
             }
         } else if ignore_dies {
             match self {
-                Slot::NonDyable {
+                Appearance::NonDyable {
                     skin: _,
                     visible: _,
-                } => Slot::NonDyable {
+                } => Appearance::NonDyable {
                     skin: other.skin(),
                     visible: other.is_visible(),
                 },
-                Slot::Dyable {
+                Appearance::Dyable {
                     skin: _,
                     visible: _,
                     dyes,
-                } => Slot::Dyable {
+                } => Appearance::Dyable {
                     skin: other.skin(),
                     visible: other.is_visible(),
                     dyes: *dyes,
@@ -276,10 +276,10 @@ impl Slot {
 
     pub fn serialize(&self, buffer: &mut dyn std::io::Write) -> Result<(), std::io::Error> {
         match self {
-            Slot::NonDyable { skin, visible: _ } => {
+            Appearance::NonDyable { skin, visible: _ } => {
                 buffer.write_u16::<LittleEndian>((*skin).into())?;
             }
-            Slot::Dyable {
+            Appearance::Dyable {
                 skin,
                 visible: _,
                 dyes,
