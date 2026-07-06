@@ -8,24 +8,31 @@ use gw2lib::model::{
     misc::colors::Color,
 };
 use gw2lib::rate_limit::BucketRateLimiter;
-use gw2lib::{Client, EndpointError, Requester};
+use gw2lib::{ApiError, Client, EndpointError, Requester};
 use hyper::client::HttpConnector;
 use hyper_rustls::HttpsConnector;
 
 use crate::domain::skins::{DyeId, SkinId};
+use crate::domain::templates::travel::TravelSlot;
 use crate::domain::templates::wardrobe::{WardrobeSlot, WardrobeTemplate};
 use crate::gw2_data::cache::{Cache, Resolver as CacheResolver};
 use crate::gw2_data::equipment::Equipment;
+use crate::gw2_data::glider::Glider;
+use crate::gw2_data::mount::MountSkin;
 use crate::gw2_data::outfit::Outfit;
 use crate::gw2_data::retry::Retry;
+use crate::gw2_data::skiff::Skiff;
 use crate::models::skin;
 use crate::models::template::{TravelTemplateData, WardrobeTemplateData};
 
 mod cache;
 pub mod equipment;
+mod glider;
 pub mod import;
+mod mount;
 mod outfit;
 mod retry;
+mod skiff;
 
 const DEFAULT_BUFFER_SIZE: usize = 10;
 
@@ -37,6 +44,9 @@ where
     skins: Cache<Skin, u32, Req>,
     outfits: Cache<Outfit, u32, Req>,
     colors: Cache<Color, u16, Req>,
+    mounts: Cache<MountSkin, u32, Req>,
+    gliders: Cache<Glider, u32, Req>,
+    skiffs: Cache<Skiff, u32, Req>,
     retry: Retry,
     buffer_size: usize,
 }
@@ -52,6 +62,9 @@ where
             skins: Cache::new(req.clone()),
             outfits: Cache::new(req.clone()),
             colors: Cache::new(req.clone()),
+            mounts: Cache::new(req.clone()),
+            gliders: Cache::new(req.clone()),
+            skiffs: Cache::new(req.clone()),
             retry: Retry::default(),
             buffer_size: DEFAULT_BUFFER_SIZE,
         }
@@ -82,6 +95,18 @@ where
 
     pub async fn item(&self, id: u32) -> Result<Item, EndpointError> {
         self.retry.start(|| self.items.get(id)).await
+    }
+
+    pub async fn mount(&self, id: SkinId) -> Result<MountSkin, EndpointError> {
+        self.retry.start(|| self.mounts.get(id.into())).await
+    }
+
+    pub async fn glider(&self, id: SkinId) -> Result<Glider, EndpointError> {
+        self.retry.start(|| self.gliders.get(id.into())).await
+    }
+
+    pub async fn skiff(&self, id: SkinId) -> Result<Skiff, EndpointError> {
+        self.retry.start(|| self.skiffs.get(id.into())).await
     }
 
     pub async fn cache_wardrobe_templates<
@@ -165,12 +190,23 @@ where
     ) -> Result<TravelTemplateData, EndpointError> {
         let mut slots = HashMap::with_capacity(template.len());
         for (slot, skin) in template {
-            let resolved_skin = match slot {
-                _ => Some(skin.clone()),
-            };
-            if let Some(skin) = resolved_skin {
-                slots.insert(*slot, skin);
-            }
+            slots.insert(
+                *slot,
+                match slot {
+                    TravelSlot::Jackal
+                    | TravelSlot::Griffon
+                    | TravelSlot::Springer
+                    | TravelSlot::Skimmer
+                    | TravelSlot::Raptor
+                    | TravelSlot::Beetle
+                    | TravelSlot::Warclaw
+                    | TravelSlot::Skyscale
+                    | TravelSlot::Turtle => self.resolve_mount(skin).await?,
+                    TravelSlot::Glider => self.resolve_glider(skin).await?,
+                    TravelSlot::Doorway => self.resolve_doorway(skin).await?,
+                    TravelSlot::Skiff => self.resolve_skiff(skin).await?,
+                },
+            );
         }
         Ok(TravelTemplateData::new(slots))
     }
@@ -190,6 +226,54 @@ where
     async fn resolve_wardrobe_skin(&self, skin: &skin::Skin) -> Result<skin::Skin, EndpointError> {
         let (name, dyes) = tokio::try_join!(
             self.resolve_skin_name(skin.id),
+            self.resolve_dyes(&skin.dyes),
+        )?;
+        Ok(skin::Skin {
+            name,
+            dyes,
+            ..*skin
+        })
+    }
+
+    async fn resolve_mount(&self, skin: &skin::Skin) -> Result<skin::Skin, EndpointError> {
+        let (name, dyes) = tokio::try_join!(
+            self.resolve_mount_name(skin.id),
+            self.resolve_dyes(&skin.dyes),
+        )?;
+        Ok(skin::Skin {
+            name,
+            dyes,
+            ..*skin
+        })
+    }
+
+    async fn resolve_glider(&self, skin: &skin::Skin) -> Result<skin::Skin, EndpointError> {
+        let (name, dyes) = tokio::try_join!(
+            self.resolve_glider_name(skin.id),
+            self.resolve_dyes(&skin.dyes),
+        )?;
+        Ok(skin::Skin {
+            name,
+            dyes,
+            ..*skin
+        })
+    }
+
+    async fn resolve_skiff(&self, skin: &skin::Skin) -> Result<skin::Skin, EndpointError> {
+        let (name, dyes) = tokio::try_join!(
+            self.resolve_skiff_name(skin.id),
+            self.resolve_dyes(&skin.dyes),
+        )?;
+        Ok(skin::Skin {
+            name,
+            dyes,
+            ..*skin
+        })
+    }
+
+    async fn resolve_doorway(&self, skin: &skin::Skin) -> Result<skin::Skin, EndpointError> {
+        let (name, dyes) = tokio::try_join!(
+            self.resolve_doorway_name(skin.id),
             self.resolve_dyes(&skin.dyes),
         )?;
         Ok(skin::Skin {
@@ -219,6 +303,43 @@ where
             }
             Err(err) => Err(err),
         }
+    }
+
+    async fn resolve_mount_name(&self, id: u16) -> Result<Option<String>, EndpointError> {
+        match self.mount(id.into()).await {
+            Ok(mount) => Ok(Some(mount.name)),
+            Err(err) if is_not_found(&err) => {
+                tracing::warn!(message = "could not resolve mount skin", id = id);
+                Ok(Some("Unknown".to_owned()))
+            }
+            Err(err) => Err(err),
+        }
+    }
+
+    async fn resolve_glider_name(&self, id: u16) -> Result<Option<String>, EndpointError> {
+        match self.glider(id.into()).await {
+            Ok(glider) => Ok(Some(glider.name)),
+            Err(err) if is_not_found(&err) => {
+                tracing::warn!(message = "could not resolve glider", id = id);
+                Ok(Some("Unknown".to_owned()))
+            }
+            Err(err) => Err(err),
+        }
+    }
+
+    async fn resolve_skiff_name(&self, id: u16) -> Result<Option<String>, EndpointError> {
+        match self.skiff(id.into()).await {
+            Ok(skiff) => Ok(Some(skiff.name)),
+            Err(err) if is_not_found(&err) => {
+                tracing::warn!(message = "could not resolve skiff", id = id);
+                Ok(Some("Unknown".to_owned()))
+            }
+            Err(err) => Err(err),
+        }
+    }
+
+    async fn resolve_doorway_name(&self, _id: u16) -> Result<Option<String>, EndpointError> {
+        Ok(Some("Unknown".to_owned()))
     }
 
     async fn resolve_dyes(
