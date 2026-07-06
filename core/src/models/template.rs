@@ -13,6 +13,7 @@ pub type WardrobeTemplateData = TemplateData<WardrobeSlot>;
 pub type TravelTemplateData = TemplateData<TravelSlot>;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(transparent)]
 pub struct TemplateData<S: FashionSlot> {
     slots: HashMap<S, Skin>,
 }

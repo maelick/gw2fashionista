@@ -32,6 +32,7 @@ impl WardrobeTemplate {
 )]
 #[repr(u8)]
 #[strum(serialize_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 pub enum WardrobeSlot {
     Aquabreather,
     Backpack,
