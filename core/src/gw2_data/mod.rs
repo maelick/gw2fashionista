@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 use futures::stream::{self, StreamExt, TryStreamExt};
@@ -15,13 +15,13 @@ use hyper_rustls::HttpsConnector;
 use crate::domain::chatlink::ChatLink;
 use crate::domain::error::ChatLinkError;
 use crate::domain::skins::{DyeId, SkinId};
-use crate::domain::templates::wardrobe::WardrobeTemplate;
+use crate::domain::templates::wardrobe::{WardrobeSlot, WardrobeTemplate};
 use crate::gw2_data::cache::{Cache, Resolver as CacheResolver};
 use crate::gw2_data::equipment::Equipment;
 use crate::gw2_data::outfit::Outfit;
 use crate::gw2_data::retry::Retry;
 use crate::models::skin;
-use crate::models::wardrobe_template::WardrobeTemplateData;
+use crate::models::template::WardrobeTemplateData;
 
 mod cache;
 pub mod equipment;
@@ -168,32 +168,22 @@ where
         &self,
         template: &WardrobeTemplateData,
     ) -> Result<WardrobeTemplateData, EndpointError> {
-        Ok(WardrobeTemplateData {
-            aquabreather: self.resolve_wardrobe_slot(&template.aquabreather).await?,
-            backpack: self.resolve_wardrobe_slot(&template.backpack).await?,
-            chest: self.resolve_wardrobe_slot(&template.chest).await?,
-            shoes: self.resolve_wardrobe_slot(&template.shoes).await?,
-            gloves: self.resolve_wardrobe_slot(&template.gloves).await?,
-            head: self.resolve_wardrobe_slot(&template.head).await?,
-            legs: self.resolve_wardrobe_slot(&template.legs).await?,
-            shoulders: self.resolve_wardrobe_slot(&template.shoulders).await?,
-            outfit: self.resolve_outfit(&template.outfit).await?,
-            weapon_aquatic_a: self
-                .resolve_wardrobe_slot(&template.weapon_aquatic_a)
-                .await?,
-            weapon_aquatic_b: self
-                .resolve_wardrobe_slot(&template.weapon_aquatic_b)
-                .await?,
-            weapon_a1: self.resolve_wardrobe_slot(&template.weapon_a1).await?,
-            weapon_a2: self.resolve_wardrobe_slot(&template.weapon_a2).await?,
-            weapon_b1: self.resolve_wardrobe_slot(&template.weapon_b1).await?,
-            weapon_b2: self.resolve_wardrobe_slot(&template.weapon_b2).await?,
-        })
+        let mut slots = HashMap::with_capacity(template.len());
+        for (slot, skin) in template {
+            let resolved_skin = match slot {
+                WardrobeSlot::Outfit => self.resolve_outfit(Some(skin)).await?,
+                _ => self.resolve_wardrobe_slot(Some(skin)).await?,
+            };
+            if let Some(skin) = resolved_skin {
+                slots.insert(*slot, skin);
+            }
+        }
+        Ok(WardrobeTemplateData::new(slots))
     }
 
     async fn resolve_outfit(
         &self,
-        skin: &Option<skin::Skin>,
+        skin: Option<&skin::Skin>,
     ) -> Result<Option<skin::Skin>, EndpointError> {
         if let Some(skin) = skin {
             let (name, dyes) = tokio::try_join!(
@@ -212,7 +202,7 @@ where
 
     async fn resolve_wardrobe_slot(
         &self,
-        skin: &Option<skin::Skin>,
+        skin: Option<&skin::Skin>,
     ) -> Result<Option<skin::Skin>, EndpointError> {
         if let Some(skin) = skin {
             let (name, dyes) = tokio::try_join!(

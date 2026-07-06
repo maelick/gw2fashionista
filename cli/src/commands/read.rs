@@ -4,7 +4,7 @@ use gw2fashionista_core::domain::{
     chatlink::ChatLink, error::ChatLinkError, templates::wardrobe::WardrobeTemplate,
 };
 use gw2fashionista_core::gw2_data::Resolver;
-use gw2fashionista_core::models::wardrobe_template::WardrobeTemplateData;
+use gw2fashionista_core::models::template::WardrobeTemplateData;
 use std::{io, iter};
 
 #[derive(Args, Debug)]

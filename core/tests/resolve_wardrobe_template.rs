@@ -1,8 +1,8 @@
 use gw2fashionista_core::domain::chatlink::ChatLink;
-use gw2fashionista_core::domain::templates::wardrobe::WardrobeTemplate;
+use gw2fashionista_core::domain::templates::wardrobe::{WardrobeSlot, WardrobeTemplate};
 use gw2fashionista_core::gw2_data::Resolver;
 use gw2fashionista_core::models::skin::Skin;
-use gw2fashionista_core::models::wardrobe_template::WardrobeTemplateData;
+use gw2fashionista_core::models::template::WardrobeTemplateData;
 use std::assert_matches;
 
 use gw2fashionista_fixtures::wardrobe::{EMPTY_TEMPLATE, ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE};
@@ -15,22 +15,7 @@ async fn test_resolve_empty() {
     resolver.cache_wardrobe_template(&template).await.unwrap();
 
     let data = resolver.resolve_wardrobe_template(&template).await.unwrap();
-
-    assert_matches!(data.aquabreather, None);
-    assert_matches!(data.backpack, None);
-    assert_matches!(data.chest, None);
-    assert_matches!(data.shoes, None);
-    assert_matches!(data.gloves, None);
-    assert_matches!(data.head, None);
-    assert_matches!(data.legs, None);
-    assert_matches!(data.shoulders, None);
-    assert_matches!(data.outfit, None);
-    assert_matches!(data.weapon_aquatic_a, None);
-    assert_matches!(data.weapon_aquatic_b, None);
-    assert_matches!(data.weapon_a1, None);
-    assert_matches!(data.weapon_a2, None);
-    assert_matches!(data.weapon_b1, None);
-    assert_matches!(data.weapon_b2, None);
+    assert!(data.is_empty());
 }
 
 #[tokio::test]
@@ -42,14 +27,14 @@ async fn test_resolve_zizi_armor() {
 
     let data = resolver.resolve_wardrobe_template(&template).await.unwrap();
 
-    assert_matches!(data.aquabreather, None);
-    assert_matches!(data.outfit, None);
-    assert_matches!(data.weapon_aquatic_a, None);
-    assert_matches!(data.weapon_aquatic_b, None);
-    assert_matches!(data.weapon_a1, None);
-    assert_matches!(data.weapon_a2, None);
-    assert_matches!(data.weapon_b1, None);
-    assert_matches!(data.weapon_b2, None);
+    assert_matches!(data.get(&WardrobeSlot::Aquabreather), None);
+    assert_matches!(data.get(&WardrobeSlot::Outfit), None);
+    assert_matches!(data.get(&WardrobeSlot::WeaponAquaticA), None);
+    assert_matches!(data.get(&WardrobeSlot::WeaponAquaticB), None);
+    assert_matches!(data.get(&WardrobeSlot::WeaponA1), None);
+    assert_matches!(data.get(&WardrobeSlot::WeaponA2), None);
+    assert_matches!(data.get(&WardrobeSlot::WeaponB1), None);
+    assert_matches!(data.get(&WardrobeSlot::WeaponB2), None);
 
     assert_zizi_armor(&data);
 }
@@ -63,21 +48,21 @@ async fn test_resolve_zizi() {
 
     let data = &resolver.resolve_wardrobe_template(&template).await.unwrap();
 
-    assert_matches!(&data.aquabreather.as_ref().unwrap().name, Some(name) if name == "Black Earth Aquabreather");
-    assert_matches!(&data.outfit.as_ref().unwrap().name, Some(name) if name == "Hologram Outfit");
-    assert_matches!(&data.weapon_aquatic_a.as_ref().unwrap().name, Some(name) if name == "Steam Speargun");
-    assert_matches!(&data.weapon_aquatic_b.as_ref().unwrap().name, Some(name) if name == "Iron Spear");
-    assert_matches!(&data.weapon_a1.as_ref().unwrap().name, Some(name) if name == "Quip");
-    assert_matches!(&data.weapon_a2.as_ref().unwrap().name, Some(name) if name == "Quip");
-    assert_matches!(&data.weapon_b1.as_ref().unwrap().name, Some(name) if name == "The Dreamer");
-    assert_matches!(&data.weapon_b2, None);
+    assert_matches!(&data.get(&WardrobeSlot::Aquabreather).unwrap().name, Some(name) if name == "Black Earth Aquabreather");
+    assert_matches!(&data.get(&WardrobeSlot::Outfit).unwrap().name, Some(name) if name == "Hologram Outfit");
+    assert_matches!(&data.get(&WardrobeSlot::WeaponAquaticA).unwrap().name, Some(name) if name == "Steam Speargun");
+    assert_matches!(&data.get(&WardrobeSlot::WeaponAquaticB).unwrap().name, Some(name) if name == "Iron Spear");
+    assert_matches!(&data.get(&WardrobeSlot::WeaponA1).unwrap().name, Some(name) if name == "Quip");
+    assert_matches!(&data.get(&WardrobeSlot::WeaponA2).unwrap().name, Some(name) if name == "Quip");
+    assert_matches!(&data.get(&WardrobeSlot::WeaponB1).unwrap().name, Some(name) if name == "The Dreamer");
+    assert_matches!(data.get(&WardrobeSlot::WeaponB2), None);
 
     assert_zizi_armor(&data);
 }
 
 fn assert_zizi_armor(data: &WardrobeTemplateData) {
     assert_dyeable_skin(
-        data.backpack.as_ref().unwrap(),
+        data.get(&WardrobeSlot::Backpack).unwrap(),
         "Pink Quaggan Backpack",
         "Dye Remover",
         "Dye Remover",
@@ -85,7 +70,7 @@ fn assert_zizi_armor(data: &WardrobeTemplateData) {
         "Dye Remover",
     );
     assert_dyeable_skin(
-        data.chest.as_ref().unwrap(),
+        data.get(&WardrobeSlot::Chest).unwrap(),
         "Sneakthief Coat",
         "Electro Pink",
         "Permafrost",
@@ -93,7 +78,7 @@ fn assert_zizi_armor(data: &WardrobeTemplateData) {
         "Dye Remover",
     );
     assert_dyeable_skin(
-        data.shoes.as_ref().unwrap(),
+        data.get(&WardrobeSlot::Shoes).unwrap(),
         "Sneakthief Sandals",
         "Electro Pink",
         "Permafrost",
@@ -101,7 +86,7 @@ fn assert_zizi_armor(data: &WardrobeTemplateData) {
         "Dye Remover",
     );
     assert_dyeable_skin(
-        data.gloves.as_ref().unwrap(),
+        data.get(&WardrobeSlot::Gloves).unwrap(),
         "Noble Gloves",
         "Dye Remover",
         "Permafrost",
@@ -109,7 +94,7 @@ fn assert_zizi_armor(data: &WardrobeTemplateData) {
         "Electro Pink",
     );
     assert_dyeable_skin(
-        data.head.as_ref().unwrap(),
+        data.get(&WardrobeSlot::Head).unwrap(),
         "Fuzzy Cat Hat",
         "Electro Pink",
         "Permafrost",
@@ -117,7 +102,7 @@ fn assert_zizi_armor(data: &WardrobeTemplateData) {
         "Dye Remover",
     );
     assert_dyeable_skin(
-        data.legs.as_ref().unwrap(),
+        data.get(&WardrobeSlot::Legs).unwrap(),
         "Sneakthief Leggings",
         "Dye Remover",
         "Permafrost",
@@ -125,7 +110,7 @@ fn assert_zizi_armor(data: &WardrobeTemplateData) {
         "Dye Remover",
     );
     assert_dyeable_skin(
-        data.shoulders.as_ref().unwrap(),
+        data.get(&WardrobeSlot::Shoulders).unwrap(),
         "Shoulder Scarf",
         "Electro Pink",
         "Permafrost",
