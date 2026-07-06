@@ -14,7 +14,10 @@ async fn test_resolve_empty() {
 
     resolver.cache_wardrobe_template(template).await.unwrap();
 
-    let data = resolver.resolve_wardrobe_template(&template.into()).await.unwrap();
+    let data = resolver
+        .resolve_wardrobe_template(&template.into())
+        .await
+        .unwrap();
     assert!(data.is_empty());
 }
 
@@ -25,7 +28,10 @@ async fn test_resolve_zizi_armor() {
 
     resolver.cache_wardrobe_template(template).await.unwrap();
 
-    let data = resolver.resolve_wardrobe_template(&template.into()).await.unwrap();
+    let data = resolver
+        .resolve_wardrobe_template(&template.into())
+        .await
+        .unwrap();
 
     assert_matches!(data.get(&WardrobeSlot::Aquabreather), None);
     assert_matches!(data.get(&WardrobeSlot::Outfit), None);
@@ -51,13 +57,13 @@ async fn test_resolve_zizi() {
         .await
         .unwrap();
 
-    assert_matches!(&data.get(&WardrobeSlot::Aquabreather).unwrap().name, Some(name) if name == "Black Earth Aquabreather");
-    assert_matches!(&data.get(&WardrobeSlot::Outfit).unwrap().name, Some(name) if name == "Hologram Outfit");
-    assert_matches!(&data.get(&WardrobeSlot::WeaponAquaticA).unwrap().name, Some(name) if name == "Steam Speargun");
-    assert_matches!(&data.get(&WardrobeSlot::WeaponAquaticB).unwrap().name, Some(name) if name == "Iron Spear");
-    assert_matches!(&data.get(&WardrobeSlot::WeaponA1).unwrap().name, Some(name) if name == "Quip");
-    assert_matches!(&data.get(&WardrobeSlot::WeaponA2).unwrap().name, Some(name) if name == "Quip");
-    assert_matches!(&data.get(&WardrobeSlot::WeaponB1).unwrap().name, Some(name) if name == "The Dreamer");
+    assert_eq!(data.get(&WardrobeSlot::Aquabreather).unwrap().name.as_ref().unwrap(), "Black Earth Aquabreather");
+    assert_eq!(data.get(&WardrobeSlot::Outfit).unwrap().name.as_ref().unwrap(), "Hologram Outfit");
+    assert_eq!(data.get(&WardrobeSlot::WeaponAquaticA).unwrap().name.as_ref().unwrap(), "Steam Speargun");
+    assert_eq!(data.get(&WardrobeSlot::WeaponAquaticB).unwrap().name.as_ref().unwrap(), "Iron Spear");
+    assert_eq!(data.get(&WardrobeSlot::WeaponA1).unwrap().name.as_ref().unwrap(), "Quip");
+    assert_eq!(data.get(&WardrobeSlot::WeaponA2).unwrap().name.as_ref().unwrap(), "Quip");
+    assert_eq!(data.get(&WardrobeSlot::WeaponB1).unwrap().name.as_ref().unwrap(), "The Dreamer");
     assert_matches!(data.get(&WardrobeSlot::WeaponB2), None);
 
     assert_zizi_armor(&data);
@@ -130,11 +136,12 @@ fn assert_dyeable_skin(
     dye3_name: &str,
     dye4_name: &str,
 ) {
-    assert_matches!(&skin.name, Some(name) if name == skin_name);
-    assert_matches!(&skin.dyes.as_ref().unwrap().0.name, Some(name) if name == dye1_name);
-    assert_matches!(&skin.dyes.as_ref().unwrap().1.name, Some(name) if name == dye2_name);
-    assert_matches!(&skin.dyes.as_ref().unwrap().2.name, Some(name) if name == dye3_name);
-    assert_matches!(&skin.dyes.as_ref().unwrap().3.name, Some(name) if name == dye4_name);
+    assert_eq!(skin.name.as_ref().unwrap(), skin_name);
+    let (d1, d2, d3, d4) = skin.dyes.as_ref().unwrap();
+    assert_eq!(d1.name.clone().unwrap(), dye1_name);
+    assert_eq!(d2.name.clone().unwrap(), dye2_name);
+    assert_eq!(d3.name.clone().unwrap(), dye3_name);
+    assert_eq!(d4.name.clone().unwrap(), dye4_name);
 }
 
 fn parse_template(raw_chat_link: &str) -> WardrobeTemplate {
