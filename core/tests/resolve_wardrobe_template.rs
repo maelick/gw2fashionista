@@ -15,7 +15,7 @@ async fn test_resolve_empty() {
     resolver.cache_wardrobe_template(template).await.unwrap();
 
     let data = resolver
-        .resolve_wardrobe_template(&template.into())
+        .resolve_template(&template.into())
         .await
         .unwrap();
     assert!(data.is_empty());
@@ -29,7 +29,7 @@ async fn test_resolve_zizi_armor() {
     resolver.cache_wardrobe_template(template).await.unwrap();
 
     let data = resolver
-        .resolve_wardrobe_template(&template.into())
+        .resolve_template(&template.into())
         .await
         .unwrap();
 
@@ -53,7 +53,7 @@ async fn test_resolve_zizi() {
     resolver.cache_wardrobe_template(template).await.unwrap();
 
     let data = &resolver
-        .resolve_wardrobe_template(&template.into())
+        .resolve_template(&template.into())
         .await
         .unwrap();
 

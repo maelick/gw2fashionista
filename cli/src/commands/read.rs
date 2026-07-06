@@ -4,7 +4,7 @@ use gw2fashionista_core::domain::templates::FashionSlot;
 use gw2fashionista_core::domain::{
     chatlink::ChatLink, error::ChatLinkError, templates::wardrobe::WardrobeTemplate,
 };
-use gw2fashionista_core::gw2_data::Resolver;
+use gw2fashionista_core::gw2_data::{DefaultResolver, Resolver};
 use gw2fashionista_core::models::template::TemplateData;
 use serde::Serialize;
 use std::{io, iter};
@@ -129,6 +129,20 @@ impl Command {
             iter.into_iter().map(|(_, res)| res).collect()
         }
     }
+
+    async fn process<S: FashionSlot>(
+        &self,
+        resolver: &DefaultResolver,
+        template: &TemplateData<S>,
+    ) -> anyhow::Result<()> {
+        let data = if self.skip_names {
+            template
+        } else {
+            &resolver.resolve_template(template).await?
+        };
+
+        print(data, self.pretty)
+    }
 }
 
 #[async_trait]
@@ -151,27 +165,13 @@ impl super::Command for Command {
         for link in &links {
             match link {
                 ChatLink::WardrobeTemplate(template) => {
-                    let data = template.into();
-                    let data = if self.skip_names {
-                        data
-                    } else {
-                        resolver.resolve_wardrobe_template(&data).await?
-                    };
-
-                    print(&data, self.pretty)?;
+                    self.process(&resolver, &template.into()).await
                 }
                 ChatLink::TravelTemplate(template) => {
-                    let data = template.into();
-                    let data = if self.skip_names {
-                        data
-                    } else {
-                        resolver.resolve_travel_template(&data).await?
-                    };
-
-                    print(&data, self.pretty)?;
+                    self.process(&resolver, &template.into()).await
                 }
                 _ => Err(anyhow::anyhow!("Unsupported chat link type"))?,
-            }
+            }?;
         }
         Ok(())
     }

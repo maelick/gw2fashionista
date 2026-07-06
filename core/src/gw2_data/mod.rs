@@ -13,8 +13,8 @@ use hyper::client::HttpConnector;
 use hyper_rustls::HttpsConnector;
 
 use crate::domain::skins::{DyeId, SkinId};
-use crate::domain::templates::travel::TravelSlot;
-use crate::domain::templates::wardrobe::{WardrobeSlot, WardrobeTemplate};
+use crate::domain::templates::wardrobe::WardrobeTemplate;
+use crate::domain::templates::{FashionSlot, FashionSlotKind};
 use crate::gw2_data::cache::{Cache, Resolver as CacheResolver};
 use crate::gw2_data::equipment::Equipment;
 use crate::gw2_data::glider::Glider;
@@ -23,7 +23,7 @@ use crate::gw2_data::outfit::Outfit;
 use crate::gw2_data::retry::Retry;
 use crate::gw2_data::skiff::Skiff;
 use crate::models::skin;
-use crate::models::template::{TravelTemplateData, WardrobeTemplateData};
+use crate::models::template::TemplateData;
 
 mod cache;
 pub mod equipment;
@@ -35,6 +35,9 @@ mod retry;
 mod skiff;
 
 const DEFAULT_BUFFER_SIZE: usize = 10;
+
+pub type DefaultResolver =
+    Resolver<Client<InMemoryCache, BucketRateLimiter, HttpsConnector<HttpConnector>, false>>;
 
 pub struct Resolver<Req>
 where
@@ -167,48 +170,25 @@ where
             .await
     }
 
-    pub async fn resolve_wardrobe_template(
+    pub async fn resolve_template<S: FashionSlot>(
         &self,
-        template: &WardrobeTemplateData,
-    ) -> Result<WardrobeTemplateData, EndpointError> {
+        template: &TemplateData<S>,
+    ) -> Result<TemplateData<S>, EndpointError> {
         let mut slots = HashMap::with_capacity(template.len());
         for (slot, skin) in template {
             slots.insert(
                 *slot,
-                match slot {
-                    WardrobeSlot::Outfit => self.resolve_outfit(skin).await?,
-                    _ => self.resolve_wardrobe_skin(skin).await?,
+                match slot.kind() {
+                    FashionSlotKind::Equipment => self.resolve_wardrobe_skin(skin).await?,
+                    FashionSlotKind::Outfit => self.resolve_outfit(skin).await?,
+                    FashionSlotKind::Mount => self.resolve_mount(skin).await?,
+                    FashionSlotKind::Glider => self.resolve_glider(skin).await?,
+                    FashionSlotKind::Skiff => self.resolve_skiff(skin).await?,
+                    FashionSlotKind::Doorway => self.resolve_doorway(skin).await?,
                 },
             );
         }
-        Ok(WardrobeTemplateData::new(slots))
-    }
-
-    pub async fn resolve_travel_template(
-        &self,
-        template: &TravelTemplateData,
-    ) -> Result<TravelTemplateData, EndpointError> {
-        let mut slots = HashMap::with_capacity(template.len());
-        for (slot, skin) in template {
-            slots.insert(
-                *slot,
-                match slot {
-                    TravelSlot::Jackal
-                    | TravelSlot::Griffon
-                    | TravelSlot::Springer
-                    | TravelSlot::Skimmer
-                    | TravelSlot::Raptor
-                    | TravelSlot::Beetle
-                    | TravelSlot::Warclaw
-                    | TravelSlot::Skyscale
-                    | TravelSlot::Turtle => self.resolve_mount(skin).await?,
-                    TravelSlot::Glider => self.resolve_glider(skin).await?,
-                    TravelSlot::Doorway => self.resolve_doorway(skin).await?,
-                    TravelSlot::Skiff => self.resolve_skiff(skin).await?,
-                },
-            );
-        }
-        Ok(TravelTemplateData::new(slots))
+        Ok(TemplateData::new(slots))
     }
 
     async fn resolve_outfit(&self, skin: &skin::Skin) -> Result<skin::Skin, EndpointError> {
@@ -374,9 +354,7 @@ where
     }
 }
 
-impl Default
-    for Resolver<Client<InMemoryCache, BucketRateLimiter, HttpsConnector<HttpConnector>, false>>
-{
+impl Default for DefaultResolver {
     fn default() -> Self {
         Self::new(Client::default())
     }

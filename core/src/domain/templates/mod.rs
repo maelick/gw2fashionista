@@ -8,6 +8,7 @@ use std::{
 
 use byteorder::{LittleEndian, WriteBytesExt};
 use linearize::{Linearize, LinearizeExt, StaticMap, static_map};
+use serde::Serialize;
 
 use crate::domain::{
     error::ChatLinkError,
@@ -28,7 +29,7 @@ pub enum FashionSlotKind {
     Doorway,
 }
 
-pub trait FashionSlot: Eq + Hash + Copy + Linearize + fmt::Debug + 'static {
+pub trait FashionSlot: Eq + Hash + Copy + Linearize + Serialize + fmt::Debug + 'static {
     fn dyeable(self) -> bool;
     fn always_visible(self) -> bool;
 

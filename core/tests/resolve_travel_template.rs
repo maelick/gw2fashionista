@@ -13,7 +13,7 @@ async fn test_resolve_empty() {
     // resolver.cache_travel_template(&template).await.unwrap();
 
     let data = resolver
-        .resolve_travel_template(&template.into())
+        .resolve_template(&template.into())
         .await
         .unwrap();
     assert!(data.is_empty());
@@ -27,7 +27,7 @@ async fn test_resolve_peekaboo() {
     // resolver.cache_travel_template(&template).await.unwrap();
 
     let data = resolver
-        .resolve_travel_template(&template.into())
+        .resolve_template(&template.into())
         .await
         .unwrap();
 
@@ -141,7 +141,7 @@ async fn test_resolve_zizi() {
     // resolver.cache_travel_template(&template).await.unwrap();
 
     let data = &resolver
-        .resolve_travel_template(&template.into())
+        .resolve_template(&template.into())
         .await
         .unwrap();
 
