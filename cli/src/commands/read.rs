@@ -1,10 +1,12 @@
 use async_trait::async_trait;
 use clap::Args;
+use gw2fashionista_core::domain::templates::FashionSlot;
 use gw2fashionista_core::domain::{
     chatlink::ChatLink, error::ChatLinkError, templates::wardrobe::WardrobeTemplate,
 };
 use gw2fashionista_core::gw2_data::Resolver;
-use gw2fashionista_core::models::template::WardrobeTemplateData;
+use gw2fashionista_core::models::template::TemplateData;
+use serde::Serialize;
 use std::{io, iter};
 
 #[derive(Args, Debug)]
@@ -157,6 +159,15 @@ impl super::Command for Command {
 
                     print(&data, self.pretty)?;
                 }
+                ChatLink::TravelTemplate(template) => {
+                    let data = if self.skip_names {
+                        (&template).into()
+                    } else {
+                        resolver.resolve_travel_template(&template).await?
+                    };
+
+                    print(&data, self.pretty)?;
+                }
                 _ => Err(anyhow::anyhow!("Unsupported chat link type"))?,
             }
         }
@@ -174,7 +185,7 @@ fn wardrobe_templates(chat_links: &[ChatLink]) -> Vec<&WardrobeTemplate> {
         .collect()
 }
 
-fn print(data: &WardrobeTemplateData, pretty: bool) -> anyhow::Result<()> {
+fn print<S: FashionSlot + Serialize>(data: &TemplateData<S>, pretty: bool) -> anyhow::Result<()> {
     if pretty {
         serde_json::to_writer_pretty(io::stdout(), data)?;
     } else {

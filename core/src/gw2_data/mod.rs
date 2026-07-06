@@ -15,13 +15,14 @@ use hyper_rustls::HttpsConnector;
 use crate::domain::chatlink::ChatLink;
 use crate::domain::error::ChatLinkError;
 use crate::domain::skins::{DyeId, SkinId};
+use crate::domain::templates::travel::TravelTemplate;
 use crate::domain::templates::wardrobe::{WardrobeSlot, WardrobeTemplate};
 use crate::gw2_data::cache::{Cache, Resolver as CacheResolver};
 use crate::gw2_data::equipment::Equipment;
 use crate::gw2_data::outfit::Outfit;
 use crate::gw2_data::retry::Retry;
 use crate::models::skin;
-use crate::models::template::WardrobeTemplateData;
+use crate::models::template::{TravelTemplateData, WardrobeTemplateData};
 
 mod cache;
 pub mod equipment;
@@ -164,7 +165,7 @@ where
         self.resolve_wardrobe_template_data(&data).await
     }
 
-    pub async fn resolve_wardrobe_template_data(
+    async fn resolve_wardrobe_template_data(
         &self,
         template: &WardrobeTemplateData,
     ) -> Result<WardrobeTemplateData, EndpointError> {
@@ -179,6 +180,30 @@ where
             }
         }
         Ok(WardrobeTemplateData::new(slots))
+    }
+
+    pub async fn resolve_travel_template(
+        &self,
+        template: &TravelTemplate,
+    ) -> Result<TravelTemplateData, EndpointError> {
+        let data = template.into();
+        self.resolve_travel_template_data(&data).await
+    }
+
+    async fn resolve_travel_template_data(
+        &self,
+        template: &TravelTemplateData,
+    ) -> Result<TravelTemplateData, EndpointError> {
+        let mut slots = HashMap::with_capacity(template.len());
+        for (slot, skin) in template {
+            let resolved_skin = match slot {
+                _ => Some(skin.clone()),
+            };
+            if let Some(skin) = resolved_skin {
+                slots.insert(*slot, skin);
+            }
+        }
+        Ok(TravelTemplateData::new(slots))
     }
 
     async fn resolve_outfit(
