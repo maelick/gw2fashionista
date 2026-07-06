@@ -148,10 +148,13 @@ where
     ) -> Result<WardrobeTemplateData, EndpointError> {
         let mut slots = HashMap::with_capacity(template.len());
         for (slot, skin) in template {
-            slots.insert(*slot, match slot {
-                WardrobeSlot::Outfit => self.resolve_outfit(skin).await?,
-                _ => self.resolve_wardrobe_slot(skin).await?,
-            });
+            slots.insert(
+                *slot,
+                match slot {
+                    WardrobeSlot::Outfit => self.resolve_outfit(skin).await?,
+                    _ => self.resolve_wardrobe_skin(skin).await?,
+                },
+            );
         }
         Ok(WardrobeTemplateData::new(slots))
     }
@@ -184,7 +187,7 @@ where
         })
     }
 
-    async fn resolve_wardrobe_slot(&self, skin: &skin::Skin) -> Result<skin::Skin, EndpointError> {
+    async fn resolve_wardrobe_skin(&self, skin: &skin::Skin) -> Result<skin::Skin, EndpointError> {
         let (name, dyes) = tokio::try_join!(
             self.resolve_skin_name(skin.id),
             self.resolve_dyes(&skin.dyes),
@@ -197,11 +200,25 @@ where
     }
 
     async fn resolve_outfit_name(&self, id: u16) -> Result<Option<String>, EndpointError> {
-        Ok(Some(self.outfit(id.into()).await?.name))
+        match self.outfit(id.into()).await {
+            Ok(outfit) => Ok(Some(outfit.name)),
+            Err(err) if is_not_found(&err) => {
+                tracing::warn!(message = "could not resolve outfit", id = id);
+                Ok(Some("Unknown".to_owned()))
+            }
+            Err(err) => Err(err),
+        }
     }
 
     async fn resolve_skin_name(&self, id: u16) -> Result<Option<String>, EndpointError> {
-        Ok(Some(self.skin(id.into()).await?.name))
+        match self.skin(id.into()).await {
+            Ok(skin) => Ok(Some(skin.name)),
+            Err(err) if is_not_found(&err) => {
+                tracing::warn!(message = "could not resolve skin", id = id);
+                Ok(Some("Unknown".to_owned()))
+            }
+            Err(err) => Err(err),
+        }
     }
 
     async fn resolve_dyes(
@@ -221,8 +238,16 @@ where
     }
 
     async fn resolve_dye_name(&self, dye: &skin::Dye) -> Result<skin::Dye, EndpointError> {
+        let name = match self.dye(dye.id.into()).await {
+            Ok(color) => Ok(color.name),
+            Err(err) if is_not_found(&err) => {
+                tracing::warn!(message = "could not resolve dye color", id = dye.id);
+                Ok("Unknown".to_owned())
+            }
+            Err(err) => Err(err),
+        }?;
         Ok(skin::Dye {
-            name: Some(self.dye(dye.id.into()).await?.name),
+            name: Some(name),
             ..*dye
         })
     }
@@ -233,5 +258,12 @@ impl Default
 {
     fn default() -> Self {
         Self::new(Client::default())
+    }
+}
+
+fn is_not_found(err: &EndpointError) -> bool {
+    match err {
+        EndpointError::ApiError(ApiError::Other(status, _)) if status.as_u16() == 404 => true,
+        _ => false,
     }
 }
