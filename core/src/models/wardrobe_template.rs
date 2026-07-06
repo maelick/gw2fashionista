@@ -43,7 +43,7 @@ pub struct WardrobeTemplateData {
 }
 
 impl WardrobeTemplateData {
-    fn from_map(map: &HashMap<WardrobeSlot, Appearance>) -> Result<Self, ModelError> {
+    fn from_map(map: &HashMap<WardrobeSlot, Appearance>) -> Result<Self, ModelError<WardrobeSlot>> {
         Ok(WardrobeTemplateData {
             aquabreather: skin_from_map(map, WardrobeSlot::Aquabreather)?,
             backpack: dyeable_skin_from_map(map, WardrobeSlot::Backpack)?,
@@ -109,7 +109,7 @@ impl From<&WardrobeTemplateData> for WardrobeTemplate {
 fn skin_from_map(
     map: &HashMap<WardrobeSlot, Appearance>,
     slot: WardrobeSlot,
-) -> Result<Option<Skin>, ModelError> {
+) -> Result<Option<Skin>, ModelError<WardrobeSlot>> {
     let res = map.get(&slot);
     res.map_or(Ok(None), |appearance| match appearance {
         Appearance::NonDyeable { skin, visible } => Ok(Some(Skin {
@@ -133,7 +133,7 @@ fn skin_from_map(
 fn dyeable_skin_from_map(
     map: &HashMap<WardrobeSlot, Appearance>,
     slot: WardrobeSlot,
-) -> Result<Option<Skin>, ModelError> {
+) -> Result<Option<Skin>, ModelError<WardrobeSlot>> {
     let res = map.get(&slot);
     res.map_or(Ok(None), |appearance| match appearance {
         Appearance::NonDyeable {
