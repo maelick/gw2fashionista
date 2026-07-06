@@ -19,7 +19,16 @@ pub mod wardrobe;
 
 pub type SlotFilter<S> = HashSet<S>;
 
-pub trait FashionSlot: Eq + Hash + Copy + Linearize + fmt::Debug {
+pub enum FashionSlotKind {
+    Equipment,
+    Outfit,
+    Mount,
+    Glider,
+    Skiff,
+    Doorway,
+}
+
+pub trait FashionSlot: Eq + Hash + Copy + Linearize + fmt::Debug + 'static {
     fn dyeable(self) -> bool;
     fn always_visible(self) -> bool;
 
@@ -35,6 +44,8 @@ pub trait FashionSlot: Eq + Hash + Copy + Linearize + fmt::Debug {
     fn is_visible(self, visibility: u16) -> bool {
         (visibility & self.visibility_bit()) != 0
     }
+
+    fn kind(self) -> FashionSlotKind;
 }
 
 #[derive(Clone, PartialEq, Eq)]

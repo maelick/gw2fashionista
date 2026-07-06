@@ -74,6 +74,13 @@ impl FashionSlot for WardrobeSlot {
             WardrobeSlot::Chest | WardrobeSlot::Shoes | WardrobeSlot::Legs
         )
     }
+
+    fn kind(self) -> super::FashionSlotKind {
+        match self {
+            WardrobeSlot::Outfit => super::FashionSlotKind::Outfit,
+            _ => super::FashionSlotKind::Equipment,
+        }
+    }
 }
 
 #[derive(

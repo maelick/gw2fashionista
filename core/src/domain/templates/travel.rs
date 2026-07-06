@@ -59,22 +59,28 @@ impl FashionSlot for TravelSlot {
     fn always_visible(self) -> bool {
         true
     }
+
+    fn kind(self) -> super::FashionSlotKind {
+        match self {
+            TravelSlot::Glider => super::FashionSlotKind::Glider,
+            TravelSlot::Doorway => super::FashionSlotKind::Doorway,
+            TravelSlot::Skiff => super::FashionSlotKind::Skiff,
+            TravelSlot::Jackal
+            | TravelSlot::Griffon
+            | TravelSlot::Springer
+            | TravelSlot::Skimmer
+            | TravelSlot::Raptor
+            | TravelSlot::Beetle
+            | TravelSlot::Warclaw
+            | TravelSlot::Skyscale
+            | TravelSlot::Turtle => super::FashionSlotKind::Mount,
+        }
+    }
 }
 
 impl TravelSlot {
-    pub fn is_mount(self) -> bool {
-        matches!(
-            self,
-            TravelSlot::Jackal
-                | TravelSlot::Griffon
-                | TravelSlot::Springer
-                | TravelSlot::Skimmer
-                | TravelSlot::Raptor
-                | TravelSlot::Beetle
-                | TravelSlot::Warclaw
-                | TravelSlot::Skyscale
-                | TravelSlot::Turtle
-        )
+    fn is_mount(self) -> bool {
+        matches!(self.kind(), super::FashionSlotKind::Mount)
     }
 }
 
