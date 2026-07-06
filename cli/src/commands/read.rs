@@ -148,22 +148,24 @@ impl super::Command for Command {
                 .await?;
         }
 
-        for link in links {
+        for link in &links {
             match link {
                 ChatLink::WardrobeTemplate(template) => {
+                    let data = template.into();
                     let data = if self.skip_names {
-                        (&template).into()
+                        data
                     } else {
-                        resolver.resolve_wardrobe_template(&template).await?
+                        resolver.resolve_wardrobe_template(&data).await?
                     };
 
                     print(&data, self.pretty)?;
                 }
                 ChatLink::TravelTemplate(template) => {
+                    let data = template.into();
                     let data = if self.skip_names {
-                        (&template).into()
+                        data
                     } else {
-                        resolver.resolve_travel_template(&template).await?
+                        resolver.resolve_travel_template(&data).await?
                     };
 
                     print(&data, self.pretty)?;

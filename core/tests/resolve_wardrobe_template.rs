@@ -10,22 +10,22 @@ use gw2fashionista_fixtures::wardrobe::{EMPTY_TEMPLATE, ZIZI_ARMOR_TEMPLATE, ZIZ
 #[tokio::test]
 async fn test_resolve_empty() {
     let resolver = Resolver::default();
-    let template = parse_template(EMPTY_TEMPLATE.chat_link);
+    let template = &parse_template(EMPTY_TEMPLATE.chat_link);
 
-    resolver.cache_wardrobe_template(&template).await.unwrap();
+    resolver.cache_wardrobe_template(template).await.unwrap();
 
-    let data = resolver.resolve_wardrobe_template(&template).await.unwrap();
+    let data = resolver.resolve_wardrobe_template(&template.into()).await.unwrap();
     assert!(data.is_empty());
 }
 
 #[tokio::test]
 async fn test_resolve_zizi_armor() {
     let resolver = Resolver::default();
-    let template = parse_template(ZIZI_ARMOR_TEMPLATE.chat_link);
+    let template = &parse_template(ZIZI_ARMOR_TEMPLATE.chat_link);
 
-    resolver.cache_wardrobe_template(&template).await.unwrap();
+    resolver.cache_wardrobe_template(template).await.unwrap();
 
-    let data = resolver.resolve_wardrobe_template(&template).await.unwrap();
+    let data = resolver.resolve_wardrobe_template(&template.into()).await.unwrap();
 
     assert_matches!(data.get(&WardrobeSlot::Aquabreather), None);
     assert_matches!(data.get(&WardrobeSlot::Outfit), None);
@@ -42,11 +42,14 @@ async fn test_resolve_zizi_armor() {
 #[tokio::test]
 async fn test_resolve_zizi() {
     let resolver = Resolver::default();
-    let template = parse_template(ZIZI_TEMPLATE.chat_link);
+    let template = &parse_template(ZIZI_TEMPLATE.chat_link);
 
-    resolver.cache_wardrobe_template(&template).await.unwrap();
+    resolver.cache_wardrobe_template(template).await.unwrap();
 
-    let data = &resolver.resolve_wardrobe_template(&template).await.unwrap();
+    let data = &resolver
+        .resolve_wardrobe_template(&template.into())
+        .await
+        .unwrap();
 
     assert_matches!(&data.get(&WardrobeSlot::Aquabreather).unwrap().name, Some(name) if name == "Black Earth Aquabreather");
     assert_matches!(&data.get(&WardrobeSlot::Outfit).unwrap().name, Some(name) if name == "Hologram Outfit");

@@ -12,10 +12,7 @@ use gw2lib::{Client, EndpointError, Requester};
 use hyper::client::HttpConnector;
 use hyper_rustls::HttpsConnector;
 
-use crate::domain::chatlink::ChatLink;
-use crate::domain::error::ChatLinkError;
 use crate::domain::skins::{DyeId, SkinId};
-use crate::domain::templates::travel::TravelTemplate;
 use crate::domain::templates::wardrobe::{WardrobeSlot, WardrobeTemplate};
 use crate::gw2_data::cache::{Cache, Resolver as CacheResolver};
 use crate::gw2_data::equipment::Equipment;
@@ -145,52 +142,21 @@ where
             .await
     }
 
-    pub async fn resolve_chat_link(
-        &self,
-        chat_link: &ChatLink,
-    ) -> Result<WardrobeTemplateData, ChatLinkError> {
-        match chat_link {
-            ChatLink::WardrobeTemplate(template) => {
-                Ok(self.resolve_wardrobe_template(template).await.unwrap())
-            }
-            _ => Err(ChatLinkError::NotImplemented),
-        }
-    }
-
     pub async fn resolve_wardrobe_template(
-        &self,
-        template: &WardrobeTemplate,
-    ) -> Result<WardrobeTemplateData, EndpointError> {
-        let data = template.into();
-        self.resolve_wardrobe_template_data(&data).await
-    }
-
-    async fn resolve_wardrobe_template_data(
         &self,
         template: &WardrobeTemplateData,
     ) -> Result<WardrobeTemplateData, EndpointError> {
         let mut slots = HashMap::with_capacity(template.len());
         for (slot, skin) in template {
-            let resolved_skin = match slot {
-                WardrobeSlot::Outfit => self.resolve_outfit(Some(skin)).await?,
-                _ => self.resolve_wardrobe_slot(Some(skin)).await?,
-            };
-            if let Some(skin) = resolved_skin {
-                slots.insert(*slot, skin);
-            }
+            slots.insert(*slot, match slot {
+                WardrobeSlot::Outfit => self.resolve_outfit(skin).await?,
+                _ => self.resolve_wardrobe_slot(skin).await?,
+            });
         }
         Ok(WardrobeTemplateData::new(slots))
     }
 
     pub async fn resolve_travel_template(
-        &self,
-        template: &TravelTemplate,
-    ) -> Result<TravelTemplateData, EndpointError> {
-        let data = template.into();
-        self.resolve_travel_template_data(&data).await
-    }
-
-    async fn resolve_travel_template_data(
         &self,
         template: &TravelTemplateData,
     ) -> Result<TravelTemplateData, EndpointError> {
@@ -206,42 +172,28 @@ where
         Ok(TravelTemplateData::new(slots))
     }
 
-    async fn resolve_outfit(
-        &self,
-        skin: Option<&skin::Skin>,
-    ) -> Result<Option<skin::Skin>, EndpointError> {
-        if let Some(skin) = skin {
-            let (name, dyes) = tokio::try_join!(
-                self.resolve_outfit_name(skin.id),
-                self.resolve_dyes(&skin.dyes),
-            )?;
-            Ok(Some(skin::Skin {
-                name,
-                dyes,
-                ..*skin
-            }))
-        } else {
-            Ok(None)
-        }
+    async fn resolve_outfit(&self, skin: &skin::Skin) -> Result<skin::Skin, EndpointError> {
+        let (name, dyes) = tokio::try_join!(
+            self.resolve_outfit_name(skin.id),
+            self.resolve_dyes(&skin.dyes),
+        )?;
+        Ok(skin::Skin {
+            name,
+            dyes,
+            ..*skin
+        })
     }
 
-    async fn resolve_wardrobe_slot(
-        &self,
-        skin: Option<&skin::Skin>,
-    ) -> Result<Option<skin::Skin>, EndpointError> {
-        if let Some(skin) = skin {
-            let (name, dyes) = tokio::try_join!(
-                self.resolve_skin_name(skin.id),
-                self.resolve_dyes(&skin.dyes),
-            )?;
-            Ok(Some(skin::Skin {
-                name,
-                dyes,
-                ..*skin
-            }))
-        } else {
-            Ok(None)
-        }
+    async fn resolve_wardrobe_slot(&self, skin: &skin::Skin) -> Result<skin::Skin, EndpointError> {
+        let (name, dyes) = tokio::try_join!(
+            self.resolve_skin_name(skin.id),
+            self.resolve_dyes(&skin.dyes),
+        )?;
+        Ok(skin::Skin {
+            name,
+            dyes,
+            ..*skin
+        })
     }
 
     async fn resolve_outfit_name(&self, id: u16) -> Result<Option<String>, EndpointError> {
