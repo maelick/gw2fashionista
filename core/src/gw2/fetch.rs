@@ -21,7 +21,7 @@ pub trait Fetch<T, I> {
 
     async fn ids(&self) -> Result<Vec<I>, Error>;
 
-    async fn many(&self, ids: Vec<I>) -> Result<Vec<T>, Error>;
+    async fn many(&self, ids: &[I]) -> Result<Vec<T>, Error>;
 
     async fn single(&self, id: I) -> Result<T, Error>;
 }
@@ -60,8 +60,8 @@ where
             .map_err(|e| Error::from_gw2lib(T::URL, "ids()".to_string(), e))
     }
 
-    async fn many(&self, ids: Vec<I>) -> Result<Vec<T>, Error> {
-        Requester::many::<T, I>(&*self.client, ids.clone())
+    async fn many(&self, ids: &[I]) -> Result<Vec<T>, Error> {
+        Requester::many::<T, I>(&*self.client, ids.to_vec())
             .await
             .map_err(|e| Error::from_gw2lib(T::URL, format!("many(ids={ids:?})"), e))
     }
@@ -137,8 +137,8 @@ where
         self.start(|| self.inner.ids()).await
     }
 
-    async fn many(&self, ids: Vec<I>) -> Result<Vec<T>, Error> {
-        self.start(|| self.inner.many(ids.clone())).await
+    async fn many(&self, ids: &[I]) -> Result<Vec<T>, Error> {
+        self.start(|| self.inner.many(ids)).await
     }
 
     async fn single(&self, id: I) -> Result<T, Error> {

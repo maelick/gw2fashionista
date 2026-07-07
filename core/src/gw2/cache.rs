@@ -41,7 +41,7 @@ where
             #[cfg(feature = "tracing")]
             tracing::info!(message = "Retrieving missing data from GW2 API", ?ids);
 
-            let items = self.client.many(ids.clone()).await?;
+            let items = self.client.many(&ids).await?;
             for (id, item) in ids.into_iter().zip(items) {
                 self.items.insert(id, item);
             }
@@ -56,8 +56,8 @@ where
         Ok(self.items.get(&id).unwrap().clone())
     }
 
-    pub async fn get_many(&self, ids: Vec<I>) -> Result<Vec<T>, Error> {
-        self.ensure(ids.clone()).await?;
+    pub async fn get_many(&self, ids: &[I]) -> Result<Vec<T>, Error> {
+        self.ensure(ids.to_vec()).await?;
         let items = ids
             .iter()
             .filter_map(|id| self.items.get(id).map(|guard| guard.clone()));
@@ -70,6 +70,6 @@ where
             let new_ids = self.client.ids().await?;
             *ids = new_ids;
         }
-        self.get_many(ids.clone()).await
+        self.get_many(&ids).await
     }
 }
