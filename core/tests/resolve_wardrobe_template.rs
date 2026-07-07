@@ -1,6 +1,6 @@
 use gw2fashionista_core::domain::chatlink::ChatLink;
 use gw2fashionista_core::domain::templates::wardrobe::{WardrobeSlot, WardrobeTemplate};
-use gw2fashionista_core::gw2_data::Resolver;
+use gw2fashionista_core::gw2::Resolver;
 use gw2fashionista_core::models::skin::Skin;
 use gw2fashionista_core::models::template::WardrobeTemplateData;
 use std::assert_matches;
@@ -14,10 +14,7 @@ async fn test_resolve_empty() {
 
     resolver.cache_wardrobe_template(template).await.unwrap();
 
-    let data = resolver
-        .resolve_template(&template.into())
-        .await
-        .unwrap();
+    let data = resolver.resolve_template(&template.into()).await.unwrap();
     assert!(data.is_empty());
 }
 
@@ -28,10 +25,7 @@ async fn test_resolve_zizi_armor() {
 
     resolver.cache_wardrobe_template(template).await.unwrap();
 
-    let data = resolver
-        .resolve_template(&template.into())
-        .await
-        .unwrap();
+    let data = resolver.resolve_template(&template.into()).await.unwrap();
 
     assert_matches!(data.get(&WardrobeSlot::Aquabreather), None);
     assert_matches!(data.get(&WardrobeSlot::Outfit), None);
@@ -52,18 +46,64 @@ async fn test_resolve_zizi() {
 
     resolver.cache_wardrobe_template(template).await.unwrap();
 
-    let data = &resolver
-        .resolve_template(&template.into())
-        .await
-        .unwrap();
+    let data = &resolver.resolve_template(&template.into()).await.unwrap();
 
-    assert_eq!(data.get(&WardrobeSlot::Aquabreather).unwrap().name.as_ref().unwrap(), "Black Earth Aquabreather");
-    assert_eq!(data.get(&WardrobeSlot::Outfit).unwrap().name.as_ref().unwrap(), "Hologram Outfit");
-    assert_eq!(data.get(&WardrobeSlot::WeaponAquaticA).unwrap().name.as_ref().unwrap(), "Steam Speargun");
-    assert_eq!(data.get(&WardrobeSlot::WeaponAquaticB).unwrap().name.as_ref().unwrap(), "Iron Spear");
-    assert_eq!(data.get(&WardrobeSlot::WeaponA1).unwrap().name.as_ref().unwrap(), "Quip");
-    assert_eq!(data.get(&WardrobeSlot::WeaponA2).unwrap().name.as_ref().unwrap(), "Quip");
-    assert_eq!(data.get(&WardrobeSlot::WeaponB1).unwrap().name.as_ref().unwrap(), "The Dreamer");
+    assert_eq!(
+        data.get(&WardrobeSlot::Aquabreather)
+            .unwrap()
+            .name
+            .as_ref()
+            .unwrap(),
+        "Black Earth Aquabreather"
+    );
+    assert_eq!(
+        data.get(&WardrobeSlot::Outfit)
+            .unwrap()
+            .name
+            .as_ref()
+            .unwrap(),
+        "Hologram Outfit"
+    );
+    assert_eq!(
+        data.get(&WardrobeSlot::WeaponAquaticA)
+            .unwrap()
+            .name
+            .as_ref()
+            .unwrap(),
+        "Steam Speargun"
+    );
+    assert_eq!(
+        data.get(&WardrobeSlot::WeaponAquaticB)
+            .unwrap()
+            .name
+            .as_ref()
+            .unwrap(),
+        "Iron Spear"
+    );
+    assert_eq!(
+        data.get(&WardrobeSlot::WeaponA1)
+            .unwrap()
+            .name
+            .as_ref()
+            .unwrap(),
+        "Quip"
+    );
+    assert_eq!(
+        data.get(&WardrobeSlot::WeaponA2)
+            .unwrap()
+            .name
+            .as_ref()
+            .unwrap(),
+        "Quip"
+    );
+    assert_eq!(
+        data.get(&WardrobeSlot::WeaponB1)
+            .unwrap()
+            .name
+            .as_ref()
+            .unwrap(),
+        "The Dreamer"
+    );
     assert_matches!(data.get(&WardrobeSlot::WeaponB2), None);
 
     assert_zizi_armor(&data);

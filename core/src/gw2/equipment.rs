@@ -18,7 +18,7 @@ use crate::{
             wardrobe::{WardrobeSlot, WardrobeTemplate},
         },
     },
-    gw2_data::cache,
+    gw2::cache,
 };
 
 #[derive(Clone, Debug)]

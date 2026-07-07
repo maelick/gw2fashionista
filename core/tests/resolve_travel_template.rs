@@ -1,6 +1,6 @@
 use gw2fashionista_core::domain::templates::travel::TravelTemplate;
 use gw2fashionista_core::domain::{chatlink::ChatLink, templates::travel::TravelSlot};
-use gw2fashionista_core::gw2_data::Resolver;
+use gw2fashionista_core::gw2::Resolver;
 use gw2fashionista_core::models::skin::Skin;
 
 use gw2fashionista_fixtures::travel::{EMPTY_TEMPLATE, PEEKABOO_TEMPLATE, ZIZI_TEMPLATE};
@@ -12,10 +12,7 @@ async fn test_resolve_empty() {
 
     // resolver.cache_travel_template(&template).await.unwrap();
 
-    let data = resolver
-        .resolve_template(&template.into())
-        .await
-        .unwrap();
+    let data = resolver.resolve_template(&template.into()).await.unwrap();
     assert!(data.is_empty());
 }
 
@@ -26,10 +23,7 @@ async fn test_resolve_peekaboo() {
 
     // resolver.cache_travel_template(&template).await.unwrap();
 
-    let data = resolver
-        .resolve_template(&template.into())
-        .await
-        .unwrap();
+    let data = resolver.resolve_template(&template.into()).await.unwrap();
 
     for (slot, skin) in data.into_iter() {
         match slot {
@@ -140,10 +134,7 @@ async fn test_resolve_zizi() {
 
     // resolver.cache_travel_template(&template).await.unwrap();
 
-    let data = &resolver
-        .resolve_template(&template.into())
-        .await
-        .unwrap();
+    let data = &resolver.resolve_template(&template.into()).await.unwrap();
 
     for (slot, skin) in data.into_iter() {
         match slot {

@@ -6,8 +6,8 @@ use gw2lib::{
 use hyper::client::HttpConnector;
 use hyper_rustls::HttpsConnector;
 
-use crate::gw2_data::equipment::Equipment;
-use crate::gw2_data::retry::Retry;
+use crate::gw2::equipment::Equipment;
+use crate::gw2::retry::Retry;
 
 const DEFAULT_BUFFER_SIZE: usize = 10;
 
