@@ -1,4 +1,8 @@
-use std::{fmt::Display, hash::Hash, sync::Arc};
+use std::{
+    fmt::{Debug, Display},
+    hash::Hash,
+    sync::Arc,
+};
 
 use async_trait::async_trait;
 use gw2lib::{
@@ -43,7 +47,7 @@ where
         + Serialize
         + DeserializeOwned
         + 'static,
-    I: Display + Hash + Eq + Clone + Send + Sync + Serialize + DeserializeOwned + 'static,
+    I: Display + Debug + Hash + Eq + Clone + Send + Sync + Serialize + DeserializeOwned + 'static,
     Req: Requester<AUTH, false> + Send + Sync,
 {
     fn endpoint_name(&self) -> &'static str {
@@ -51,15 +55,21 @@ where
     }
 
     async fn ids(&self) -> Result<Vec<I>, Error> {
-        Ok(Requester::ids::<T, I>(&*self.client).await?)
+        Requester::ids::<T, I>(&*self.client)
+            .await
+            .map_err(|e| Error::from_gw2lib(T::URL, "ids()".to_string(), e))
     }
 
     async fn many(&self, ids: Vec<I>) -> Result<Vec<T>, Error> {
-        Ok(Requester::many::<T, I>(&*self.client, ids).await?)
+        Requester::many::<T, I>(&*self.client, ids.clone())
+            .await
+            .map_err(|e| Error::from_gw2lib(T::URL, format!("many(ids={ids:?})"), e))
     }
 
     async fn single(&self, id: I) -> Result<T, Error> {
-        Ok(Requester::single::<T, I>(&*self.client, id).await?)
+        Requester::single::<T, I>(&*self.client, id.clone())
+            .await
+            .map_err(|e| Error::from_gw2lib(T::URL, format!("single(id={id:?})"), e))
     }
 }
 

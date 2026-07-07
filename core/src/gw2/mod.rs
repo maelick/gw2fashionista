@@ -238,7 +238,7 @@ impl Resolver {
     async fn resolve_outfit_name(&self, id: u16) -> Result<Option<String>, Error> {
         match self.outfits.get(id.into()).await {
             Ok(outfit) => Ok(Some(outfit.name)),
-            Err(err) if is_not_found(&err) => {
+            Err(err) if err.is_not_found() => {
                 tracing::warn!(message = "could not resolve outfit", id = id);
                 Ok(Some("Unknown".to_owned()))
             }
@@ -249,7 +249,7 @@ impl Resolver {
     async fn resolve_skin_name(&self, id: u16) -> Result<Option<String>, Error> {
         match self.skins.get(id.into()).await {
             Ok(skin) => Ok(Some(skin.name)),
-            Err(err) if is_not_found(&err) => {
+            Err(err) if err.is_not_found() => {
                 tracing::warn!(message = "could not resolve skin", id = id);
                 Ok(Some("Unknown".to_owned()))
             }
@@ -260,7 +260,7 @@ impl Resolver {
     async fn resolve_mount_name(&self, id: u16) -> Result<Option<String>, Error> {
         match self.mounts.get(id.into()).await {
             Ok(mount) => Ok(Some(mount.name)),
-            Err(err) if is_not_found(&err) => {
+            Err(err) if err.is_not_found() => {
                 tracing::warn!(message = "could not resolve mount skin", id = id);
                 Ok(Some("Unknown".to_owned()))
             }
@@ -271,7 +271,7 @@ impl Resolver {
     async fn resolve_glider_name(&self, id: u16) -> Result<Option<String>, Error> {
         match self.gliders.get(id.into()).await {
             Ok(glider) => Ok(Some(glider.name)),
-            Err(err) if is_not_found(&err) => {
+            Err(err) if err.is_not_found() => {
                 tracing::warn!(message = "could not resolve glider", id = id);
                 Ok(Some("Unknown".to_owned()))
             }
@@ -282,7 +282,7 @@ impl Resolver {
     async fn resolve_skiff_name(&self, id: u16) -> Result<Option<String>, Error> {
         match self.skiffs.get(id.into()).await {
             Ok(skiff) => Ok(Some(skiff.name)),
-            Err(err) if is_not_found(&err) => {
+            Err(err) if err.is_not_found() => {
                 tracing::warn!(message = "could not resolve skiff", id = id);
                 Ok(Some("Unknown".to_owned()))
             }
@@ -310,7 +310,7 @@ impl Resolver {
     async fn resolve_dye_name(&self, dye: &skin::Dye) -> Result<skin::Dye, Error> {
         let name = match self.colors.get(dye.id.into()).await {
             Ok(color) => Ok(color.name),
-            Err(err) if is_not_found(&err) => {
+            Err(err) if err.is_not_found() => {
                 tracing::warn!(message = "could not resolve dye color", id = dye.id);
                 Ok("Unknown".to_owned())
             }
@@ -326,12 +326,5 @@ impl Resolver {
 impl Default for Resolver {
     fn default() -> Self {
         Self::new(Client::default())
-    }
-}
-
-fn is_not_found(err: &Error) -> bool {
-    match err {
-        Error::NotFound => true,
-        _ => false,
     }
 }
