@@ -15,7 +15,7 @@ use crate::{
             wardrobe::{WardrobeSlot, WardrobeTemplate},
         },
     },
-    gw2::{cache, error::Error},
+    gw2::{cache::Cache, error::Error},
 };
 
 #[derive(Clone, Debug)]
@@ -44,10 +44,7 @@ impl Equipment {
         )
     }
 
-    pub async fn resolve_default_skins<R: cache::Resolver<Item, ItemId>>(
-        self,
-        cache: &R,
-    ) -> Result<Self, Error> {
+    pub async fn resolve_default_skins(self, cache: &Cache<Item, ItemId>) -> Result<Self, Error> {
         Ok(Equipment {
             char_name: self.char_name.clone(),
             tab_id: self.tab_id,
@@ -56,9 +53,9 @@ impl Equipment {
         })
     }
 
-    async fn resolve_slots_default_skins<R: cache::Resolver<Item, ItemId>>(
+    async fn resolve_slots_default_skins(
         self,
-        cache: &R,
+        cache: &Cache<Item, ItemId>,
     ) -> Result<Vec<Equip>, Error> {
         stream::iter(self.slots)
             .then(async |s| {

@@ -11,7 +11,7 @@ use gw2lib::{Client, Requester};
 use crate::domain::skins::{DyeId, SkinId};
 use crate::domain::templates::wardrobe::WardrobeTemplate;
 use crate::domain::templates::{FashionSlot, FashionSlotKind};
-use crate::gw2::cache::{Cache, Resolver as CacheResolver};
+use crate::gw2::cache::Cache;
 use crate::gw2::endpoints::glider::Glider;
 use crate::gw2::endpoints::mount::MountSkin;
 use crate::gw2::endpoints::outfit::Outfit;
