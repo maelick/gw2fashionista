@@ -16,23 +16,20 @@ use crate::domain::skins::{DyeId, SkinId};
 use crate::domain::templates::wardrobe::WardrobeTemplate;
 use crate::domain::templates::{FashionSlot, FashionSlotKind};
 use crate::gw2::cache::{Cache, Resolver as CacheResolver};
+use crate::gw2::endpoints::glider::Glider;
+use crate::gw2::endpoints::mount::MountSkin;
+use crate::gw2::endpoints::outfit::Outfit;
+use crate::gw2::endpoints::skiff::Skiff;
 use crate::gw2::equipment::Equipment;
-use crate::gw2::glider::Glider;
-use crate::gw2::mount::MountSkin;
-use crate::gw2::outfit::Outfit;
 use crate::gw2::retry::Retry;
-use crate::gw2::skiff::Skiff;
 use crate::models::skin;
 use crate::models::template::TemplateData;
 
 mod cache;
+pub mod endpoints;
 pub mod equipment;
-mod glider;
 pub mod import;
-mod mount;
-mod outfit;
 mod retry;
-mod skiff;
 
 const DEFAULT_BUFFER_SIZE: usize = 10;
 
