@@ -1,13 +1,8 @@
-use std::fmt::Display;
-use std::hash::Hash;
 use std::sync::Arc;
 
 use futures::stream::{self, StreamExt, TryStreamExt};
 use gw2lib::Client;
 use gw2lib::model::authenticated::characters::{Character, CharacterId};
-use gw2lib::model::{BulkEndpoint, EndpointWithId};
-use serde::Serialize;
-use serde::de::DeserializeOwned;
 
 use crate::gw2::equipment::Equipment;
 use crate::gw2::error::Error;
@@ -16,14 +11,14 @@ use crate::gw2::retry::Retry;
 
 const DEFAULT_BUFFER_SIZE: usize = 10;
 
-pub struct Importer<T, I> {
-    client: Box<dyn Fetch<T, I> + Send + Sync + 'static>,
+pub struct Importer {
+    client: Box<dyn Fetch<Character, CharacterId> + Send + Sync + 'static>,
     retry: Retry,
     buffer_size: usize,
 }
 
-impl<T, I> Importer<T, I> {
-    pub fn new(client: Box<dyn Fetch<T, I> + Send + Sync + 'static>) -> Self {
+impl Importer {
+    pub fn new(client: Box<dyn Fetch<Character, CharacterId> + Send + Sync + 'static>) -> Self {
         Importer {
             client,
             retry: Retry::default(),
@@ -35,9 +30,7 @@ impl<T, I> Importer<T, I> {
         self.buffer_size = size;
         self
     }
-}
 
-impl Importer<Character, CharacterId> {
     #[cfg_attr(feature = "tracing", tracing::instrument(skip(self)))]
     pub async fn characters(&self) -> Result<Vec<String>, Error> {
         #[cfg(feature = "tracing")]
@@ -90,18 +83,7 @@ impl Importer<Character, CharacterId> {
     }
 }
 
-impl<T, I> Importer<T, I>
-where
-    T: EndpointWithId<IdType = I>
-        + BulkEndpoint
-        + Clone
-        + Send
-        + Sync
-        + Serialize
-        + DeserializeOwned
-        + 'static,
-    I: Display + Hash + Eq + Clone + Send + Sync + Serialize + DeserializeOwned + 'static,
-{
+impl Importer {
     pub fn with_api_key(key: &str) -> Self {
         let req = Arc::new(Client::default().api_key(key));
         Self::new(Box::new(Gw2LibFetcher::new(req)))
