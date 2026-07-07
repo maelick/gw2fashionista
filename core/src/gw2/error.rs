@@ -1,4 +1,5 @@
 use gw2lib::{ApiError, EndpointError};
+use hyper::StatusCode;
 use strum_macros::Display;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -14,6 +15,7 @@ pub struct Error {
 }
 
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq)]
+#[strum(serialize_all = "lowercase")]
 pub enum ErrorKind {
     NotFound,
     Transient,
@@ -23,7 +25,7 @@ pub enum ErrorKind {
 impl Error {
     pub(crate) fn from_gw2lib(endpoint: &'static str, request: String, err: EndpointError) -> Self {
         Error {
-            kind: (&err).into(),
+            kind: classify(&err),
             endpoint,
             request,
             source: Some(Box::new(err)),
@@ -35,29 +37,33 @@ impl Error {
     }
 
     pub fn is_not_found(&self) -> bool {
-        matches!(self.kind, ErrorKind::NotFound)
+        self.kind == ErrorKind::NotFound
     }
 
     pub fn is_transient(&self) -> bool {
-        matches!(self.kind, ErrorKind::Transient)
+        self.kind == ErrorKind::Transient
     }
 }
 
-impl From<&EndpointError> for ErrorKind {
-    fn from(err: &EndpointError) -> Self {
-        // TOOD how to make this nicer?
-        match err {
-            EndpointError::ApiError(ApiError::Other(status, _)) if status.as_u16() == 404 => {
-                ErrorKind::NotFound
-            }
-            EndpointError::RateLimiterCrashed(_)
-            | EndpointError::RateLimiterBucketExceeded
-            | EndpointError::RequestFailed(_)
-            | EndpointError::ApiError(ApiError::RateLimited) => ErrorKind::Transient,
-            EndpointError::ApiError(ApiError::Other(status, _)) if status.is_server_error() => {
-                ErrorKind::Transient
-            }
-            _ => ErrorKind::Permanent,
-        }
+fn classify(err: &EndpointError) -> ErrorKind {
+    use ApiError as A;
+    use EndpointError as E;
+    match err {
+        E::ApiError(A::Other(status, _)) => classify_status(*status),
+        E::ApiError(A::RateLimited)
+        | E::RateLimiterCrashed(_)
+        | E::RateLimiterBucketExceeded
+        | E::RequestFailed(_) => ErrorKind::Transient,
+        _ => ErrorKind::Permanent,
+    }
+}
+
+fn classify_status(status: StatusCode) -> ErrorKind {
+    if status == StatusCode::NOT_FOUND {
+        ErrorKind::NotFound
+    } else if status.is_server_error() {
+        ErrorKind::Transient
+    } else {
+        ErrorKind::Permanent
     }
 }
