@@ -1,12 +1,11 @@
 use futures::stream::{self, StreamExt, TryStreamExt};
 use gw2lib::model::authenticated::characters::{Character, CharacterId};
-use gw2lib::{
-    Client, EndpointError, Requester, cache::InMemoryCache, rate_limit::BucketRateLimiter,
-};
+use gw2lib::{Client, Requester, cache::InMemoryCache, rate_limit::BucketRateLimiter};
 use hyper::client::HttpConnector;
 use hyper_rustls::HttpsConnector;
 
 use crate::gw2::equipment::Equipment;
+use crate::gw2::error::Error;
 use crate::gw2::retry::Retry;
 
 const DEFAULT_BUFFER_SIZE: usize = 10;
@@ -38,28 +37,30 @@ where
     }
 
     #[cfg_attr(feature = "tracing", tracing::instrument(skip(self)))]
-    pub async fn characters(&self) -> Result<Vec<String>, EndpointError> {
+    pub async fn characters(&self) -> Result<Vec<String>, Error> {
         #[cfg(feature = "tracing")]
         tracing::info!(message = "Retrieving character list");
         self.retry
-            .start(|| Requester::ids::<Character, CharacterId>(&self.req))
+            .start(async || Ok(Requester::ids::<Character, CharacterId>(&self.req).await?))
             .await
     }
 
     #[cfg_attr(feature = "tracing", tracing::instrument(skip(self)))]
-    pub async fn character(&self, name: &str) -> Result<Character, EndpointError> {
+    pub async fn character(&self, name: &str) -> Result<Character, Error> {
         #[cfg(feature = "tracing")]
         tracing::info!(message = "Retrieving character data");
         self.retry
-            .start(|| Requester::single::<Character, CharacterId>(&self.req, name.to_string()))
+            .start(async || {
+                Ok(
+                    Requester::single::<Character, CharacterId>(&self.req, name.to_string())
+                        .await?,
+                )
+            })
             .await
     }
 
     #[cfg_attr(feature = "tracing", tracing::instrument(skip_all))]
-    pub async fn fetch_equipment(
-        &self,
-        characters: &[String],
-    ) -> Result<Vec<Equipment>, EndpointError> {
+    pub async fn fetch_equipment(&self, characters: &[String]) -> Result<Vec<Equipment>, Error> {
         let all_tabs: Vec<_> = stream::iter(characters.to_owned())
             .map(async |c| self.fetch_char_equipment(c.as_ref()).await)
             .buffered(self.buffer_size)
@@ -77,10 +78,7 @@ where
     }
 
     #[cfg_attr(feature = "tracing", tracing::instrument(skip(self)))]
-    pub async fn fetch_char_equipment(
-        &self,
-        char_name: &str,
-    ) -> Result<Vec<Equipment>, EndpointError> {
+    pub async fn fetch_char_equipment(&self, char_name: &str) -> Result<Vec<Equipment>, Error> {
         let char = self.character(char_name).await?;
         let tabs: Vec<_> = char
             .equipment_tabs

@@ -5,10 +5,12 @@ use tokio::sync::Mutex;
 
 use async_trait::async_trait;
 use dashmap::DashMap;
+use gw2lib::Requester;
 use gw2lib::model::{BulkEndpoint, EndpointWithId};
-use gw2lib::{EndpointError, Requester};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
+
+use crate::gw2::error::Error;
 
 #[async_trait]
 pub trait Resolver<T, I>
@@ -34,10 +36,10 @@ where
         + 'static,
 {
     fn clear(&self);
-    async fn ensure(&self, ids: Vec<I>) -> Result<(), EndpointError>;
-    async fn get(&self, id: I) -> Result<T, EndpointError>;
-    async fn get_many(&self, ids: Vec<I>) -> Result<Vec<T>, EndpointError>;
-    async fn get_all(&self) -> Result<Vec<T>, EndpointError>;
+    async fn ensure(&self, ids: Vec<I>) -> Result<(), Error>;
+    async fn get(&self, id: I) -> Result<T, Error>;
+    async fn get_many(&self, ids: Vec<I>) -> Result<Vec<T>, Error>;
+    async fn get_all(&self) -> Result<Vec<T>, Error>;
 }
 
 pub struct Cache<T, I, Req> {
@@ -77,16 +79,16 @@ where
         }
     }
 
-    async fn _fetch_ids(&self) -> Result<Vec<I>, EndpointError> {
-        Requester::ids::<T, I>(&*self.client).await
+    async fn _fetch_ids(&self) -> Result<Vec<I>, Error> {
+        Ok(Requester::ids::<T, I>(&*self.client).await?)
     }
 
-    async fn fetch_many(&self, ids: Vec<I>) -> Result<Vec<T>, EndpointError> {
-        Requester::many::<T, I>(&*self.client, ids).await
+    async fn fetch_many(&self, ids: Vec<I>) -> Result<Vec<T>, Error> {
+        Ok(Requester::many::<T, I>(&*self.client, ids).await?)
     }
 
-    async fn fetch_single(&self, id: I) -> Result<T, EndpointError> {
-        Requester::single::<T, I>(&*self.client, id).await
+    async fn fetch_single(&self, id: I) -> Result<T, Error> {
+        Ok(Requester::single::<T, I>(&*self.client, id).await?)
     }
 }
 
@@ -119,7 +121,7 @@ where
     }
 
     #[cfg_attr(feature = "tracing", tracing::instrument(skip_all, fields(endpoint = %T::URL)))]
-    async fn ensure(&self, ids: Vec<I>) -> Result<(), EndpointError> {
+    async fn ensure(&self, ids: Vec<I>) -> Result<(), Error> {
         let ids: Vec<_> = ids
             .into_iter()
             .filter(|id| !self.items.contains_key(id))
@@ -137,14 +139,14 @@ where
         Ok(())
     }
 
-    async fn get(&self, id: I) -> Result<T, EndpointError> {
+    async fn get(&self, id: I) -> Result<T, Error> {
         if !self.items.contains_key(&id) {
             self.items.insert(id, self.fetch_single(id).await?);
         }
         Ok(self.items.get(&id).unwrap().clone())
     }
 
-    async fn get_many(&self, ids: Vec<I>) -> Result<Vec<T>, EndpointError> {
+    async fn get_many(&self, ids: Vec<I>) -> Result<Vec<T>, Error> {
         self.ensure(ids.clone()).await?;
         let items = ids
             .iter()
@@ -152,7 +154,7 @@ where
         Ok(items.collect())
     }
 
-    async fn get_all(&self) -> Result<Vec<T>, EndpointError> {
+    async fn get_all(&self) -> Result<Vec<T>, Error> {
         let mut ids = self._ids.lock().await;
         if ids.is_empty() {
             let new_ids = self._fetch_ids().await?;

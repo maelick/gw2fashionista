@@ -1,7 +1,7 @@
 use tokio_retry::RetryIf;
 use tokio_retry::strategy::{ExponentialBackoff, jitter};
 
-use gw2lib::{ApiError, EndpointError};
+use crate::gw2::error::Error;
 
 pub struct Retry {
     max_retries: usize,
@@ -16,10 +16,10 @@ impl Retry {
         }
     }
 
-    pub async fn start<T, F, Fut>(&self, action: F) -> Result<T, EndpointError>
+    pub async fn start<T, F, Fut>(&self, action: F) -> Result<T, Error>
     where
         F: FnMut() -> Fut,
-        Fut: Future<Output = Result<T, EndpointError>>,
+        Fut: Future<Output = Result<T, Error>>,
     {
         let retries = ExponentialBackoff::from_millis(self.sleep_millis)
             .map(jitter)
@@ -34,13 +34,9 @@ impl Default for Retry {
     }
 }
 
-fn retryable(e: &EndpointError) -> bool {
+fn retryable(e: &Error) -> bool {
     match e {
-        EndpointError::ApiError(ApiError::Other(status, _)) => status.is_server_error(),
-        EndpointError::RateLimiterCrashed(_)
-        | EndpointError::RateLimiterBucketExceeded
-        | EndpointError::RequestFailed(_)
-        | EndpointError::ApiError(ApiError::RateLimited) => true,
+        Error::Transient(_) => true,
         _ => false,
     }
 }
