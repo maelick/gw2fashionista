@@ -2,15 +2,11 @@ use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 use futures::stream::{self, StreamExt, TryStreamExt};
-use gw2lib::cache::InMemoryCache;
 use gw2lib::model::{
     items::{Item, skins::Skin},
     misc::colors::Color,
 };
-use gw2lib::rate_limit::BucketRateLimiter;
 use gw2lib::{Client, Requester};
-use hyper::client::HttpConnector;
-use hyper_rustls::HttpsConnector;
 
 use crate::domain::skins::{DyeId, SkinId};
 use crate::domain::templates::wardrobe::WardrobeTemplate;
@@ -22,6 +18,7 @@ use crate::gw2::endpoints::outfit::Outfit;
 use crate::gw2::endpoints::skiff::Skiff;
 use crate::gw2::equipment::Equipment;
 use crate::gw2::error::Error;
+use crate::gw2::fetch::Gw2LibFetcher;
 use crate::gw2::retry::Retry;
 use crate::models::skin;
 use crate::models::template::TemplateData;
@@ -30,43 +27,38 @@ mod cache;
 pub mod endpoints;
 pub mod equipment;
 pub mod error;
+pub mod fetch;
 pub mod import;
 mod retry;
 
 const DEFAULT_BUFFER_SIZE: usize = 10;
 
-pub type DefaultResolver =
-    Resolver<Client<InMemoryCache, BucketRateLimiter, HttpsConnector<HttpConnector>, false>>;
-
-pub struct Resolver<Req>
-where
-    Req: Requester<false, false> + Send + Sync,
-{
-    items: Cache<Item, u32, Req>,
-    skins: Cache<Skin, u32, Req>,
-    outfits: Cache<Outfit, u32, Req>,
-    colors: Cache<Color, u16, Req>,
-    mounts: Cache<MountSkin, u32, Req>,
-    gliders: Cache<Glider, u32, Req>,
-    skiffs: Cache<Skiff, u32, Req>,
+pub struct Resolver {
+    items: Cache<Item, u32>,
+    skins: Cache<Skin, u32>,
+    outfits: Cache<Outfit, u32>,
+    colors: Cache<Color, u16>,
+    mounts: Cache<MountSkin, u32>,
+    gliders: Cache<Glider, u32>,
+    skiffs: Cache<Skiff, u32>,
     retry: Retry,
     buffer_size: usize,
 }
 
-impl<Req> Resolver<Req>
-where
-    Req: Requester<false, false> + Send + Sync,
-{
-    pub fn new(req: Req) -> Self {
+impl Resolver {
+    pub fn new<Req>(req: Req) -> Self
+    where
+        Req: Requester<false, false> + Send + Sync + 'static,
+    {
         let req = Arc::new(req);
         Resolver {
-            items: Cache::new(req.clone()),
-            skins: Cache::new(req.clone()),
-            outfits: Cache::new(req.clone()),
-            colors: Cache::new(req.clone()),
-            mounts: Cache::new(req.clone()),
-            gliders: Cache::new(req.clone()),
-            skiffs: Cache::new(req.clone()),
+            items: Cache::new(Box::new(Gw2LibFetcher::new(req.clone()))),
+            skins: Cache::new(Box::new(Gw2LibFetcher::new(req.clone()))),
+            outfits: Cache::new(Box::new(Gw2LibFetcher::new(req.clone()))),
+            colors: Cache::new(Box::new(Gw2LibFetcher::new(req.clone()))),
+            mounts: Cache::new(Box::new(Gw2LibFetcher::new(req.clone()))),
+            gliders: Cache::new(Box::new(Gw2LibFetcher::new(req.clone()))),
+            skiffs: Cache::new(Box::new(Gw2LibFetcher::new(req.clone()))),
             retry: Retry::default(),
             buffer_size: DEFAULT_BUFFER_SIZE,
         }
@@ -347,7 +339,7 @@ where
     }
 }
 
-impl Default for DefaultResolver {
+impl Default for Resolver {
     fn default() -> Self {
         Self::new(Client::default())
     }

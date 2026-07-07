@@ -1,31 +1,31 @@
+use std::fmt::Display;
+use std::hash::Hash;
+use std::sync::Arc;
+
 use futures::stream::{self, StreamExt, TryStreamExt};
+use gw2lib::Client;
 use gw2lib::model::authenticated::characters::{Character, CharacterId};
-use gw2lib::{Client, Requester, cache::InMemoryCache, rate_limit::BucketRateLimiter};
-use hyper::client::HttpConnector;
-use hyper_rustls::HttpsConnector;
+use gw2lib::model::{BulkEndpoint, EndpointWithId};
+use serde::Serialize;
+use serde::de::DeserializeOwned;
 
 use crate::gw2::equipment::Equipment;
 use crate::gw2::error::Error;
+use crate::gw2::fetch::{Fetch, Gw2LibFetcher};
 use crate::gw2::retry::Retry;
 
 const DEFAULT_BUFFER_SIZE: usize = 10;
 
-pub struct Importer<Req>
-where
-    Req: Requester<true, false>,
-{
-    req: Req,
+pub struct Importer<T, I> {
+    client: Box<dyn Fetch<T, I> + Send + Sync + 'static>,
     retry: Retry,
     buffer_size: usize,
 }
 
-impl<Req> Importer<Req>
-where
-    Req: Requester<true, false>,
-{
-    pub fn new(req: Req) -> Self {
+impl<T, I> Importer<T, I> {
+    pub fn new(client: Box<dyn Fetch<T, I> + Send + Sync + 'static>) -> Self {
         Importer {
-            req,
+            client,
             retry: Retry::default(),
             buffer_size: DEFAULT_BUFFER_SIZE,
         }
@@ -35,14 +35,14 @@ where
         self.buffer_size = size;
         self
     }
+}
 
+impl Importer<Character, CharacterId> {
     #[cfg_attr(feature = "tracing", tracing::instrument(skip(self)))]
     pub async fn characters(&self) -> Result<Vec<String>, Error> {
         #[cfg(feature = "tracing")]
         tracing::info!(message = "Retrieving character list");
-        self.retry
-            .start(async || Ok(Requester::ids::<Character, CharacterId>(&self.req).await?))
-            .await
+        self.retry.start(|| self.client.ids()).await
     }
 
     #[cfg_attr(feature = "tracing", tracing::instrument(skip(self)))]
@@ -50,12 +50,7 @@ where
         #[cfg(feature = "tracing")]
         tracing::info!(message = "Retrieving character data");
         self.retry
-            .start(async || {
-                Ok(
-                    Requester::single::<Character, CharacterId>(&self.req, name.to_string())
-                        .await?,
-                )
-            })
+            .start(|| self.client.single(name.to_string()))
             .await
     }
 
@@ -95,9 +90,20 @@ where
     }
 }
 
-impl Importer<Client<InMemoryCache, BucketRateLimiter, HttpsConnector<HttpConnector>, true>> {
+impl<T, I> Importer<T, I>
+where
+    T: EndpointWithId<IdType = I>
+        + BulkEndpoint
+        + Clone
+        + Send
+        + Sync
+        + Serialize
+        + DeserializeOwned
+        + 'static,
+    I: Display + Hash + Eq + Clone + Send + Sync + Serialize + DeserializeOwned + 'static,
+{
     pub fn with_api_key(key: &str) -> Self {
-        let req = Client::default().api_key(key);
-        Self::new(req)
+        let req = Arc::new(Client::default().api_key(key));
+        Self::new(Box::new(Gw2LibFetcher::new(req)))
     }
 }

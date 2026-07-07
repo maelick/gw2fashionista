@@ -4,7 +4,7 @@ use gw2fashionista_core::domain::templates::FashionSlot;
 use gw2fashionista_core::domain::{
     chatlink::ChatLink, error::ChatLinkError, templates::wardrobe::WardrobeTemplate,
 };
-use gw2fashionista_core::gw2::{DefaultResolver, Resolver};
+use gw2fashionista_core::gw2::Resolver;
 use gw2fashionista_core::models::template::TemplateData;
 use serde::Serialize;
 use std::{io, iter};
@@ -132,7 +132,7 @@ impl Command {
 
     async fn process<S: FashionSlot>(
         &self,
-        resolver: &DefaultResolver,
+        resolver: &Resolver,
         template: &TemplateData<S>,
     ) -> anyhow::Result<()> {
         let data = if self.skip_names {
