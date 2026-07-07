@@ -12,6 +12,15 @@ pub enum Error {
     Permanent(#[source] Box<dyn std::error::Error + Send + Sync>),
 }
 
+impl Error {
+    pub fn is_transient(&self) -> bool {
+        match self {
+            Error::Transient(_) => true,
+            _ => false,
+        }
+    }
+}
+
 impl From<EndpointError> for Error {
     fn from(err: EndpointError) -> Self {
         // TOOD how to make this nicer?

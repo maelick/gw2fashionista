@@ -1,27 +1,34 @@
 use std::sync::Arc;
 
 use futures::stream::{self, StreamExt, TryStreamExt};
-use gw2lib::Client;
 use gw2lib::model::authenticated::characters::{Character, CharacterId};
+use gw2lib::{Client, Requester};
 
 use crate::gw2::equipment::Equipment;
 use crate::gw2::error::Error;
-use crate::gw2::fetch::{Fetch, Gw2LibFetcher};
-use crate::gw2::retry::Retry;
+use crate::gw2::fetch::{Fetch, Gw2LibFetcher, Retry};
 
 const DEFAULT_BUFFER_SIZE: usize = 10;
 
 pub struct Importer {
     client: Box<dyn Fetch<Character, CharacterId> + Send + Sync + 'static>,
-    retry: Retry,
     buffer_size: usize,
 }
 
 impl Importer {
-    pub fn new(client: Box<dyn Fetch<Character, CharacterId> + Send + Sync + 'static>) -> Self {
+    pub fn new<Req>(req: Req) -> Self
+    where
+        Req: Requester<true, false> + Send + Sync + 'static,
+    {
+        Self::from_fetcher(Retry::new(Gw2LibFetcher::new(Arc::new(req))))
+    }
+
+    pub fn from_fetcher<F>(fetcher: F) -> Self
+    where
+        F: Fetch<Character, CharacterId> + Clone + Send + Sync + 'static,
+    {
         Importer {
-            client,
-            retry: Retry::default(),
+            client: Box::new(fetcher),
             buffer_size: DEFAULT_BUFFER_SIZE,
         }
     }
@@ -35,16 +42,14 @@ impl Importer {
     pub async fn characters(&self) -> Result<Vec<String>, Error> {
         #[cfg(feature = "tracing")]
         tracing::info!(message = "Retrieving character list");
-        self.retry.start(|| self.client.ids()).await
+        self.client.ids().await
     }
 
     #[cfg_attr(feature = "tracing", tracing::instrument(skip(self)))]
     pub async fn character(&self, name: &str) -> Result<Character, Error> {
         #[cfg(feature = "tracing")]
         tracing::info!(message = "Retrieving character data");
-        self.retry
-            .start(|| self.client.single(name.to_string()))
-            .await
+        self.client.single(name.to_string()).await
     }
 
     #[cfg_attr(feature = "tracing", tracing::instrument(skip_all))]
@@ -85,7 +90,6 @@ impl Importer {
 
 impl Importer {
     pub fn with_api_key(key: &str) -> Self {
-        let req = Arc::new(Client::default().api_key(key));
-        Self::new(Box::new(Gw2LibFetcher::new(req)))
+        Self::new(Client::default().api_key(key))
     }
 }

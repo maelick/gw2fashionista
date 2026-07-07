@@ -18,18 +18,16 @@ use crate::gw2::endpoints::outfit::Outfit;
 use crate::gw2::endpoints::skiff::Skiff;
 use crate::gw2::equipment::Equipment;
 use crate::gw2::error::Error;
-use crate::gw2::fetch::Gw2LibFetcher;
-use crate::gw2::retry::Retry;
+use crate::gw2::fetch::{Fetch, Gw2LibFetcher, Retry};
 use crate::models::skin;
 use crate::models::template::TemplateData;
 
 mod cache;
-pub mod endpoints;
+mod endpoints;
 pub mod equipment;
 pub mod error;
 pub mod fetch;
 pub mod import;
-mod retry;
 
 const DEFAULT_BUFFER_SIZE: usize = 10;
 
@@ -41,7 +39,6 @@ pub struct Resolver {
     mounts: Cache<MountSkin, u32>,
     gliders: Cache<Glider, u32>,
     skiffs: Cache<Skiff, u32>,
-    retry: Retry,
     buffer_size: usize,
 }
 
@@ -50,16 +47,31 @@ impl Resolver {
     where
         Req: Requester<false, false> + Send + Sync + 'static,
     {
-        let req = Arc::new(req);
+        Self::from_fetcher(Retry::new(Gw2LibFetcher::new(Arc::new(req))))
+    }
+
+    pub fn from_fetcher<F>(fetcher: F) -> Self
+    where
+        F: Fetch<Item, u32>
+            + Fetch<Skin, u32>
+            + Fetch<Outfit, u32>
+            + Fetch<Color, u16>
+            + Fetch<MountSkin, u32>
+            + Fetch<Glider, u32>
+            + Fetch<Skiff, u32>
+            + Clone
+            + Send
+            + Sync
+            + 'static,
+    {
         Resolver {
-            items: Cache::new(Box::new(Gw2LibFetcher::new(req.clone()))),
-            skins: Cache::new(Box::new(Gw2LibFetcher::new(req.clone()))),
-            outfits: Cache::new(Box::new(Gw2LibFetcher::new(req.clone()))),
-            colors: Cache::new(Box::new(Gw2LibFetcher::new(req.clone()))),
-            mounts: Cache::new(Box::new(Gw2LibFetcher::new(req.clone()))),
-            gliders: Cache::new(Box::new(Gw2LibFetcher::new(req.clone()))),
-            skiffs: Cache::new(Box::new(Gw2LibFetcher::new(req.clone()))),
-            retry: Retry::default(),
+            items: Cache::new(Box::new(fetcher.clone())),
+            skins: Cache::new(Box::new(fetcher.clone())),
+            outfits: Cache::new(Box::new(fetcher.clone())),
+            colors: Cache::new(Box::new(fetcher.clone())),
+            mounts: Cache::new(Box::new(fetcher.clone())),
+            gliders: Cache::new(Box::new(fetcher.clone())),
+            skiffs: Cache::new(Box::new(fetcher.clone())),
             buffer_size: DEFAULT_BUFFER_SIZE,
         }
     }
@@ -73,34 +85,6 @@ impl Resolver {
         self.items.clear();
         self.skins.clear();
         self.colors.clear();
-    }
-
-    pub async fn skin(&self, id: SkinId) -> Result<Skin, Error> {
-        self.retry.start(|| self.skins.get(id.into())).await
-    }
-
-    pub async fn outfit(&self, id: SkinId) -> Result<Outfit, Error> {
-        self.retry.start(|| self.outfits.get(id.into())).await
-    }
-
-    pub async fn dye(&self, id: DyeId) -> Result<Color, Error> {
-        self.retry.start(|| self.colors.get(id.into())).await
-    }
-
-    pub async fn item(&self, id: u32) -> Result<Item, Error> {
-        self.retry.start(|| self.items.get(id)).await
-    }
-
-    pub async fn mount(&self, id: SkinId) -> Result<MountSkin, Error> {
-        self.retry.start(|| self.mounts.get(id.into())).await
-    }
-
-    pub async fn glider(&self, id: SkinId) -> Result<Glider, Error> {
-        self.retry.start(|| self.gliders.get(id.into())).await
-    }
-
-    pub async fn skiff(&self, id: SkinId) -> Result<Skiff, Error> {
-        self.retry.start(|| self.skiffs.get(id.into())).await
     }
 
     pub async fn cache_wardrobe_templates<
@@ -252,7 +236,7 @@ impl Resolver {
     }
 
     async fn resolve_outfit_name(&self, id: u16) -> Result<Option<String>, Error> {
-        match self.outfit(id.into()).await {
+        match self.outfits.get(id.into()).await {
             Ok(outfit) => Ok(Some(outfit.name)),
             Err(err) if is_not_found(&err) => {
                 tracing::warn!(message = "could not resolve outfit", id = id);
@@ -263,7 +247,7 @@ impl Resolver {
     }
 
     async fn resolve_skin_name(&self, id: u16) -> Result<Option<String>, Error> {
-        match self.skin(id.into()).await {
+        match self.skins.get(id.into()).await {
             Ok(skin) => Ok(Some(skin.name)),
             Err(err) if is_not_found(&err) => {
                 tracing::warn!(message = "could not resolve skin", id = id);
@@ -274,7 +258,7 @@ impl Resolver {
     }
 
     async fn resolve_mount_name(&self, id: u16) -> Result<Option<String>, Error> {
-        match self.mount(id.into()).await {
+        match self.mounts.get(id.into()).await {
             Ok(mount) => Ok(Some(mount.name)),
             Err(err) if is_not_found(&err) => {
                 tracing::warn!(message = "could not resolve mount skin", id = id);
@@ -285,7 +269,7 @@ impl Resolver {
     }
 
     async fn resolve_glider_name(&self, id: u16) -> Result<Option<String>, Error> {
-        match self.glider(id.into()).await {
+        match self.gliders.get(id.into()).await {
             Ok(glider) => Ok(Some(glider.name)),
             Err(err) if is_not_found(&err) => {
                 tracing::warn!(message = "could not resolve glider", id = id);
@@ -296,7 +280,7 @@ impl Resolver {
     }
 
     async fn resolve_skiff_name(&self, id: u16) -> Result<Option<String>, Error> {
-        match self.skiff(id.into()).await {
+        match self.skiffs.get(id.into()).await {
             Ok(skiff) => Ok(Some(skiff.name)),
             Err(err) if is_not_found(&err) => {
                 tracing::warn!(message = "could not resolve skiff", id = id);
@@ -324,7 +308,7 @@ impl Resolver {
     }
 
     async fn resolve_dye_name(&self, dye: &skin::Dye) -> Result<skin::Dye, Error> {
-        let name = match self.dye(dye.id.into()).await {
+        let name = match self.colors.get(dye.id.into()).await {
             Ok(color) => Ok(color.name),
             Err(err) if is_not_found(&err) => {
                 tracing::warn!(message = "could not resolve dye color", id = dye.id);
