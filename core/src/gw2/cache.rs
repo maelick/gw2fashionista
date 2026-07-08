@@ -6,6 +6,7 @@ use dashmap::DashMap;
 
 use crate::gw2::error::Error;
 use crate::gw2::fetch::Fetch;
+use crate::gw2::named::Named;
 
 pub struct Cache<T, I> {
     client: Box<dyn Fetch<T, I> + Send + Sync + 'static>,
@@ -71,6 +72,28 @@ where
             *ids = new_ids;
         }
         self.get_many(&ids).await
+    }
+}
+
+impl<T, I> Cache<T, I>
+where
+    T: Named + Clone + Send + Sync + 'static,
+    I: Debug + Hash + Eq + Clone + Copy + Send + Sync + 'static,
+{
+    pub async fn resolve_name(&self, id: I) -> Result<Option<String>, Error> {
+        match self.get(id).await {
+            Ok(object) => Ok(Some(object.name().to_string())),
+            Err(err) if err.is_not_found() => {
+                #[cfg(feature = "tracing")]
+                tracing::warn!(
+                    message = "could not resolve object",
+                    endpoint = self.client.endpoint_name(),
+                    id = ?id
+                );
+                Ok(Some("Unknown".to_string()))
+            }
+            Err(err) => Err(err),
+        }
     }
 }
 

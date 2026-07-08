@@ -158,7 +158,7 @@ impl Resolver {
 
     async fn resolve_outfit(&self, skin: &skin::Skin) -> Result<skin::Skin, Error> {
         let (name, dyes) = tokio::try_join!(
-            self.resolve_outfit_name(skin.id),
+            self.outfits.resolve_name(skin.id.into()),
             self.resolve_dyes(&skin.dyes),
         )?;
         Ok(skin::Skin {
@@ -170,7 +170,7 @@ impl Resolver {
 
     async fn resolve_wardrobe_skin(&self, skin: &skin::Skin) -> Result<skin::Skin, Error> {
         let (name, dyes) = tokio::try_join!(
-            self.resolve_skin_name(skin.id),
+            self.skins.resolve_name(skin.id.into()),
             self.resolve_dyes(&skin.dyes),
         )?;
         Ok(skin::Skin {
@@ -182,7 +182,7 @@ impl Resolver {
 
     async fn resolve_mount(&self, skin: &skin::Skin) -> Result<skin::Skin, Error> {
         let (name, dyes) = tokio::try_join!(
-            self.resolve_mount_name(skin.id),
+            self.mounts.resolve_name(skin.id.into()),
             self.resolve_dyes(&skin.dyes),
         )?;
         Ok(skin::Skin {
@@ -194,7 +194,7 @@ impl Resolver {
 
     async fn resolve_glider(&self, skin: &skin::Skin) -> Result<skin::Skin, Error> {
         let (name, dyes) = tokio::try_join!(
-            self.resolve_glider_name(skin.id),
+            self.gliders.resolve_name(skin.id.into()),
             self.resolve_dyes(&skin.dyes),
         )?;
         Ok(skin::Skin {
@@ -206,7 +206,7 @@ impl Resolver {
 
     async fn resolve_skiff(&self, skin: &skin::Skin) -> Result<skin::Skin, Error> {
         let (name, dyes) = tokio::try_join!(
-            self.resolve_skiff_name(skin.id),
+            self.skiffs.resolve_name(skin.id.into()),
             self.resolve_dyes(&skin.dyes),
         )?;
         Ok(skin::Skin {
@@ -228,89 +228,27 @@ impl Resolver {
         })
     }
 
-    async fn resolve_outfit_name(&self, id: u16) -> Result<Option<String>, Error> {
-        match self.outfits.get(id.into()).await {
-            Ok(outfit) => Ok(Some(outfit.name)),
-            Err(err) if err.is_not_found() => {
-                tracing::warn!(message = "could not resolve outfit", id = id);
-                Ok(Some("Unknown".to_owned()))
-            }
-            Err(err) => Err(err),
-        }
-    }
-
-    async fn resolve_skin_name(&self, id: u16) -> Result<Option<String>, Error> {
-        match self.skins.get(id.into()).await {
-            Ok(skin) => Ok(Some(skin.name)),
-            Err(err) if err.is_not_found() => {
-                tracing::warn!(message = "could not resolve skin", id = id);
-                Ok(Some("Unknown".to_owned()))
-            }
-            Err(err) => Err(err),
-        }
-    }
-
-    async fn resolve_mount_name(&self, id: u16) -> Result<Option<String>, Error> {
-        match self.mounts.get(id.into()).await {
-            Ok(mount) => Ok(Some(mount.name)),
-            Err(err) if err.is_not_found() => {
-                tracing::warn!(message = "could not resolve mount skin", id = id);
-                Ok(Some("Unknown".to_owned()))
-            }
-            Err(err) => Err(err),
-        }
-    }
-
-    async fn resolve_glider_name(&self, id: u16) -> Result<Option<String>, Error> {
-        match self.gliders.get(id.into()).await {
-            Ok(glider) => Ok(Some(glider.name)),
-            Err(err) if err.is_not_found() => {
-                tracing::warn!(message = "could not resolve glider", id = id);
-                Ok(Some("Unknown".to_owned()))
-            }
-            Err(err) => Err(err),
-        }
-    }
-
-    async fn resolve_skiff_name(&self, id: u16) -> Result<Option<String>, Error> {
-        match self.skiffs.get(id.into()).await {
-            Ok(skiff) => Ok(Some(skiff.name)),
-            Err(err) if err.is_not_found() => {
-                tracing::warn!(message = "could not resolve skiff", id = id);
-                Ok(Some("Unknown".to_owned()))
-            }
-            Err(err) => Err(err),
-        }
-    }
-
     async fn resolve_doorway_name(&self, _id: u16) -> Result<Option<String>, Error> {
-        Ok(Some("Unknown".to_owned()))
+        // It seems there is no API endpoint to get doorway data
+        Ok(Some("Unknown".to_string()))
     }
 
     async fn resolve_dyes(&self, dyes: &Option<skin::Dyes>) -> Result<Option<skin::Dyes>, Error> {
         if let Some((dye1, dye2, dye3, dye4)) = dyes {
             Ok(Some(tokio::try_join!(
-                self.resolve_dye_name(dye1),
-                self.resolve_dye_name(dye2),
-                self.resolve_dye_name(dye3),
-                self.resolve_dye_name(dye4),
+                self.resolve_dye(dye1),
+                self.resolve_dye(dye2),
+                self.resolve_dye(dye3),
+                self.resolve_dye(dye4),
             )?))
         } else {
             Ok(None)
         }
     }
 
-    async fn resolve_dye_name(&self, dye: &skin::Dye) -> Result<skin::Dye, Error> {
-        let name = match self.colors.get(dye.id.into()).await {
-            Ok(color) => Ok(color.name),
-            Err(err) if err.is_not_found() => {
-                tracing::warn!(message = "could not resolve dye color", id = dye.id);
-                Ok("Unknown".to_owned())
-            }
-            Err(err) => Err(err),
-        }?;
+    async fn resolve_dye(&self, dye: &skin::Dye) -> Result<skin::Dye, Error> {
         Ok(skin::Dye {
-            name: Some(name),
+            name: self.colors.resolve_name(dye.id).await?,
             ..*dye
         })
     }
