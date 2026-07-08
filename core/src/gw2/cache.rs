@@ -73,3 +73,81 @@ where
         self.get_many(&ids).await
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::gw2::fetch::MockFetch;
+    use mockall::predicate;
+
+    #[tokio::test]
+    async fn test_no_retry_on_cached() {
+        let mut mock = MockFetch::new();
+        mock_single(&mut mock, 42);
+
+        let cache = Cache::new(Box::new(mock));
+        let result = cache.get(42).await.unwrap();
+        assert_eq!(result, "Item 42");
+
+        let result = cache.get(42).await.unwrap();
+        assert_eq!(result, "Item 42");
+    }
+
+    #[tokio::test]
+    async fn test_ensure() {
+        let mut mock = MockFetch::new();
+        mock_many(&mut mock, vec![42], vec!["Item 42".to_string()]);
+
+        let cache = Cache::new(Box::new(mock));
+
+        cache.ensure(vec![42]).await.unwrap();
+
+        let result = cache.get(42).await.unwrap();
+        assert_eq!(result, "Item 42");
+    }
+
+    #[tokio::test]
+    async fn test_ensure_already_cached() {
+        let mut mock = MockFetch::new();
+        mock_single(&mut mock, 42);
+
+        let cache = Cache::new(Box::new(mock));
+        let result = cache.get(42).await.unwrap();
+        assert_eq!(result, "Item 42");
+
+        cache.ensure(vec![42]).await.unwrap();
+
+        let result = cache.get(42).await.unwrap();
+        assert_eq!(result, "Item 42");
+    }
+
+    #[tokio::test]
+    async fn test_ensure_many_with_missing() {
+        let mut mock = MockFetch::new();
+        mock_many(&mut mock, vec![1, 42, 101010], vec!["Item 42".to_string()]);
+        mock_single(&mut mock, 101010);
+
+        let cache = Cache::new(Box::new(mock));
+        cache.ensure(vec![1, 42, 101010]).await.unwrap();
+
+        let result = cache.get(42).await.unwrap();
+        assert_eq!(result, "Item 42");
+
+        let result = cache.get(101010).await.unwrap();
+        assert_eq!(result, "Item 101010");
+    }
+
+    fn mock_single(mock: &mut MockFetch<String, u32>, id: u32) {
+        mock.expect_single()
+            .with(predicate::eq(id))
+            .times(1)
+            .returning(move |_| Ok(format!("Item {}", id)));
+    }
+
+    fn mock_many(mock: &mut MockFetch<String, u32>, ids: Vec<u32>, result: Vec<String>) {
+        mock.expect_many()
+            .with(predicate::eq(ids))
+            .times(1)
+            .returning(move |_| Ok(result.clone()));
+    }
+}
