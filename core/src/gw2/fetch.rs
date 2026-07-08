@@ -15,8 +15,13 @@ use tokio_retry::strategy::{ExponentialBackoff, jitter};
 
 use crate::gw2::error::Error;
 
+#[cfg_attr(test, mockall::automock)]
 #[async_trait]
-pub trait Fetch<T, I> {
+pub trait Fetch<T, I>
+where
+    T: Sync,
+    I: Send + Sync,
+{
     fn endpoint_name(&self) -> &'static str;
 
     async fn ids(&self) -> Result<Vec<I>, Error>;
@@ -125,7 +130,7 @@ impl<F> Retry<F> {
 #[async_trait]
 impl<T, I, F> Fetch<T, I> for Retry<F>
 where
-    T: 'static,
+    T: Sync + 'static,
     I: Clone + Send + Sync + 'static,
     F: Fetch<T, I> + Send + Sync,
 {
@@ -143,5 +148,135 @@ where
 
     async fn single(&self, id: I) -> Result<T, Error> {
         self.start(|| self.inner.single(id.clone())).await
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use gw2lib::{ApiError, EndpointError};
+    use hyper::StatusCode;
+    use mockall::predicate;
+
+    #[tokio::test]
+    async fn test_no_retry_on_success() {
+        let mut mock = MockFetch::new();
+        mock_single_with_api_response(&mut mock, 200, 1);
+
+        let retry = Retry::new(mock);
+        let result = retry.single(42).await.unwrap();
+        assert_eq!(result, "peekaboo");
+    }
+
+    #[tokio::test]
+    async fn test_retry_on_500_error() {
+        let mut mock = MockFetch::new();
+        mock_single_with_api_response(&mut mock, 500, 1);
+        mock_single_with_api_response(&mut mock, 200, 1);
+
+        let retry = Retry::new(mock);
+        let result = retry.single(42).await.unwrap();
+        assert_eq!(result, "peekaboo");
+    }
+
+    #[tokio::test]
+    async fn test_retry_on_500_error_with_max_retries() {
+        let mut mock = MockFetch::new();
+        mock_single_with_api_response(&mut mock, 500, 1);
+        mock_single_with_api_response(&mut mock, 200, 1);
+
+        let retry = Retry::new(mock).with_max_retries(1);
+        let result = retry.single(42).await.unwrap();
+        assert_eq!(result, "peekaboo");
+    }
+
+    #[tokio::test]
+    async fn test_retry_on_500_error_with_max_retries_reached() {
+        let mut mock = MockFetch::new();
+        mock_single_with_api_response(&mut mock, 500, 2);
+
+        let retry = Retry::new(mock).with_max_retries(1);
+        let result = retry.single(42).await.unwrap_err();
+        assert!(result.is_transient());
+    }
+
+    #[tokio::test]
+    async fn test_retry_on_404_error() {
+        let mut mock = MockFetch::new();
+        mock_single_with_api_response(&mut mock, 404, 1);
+
+        let retry = Retry::new(mock);
+        let result = retry.single(42).await.unwrap_err();
+        assert!(result.is_not_found());
+    }
+
+    #[tokio::test]
+    async fn test_retry_on_500_and_404_error() {
+        let mut mock = MockFetch::new();
+        mock_single_with_api_response(&mut mock, 500, 1);
+        mock_single_with_api_response(&mut mock, 404, 1);
+
+        let retry = Retry::new(mock);
+        let result = retry.single(42).await.unwrap_err();
+        assert!(result.is_not_found());
+    }
+
+    #[tokio::test]
+    async fn test_retry_on_permanent_error() {
+        let mut mock: MockFetch<String, u32> = MockFetch::new();
+        mock.expect_single()
+            .with(predicate::eq(42))
+            .times(1)
+            .returning(|_| {
+                Err(Error::from_gw2lib(
+                    "peekaboo",
+                    "id=42".to_string(),
+                    EndpointError::NotAuthenticated,
+                ))
+            });
+
+        let retry = Retry::new(mock);
+        let result = retry.single(42).await.unwrap_err();
+        assert!(!result.is_transient());
+    }
+
+    fn mock_single_with_api_response<'a>(
+        mock: &'a mut MockFetch<String, u32>,
+        status: u16,
+        times: usize,
+    ) {
+        mock.expect_single()
+            .with(predicate::eq(42))
+            .times(times)
+            .returning(move |_| {
+                if status == 200 {
+                    Ok("peekaboo".to_string())
+                } else if status >= 400 && status < 600 {
+                    Err(build_api_error(
+                        "peekaboo",
+                        "id=42",
+                        status,
+                        "an error occured",
+                    ))
+                } else {
+                    panic!("unsupported mocked status: {:?}", status)
+                }
+            });
+    }
+
+    fn build_api_error(
+        endpoint: &'static str,
+        request: &str,
+        status: u16,
+        error_msg: &str,
+    ) -> Error {
+        Error::from_gw2lib(
+            endpoint,
+            request.to_string(),
+            EndpointError::ApiError(ApiError::Other(
+                StatusCode::from_u16(status).unwrap(),
+                error_msg.to_string(),
+            )),
+        )
     }
 }
