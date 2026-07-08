@@ -188,7 +188,7 @@ mod tests {
         mock_single_with_api_response(&mut mock, 200, 1);
 
         let retry = Retry::new(mock);
-        let result = retry.single(42).await.unwrap();
+        let result = execute_retry(retry, Duration::from_secs(1)).await.unwrap();
         assert_eq!(result, "peekaboo");
     }
 
@@ -199,7 +199,7 @@ mod tests {
         mock_single_with_api_response(&mut mock, 200, 1);
 
         let retry = Retry::new(mock);
-        let result = retry.single(42).await.unwrap();
+        let result = execute_retry(retry, Duration::from_secs(1)).await.unwrap();
         assert_eq!(result, "peekaboo");
     }
 
@@ -210,7 +210,7 @@ mod tests {
         mock_single_with_api_response(&mut mock, 200, 1);
 
         let retry = Retry::new(mock).with_max_retries(1);
-        let result = retry.single(42).await.unwrap();
+        let result = execute_retry(retry, Duration::from_secs(1)).await.unwrap();
         assert_eq!(result, "peekaboo");
     }
 
@@ -220,8 +220,10 @@ mod tests {
         mock_single_with_api_response(&mut mock, 500, 10);
         mock_single_with_api_response(&mut mock, 200, 1);
 
+        let t_start = tokio::time::Instant::now();
         let retry = Retry::new(mock).with_sleep_millis(10000);
-        let result = retry.single(42).await.unwrap();
+        let result = execute_retry(retry, Duration::from_mins(11)).await.unwrap();
+        assert!(t_start.elapsed() > Duration::from_mins(1));
         assert_eq!(result, "peekaboo");
     }
 
@@ -231,7 +233,9 @@ mod tests {
         mock_single_with_api_response(&mut mock, 500, 2);
 
         let retry = Retry::new(mock).with_max_retries(1);
-        let result = retry.single(42).await.unwrap_err();
+        let result = execute_retry(retry, Duration::from_secs(1))
+            .await
+            .unwrap_err();
         assert!(result.is_transient());
     }
 
@@ -241,7 +245,9 @@ mod tests {
         mock_single_with_api_response(&mut mock, 404, 1);
 
         let retry = Retry::new(mock);
-        let result = retry.single(42).await.unwrap_err();
+        let result = execute_retry(retry, Duration::from_secs(1))
+            .await
+            .unwrap_err();
         assert!(result.is_not_found());
     }
 
@@ -252,7 +258,9 @@ mod tests {
         mock_single_with_api_response(&mut mock, 404, 1);
 
         let retry = Retry::new(mock);
-        let result = retry.single(42).await.unwrap_err();
+        let result = execute_retry(retry, Duration::from_secs(1))
+            .await
+            .unwrap_err();
         assert!(result.is_not_found());
     }
 
@@ -271,8 +279,19 @@ mod tests {
             });
 
         let retry = Retry::new(mock);
-        let result = retry.single(42).await.unwrap_err();
+        let result = execute_retry(retry, Duration::from_secs(1))
+            .await
+            .unwrap_err();
         assert!(!result.is_transient());
+    }
+
+    async fn execute_retry<'a>(
+        retry: Retry<MockFetch<String, u32>>,
+        max_duration: Duration,
+    ) -> Result<String, Error> {
+        tokio::time::timeout(max_duration, retry.single(42))
+            .await
+            .unwrap()
     }
 
     fn mock_single_with_api_response<'a>(
