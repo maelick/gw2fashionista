@@ -27,6 +27,8 @@ where
 
     async fn ids(&self) -> Result<Vec<I>, Error>;
 
+    /// Returns a map of successfully retrieved objects.
+    /// If some (or all) are missing, the method returns a partial result instead of an ErrorKind::NotFound.
     async fn many(&self, ids: &[I]) -> Result<HashMap<I, T>, Error>;
 
     async fn single(&self, id: I) -> Result<T, Error>;
@@ -67,10 +69,19 @@ where
     }
 
     async fn many(&self, ids: &[I]) -> Result<HashMap<I, T>, Error> {
-        let objects = Requester::many::<T, I>(&*self.client, ids.to_vec())
+        let result = Requester::many::<T, I>(&*self.client, ids.to_vec())
             .await
-            .map_err(|e| Error::from_gw2lib(T::URL, format!("many(ids={ids:?})"), e))?;
-        Ok(objects.into_iter().map(|o| (o.id().clone(), o)).collect())
+            .map_err(|e| Error::from_gw2lib(T::URL, format!("many(ids={ids:?})"), e));
+        match result {
+            Ok(objects) => Ok(objects.into_iter().map(|o| (o.id().clone(), o)).collect()),
+            Err(e) => {
+                if e.is_not_found() {
+                    Ok(HashMap::new())
+                } else {
+                    Err(e)
+                }
+            }
+        }
     }
 
     async fn single(&self, id: I) -> Result<T, Error> {
