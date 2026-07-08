@@ -2,6 +2,7 @@ use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 use futures::stream::{self, StreamExt, TryStreamExt};
+use gw2lib::model::authenticated::characters::Equip;
 use gw2lib::model::{
     items::{Item, skins::Skin},
     misc::colors::Color,
@@ -129,8 +130,28 @@ impl Resolver {
         self.items.ensure(items.into_iter().collect()).await?;
 
         stream::iter(equipments)
-            .map(async |e| e.resolve_default_skins(&self.items).await)
+            .map(async |e| {
+                self.resolve_default_skins(&e.slots)
+                    .await
+                    .map(|s| e.with_slots(s))
+            })
             .buffered(self.buffer_size)
+            .try_collect()
+            .await
+    }
+
+    pub async fn resolve_default_skins(&self, slots: &[Equip]) -> Result<Vec<Equip>, Error> {
+        stream::iter(slots)
+            .then(async |s| {
+                if s.skin.is_none() {
+                    Ok::<_, Error>(Equip {
+                        skin: self.items.get(s.id).await?.default_skin,
+                        ..s.clone()
+                    })
+                } else {
+                    Ok(s.clone())
+                }
+            })
             .try_collect()
             .await
     }
