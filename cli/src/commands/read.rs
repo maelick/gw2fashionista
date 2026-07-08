@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use clap::Args;
 use gw2fashionista_core::domain::templates::FashionSlot;
+use gw2fashionista_core::domain::templates::travel::TravelTemplate;
 use gw2fashionista_core::domain::{
     chatlink::ChatLink, error::ChatLinkError, templates::wardrobe::WardrobeTemplate,
 };
@@ -158,6 +159,7 @@ impl super::Command for Command {
         let resolver = Resolver::default().with_buffer_size(self.concurrency as usize);
         if !self.skip_names {
             resolver.cache_templates(wardrobe_templates(&links)).await?;
+            resolver.cache_templates(travel_templates(&links)).await?;
         }
 
         for link in &links {
@@ -180,6 +182,16 @@ fn wardrobe_templates(chat_links: &[ChatLink]) -> Vec<&WardrobeTemplate> {
         .iter()
         .filter_map(|link| match link {
             ChatLink::WardrobeTemplate(template) => Some(template),
+            _ => None,
+        })
+        .collect()
+}
+
+fn travel_templates(chat_links: &[ChatLink]) -> Vec<&TravelTemplate> {
+    chat_links
+        .iter()
+        .filter_map(|link| match link {
+            ChatLink::TravelTemplate(template) => Some(template),
             _ => None,
         })
         .collect()
