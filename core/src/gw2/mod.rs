@@ -1,8 +1,10 @@
 mod cache;
+pub mod doorway;
 mod endpoints;
 pub mod equipment;
 pub mod error;
 pub mod fetch;
 pub mod import;
+mod lookup;
 pub mod named;
 pub mod resolve;

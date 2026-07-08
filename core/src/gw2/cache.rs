@@ -17,9 +17,9 @@ where
     T: Clone + Send + Sync + 'static,
     I: Debug + Hash + Eq + Clone + Copy + Send + Sync + 'static,
 {
-    pub fn new(client: Box<dyn Fetch<T, I> + Send + Sync + 'static>) -> Self {
+    pub fn new(client: impl Fetch<T, I> + Send + Sync + 'static) -> Self {
         Cache {
-            client,
+            client: Box::new(client),
             items: DashMap::new(),
         }
     }
@@ -93,7 +93,7 @@ mod tests {
         let mut mock = MockFetch::new();
         mock_single(&mut mock, ITEM_ID);
 
-        let cache = Cache::new(Box::new(mock));
+        let cache = Cache::new(mock);
         let result = cache.get(ITEM_ID).await.unwrap();
         assert_eq!(result, "Item 42");
 
@@ -110,7 +110,7 @@ mod tests {
             HashMap::from([(ITEM_ID, "Item 42".to_string())]),
         );
 
-        let cache = Cache::new(Box::new(mock));
+        let cache = Cache::new(mock);
 
         cache.ensure(vec![ITEM_ID]).await.unwrap();
 
@@ -123,7 +123,7 @@ mod tests {
         let mut mock = MockFetch::new();
         mock_single(&mut mock, ITEM_ID);
 
-        let cache = Cache::new(Box::new(mock));
+        let cache = Cache::new(mock);
         let result = cache.get(ITEM_ID).await.unwrap();
         assert_eq!(result, "Item 42");
 
@@ -146,7 +146,7 @@ mod tests {
             .times(1)
             .returning(|_| Err(ErrorKind::NotFound.into()));
 
-        let cache = Cache::new(Box::new(mock));
+        let cache = Cache::new(mock);
         cache.ensure(vec![1, ITEM_ID, 101010]).await.unwrap();
 
         let result = cache.get(ITEM_ID).await.unwrap();
