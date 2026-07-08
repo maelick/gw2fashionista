@@ -1,24 +1,9 @@
-use std::collections::HashSet;
-
 use linearize::Linearize;
 use serde::{Deserialize, Serialize};
 
-use crate::domain::skins::SkinId;
 use crate::domain::templates::{FashionSlot, Template};
 
 pub type TravelTemplate = Template<TravelSlot>;
-
-impl TravelTemplate {
-    pub fn all_mount_ids(&self) -> HashSet<SkinId> {
-        HashSet::from_iter(self.iter().filter_map(|(slot, appearance)| {
-            if slot.is_mount() {
-                None
-            } else {
-                Some(appearance.skin()).filter(|skin| !skin.is_empty())
-            }
-        }))
-    }
-}
 
 #[derive(
     Clone,
@@ -75,12 +60,6 @@ impl FashionSlot for TravelSlot {
             | TravelSlot::Skyscale
             | TravelSlot::Turtle => super::FashionSlotKind::Mount,
         }
-    }
-}
-
-impl TravelSlot {
-    fn is_mount(self) -> bool {
-        matches!(self.kind(), super::FashionSlotKind::Mount)
     }
 }
 

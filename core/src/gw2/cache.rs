@@ -29,9 +29,10 @@ where
     }
 
     #[cfg_attr(feature = "tracing", tracing::instrument(skip_all, fields(endpoint = self.client.endpoint_name())))]
-    pub async fn ensure(&self, ids: Vec<I>) -> Result<(), Error> {
+    pub async fn ensure<J: Into<I>>(&self, ids: impl IntoIterator<Item = J>) -> Result<(), Error> {
         let ids: Vec<_> = ids
             .into_iter()
+            .map(|id| id.into())
             .filter(|id| !self.items.contains_key(id))
             .collect();
 
@@ -85,16 +86,18 @@ mod tests {
     use super::*;
     use crate::gw2::{error::ErrorKind, fetch::MockFetch};
 
+    const ITEM_ID: u32 = 42;
+
     #[tokio::test]
     async fn test_no_retry_on_cached() {
         let mut mock = MockFetch::new();
-        mock_single(&mut mock, 42);
+        mock_single(&mut mock, ITEM_ID);
 
         let cache = Cache::new(Box::new(mock));
-        let result = cache.get(42).await.unwrap();
+        let result = cache.get(ITEM_ID).await.unwrap();
         assert_eq!(result, "Item 42");
 
-        let result = cache.get(42).await.unwrap();
+        let result = cache.get(ITEM_ID).await.unwrap();
         assert_eq!(result, "Item 42");
     }
 
@@ -103,30 +106,30 @@ mod tests {
         let mut mock = MockFetch::new();
         mock_many(
             &mut mock,
-            vec![42],
-            HashMap::from([(42, "Item 42".to_string())]),
+            vec![ITEM_ID],
+            HashMap::from([(ITEM_ID, "Item 42".to_string())]),
         );
 
         let cache = Cache::new(Box::new(mock));
 
-        cache.ensure(vec![42]).await.unwrap();
+        cache.ensure(vec![ITEM_ID]).await.unwrap();
 
-        let result = cache.get(42).await.unwrap();
+        let result = cache.get(ITEM_ID).await.unwrap();
         assert_eq!(result, "Item 42");
     }
 
     #[tokio::test]
     async fn test_ensure_already_cached() {
         let mut mock = MockFetch::new();
-        mock_single(&mut mock, 42);
+        mock_single(&mut mock, ITEM_ID);
 
         let cache = Cache::new(Box::new(mock));
-        let result = cache.get(42).await.unwrap();
+        let result = cache.get(ITEM_ID).await.unwrap();
         assert_eq!(result, "Item 42");
 
-        cache.ensure(vec![42]).await.unwrap();
+        cache.ensure(vec![ITEM_ID]).await.unwrap();
 
-        let result = cache.get(42).await.unwrap();
+        let result = cache.get(ITEM_ID).await.unwrap();
         assert_eq!(result, "Item 42");
     }
 
@@ -135,8 +138,8 @@ mod tests {
         let mut mock = MockFetch::new();
         mock_many(
             &mut mock,
-            vec![1, 42, 101010],
-            HashMap::from([(42, "Item 42".to_string())]),
+            vec![1, ITEM_ID, 101010],
+            HashMap::from([(ITEM_ID, "Item 42".to_string())]),
         );
         mock.expect_single()
             .with(predicate::eq(101010))
@@ -144,9 +147,9 @@ mod tests {
             .returning(|_| Err(ErrorKind::NotFound.into()));
 
         let cache = Cache::new(Box::new(mock));
-        cache.ensure(vec![1, 42, 101010]).await.unwrap();
+        cache.ensure(vec![1, ITEM_ID, 101010]).await.unwrap();
 
-        let result = cache.get(42).await.unwrap();
+        let result = cache.get(ITEM_ID).await.unwrap();
         assert_eq!(result, "Item 42");
 
         let result = cache.get(101010).await.unwrap_err();

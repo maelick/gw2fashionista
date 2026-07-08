@@ -12,7 +12,7 @@ use serde::Serialize;
 
 use crate::domain::{
     error::ChatLinkError,
-    skins::{Appearance, DyeId},
+    skins::{Appearance, DyeId, SkinId},
 };
 
 pub mod travel;
@@ -20,6 +20,7 @@ pub mod wardrobe;
 
 pub type SlotFilter<S> = HashSet<S>;
 
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub enum FashionSlotKind {
     Equipment,
     Outfit,
@@ -97,6 +98,17 @@ impl<S: FashionSlot> Template<S> {
             slots.insert(slot, merged);
         }
         Self::new(slots)
+    }
+
+    pub fn all_skin_ids(&self) -> HashMap<FashionSlotKind, HashSet<SkinId>> {
+        let mut skins = HashMap::<FashionSlotKind, HashSet<SkinId>>::new();
+        for (slot, appearance) in self {
+            skins
+                .entry(slot.kind())
+                .or_default()
+                .insert(appearance.skin());
+        }
+        skins
     }
 
     pub fn all_dye_ids(&self) -> HashSet<DyeId> {

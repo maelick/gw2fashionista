@@ -157,9 +157,7 @@ impl super::Command for Command {
         let links = self.parse(&raw_links)?;
         let resolver = Resolver::default().with_buffer_size(self.concurrency as usize);
         if !self.skip_names {
-            resolver
-                .cache_wardrobe_templates(wardrobe_templates(&links))
-                .await?;
+            resolver.cache_templates(wardrobe_templates(&links)).await?;
         }
 
         for link in &links {

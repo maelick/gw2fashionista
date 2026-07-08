@@ -10,8 +10,7 @@ use gw2lib::model::{
 use gw2lib::{Client, Requester};
 
 use crate::domain::skins::{DyeId, SkinId};
-use crate::domain::templates::wardrobe::WardrobeTemplate;
-use crate::domain::templates::{FashionSlot, FashionSlotKind};
+use crate::domain::templates::{FashionSlot, FashionSlotKind, Template};
 use crate::gw2::cache::Cache;
 use crate::gw2::endpoints::glider::Glider;
 use crate::gw2::endpoints::mount::MountSkin;
@@ -81,41 +80,60 @@ impl Resolver {
         self.colors.clear();
     }
 
-    pub async fn cache_wardrobe_templates<
+    pub async fn cache_templates<
         'a,
-        Templates: IntoIterator<Item = &'a WardrobeTemplate>,
+        S: FashionSlot,
+        Templates: IntoIterator<Item = &'a Template<S>>,
     >(
         &self,
         templates: Templates,
     ) -> Result<(), Error> {
-        let mut skins = HashSet::new();
+        let mut skins = HashMap::<FashionSlotKind, HashSet<SkinId>>::new();
         let mut dyes = HashSet::new();
         for t in templates {
-            skins.extend(t.all_skin_ids());
+            for (kind, template_skins) in t.all_skin_ids() {
+                skins.entry(kind).or_default().extend(template_skins);
+            }
             dyes.extend(t.all_dye_ids());
         }
-        self.fetch_missing_fashion_data(skins, dyes).await
+        self.cache_fashion_data(skins, dyes).await
     }
 
-    pub async fn cache_wardrobe_template(&self, template: &WardrobeTemplate) -> Result<(), Error> {
-        self.fetch_missing_fashion_data(template.all_skin_ids(), template.all_dye_ids())
-            .await
+    pub async fn cache_template<S: FashionSlot>(
+        &self,
+        template: &Template<S>,
+    ) -> Result<(), Error> {
+        let skins = template.all_skin_ids();
+        let dyes = template.all_dye_ids();
+        self.cache_fashion_data(skins, dyes).await
     }
 
-    async fn fetch_missing_fashion_data<
-        Skins: IntoIterator<Item = SkinId>,
+    async fn cache_fashion_data<
+        Skins: IntoIterator<Item = (FashionSlotKind, HashSet<SkinId>)>,
         Dyes: IntoIterator<Item = DyeId>,
     >(
         &self,
         skins: Skins,
         dyes: Dyes,
     ) -> Result<(), Error> {
-        tokio::try_join!(
-            self.skins
-                .ensure(skins.into_iter().map(|id| id.into()).collect()),
-            self.colors
-                .ensure(dyes.into_iter().map(|id| id.into()).collect()),
-        )?;
+        tokio::try_join!(self.cache_skins(skins), self.colors.ensure(dyes),)?;
+        Ok(())
+    }
+
+    async fn cache_skins<Skins: IntoIterator<Item = (FashionSlotKind, HashSet<SkinId>)>>(
+        &self,
+        skins: Skins,
+    ) -> Result<(), Error> {
+        for (kind, skins) in skins {
+            match kind {
+                FashionSlotKind::Equipment => self.skins.ensure(skins).await?,
+                FashionSlotKind::Outfit => self.outfits.ensure(skins).await?,
+                FashionSlotKind::Mount => self.mounts.ensure(skins).await?,
+                FashionSlotKind::Glider => self.gliders.ensure(skins).await?,
+                FashionSlotKind::Skiff => self.skiffs.ensure(skins).await?,
+                FashionSlotKind::Doorway => (),
+            };
+        }
         Ok(())
     }
 
@@ -127,7 +145,7 @@ impl Resolver {
         for e in &equipments {
             items.extend(e.all_item_ids());
         }
-        self.items.ensure(items.into_iter().collect()).await?;
+        self.items.ensure(items).await?;
 
         stream::iter(equipments)
             .map(async |e| {

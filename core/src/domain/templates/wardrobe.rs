@@ -1,21 +1,9 @@
-use std::collections::HashSet;
-
 use linearize::Linearize;
 use serde::{Deserialize, Serialize};
 
-use crate::domain::skins::SkinId;
 use crate::domain::templates::{FashionSlot, Template};
 
 pub type WardrobeTemplate = Template<WardrobeSlot>;
-
-impl WardrobeTemplate {
-    pub fn all_skin_ids(&self) -> HashSet<SkinId> {
-        HashSet::from_iter(self.iter().filter_map(|(slot, appearance)| match slot {
-            WardrobeSlot::Outfit => None,
-            _ => Some(appearance.skin()).filter(|skin| !skin.is_empty()),
-        }))
-    }
-}
 
 #[derive(
     Clone,
