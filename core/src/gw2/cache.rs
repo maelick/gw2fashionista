@@ -1,6 +1,5 @@
 use std::fmt::Debug;
 use std::hash::Hash;
-use tokio::sync::Mutex;
 
 use dashmap::DashMap;
 
@@ -10,7 +9,6 @@ use crate::gw2::named::Named;
 
 pub struct Cache<T, I> {
     client: Box<dyn Fetch<T, I> + Send + Sync + 'static>,
-    ids: Mutex<Vec<I>>,
     items: DashMap<I, T>,
 }
 
@@ -22,7 +20,6 @@ where
     pub fn new(client: Box<dyn Fetch<T, I> + Send + Sync + 'static>) -> Self {
         Cache {
             client,
-            ids: Mutex::new(Vec::new()),
             items: DashMap::new(),
         }
     }
@@ -55,23 +52,6 @@ where
             self.items.insert(id, self.client.single(id).await?);
         }
         Ok(self.items.get(&id).unwrap().clone())
-    }
-
-    pub async fn get_many(&self, ids: &[I]) -> Result<Vec<T>, Error> {
-        self.ensure(ids.to_vec()).await?;
-        let items = ids
-            .iter()
-            .filter_map(|id| self.items.get(id).map(|guard| guard.clone()));
-        Ok(items.collect())
-    }
-
-    pub async fn get_all(&self) -> Result<Vec<T>, Error> {
-        let mut ids = self.ids.lock().await;
-        if ids.is_empty() {
-            let new_ids = self.client.ids().await?;
-            *ids = new_ids;
-        }
-        self.get_many(&ids).await
     }
 }
 
