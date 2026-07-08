@@ -36,9 +36,14 @@ async fn test_resolve_peekaboo() {
                 "Glint's Rebellion",
             ),
             TravelSlot::Doorway => {
-                // It seems there is no API endpoint to get doorway data
-                assert_eq!(skin.name.as_ref(), None);
-                assert_dyes(skin, "Glint's Rebellion", "Violite", "Violite", "Violite");
+                assert_dyeable_skin(
+                    skin,
+                    "Choya Piñata Conjured Doorway",
+                    "Glint's Rebellion",
+                    "Violite",
+                    "Violite",
+                    "Violite",
+                );
             }
             TravelSlot::Jackal => assert_dyeable_skin(
                 skin,
@@ -146,11 +151,14 @@ async fn test_resolve_zizi() {
                 "Permafrost",
                 "Permafrost",
             ),
-            TravelSlot::Doorway => {
-                // It seems there is no API endpoint to get doorway data
-                assert_eq!(skin.name.as_ref(), None);
-                assert_dyes(skin, "Hot Pink", "Jalapeño", "Electro Pink", "Mullberry")
-            }
+            TravelSlot::Doorway => assert_dyeable_skin(
+                skin,
+                "Choya Piñata Conjured Doorway",
+                "Hot Pink",
+                "Jalapeño",
+                "Electro Pink",
+                "Mullberry",
+            ),
             TravelSlot::Jackal => assert_dyeable_skin(
                 skin,
                 "Plush Vulpine Jackal",

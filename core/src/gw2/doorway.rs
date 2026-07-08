@@ -1,9 +1,15 @@
 use crate::gw2::{lookup::StaticLookup, named::Named};
 
-pub const KNOWN_DOORWAYS: &[Doorway] = &[Doorway {
-    id: 2,
-    name: "Choya Piñata Conjured Doorway",
-}];
+pub const KNOWN_DOORWAYS: &[Doorway] = &[
+    Doorway {
+        id: 2,
+        name: "Kodan Conjured Doorway",
+    },
+    Doorway {
+        id: 5,
+        name: "Choya Piñata Conjured Doorway",
+    },
+];
 
 #[derive(Clone)]
 pub struct Doorway {
