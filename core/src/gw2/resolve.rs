@@ -230,7 +230,7 @@ impl Resolver {
 
     async fn resolve_doorway_name(&self, _id: u16) -> Result<Option<String>, Error> {
         // It seems there is no API endpoint to get doorway data
-        Ok(Some("Unknown".to_string()))
+        Ok(None)
     }
 
     async fn resolve_dyes(&self, dyes: &Option<skin::Dyes>) -> Result<Option<skin::Dyes>, Error> {

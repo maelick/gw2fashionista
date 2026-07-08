@@ -90,7 +90,7 @@ where
                     endpoint = self.client.endpoint_name(),
                     id = ?id
                 );
-                Ok(Some("Unknown".to_string()))
+                Ok(None)
             }
             Err(err) => Err(err),
         }
