@@ -3,6 +3,7 @@ use std::{
     fmt::{Debug, Display},
     hash::Hash,
     sync::Arc,
+    time::Duration,
 };
 
 use async_trait::async_trait;
@@ -104,17 +105,20 @@ pub struct Retry<F> {
     inner: F,
     max_retries: usize,
     sleep_millis: u64,
+    max_delay: Duration,
 }
 
 impl<F> Retry<F> {
     pub const DEFAULT_MAX_RETRIES: usize = 10;
     pub const DEFAULT_SLEEP_MILLIS: u64 = 1000;
+    pub const DEFAULT_MAX_DELAY: Duration = Duration::from_secs(60);
 
     pub fn new(inner: F) -> Self {
         Retry {
             inner,
             max_retries: Self::DEFAULT_MAX_RETRIES,
             sleep_millis: Self::DEFAULT_SLEEP_MILLIS,
+            max_delay: Self::DEFAULT_MAX_DELAY,
         }
     }
 
@@ -128,12 +132,19 @@ impl<F> Retry<F> {
         self
     }
 
+    pub fn with_max_delay(mut self, max_delay: Duration) -> Self {
+        self.max_delay = max_delay;
+        self
+    }
+
     pub async fn start<T, A, Fut>(&self, action: A) -> Result<T, Error>
     where
         A: FnMut() -> Fut,
         Fut: Future<Output = Result<T, Error>>,
     {
-        let retries = ExponentialBackoff::from_millis(self.sleep_millis)
+        let retries = ExponentialBackoff::from_millis(2)
+            .factor(self.sleep_millis / 2)
+            .max_delay(self.max_delay)
             .map(jitter)
             .take(self.max_retries);
         RetryIf::start(retries, action, Error::is_transient).await
