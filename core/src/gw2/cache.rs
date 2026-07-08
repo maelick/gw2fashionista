@@ -76,13 +76,11 @@ where
 
 #[cfg(test)]
 mod tests {
-    use gw2lib::{ApiError, EndpointError};
-    use hyper::StatusCode;
     use mockall::predicate;
     use std::collections::HashMap;
 
     use super::*;
-    use crate::gw2::fetch::MockFetch;
+    use crate::gw2::{error::ErrorKind, fetch::MockFetch};
 
     #[tokio::test]
     async fn test_no_retry_on_cached() {
@@ -140,16 +138,7 @@ mod tests {
         mock.expect_single()
             .with(predicate::eq(101010))
             .times(1)
-            .returning(|_| {
-                Err(Error::from_gw2lib(
-                    "peekaboo",
-                    "id=101010".to_string(),
-                    EndpointError::ApiError(ApiError::Other(
-                        StatusCode::from_u16(404).unwrap(),
-                        "not found".to_string(),
-                    )),
-                ))
-            });
+            .returning(|_| Err(ErrorKind::NotFound.into()));
 
         let cache = Cache::new(Box::new(mock));
         cache.ensure(vec![1, 42, 101010]).await.unwrap();

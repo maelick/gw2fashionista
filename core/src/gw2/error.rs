@@ -45,6 +45,18 @@ impl Error {
     }
 }
 
+#[cfg(test)]
+impl From<ErrorKind> for Error {
+    fn from(kind: ErrorKind) -> Self {
+        Error {
+            kind,
+            endpoint: "test-endpoint",
+            request: "test-request".to_string(),
+            source: None,
+        }
+    }
+}
+
 fn classify(err: &EndpointError) -> ErrorKind {
     use ApiError as A;
     use EndpointError as E;
