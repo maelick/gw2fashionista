@@ -171,7 +171,7 @@ mod tests {
     use hyper::StatusCode;
     use mockall::predicate;
 
-    #[tokio::test]
+    #[tokio::test(start_paused = true)]
     async fn test_no_retry_on_success() {
         let mut mock = MockFetch::new();
         mock_single_with_api_response(&mut mock, 200, 1);
@@ -181,7 +181,7 @@ mod tests {
         assert_eq!(result, "peekaboo");
     }
 
-    #[tokio::test]
+    #[tokio::test(start_paused = true)]
     async fn test_retry_on_500_error() {
         let mut mock = MockFetch::new();
         mock_single_with_api_response(&mut mock, 500, 1);
@@ -192,7 +192,7 @@ mod tests {
         assert_eq!(result, "peekaboo");
     }
 
-    #[tokio::test]
+    #[tokio::test(start_paused = true)]
     async fn test_retry_on_500_error_with_max_retries() {
         let mut mock = MockFetch::new();
         mock_single_with_api_response(&mut mock, 500, 1);
@@ -203,7 +203,18 @@ mod tests {
         assert_eq!(result, "peekaboo");
     }
 
-    #[tokio::test]
+    #[tokio::test(start_paused = true)]
+    async fn test_retry_on_500_error_with_sleep_millis() {
+        let mut mock = MockFetch::new();
+        mock_single_with_api_response(&mut mock, 500, 10);
+        mock_single_with_api_response(&mut mock, 200, 1);
+
+        let retry = Retry::new(mock).with_sleep_millis(10000);
+        let result = retry.single(42).await.unwrap();
+        assert_eq!(result, "peekaboo");
+    }
+
+    #[tokio::test(start_paused = true)]
     async fn test_retry_on_500_error_with_max_retries_reached() {
         let mut mock = MockFetch::new();
         mock_single_with_api_response(&mut mock, 500, 2);
@@ -213,7 +224,7 @@ mod tests {
         assert!(result.is_transient());
     }
 
-    #[tokio::test]
+    #[tokio::test(start_paused = true)]
     async fn test_retry_on_404_error() {
         let mut mock = MockFetch::new();
         mock_single_with_api_response(&mut mock, 404, 1);
@@ -223,7 +234,7 @@ mod tests {
         assert!(result.is_not_found());
     }
 
-    #[tokio::test]
+    #[tokio::test(start_paused = true)]
     async fn test_retry_on_500_and_404_error() {
         let mut mock = MockFetch::new();
         mock_single_with_api_response(&mut mock, 500, 1);
@@ -234,7 +245,7 @@ mod tests {
         assert!(result.is_not_found());
     }
 
-    #[tokio::test]
+    #[tokio::test(start_paused = true)]
     async fn test_retry_on_permanent_error() {
         let mut mock: MockFetch<String, u32> = MockFetch::new();
         mock.expect_single()
