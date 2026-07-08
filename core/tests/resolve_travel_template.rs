@@ -10,7 +10,7 @@ async fn test_resolve_empty() {
     let resolver = Resolver::default();
     let template = &parse_template(EMPTY_TEMPLATE.chat_link);
 
-    // resolver.cache_travel_template(&template).await.unwrap();
+    resolver.cache_template(&template).await.unwrap();
 
     let data = resolver.resolve_template(&template.into()).await.unwrap();
     assert!(data.is_empty());
@@ -21,7 +21,7 @@ async fn test_resolve_peekaboo() {
     let resolver = Resolver::default();
     let template = &parse_template(PEEKABOO_TEMPLATE.chat_link);
 
-    // resolver.cache_travel_template(&template).await.unwrap();
+    resolver.cache_template(&template).await.unwrap();
 
     let data = resolver.resolve_template(&template.into()).await.unwrap();
 
@@ -132,7 +132,7 @@ async fn test_resolve_zizi() {
     let resolver = Resolver::default();
     let template = &parse_template(ZIZI_TEMPLATE.chat_link);
 
-    // resolver.cache_travel_template(&template).await.unwrap();
+    resolver.cache_template(&template).await.unwrap();
 
     let data = &resolver.resolve_template(&template.into()).await.unwrap();
 
