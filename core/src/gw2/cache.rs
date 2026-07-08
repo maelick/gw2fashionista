@@ -42,7 +42,7 @@ where
             tracing::info!(message = "Retrieving missing data from GW2 API", ?ids);
 
             let items = self.client.many(&ids).await?;
-            for (id, item) in ids.into_iter().zip(items) {
+            for (id, item) in items {
                 self.items.insert(id, item);
             }
         }
@@ -76,9 +76,13 @@ where
 
 #[cfg(test)]
 mod tests {
+    use gw2lib::{ApiError, EndpointError};
+    use hyper::StatusCode;
+    use mockall::predicate;
+    use std::collections::HashMap;
+
     use super::*;
     use crate::gw2::fetch::MockFetch;
-    use mockall::predicate;
 
     #[tokio::test]
     async fn test_no_retry_on_cached() {
@@ -96,7 +100,11 @@ mod tests {
     #[tokio::test]
     async fn test_ensure() {
         let mut mock = MockFetch::new();
-        mock_many(&mut mock, vec![42], vec!["Item 42".to_string()]);
+        mock_many(
+            &mut mock,
+            vec![42],
+            HashMap::from([(42, "Item 42".to_string())]),
+        );
 
         let cache = Cache::new(Box::new(mock));
 
@@ -124,8 +132,24 @@ mod tests {
     #[tokio::test]
     async fn test_ensure_many_with_missing() {
         let mut mock = MockFetch::new();
-        mock_many(&mut mock, vec![1, 42, 101010], vec!["Item 42".to_string()]);
-        mock_single(&mut mock, 101010);
+        mock_many(
+            &mut mock,
+            vec![1, 42, 101010],
+            HashMap::from([(42, "Item 42".to_string())]),
+        );
+        mock.expect_single()
+            .with(predicate::eq(101010))
+            .times(1)
+            .returning(|_| {
+                Err(Error::from_gw2lib(
+                    "peekaboo",
+                    "id=101010".to_string(),
+                    EndpointError::ApiError(ApiError::Other(
+                        StatusCode::from_u16(404).unwrap(),
+                        "not found".to_string(),
+                    )),
+                ))
+            });
 
         let cache = Cache::new(Box::new(mock));
         cache.ensure(vec![1, 42, 101010]).await.unwrap();
@@ -133,8 +157,8 @@ mod tests {
         let result = cache.get(42).await.unwrap();
         assert_eq!(result, "Item 42");
 
-        let result = cache.get(101010).await.unwrap();
-        assert_eq!(result, "Item 101010");
+        let result = cache.get(101010).await.unwrap_err();
+        assert!(result.is_not_found());
     }
 
     fn mock_single(mock: &mut MockFetch<String, u32>, id: u32) {
@@ -144,7 +168,7 @@ mod tests {
             .returning(move |_| Ok(format!("Item {}", id)));
     }
 
-    fn mock_many(mock: &mut MockFetch<String, u32>, ids: Vec<u32>, result: Vec<String>) {
+    fn mock_many(mock: &mut MockFetch<String, u32>, ids: Vec<u32>, result: HashMap<u32, String>) {
         mock.expect_many()
             .with(predicate::eq(ids))
             .times(1)

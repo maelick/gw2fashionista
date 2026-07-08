@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     fmt::{Debug, Display},
     hash::Hash,
     sync::Arc,
@@ -26,7 +27,7 @@ where
 
     async fn ids(&self) -> Result<Vec<I>, Error>;
 
-    async fn many(&self, ids: &[I]) -> Result<Vec<T>, Error>;
+    async fn many(&self, ids: &[I]) -> Result<HashMap<I, T>, Error>;
 
     async fn single(&self, id: I) -> Result<T, Error>;
 }
@@ -65,10 +66,11 @@ where
             .map_err(|e| Error::from_gw2lib(T::URL, "ids()".to_string(), e))
     }
 
-    async fn many(&self, ids: &[I]) -> Result<Vec<T>, Error> {
-        Requester::many::<T, I>(&*self.client, ids.to_vec())
+    async fn many(&self, ids: &[I]) -> Result<HashMap<I, T>, Error> {
+        let objects = Requester::many::<T, I>(&*self.client, ids.to_vec())
             .await
-            .map_err(|e| Error::from_gw2lib(T::URL, format!("many(ids={ids:?})"), e))
+            .map_err(|e| Error::from_gw2lib(T::URL, format!("many(ids={ids:?})"), e))?;
+        Ok(objects.into_iter().map(|o| (o.id().clone(), o)).collect())
     }
 
     async fn single(&self, id: I) -> Result<T, Error> {
@@ -142,7 +144,7 @@ where
         self.start(|| self.inner.ids()).await
     }
 
-    async fn many(&self, ids: &[I]) -> Result<Vec<T>, Error> {
+    async fn many(&self, ids: &[I]) -> Result<HashMap<I, T>, Error> {
         self.start(|| self.inner.many(ids)).await
     }
 
