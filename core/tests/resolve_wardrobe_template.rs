@@ -1,6 +1,6 @@
 use gw2fashionista_core::domain::chatlink::ChatLink;
 use gw2fashionista_core::domain::templates::wardrobe::{WardrobeSlot, WardrobeTemplate};
-use gw2fashionista_core::gw2::Resolver;
+use gw2fashionista_core::gw2::resolve::Resolver;
 use gw2fashionista_core::models::skin::Skin;
 use gw2fashionista_core::models::template::WardrobeTemplateData;
 use std::assert_matches;
