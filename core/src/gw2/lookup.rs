@@ -13,6 +13,14 @@ pub trait Lookup<I> {
     async fn resolve_name(&self, id: I) -> Result<Option<String>, Error>;
 
     fn clear(&self);
+
+    fn or<L: Lookup<I>>(self, fallback: L) -> Fallback<Self, L>
+    where
+        Self: Sized,
+        L: 'static,
+    {
+        Fallback::new(self, fallback)
+    }
 }
 
 pub struct StaticLookup<T, I> {
@@ -42,6 +50,42 @@ where
     }
 
     fn clear(&self) {}
+}
+
+pub struct Fallback<L1, L2> {
+    primary: L1,
+    fallback: L2,
+}
+
+impl<L1, L2> Fallback<L1, L2> {
+    pub fn new(primary: L1, fallback: L2) -> Self {
+        Fallback { primary, fallback }
+    }
+}
+
+#[async_trait]
+impl<I, L1, L2> Lookup<I> for Fallback<L1, L2>
+where
+    I: Clone + Send + Sync + 'static,
+    L1: Lookup<I> + Send + Sync,
+    L2: Lookup<I> + Send + Sync,
+{
+    async fn ensure(&self, ids: Vec<I>) -> Result<(), Error> {
+        self.primary.ensure(ids.clone()).await?;
+        self.fallback.ensure(ids).await
+    }
+
+    async fn resolve_name(&self, id: I) -> Result<Option<String>, Error> {
+        match self.primary.resolve_name(id.clone()).await? {
+            Some(name) => Ok(Some(name)),
+            None => self.fallback.resolve_name(id).await,
+        }
+    }
+
+    fn clear(&self) {
+        self.primary.clear();
+        self.fallback.clear();
+    }
 }
 
 #[async_trait]
