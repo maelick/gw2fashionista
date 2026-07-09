@@ -252,3 +252,20 @@ where
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use gw2fashionista_fixtures::wardrobe::EMPTY_TEMPLATE;
+
+    use crate::domain::{chatlink::ChatLink, templates::wardrobe::WardrobeTemplate};
+
+    #[test]
+    fn test_empty_has_no_skin_id() {
+        let template: WardrobeTemplate = ChatLink::try_from(EMPTY_TEMPLATE.chat_link)
+            .unwrap()
+            .try_into()
+            .unwrap();
+        let ids = template.all_skin_ids();
+        assert_eq!(ids.len(), 0);
+    }
+}
