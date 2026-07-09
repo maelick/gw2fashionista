@@ -669,9 +669,9 @@ dependencies = [
 
 [[package]]
 name = "gw2lib-model"
-version = "2.2.3"
+version = "2.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cec4f48ecb7324f879fce2dc22089487f130dbb0fb3b6f7d309e48d9038266ef"
+checksum = "70af9d5ee60a368bb622a50d9f17af17827f71f995affa6ee0b294b3b1d908f5"
 dependencies = [
  "either",
  "serde",
