@@ -35,7 +35,7 @@ pub enum ChatLinkType {
     Outfit = 0x0B,
     WvWObjective = 0x0C,
     BuildTemplate = 0x0D,
-    Achivement = 0x0E,
+    Achievement = 0x0E,
     WardrobeTemplate = 0x0F,
     TravelTemplate = 0x10,
 }
@@ -55,7 +55,7 @@ pub enum ChatLink {
     Outfit,
     WvWObjective,
     BuildTemplate,
-    Achivement,
+    Achievement,
     WardrobeTemplate(WardrobeTemplate),
     TravelTemplate(TravelTemplate),
 }
