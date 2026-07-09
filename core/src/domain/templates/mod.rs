@@ -103,10 +103,12 @@ impl<S: FashionSlot> Template<S> {
     pub fn all_skin_ids(&self) -> HashMap<FashionSlotKind, HashSet<SkinId>> {
         let mut skins = HashMap::<FashionSlotKind, HashSet<SkinId>>::new();
         for (slot, appearance) in self {
-            skins
-                .entry(slot.kind())
-                .or_default()
-                .insert(appearance.skin());
+            if !appearance.skin().is_empty() {
+                skins
+                    .entry(slot.kind())
+                    .or_default()
+                    .insert(appearance.skin());
+            }
         }
         skins
     }
