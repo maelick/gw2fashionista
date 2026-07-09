@@ -7,13 +7,12 @@ use std::{
 };
 
 use async_trait::async_trait;
+use backon::{ExponentialBuilder, Retryable};
 use gw2lib::{
     Requester,
     model::{BulkEndpoint, EndpointWithId},
 };
 use serde::{Serialize, de::DeserializeOwned};
-use tokio_retry::RetryIf;
-use tokio_retry::strategy::{ExponentialBackoff, jitter};
 
 use crate::gw2::error::Error;
 
@@ -137,17 +136,26 @@ impl<F> Retry<F> {
         self
     }
 
-    pub async fn start<T, A, Fut>(&self, action: A) -> Result<T, Error>
+    pub async fn start<T, A, Fut>(&self, endpoint: &'static str, action: A) -> Result<T, Error>
     where
         A: FnMut() -> Fut,
         Fut: Future<Output = Result<T, Error>>,
     {
-        let retries = ExponentialBackoff::from_millis(2)
-            .factor(self.sleep_millis / 2)
-            .max_delay(self.max_delay)
-            .map(jitter)
-            .take(self.max_retries);
-        RetryIf::start(retries, action, Error::is_transient).await
+        let builder = ExponentialBuilder::default()
+            .with_min_delay(Duration::from_millis(self.sleep_millis))
+            .with_max_delay(self.max_delay)
+            .with_max_times(self.max_retries)
+            .with_jitter();
+
+        let retry = action.retry(builder).when(Error::is_transient);
+
+        #[cfg(feature = "tracing")]
+        let retry = retry
+            .notify(|err: &Error, dur: Duration| {
+                tracing::warn!(message = "Error while fetching", error = ?err, endpoint, retry_in = ?dur);
+            });
+
+        retry.await
     }
 }
 
@@ -163,15 +171,17 @@ where
     }
 
     async fn ids(&self) -> Result<Vec<I>, Error> {
-        self.start(|| self.inner.ids()).await
+        self.start(self.endpoint_name(), || self.inner.ids()).await
     }
 
     async fn many(&self, ids: &[I]) -> Result<HashMap<I, T>, Error> {
-        self.start(|| self.inner.many(ids)).await
+        self.start(self.endpoint_name(), || self.inner.many(ids))
+            .await
     }
 
     async fn single(&self, id: I) -> Result<T, Error> {
-        self.start(|| self.inner.single(id.clone())).await
+        self.start(self.endpoint_name(), || self.inner.single(id.clone()))
+            .await
     }
 }
 
@@ -184,89 +194,84 @@ mod tests {
 
     #[tokio::test(start_paused = true)]
     async fn test_no_retry_on_success() {
-        let mut mock = MockFetch::new();
+        let mut mock = new_mock();
         mock_single_with_api_response(&mut mock, 200, 1);
 
         let retry = Retry::new(mock);
-        let result = execute_retry(retry, Duration::from_secs(1)).await.unwrap();
+        let result = execute_retry(retry).await.unwrap();
         assert_eq!(result, "peekaboo");
     }
 
     #[tokio::test(start_paused = true)]
     async fn test_retry_on_500_error() {
-        let mut mock = MockFetch::new();
+        let mut mock = new_mock();
         mock_single_with_api_response(&mut mock, 500, 1);
         mock_single_with_api_response(&mut mock, 200, 1);
 
         let retry = Retry::new(mock);
-        let result = execute_retry(retry, Duration::from_secs(1)).await.unwrap();
+        let result = execute_retry(retry).await.unwrap();
         assert_eq!(result, "peekaboo");
     }
 
     #[tokio::test(start_paused = true)]
     async fn test_retry_on_500_error_with_max_retries() {
-        let mut mock = MockFetch::new();
+        let mut mock = new_mock();
         mock_single_with_api_response(&mut mock, 500, 1);
         mock_single_with_api_response(&mut mock, 200, 1);
 
         let retry = Retry::new(mock).with_max_retries(1);
-        let result = execute_retry(retry, Duration::from_secs(1)).await.unwrap();
+        let result = execute_retry(retry).await.unwrap();
         assert_eq!(result, "peekaboo");
     }
 
     #[tokio::test(start_paused = true)]
     async fn test_retry_on_500_error_with_sleep_millis() {
-        let mut mock = MockFetch::new();
+        let mut mock = new_mock();
         mock_single_with_api_response(&mut mock, 500, 10);
         mock_single_with_api_response(&mut mock, 200, 1);
 
         let t_start = tokio::time::Instant::now();
         let retry = Retry::new(mock).with_sleep_millis(10000);
-        let result = execute_retry(retry, Duration::from_mins(11)).await.unwrap();
+        let result = execute_retry(retry).await.unwrap();
         assert!(t_start.elapsed() > Duration::from_mins(1));
+        assert!(t_start.elapsed() < Duration::from_mins(20));
         assert_eq!(result, "peekaboo");
     }
 
     #[tokio::test(start_paused = true)]
     async fn test_retry_on_500_error_with_max_retries_reached() {
-        let mut mock = MockFetch::new();
+        let mut mock = new_mock();
         mock_single_with_api_response(&mut mock, 500, 2);
 
         let retry = Retry::new(mock).with_max_retries(1);
-        let result = execute_retry(retry, Duration::from_secs(1))
-            .await
-            .unwrap_err();
+        let result = execute_retry(retry).await.unwrap_err();
         assert!(result.is_transient());
     }
 
     #[tokio::test(start_paused = true)]
     async fn test_retry_on_404_error() {
-        let mut mock = MockFetch::new();
+        let mut mock = new_mock();
         mock_single_with_api_response(&mut mock, 404, 1);
 
         let retry = Retry::new(mock);
-        let result = execute_retry(retry, Duration::from_secs(1))
-            .await
-            .unwrap_err();
+        let result = execute_retry(retry).await.unwrap_err();
         assert!(result.is_not_found());
     }
 
     #[tokio::test(start_paused = true)]
     async fn test_retry_on_500_and_404_error() {
-        let mut mock = MockFetch::new();
+        let mut mock = new_mock();
         mock_single_with_api_response(&mut mock, 500, 1);
         mock_single_with_api_response(&mut mock, 404, 1);
 
         let retry = Retry::new(mock);
-        let result = execute_retry(retry, Duration::from_secs(1))
-            .await
-            .unwrap_err();
+        let result = execute_retry(retry).await.unwrap_err();
         assert!(result.is_not_found());
     }
 
     #[tokio::test(start_paused = true)]
     async fn test_retry_on_permanent_error() {
-        let mut mock: MockFetch<String, u32> = MockFetch::new();
+        let mut mock: MockFetch<String, u32> = new_mock();
         mock.expect_single()
             .with(predicate::eq(42))
             .times(1)
@@ -279,17 +284,22 @@ mod tests {
             });
 
         let retry = Retry::new(mock);
-        let result = execute_retry(retry, Duration::from_secs(1))
-            .await
-            .unwrap_err();
+        let result = execute_retry(retry).await.unwrap_err();
         assert!(!result.is_transient());
     }
 
-    async fn execute_retry<'a>(
-        retry: Retry<MockFetch<String, u32>>,
-        max_duration: Duration,
-    ) -> Result<String, Error> {
-        tokio::time::timeout(max_duration, retry.single(42))
+    fn new_mock<T, I>() -> MockFetch<T, I>
+    where
+        T: Sync + 'static,
+        I: Clone + Send + Sync + 'static,
+    {
+        let mut mock = MockFetch::new();
+        mock.expect_endpoint_name().return_const("peekaboo");
+        mock
+    }
+
+    async fn execute_retry<'a>(retry: Retry<MockFetch<String, u32>>) -> Result<String, Error> {
+        tokio::time::timeout(Duration::from_mins(30), retry.single(42))
             .await
             .unwrap()
     }
