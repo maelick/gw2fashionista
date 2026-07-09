@@ -23,6 +23,7 @@ use crate::gw2::error::Error;
 use crate::gw2::fetch::{Fetch, Gw2LibFetcher, Retry};
 use crate::gw2::lookup::{Lookup, StaticLookup};
 use crate::gw2::named::Named;
+use crate::gw2::static_names::{StaticName, missing};
 use crate::models::skin;
 use crate::models::template::TemplateData;
 
@@ -57,29 +58,24 @@ impl Resolver {
         fetcher: &F,
     ) -> Box<dyn Lookup<u32> + Send + Sync> {
         match kind {
-            FashionSlotKind::Equipment => Self::api_lookup::<Skin, _>(fetcher),
-            FashionSlotKind::Outfit => Self::api_lookup::<Outfit, _>(fetcher),
-            FashionSlotKind::Mount => Self::mount_lookup(fetcher),
-            FashionSlotKind::Glider => Self::api_lookup::<Glider, _>(fetcher),
-            FashionSlotKind::Skiff => Self::api_lookup::<Skiff, _>(fetcher),
+            FashionSlotKind::Equipment => Self::api_lookup::<Skin, _>(fetcher, missing(kind)),
+            FashionSlotKind::Outfit => Self::api_lookup::<Outfit, _>(fetcher, missing(kind)),
+            FashionSlotKind::Mount => Self::api_lookup::<MountSkin, _>(fetcher, missing(kind)),
+            FashionSlotKind::Glider => Self::api_lookup::<Glider, _>(fetcher, missing(kind)),
+            FashionSlotKind::Skiff => Self::api_lookup::<Skiff, _>(fetcher, missing(kind)),
             FashionSlotKind::Doorway => Box::new(Doorway::lookup()),
         }
     }
 
-    fn api_lookup<T, F>(fetcher: &F) -> Box<dyn Lookup<u32> + Send + Sync>
+    fn api_lookup<T, F>(
+        fetcher: &F,
+        missing: &HashMap<u32, StaticName>,
+    ) -> Box<dyn Lookup<u32> + Send + Sync>
     where
         T: Named + Clone + Send + Sync + 'static,
         F: Fetch<T, u32> + Clone + Send + Sync + 'static,
     {
-        Box::new(Cache::new(fetcher.clone()))
-    }
-
-    /// Mount skin names come from the API, patched with a hardcoded table
-    /// for the skins the API is known to omit (e.g. the Skimmer plush skin).
-    fn mount_lookup<F: Fetch<MountSkin, u32> + Clone + Send + Sync + 'static>(
-        fetcher: &F,
-    ) -> Box<dyn Lookup<u32> + Send + Sync> {
-        Box::new(Cache::new(fetcher.clone()).or(StaticLookup::new(missing_mount_skins())))
+        Box::new(Cache::new(fetcher.clone()).or(StaticLookup::new(missing.clone())))
     }
 
     pub fn with_buffer_size(mut self, size: usize) -> Self {
@@ -267,17 +263,4 @@ impl<F> FashionFetch for F where
         + Sync
         + 'static
 {
-}
-
-fn missing_mount_skins() -> Vec<(u32, MountSkin)> {
-    vec![(
-        804,
-        MountSkin {
-            id: 804,
-            name: "Plush Skimmer".to_string(),
-            icon: "".to_string(),
-            dye_slots: Vec::new(),
-            mount_guid: "skimmer".to_string(),
-        },
-    )]
 }

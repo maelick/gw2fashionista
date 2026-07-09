@@ -8,3 +8,4 @@ pub mod import;
 mod lookup;
 pub mod named;
 pub mod resolve;
+pub mod static_names;
