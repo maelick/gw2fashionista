@@ -6,6 +6,7 @@ use gw2fashionista_core::domain::{
 use gw2fashionista_fixtures::wardrobe::{ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE};
 
 #[test]
+#[test_log::test]
 fn test_filter_zizi() {
     let chat_link = &ChatLink::try_from(ZIZI_TEMPLATE.chat_link).unwrap();
 

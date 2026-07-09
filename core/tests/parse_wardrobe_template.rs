@@ -13,6 +13,7 @@ use std::assert_matches;
 use gw2fashionista_fixtures::wardrobe::{EMPTY_TEMPLATE, ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE};
 
 #[test]
+#[test_log::test]
 fn test_parse_empty_link() {
     let raw = "";
 
@@ -25,6 +26,7 @@ fn test_parse_empty_link() {
 }
 
 #[test]
+#[test_log::test]
 fn test_parse_not_chat_link() {
     let raw = "This is not a chat link";
 
@@ -37,6 +39,7 @@ fn test_parse_not_chat_link() {
 }
 
 #[test]
+#[test_log::test]
 fn test_parse_invalid_base64() {
     let raw = "hello";
 
@@ -49,6 +52,7 @@ fn test_parse_invalid_base64() {
 }
 
 #[test]
+#[test_log::test]
 fn test_parse_invalid_link_type() {
     let raw = "abcd";
 
@@ -61,6 +65,7 @@ fn test_parse_invalid_link_type() {
 }
 
 #[test]
+#[test_log::test]
 fn test_parse_invalid_length() {
     let raw = "DwAAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAAAAAAAAAD/fw==";
 
@@ -73,6 +78,7 @@ fn test_parse_invalid_length() {
 }
 
 #[test]
+#[test_log::test]
 fn test_parse_empty() {
     let raw = EMPTY_TEMPLATE.chat_link;
     let expected_slots = WardrobeSlot::variants()
@@ -103,6 +109,7 @@ fn test_parse_empty() {
 }
 
 #[test]
+#[test_log::test]
 fn test_parse_zizi() {
     let raw = format!("[&{}]", ZIZI_TEMPLATE.chat_link);
     let result = &ChatLink::try_from(raw.as_str()).unwrap();
@@ -208,6 +215,7 @@ fn test_parse_zizi() {
 }
 
 #[test]
+#[test_log::test]
 fn test_parse_zizi_armor_only() {
     let raw = format!("[&{}]", ZIZI_ARMOR_TEMPLATE.chat_link);
     let result = &ChatLink::try_from(raw.as_str()).unwrap();

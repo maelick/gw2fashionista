@@ -30,7 +30,8 @@ optional = true
 [dev-dependencies]
 gw2fashionista-fixtures = { version = "0.1.0", path = "../fixtures" }
 mockall = "0.15.0"
-tokio = { version = "1.52.3", features = ["test-util"] }
+test-log = { version = "0.2.21", default-features = false, features = ["trace"] }
+tokio = { version = "1.52.3", features = ["test-util", "rt-multi-thread"] }
 
 [dependencies.hyper]
 version = "0.14.26"

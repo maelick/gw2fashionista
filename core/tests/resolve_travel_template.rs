@@ -5,7 +5,8 @@ use gw2fashionista_core::models::skin::Skin;
 
 use gw2fashionista_fixtures::travel::{EMPTY_TEMPLATE, PEEKABOO_TEMPLATE, ZIZI_TEMPLATE};
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread")]
+#[test_log::test]
 async fn test_resolve_empty() {
     let resolver = Resolver::default();
     let template = &parse_template(EMPTY_TEMPLATE.chat_link);
@@ -16,7 +17,8 @@ async fn test_resolve_empty() {
     assert!(data.is_empty());
 }
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread")]
+#[test_log::test]
 async fn test_resolve_peekaboo() {
     let resolver = Resolver::default();
     let template = &parse_template(PEEKABOO_TEMPLATE.chat_link);
@@ -132,7 +134,8 @@ async fn test_resolve_peekaboo() {
     }
 }
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread")]
+#[test_log::test]
 async fn test_resolve_zizi() {
     let resolver = Resolver::default();
     let template = &parse_template(ZIZI_TEMPLATE.chat_link);

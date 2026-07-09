@@ -7,7 +7,8 @@ use std::assert_matches;
 
 use gw2fashionista_fixtures::wardrobe::{EMPTY_TEMPLATE, ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE};
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread")]
+#[test_log::test]
 async fn test_resolve_empty() {
     let resolver = Resolver::default();
     let template = &parse_template(EMPTY_TEMPLATE.chat_link);
@@ -18,7 +19,8 @@ async fn test_resolve_empty() {
     assert!(data.is_empty());
 }
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread")]
+#[test_log::test]
 async fn test_resolve_zizi_armor() {
     let resolver = Resolver::default();
     let template = &parse_template(ZIZI_ARMOR_TEMPLATE.chat_link);
@@ -39,7 +41,8 @@ async fn test_resolve_zizi_armor() {
     assert_zizi_armor(&data);
 }
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread")]
+#[test_log::test]
 async fn test_resolve_zizi() {
     let resolver = Resolver::default();
     let template = &parse_template(ZIZI_TEMPLATE.chat_link);
