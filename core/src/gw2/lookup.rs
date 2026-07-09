@@ -6,18 +6,22 @@ use async_trait::async_trait;
 
 use crate::gw2::{cache::Cache, error::Error, named::Named};
 
+#[cfg_attr(test, mockall::automock)]
 #[async_trait]
-pub trait Lookup<I> {
+pub trait Lookup<I>
+where
+    I: Send + Sync + 'static,
+{
     async fn ensure(&self, ids: Vec<I>) -> Result<(), Error>;
 
     async fn resolve_name(&self, id: I) -> Result<Option<String>, Error>;
 
     fn clear(&self);
 
-    fn or<L: Lookup<I>>(self, fallback: L) -> Fallback<Self, L>
+    fn or<L>(self, fallback: L) -> Fallback<Self, L>
     where
         Self: Sized,
-        L: 'static,
+        L: Lookup<I> + 'static,
     {
         Fallback::new(self, fallback)
     }
@@ -38,8 +42,8 @@ impl<T, I: Hash + Eq> StaticLookup<T, I> {
 #[async_trait]
 impl<T, I> Lookup<I> for StaticLookup<T, I>
 where
-    T: Named + Clone + Send + Sync,
-    I: Debug + Hash + Eq + Clone + Copy + Send + Sync,
+    T: Named + Clone + Send + Sync + 'static,
+    I: Debug + Hash + Eq + Clone + Copy + Send + Sync + 'static,
 {
     async fn ensure(&self, _ids: Vec<I>) -> Result<(), Error> {
         Ok(())
@@ -104,5 +108,78 @@ where
 
     fn clear(&self) {
         Cache::clear(self)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use mockall::predicate;
+
+    use crate::gw2::{
+        doorway::Doorway,
+        error::ErrorKind,
+        lookup::{Lookup, MockLookup, StaticLookup},
+    };
+
+    #[tokio::test]
+    async fn test_fallback_without_errors() {
+        let l1 = StaticLookup::new([(
+            1,
+            Doorway {
+                id: 1,
+                name: "Name 1 from primary",
+            },
+        )]);
+
+        let l2 = StaticLookup::new([
+            (
+                1,
+                Doorway {
+                    id: 1,
+                    name: "Name 1 from fallback",
+                },
+            ),
+            (
+                2,
+                Doorway {
+                    id: 2,
+                    name: "Name 2 from fallback",
+                },
+            ),
+        ]);
+
+        let lookup = l1.or(l2);
+        assert_eq!(
+            lookup.resolve_name(1).await.unwrap().unwrap(),
+            "Name 1 from primary"
+        );
+        assert_eq!(
+            lookup.resolve_name(2).await.unwrap().unwrap(),
+            "Name 2 from fallback"
+        );
+        assert_eq!(lookup.resolve_name(3).await.unwrap(), None);
+    }
+
+    #[tokio::test]
+    async fn test_fallback_with_errors() {
+        let items = [(
+            1,
+            Doorway {
+                id: 1,
+                name: "Name 1",
+            },
+        )];
+
+        let lookup = StaticLookup::new(items.clone()).or(MockLookup::new());
+        assert_eq!(lookup.resolve_name(1).await.unwrap().unwrap(), "Name 1");
+
+        let mut mock = MockLookup::new();
+        mock.expect_resolve_name()
+            .with(predicate::eq(1))
+            .returning(|_| Err(ErrorKind::Transient.into()));
+        let lookup = Fallback::new(mock, StaticLookup::new(items));
+
+        assert!(lookup.resolve_name(1).await.is_err())
     }
 }
