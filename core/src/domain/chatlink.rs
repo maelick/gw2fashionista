@@ -84,6 +84,27 @@ impl ChatLink {
         let serialized = SerializedChatLink::from_chat_link(self)?;
         Ok(serialized.to_string())
     }
+
+    pub fn link_type(&self) -> ChatLinkType {
+        match self {
+            ChatLink::Coin => ChatLinkType::Coin,
+            ChatLink::Item => ChatLinkType::Item,
+            ChatLink::NPCText => ChatLinkType::NPCText,
+            ChatLink::MapLink => ChatLinkType::MapLink,
+            ChatLink::PvPGame => ChatLinkType::PvPGame,
+            ChatLink::Skill => ChatLinkType::Skill,
+            ChatLink::Trait => ChatLinkType::Trait,
+            ChatLink::User => ChatLinkType::User,
+            ChatLink::Recipe => ChatLinkType::Recipe,
+            ChatLink::Wardrobe => ChatLinkType::Wardrobe,
+            ChatLink::Outfit => ChatLinkType::Outfit,
+            ChatLink::WvWObjective => ChatLinkType::WvWObjective,
+            ChatLink::BuildTemplate => ChatLinkType::BuildTemplate,
+            ChatLink::Achievement => ChatLinkType::Achievement,
+            ChatLink::WardrobeTemplate(_) => ChatLinkType::WardrobeTemplate,
+            ChatLink::TravelTemplate(_) => ChatLinkType::TravelTemplate,
+        }
+    }
 }
 
 #[derive(Debug)]
