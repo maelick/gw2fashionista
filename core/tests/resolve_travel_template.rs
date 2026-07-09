@@ -72,10 +72,9 @@ async fn test_resolve_peekaboo() {
                 "Glint's Rebellion",
             ),
             TravelSlot::Skimmer => {
-                // TODO: investigate why this is missing
-                assert_eq!(skin.name.as_ref(), None);
-                assert_dyes(
+                assert_dyeable_skin(
                     skin,
+                    "Plush Skimmer",
                     "Violite",
                     "Violite",
                     "Glint's Rebellion",
@@ -187,9 +186,14 @@ async fn test_resolve_zizi() {
                 "Electro Pink",
             ),
             TravelSlot::Skimmer => {
-                // TODO: investigate why this is missing
-                assert_eq!(skin.name.as_ref(), None);
-                assert_dyes(skin, "Permafrost", "Electro Pink", "Hot Pink", "Hot Pink");
+                assert_dyeable_skin(
+                    skin,
+                    "Plush Skimmer",
+                    "Permafrost",
+                    "Electro Pink",
+                    "Hot Pink",
+                    "Hot Pink",
+                );
             }
             TravelSlot::Raptor => assert_dyeable_skin(
                 skin,
