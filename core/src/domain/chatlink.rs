@@ -163,6 +163,28 @@ impl Display for SerializedChatLink {
     }
 }
 
+impl TryFrom<ChatLink> for WardrobeTemplate {
+    type Error = ChatLinkError;
+
+    fn try_from(link: ChatLink) -> Result<Self, Self::Error> {
+        match link {
+            ChatLink::WardrobeTemplate(template) => Ok(template),
+            _ => Err(ChatLinkError::UnsupportedType(link.link_type())),
+        }
+    }
+}
+
+impl TryFrom<ChatLink> for TravelTemplate {
+    type Error = ChatLinkError;
+
+    fn try_from(link: ChatLink) -> Result<Self, Self::Error> {
+        match link {
+            ChatLink::TravelTemplate(template) => Ok(template),
+            _ => Err(ChatLinkError::UnsupportedType(link.link_type())),
+        }
+    }
+}
+
 impl TryFrom<&str> for ChatLink {
     type Error = ChatLinkError;
 
