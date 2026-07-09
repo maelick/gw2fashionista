@@ -1,6 +1,6 @@
 use std::fmt::Display;
+use std::sync::LazyLock;
 
-use once_cell::sync::Lazy;
 use regex::Regex;
 
 use base64::Engine;
@@ -13,7 +13,7 @@ use crate::domain::templates::wardrobe::WardrobeTemplate;
 
 const BASE64_RE: &str = r"[-A-Za-z0-9+/]*={0,3}";
 
-static CHAT_LINK_REGEX: Lazy<Regex> = Lazy::new(|| {
+static CHAT_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     let pattern = format!(r"^\[?&?({})\]?$", BASE64_RE);
     Regex::new(&pattern).unwrap()
 });

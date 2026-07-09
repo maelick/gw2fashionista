@@ -1,8 +1,7 @@
-use std::str::FromStr;
+use std::{str::FromStr, sync::LazyLock};
 
 use clap::{Args, ValueEnum, builder::TypedValueParser};
 use linearize::LinearizeExt;
-use once_cell::sync::Lazy;
 
 use gw2fashionista_core::domain::templates::{
     SlotFilter, SlotFilterExt,
@@ -37,7 +36,7 @@ enum FilterOption {
     Slot(WardrobeSlot),
 }
 
-static FILTER_VARIANTS: Lazy<Vec<FilterOption>> = Lazy::new(|| {
+static FILTER_VARIANTS: LazyLock<Vec<FilterOption>> = LazyLock::new(|| {
     let categories = EquipmentCategory::variants().map(FilterOption::Category);
     let slots = WardrobeSlot::variants().map(FilterOption::Slot);
     categories.chain(slots).collect()
