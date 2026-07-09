@@ -6,3 +6,7 @@ members = ["cli", "core", "fixtures", "e2e"]
 consolidate-commits = false
 pre-release-commit-message = "chore: Release {{crate_name}} {{version}}"
 tag-message = "Release {{crate_name}} {{version}}"
+
+[patch.crates-io]
+## Uncomment to run with local copy of gw2lib
+# gw2lib = { path = "./gw2lib/http" }

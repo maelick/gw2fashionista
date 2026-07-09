@@ -15,7 +15,7 @@ impl Endpoint for Outfit {
     const AUTHENTICATED: bool = false;
     const LOCALE: bool = true;
     const URL: &'static str = "v2/outfits";
-    const VERSION: &'static str = "2021-01-11T00:00:00.000Z";
+    const VERSION: &'static str = "2025-08-29T01:00:00.000Z";
 }
 impl EndpointWithId for Outfit {
     type IdType = u32;

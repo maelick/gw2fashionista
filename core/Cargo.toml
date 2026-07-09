@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 async-trait = "0.1.89"
+backon = "1.6.0"
 base64 = "0.22.1"
 byteorder = "1.5.0"
 dashmap = "6.2.1"
@@ -14,14 +15,13 @@ gw2lib = { version = "3.0.2" }
 itertools = "0.14.0"
 linearize = { version = "0.1.7", features = ["derive"] }
 num_enum = "0.7.6"
-once_cell = "1.21.4"
 regex = "1.12.3"
 serde = { version = "1.0.228", features = ["derive"] }
 strum = { version = "0.28.0" }
 strum_macros = "0.28.0"
 thiserror = "2.0.18"
 tokio = { version = "1.52.3", features = ["macros", "sync", "time"] }
-tokio-retry = "0.3.2"
+toml = "1.1.2"
 
 [dependencies.tracing]
 version = "0.1.44"
@@ -29,6 +29,9 @@ optional = true
 
 [dev-dependencies]
 gw2fashionista-fixtures = { version = "0.1.0", path = "../fixtures" }
+mockall = "0.15.0"
+test-log = { version = "0.2.21", default-features = false, features = ["trace"] }
+tokio = { version = "1.52.3", features = ["test-util", "rt-multi-thread"] }
 
 [dependencies.hyper]
 version = "0.14.26"

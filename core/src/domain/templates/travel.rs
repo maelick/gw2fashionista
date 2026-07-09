@@ -1,24 +1,9 @@
-use std::collections::HashSet;
-
 use linearize::Linearize;
 use serde::{Deserialize, Serialize};
 
-use crate::domain::skins::SkinId;
 use crate::domain::templates::{FashionSlot, Template};
 
 pub type TravelTemplate = Template<TravelSlot>;
-
-impl TravelTemplate {
-    pub fn all_mount_ids(&self) -> HashSet<SkinId> {
-        HashSet::from_iter(self.iter().filter_map(|(slot, appearance)| {
-            if slot.is_mount() {
-                None
-            } else {
-                Some(appearance.skin()).filter(|skin| !skin.is_empty())
-            }
-        }))
-    }
-}
 
 #[derive(
     Clone,
@@ -35,6 +20,7 @@ impl TravelTemplate {
 )]
 #[repr(u8)]
 #[strum(serialize_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 pub enum TravelSlot {
     Glider,
     Doorway,
@@ -58,22 +44,22 @@ impl FashionSlot for TravelSlot {
     fn always_visible(self) -> bool {
         true
     }
-}
 
-impl TravelSlot {
-    pub fn is_mount(self) -> bool {
-        matches!(
-            self,
+    fn kind(self) -> super::FashionSlotKind {
+        match self {
+            TravelSlot::Glider => super::FashionSlotKind::Glider,
+            TravelSlot::Doorway => super::FashionSlotKind::Doorway,
+            TravelSlot::Skiff => super::FashionSlotKind::Skiff,
             TravelSlot::Jackal
-                | TravelSlot::Griffon
-                | TravelSlot::Springer
-                | TravelSlot::Skimmer
-                | TravelSlot::Raptor
-                | TravelSlot::Beetle
-                | TravelSlot::Warclaw
-                | TravelSlot::Skyscale
-                | TravelSlot::Turtle
-        )
+            | TravelSlot::Griffon
+            | TravelSlot::Springer
+            | TravelSlot::Skimmer
+            | TravelSlot::Raptor
+            | TravelSlot::Beetle
+            | TravelSlot::Warclaw
+            | TravelSlot::Skyscale
+            | TravelSlot::Turtle => super::FashionSlotKind::Mount,
+        }
     }
 }
 

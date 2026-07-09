@@ -1,6 +1,6 @@
 use std::fmt::Display;
+use std::sync::LazyLock;
 
-use once_cell::sync::Lazy;
 use regex::Regex;
 
 use base64::Engine;
@@ -13,7 +13,7 @@ use crate::domain::templates::wardrobe::WardrobeTemplate;
 
 const BASE64_RE: &str = r"[-A-Za-z0-9+/]*={0,3}";
 
-static CHAT_LINK_REGEX: Lazy<Regex> = Lazy::new(|| {
+static CHAT_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     let pattern = format!(r"^\[?&?({})\]?$", BASE64_RE);
     Regex::new(&pattern).unwrap()
 });
@@ -35,7 +35,7 @@ pub enum ChatLinkType {
     Outfit = 0x0B,
     WvWObjective = 0x0C,
     BuildTemplate = 0x0D,
-    Achivement = 0x0E,
+    Achievement = 0x0E,
     WardrobeTemplate = 0x0F,
     TravelTemplate = 0x10,
 }
@@ -55,7 +55,7 @@ pub enum ChatLink {
     Outfit,
     WvWObjective,
     BuildTemplate,
-    Achivement,
+    Achievement,
     WardrobeTemplate(WardrobeTemplate),
     TravelTemplate(TravelTemplate),
 }
@@ -83,6 +83,27 @@ impl ChatLink {
     pub fn to_string(&self) -> Result<String, ChatLinkError> {
         let serialized = SerializedChatLink::from_chat_link(self)?;
         Ok(serialized.to_string())
+    }
+
+    pub fn link_type(&self) -> ChatLinkType {
+        match self {
+            ChatLink::Coin => ChatLinkType::Coin,
+            ChatLink::Item => ChatLinkType::Item,
+            ChatLink::NPCText => ChatLinkType::NPCText,
+            ChatLink::MapLink => ChatLinkType::MapLink,
+            ChatLink::PvPGame => ChatLinkType::PvPGame,
+            ChatLink::Skill => ChatLinkType::Skill,
+            ChatLink::Trait => ChatLinkType::Trait,
+            ChatLink::User => ChatLinkType::User,
+            ChatLink::Recipe => ChatLinkType::Recipe,
+            ChatLink::Wardrobe => ChatLinkType::Wardrobe,
+            ChatLink::Outfit => ChatLinkType::Outfit,
+            ChatLink::WvWObjective => ChatLinkType::WvWObjective,
+            ChatLink::BuildTemplate => ChatLinkType::BuildTemplate,
+            ChatLink::Achievement => ChatLinkType::Achievement,
+            ChatLink::WardrobeTemplate(_) => ChatLinkType::WardrobeTemplate,
+            ChatLink::TravelTemplate(_) => ChatLinkType::TravelTemplate,
+        }
     }
 }
 
@@ -139,6 +160,28 @@ impl Display for SerializedChatLink {
         let bytes = self.to_bytes();
         let b64_encoded = BASE64.encode(bytes);
         write!(f, "[&{}]", b64_encoded)
+    }
+}
+
+impl TryFrom<ChatLink> for WardrobeTemplate {
+    type Error = ChatLinkError;
+
+    fn try_from(link: ChatLink) -> Result<Self, Self::Error> {
+        match link {
+            ChatLink::WardrobeTemplate(template) => Ok(template),
+            _ => Err(ChatLinkError::UnsupportedType(link.link_type())),
+        }
+    }
+}
+
+impl TryFrom<ChatLink> for TravelTemplate {
+    type Error = ChatLinkError;
+
+    fn try_from(link: ChatLink) -> Result<Self, Self::Error> {
+        match link {
+            ChatLink::TravelTemplate(template) => Ok(template),
+            _ => Err(ChatLinkError::UnsupportedType(link.link_type())),
+        }
     }
 }
 

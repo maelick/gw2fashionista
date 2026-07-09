@@ -1,21 +1,9 @@
-use std::collections::HashSet;
-
 use linearize::Linearize;
 use serde::{Deserialize, Serialize};
 
-use crate::domain::skins::SkinId;
 use crate::domain::templates::{FashionSlot, Template};
 
 pub type WardrobeTemplate = Template<WardrobeSlot>;
-
-impl WardrobeTemplate {
-    pub fn all_skin_ids(&self) -> HashSet<SkinId> {
-        HashSet::from_iter(self.iter().filter_map(|(slot, appearance)| match slot {
-            WardrobeSlot::Outfit => None,
-            _ => Some(appearance.skin()).filter(|skin| !skin.is_empty()),
-        }))
-    }
-}
 
 #[derive(
     Clone,
@@ -32,6 +20,7 @@ impl WardrobeTemplate {
 )]
 #[repr(u8)]
 #[strum(serialize_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 pub enum WardrobeSlot {
     Aquabreather,
     Backpack,
@@ -72,6 +61,13 @@ impl FashionSlot for WardrobeSlot {
             self,
             WardrobeSlot::Chest | WardrobeSlot::Shoes | WardrobeSlot::Legs
         )
+    }
+
+    fn kind(self) -> super::FashionSlotKind {
+        match self {
+            WardrobeSlot::Outfit => super::FashionSlotKind::Outfit,
+            _ => super::FashionSlotKind::Equipment,
+        }
     }
 }
 

@@ -8,10 +8,11 @@ use std::{
 
 use byteorder::{LittleEndian, WriteBytesExt};
 use linearize::{Linearize, LinearizeExt, StaticMap, static_map};
+use serde::Serialize;
 
 use crate::domain::{
     error::ChatLinkError,
-    skins::{Appearance, DyeId},
+    skins::{Appearance, DyeId, SkinId},
 };
 
 pub mod travel;
@@ -19,7 +20,17 @@ pub mod wardrobe;
 
 pub type SlotFilter<S> = HashSet<S>;
 
-pub trait FashionSlot: Eq + Hash + Copy + Linearize + fmt::Debug {
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Linearize)]
+pub enum FashionSlotKind {
+    Equipment,
+    Outfit,
+    Mount,
+    Glider,
+    Skiff,
+    Doorway,
+}
+
+pub trait FashionSlot: Eq + Hash + Copy + Linearize + Serialize + fmt::Debug + 'static {
     fn dyeable(self) -> bool;
     fn always_visible(self) -> bool;
 
@@ -35,6 +46,8 @@ pub trait FashionSlot: Eq + Hash + Copy + Linearize + fmt::Debug {
     fn is_visible(self, visibility: u16) -> bool {
         (visibility & self.visibility_bit()) != 0
     }
+
+    fn kind(self) -> FashionSlotKind;
 }
 
 #[derive(Clone, PartialEq, Eq)]
@@ -85,6 +98,19 @@ impl<S: FashionSlot> Template<S> {
             slots.insert(slot, merged);
         }
         Self::new(slots)
+    }
+
+    pub fn all_skin_ids(&self) -> HashMap<FashionSlotKind, HashSet<SkinId>> {
+        let mut skins = HashMap::<FashionSlotKind, HashSet<SkinId>>::new();
+        for (slot, appearance) in self {
+            if !appearance.skin().is_empty() {
+                skins
+                    .entry(slot.kind())
+                    .or_default()
+                    .insert(appearance.skin());
+            }
+        }
+        skins
     }
 
     pub fn all_dye_ids(&self) -> HashSet<DyeId> {
@@ -226,5 +252,22 @@ where
         for s in slots {
             self.remove(s.borrow());
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use gw2fashionista_fixtures::wardrobe::EMPTY_TEMPLATE;
+
+    use crate::domain::{chatlink::ChatLink, templates::wardrobe::WardrobeTemplate};
+
+    #[test]
+    fn test_empty_has_no_skin_id() {
+        let template: WardrobeTemplate = ChatLink::try_from(EMPTY_TEMPLATE.chat_link)
+            .unwrap()
+            .try_into()
+            .unwrap();
+        let ids = template.all_skin_ids();
+        assert_eq!(ids.len(), 0);
     }
 }

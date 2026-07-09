@@ -1,10 +1,13 @@
 use async_trait::async_trait;
 use clap::Args;
+use gw2fashionista_core::domain::templates::FashionSlot;
+use gw2fashionista_core::domain::templates::travel::TravelTemplate;
 use gw2fashionista_core::domain::{
     chatlink::ChatLink, error::ChatLinkError, templates::wardrobe::WardrobeTemplate,
 };
-use gw2fashionista_core::gw2_data::Resolver;
-use gw2fashionista_core::models::wardrobe_template::WardrobeTemplateData;
+use gw2fashionista_core::gw2::resolve::Resolver;
+use gw2fashionista_core::models::template::TemplateData;
+use serde::Serialize;
 use std::{io, iter};
 
 #[derive(Args, Debug)]
@@ -127,6 +130,20 @@ impl Command {
             iter.into_iter().map(|(_, res)| res).collect()
         }
     }
+
+    async fn process<S: FashionSlot>(
+        &self,
+        resolver: &Resolver,
+        template: &TemplateData<S>,
+    ) -> anyhow::Result<()> {
+        let data = if self.skip_names {
+            template
+        } else {
+            &resolver.resolve_template(template).await?
+        };
+
+        print(data, self.pretty)
+    }
 }
 
 #[async_trait]
@@ -141,24 +158,20 @@ impl super::Command for Command {
         let links = self.parse(&raw_links)?;
         let resolver = Resolver::default().with_buffer_size(self.concurrency as usize);
         if !self.skip_names {
-            resolver
-                .cache_wardrobe_templates(wardrobe_templates(&links))
-                .await?;
+            resolver.cache_templates(wardrobe_templates(&links)).await?;
+            resolver.cache_templates(travel_templates(&links)).await?;
         }
 
-        for link in links {
+        for link in &links {
             match link {
                 ChatLink::WardrobeTemplate(template) => {
-                    let data = if self.skip_names {
-                        (&template).into()
-                    } else {
-                        resolver.resolve_wardrobe_template(&template).await?
-                    };
-
-                    print(&data, self.pretty)?;
+                    self.process(&resolver, &template.into()).await
+                }
+                ChatLink::TravelTemplate(template) => {
+                    self.process(&resolver, &template.into()).await
                 }
                 _ => Err(anyhow::anyhow!("Unsupported chat link type"))?,
-            }
+            }?;
         }
         Ok(())
     }
@@ -174,7 +187,17 @@ fn wardrobe_templates(chat_links: &[ChatLink]) -> Vec<&WardrobeTemplate> {
         .collect()
 }
 
-fn print(data: &WardrobeTemplateData, pretty: bool) -> anyhow::Result<()> {
+fn travel_templates(chat_links: &[ChatLink]) -> Vec<&TravelTemplate> {
+    chat_links
+        .iter()
+        .filter_map(|link| match link {
+            ChatLink::TravelTemplate(template) => Some(template),
+            _ => None,
+        })
+        .collect()
+}
+
+fn print<S: FashionSlot + Serialize>(data: &TemplateData<S>, pretty: bool) -> anyhow::Result<()> {
     if pretty {
         serde_json::to_writer_pretty(io::stdout(), data)?;
     } else {

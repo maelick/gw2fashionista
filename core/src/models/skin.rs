@@ -38,6 +38,29 @@ impl From<&Skin> for skins::Appearance {
     }
 }
 
+impl From<&skins::Appearance> for Skin {
+    fn from(appearance: &skins::Appearance) -> Self {
+        match appearance {
+            skins::Appearance::NonDyeable { skin, visible } => Skin {
+                id: (*skin).into(),
+                name: None,
+                dyes: None,
+                visible: Some(*visible),
+            },
+            skins::Appearance::Dyeable {
+                skin,
+                visible,
+                dyes,
+            } => Skin {
+                id: (*skin).into(),
+                name: None,
+                dyes: Some((*dyes).into()),
+                visible: Some(*visible),
+            },
+        }
+    }
+}
+
 impl From<Dye> for skins::DyeId {
     fn from(dye: Dye) -> Self {
         dye.id.into()

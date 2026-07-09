@@ -1,7 +1,6 @@
-use std::process::Output;
+use std::{process::Output, sync::LazyLock};
 
 use assert_cmd::assert::OutputAssertExt;
-use once_cell::sync::Lazy;
 use regex::Regex;
 use rstest::rstest;
 
@@ -15,12 +14,12 @@ use serde_json::Deserializer;
 
 const BASE64_RE: &str = r"[-A-Za-z0-9+/]*={0,3}";
 
-static CHAT_LINK_REGEX: Lazy<Regex> = Lazy::new(|| {
+static CHAT_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     let pattern = format!(r"^\[?&?({})\]?$", BASE64_RE);
     Regex::new(&pattern).unwrap()
 });
 
-static NUMBER_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^[0-9]$").unwrap());
+static NUMBER_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[0-9]$").unwrap());
 
 #[rstest]
 #[case(EMPTY_TEMPLATE)]

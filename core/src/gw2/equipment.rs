@@ -1,24 +1,17 @@
 use std::collections::{HashMap, HashSet};
 
-use futures::stream::{self, StreamExt, TryStreamExt};
-use gw2lib::{
-    EndpointError,
-    model::{
-        authenticated::characters::{Equip, EquipmentTab, Slot as EquipmentSlot},
-        items::{Item, ItemId},
-        misc::colors::ColorId,
-    },
+use gw2lib::model::{
+    authenticated::characters::{Equip, EquipmentTab, Slot as EquipmentSlot},
+    items::ItemId,
+    misc::colors::ColorId,
 };
 
-use crate::{
-    domain::{
-        skins::{Appearance, DyeId, Dyes, SkinId},
-        templates::{
-            FashionSlot,
-            wardrobe::{WardrobeSlot, WardrobeTemplate},
-        },
+use crate::domain::{
+    skins::{Appearance, DyeId, Dyes, SkinId},
+    templates::{
+        FashionSlot,
+        wardrobe::{WardrobeSlot, WardrobeTemplate},
     },
-    gw2_data::cache,
 };
 
 #[derive(Clone, Debug)]
@@ -39,43 +32,21 @@ impl Equipment {
         }
     }
 
+    pub fn with_slots(&self, slots: Vec<Equip>) -> Self {
+        Equipment {
+            char_name: self.char_name.clone(),
+            tab_id: self.tab_id,
+            tab_name: self.tab_name.clone(),
+            slots,
+        }
+    }
+
     pub fn all_item_ids(&self) -> HashSet<ItemId> {
         HashSet::from_iter(
             self.slots
                 .iter()
                 .filter_map(|s| if s.skin.is_none() { Some(s.id) } else { None }),
         )
-    }
-
-    pub async fn resolve_default_skins<R: cache::Resolver<Item, ItemId>>(
-        self,
-        cache: &R,
-    ) -> Result<Self, EndpointError> {
-        Ok(Equipment {
-            char_name: self.char_name.clone(),
-            tab_id: self.tab_id,
-            tab_name: self.tab_name.clone(),
-            slots: self.resolve_slots_default_skins(cache).await?,
-        })
-    }
-
-    async fn resolve_slots_default_skins<R: cache::Resolver<Item, ItemId>>(
-        self,
-        cache: &R,
-    ) -> Result<Vec<Equip>, EndpointError> {
-        stream::iter(self.slots)
-            .then(async |s| {
-                if s.skin.is_none() {
-                    Ok::<_, EndpointError>(Equip {
-                        skin: cache.get(s.id).await?.default_skin,
-                        ..s
-                    })
-                } else {
-                    Ok(s)
-                }
-            })
-            .try_collect()
-            .await
     }
 }
 
