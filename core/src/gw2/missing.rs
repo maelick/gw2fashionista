@@ -29,7 +29,7 @@ pub fn skins(kind: FashionSlotKind) -> &'static HashMap<u32, StaticName> {
 }
 
 static MISSING_SKINS: LazyLock<StaticMap<FashionSlotKind, HashMap<u32, StaticName>>> =
-    LazyLock::new(|| parse_all());
+    LazyLock::new(parse_all);
 
 fn parse_all() -> StaticMap<FashionSlotKind, HashMap<u32, StaticName>> {
     StaticMap::from_fn(|kind: FashionSlotKind| parse_file(kind))
