@@ -117,34 +117,34 @@ mod tests {
     use mockall::predicate;
 
     use crate::gw2::{
-        doorway::Doorway,
         error::ErrorKind,
         lookup::{Lookup, MockLookup, StaticLookup},
+        named::StaticName,
     };
 
     #[tokio::test]
     async fn test_fallback_without_errors() {
         let l1 = StaticLookup::new([(
             1,
-            Doorway {
+            StaticName {
                 id: 1,
-                name: "Name 1 from primary",
+                name: "Name 1 from primary".to_string(),
             },
         )]);
 
         let l2 = StaticLookup::new([
             (
                 1,
-                Doorway {
+                StaticName {
                     id: 1,
-                    name: "Name 1 from fallback",
+                    name: "Name 1 from fallback".to_string(),
                 },
             ),
             (
                 2,
-                Doorway {
+                StaticName {
                     id: 2,
-                    name: "Name 2 from fallback",
+                    name: "Name 2 from fallback".to_string(),
                 },
             ),
         ]);
@@ -165,9 +165,9 @@ mod tests {
     async fn test_fallback_with_errors() {
         let items = [(
             1,
-            Doorway {
+            StaticName {
                 id: 1,
-                name: "Name 1",
+                name: "Name 1".to_string(),
             },
         )];
 

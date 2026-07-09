@@ -13,7 +13,6 @@ use linearize::StaticMap;
 use crate::domain::skins::{DyeId, SkinId};
 use crate::domain::templates::{FashionSlot, FashionSlotKind, Template};
 use crate::gw2::cache::Cache;
-use crate::gw2::doorway::Doorway;
 use crate::gw2::endpoints::glider::Glider;
 use crate::gw2::endpoints::mount::MountSkin;
 use crate::gw2::endpoints::outfit::Outfit;
@@ -22,8 +21,8 @@ use crate::gw2::equipment::Equipment;
 use crate::gw2::error::Error;
 use crate::gw2::fetch::{Fetch, Gw2LibFetcher, Retry};
 use crate::gw2::lookup::{Lookup, StaticLookup};
-use crate::gw2::named::Named;
-use crate::gw2::static_names::{StaticName, missing};
+use crate::gw2::missing;
+use crate::gw2::named::{Named, StaticName};
 use crate::models::skin;
 use crate::models::template::TemplateData;
 
@@ -58,12 +57,16 @@ impl Resolver {
         fetcher: &F,
     ) -> Box<dyn Lookup<u32> + Send + Sync> {
         match kind {
-            FashionSlotKind::Equipment => Self::api_lookup::<Skin, _>(fetcher, missing(kind)),
-            FashionSlotKind::Outfit => Self::api_lookup::<Outfit, _>(fetcher, missing(kind)),
-            FashionSlotKind::Mount => Self::api_lookup::<MountSkin, _>(fetcher, missing(kind)),
-            FashionSlotKind::Glider => Self::api_lookup::<Glider, _>(fetcher, missing(kind)),
-            FashionSlotKind::Skiff => Self::api_lookup::<Skiff, _>(fetcher, missing(kind)),
-            FashionSlotKind::Doorway => Box::new(Doorway::lookup()),
+            FashionSlotKind::Equipment => {
+                Self::api_lookup::<Skin, _>(fetcher, missing::skins(kind))
+            }
+            FashionSlotKind::Outfit => Self::api_lookup::<Outfit, _>(fetcher, missing::skins(kind)),
+            FashionSlotKind::Mount => {
+                Self::api_lookup::<MountSkin, _>(fetcher, missing::skins(kind))
+            }
+            FashionSlotKind::Glider => Self::api_lookup::<Glider, _>(fetcher, missing::skins(kind)),
+            FashionSlotKind::Skiff => Self::api_lookup::<Skiff, _>(fetcher, missing::skins(kind)),
+            FashionSlotKind::Doorway => Box::new(StaticLookup::new(missing::skins(kind).clone())),
         }
     }
 

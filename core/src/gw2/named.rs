@@ -50,3 +50,15 @@ impl Named for Skiff {
         &self.name
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct StaticName {
+    pub id: u32,
+    pub name: String,
+}
+
+impl Named for StaticName {
+    fn name(&self) -> &str {
+        &self.name
+    }
+}

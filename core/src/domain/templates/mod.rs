@@ -20,7 +20,7 @@ pub mod wardrobe;
 
 pub type SlotFilter<S> = HashSet<S>;
 
-#[derive(Debug, Eq, PartialEq, Hash, Linearize)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Linearize)]
 pub enum FashionSlotKind {
     Equipment,
     Outfit,
