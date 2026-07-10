@@ -3,10 +3,7 @@ use clap::{Args, Subcommand};
 
 mod args;
 mod read;
-mod wardrobe_args;
-mod wardrobe_export;
-mod wardrobe_filter;
-mod wardrobe_merge;
+mod wardrobe;
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
@@ -25,11 +22,11 @@ pub struct WardrobeArgs {
 #[derive(Subcommand, Debug)]
 pub enum WardrobeCommands {
     /// Export equipment tabs as wardrobe templates using the API.
-    Export(wardrobe_export::Command),
+    Export(wardrobe::export::Command),
     /// Merge two wardrobe templates by overriding specific parts of the first one with values of the second one
-    Merge(wardrobe_merge::Command),
+    Merge(wardrobe::merge::Command),
     /// Filter a wardrobe template to include only specific parts.
-    Filter(wardrobe_filter::Command),
+    Filter(wardrobe::filter::Command),
 }
 
 impl Commands {

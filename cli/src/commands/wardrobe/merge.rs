@@ -1,10 +1,11 @@
 use async_trait::async_trait;
 use clap::Args;
 
-use crate::commands::wardrobe_args::WardrobeFilters;
-
-use super::args;
 use gw2fashionista_core::domain::{chatlink::ChatLink, error::ChatLinkError};
+
+use crate::commands;
+use crate::commands::args;
+use crate::commands::wardrobe::args::WardrobeFilters;
 
 #[derive(Args, Debug)]
 pub struct Command {
@@ -22,7 +23,7 @@ pub struct Command {
 }
 
 #[async_trait]
-impl super::Command for Command {
+impl commands::Command for Command {
     fn name(&self) -> &str {
         "wardrobe-merge"
     }

@@ -1,7 +1,8 @@
 use async_trait::async_trait;
 use clap::Args;
 
-use crate::commands::wardrobe_args::WardrobeFilters;
+use crate::commands;
+use crate::commands::wardrobe::args::WardrobeFilters;
 
 use gw2fashionista_core::domain::{chatlink::ChatLink, error::ChatLinkError};
 
@@ -15,7 +16,7 @@ pub struct Command {
 }
 
 #[async_trait]
-impl super::Command for Command {
+impl commands::Command for Command {
     fn name(&self) -> &str {
         "wardrobe-filter"
     }
