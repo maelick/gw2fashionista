@@ -10,7 +10,7 @@ clap = { version = "4.6.1", features = ["derive", "env", "string"] }
 clap-verbosity-flag = { version = "3.0.4", default-features = false, features = ["tracing"] }
 csv = "1.4.0"
 env_logger = "0.11.10"
-gw2fashionista-core = { version = "0.2.0", path = "../core", features = ["tracing"] }
+gw2fashionista-core = { version = "0.2.1", path = "../core", features = ["tracing"] }
 linearize = "0.1.7"
 log = "0.4.30"
 serde = { version = "1.0.228", features = ["derive"] }
