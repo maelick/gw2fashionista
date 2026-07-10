@@ -75,13 +75,13 @@ impl FashionSlot for TravelSlot {
 )]
 #[strum(serialize_all = "snake_case")]
 pub enum TravelCategory {
-    Mount,
+    Mounts,
 }
 
 impl TravelCategory {
     pub const fn slots(&self) -> &'static [TravelSlot] {
         match self {
-            TravelCategory::Mount => &[
+            TravelCategory::Mounts => &[
                 TravelSlot::Jackal,
                 TravelSlot::Griffon,
                 TravelSlot::Springer,
