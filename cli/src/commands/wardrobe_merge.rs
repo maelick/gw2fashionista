@@ -16,7 +16,7 @@ pub struct Command {
     skin_dyes_only: args::SkinsOrDyes,
 
     #[command(flatten)]
-    filters: args::EquipmentFilters,
+    filters: args::WardrobeFilters,
 }
 
 #[async_trait]

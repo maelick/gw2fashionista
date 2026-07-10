@@ -20,42 +20,44 @@ pub enum Format {
 
 #[derive(Args, Debug)]
 #[group(multiple = true)]
-pub struct EquipmentFilters {
+pub struct WardrobeFilters {
     /// Only keep the provided comma-separated skins (or skin categories)
     #[arg(long, value_delimiter = ',')]
-    only: Vec<FilterOption>,
+    only: Vec<WardrobeFilterOption>,
 
     /// Exclude the provided comma-separated skins (or skin categories)
     #[arg(long, value_delimiter = ',')]
-    exclude: Vec<FilterOption>,
+    exclude: Vec<WardrobeFilterOption>,
 }
 
 #[derive(Debug, Clone)]
-enum FilterOption {
+enum WardrobeFilterOption {
     Category(EquipmentCategory),
     Slot(WardrobeSlot),
 }
 
-static FILTER_VARIANTS: LazyLock<Vec<FilterOption>> = LazyLock::new(|| {
-    let categories = EquipmentCategory::variants().map(FilterOption::Category);
-    let slots = WardrobeSlot::variants().map(FilterOption::Slot);
+static FILTER_VARIANTS: LazyLock<Vec<WardrobeFilterOption>> = LazyLock::new(|| {
+    let categories = EquipmentCategory::variants().map(WardrobeFilterOption::Category);
+    let slots = WardrobeSlot::variants().map(WardrobeFilterOption::Slot);
     categories.chain(slots).collect()
 });
 
-impl ValueEnum for FilterOption {
+impl ValueEnum for WardrobeFilterOption {
     fn value_variants<'a>() -> &'a [Self] {
         &FILTER_VARIANTS
     }
 
     fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
         Some(match self {
-            FilterOption::Category(cat) => clap::builder::PossibleValue::new(cat.to_string()),
-            FilterOption::Slot(slot) => clap::builder::PossibleValue::new(slot.to_string()),
+            WardrobeFilterOption::Category(cat) => {
+                clap::builder::PossibleValue::new(cat.to_string())
+            }
+            WardrobeFilterOption::Slot(slot) => clap::builder::PossibleValue::new(slot.to_string()),
         })
     }
 }
 
-impl TypedValueParser for FilterOption {
+impl TypedValueParser for WardrobeFilterOption {
     type Value = Self;
 
     fn parse_ref(
@@ -82,29 +84,29 @@ impl TypedValueParser for FilterOption {
     }
 }
 
-impl FromStr for FilterOption {
+impl FromStr for WardrobeFilterOption {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         // Try parsing as category first
         if let Ok(category) = EquipmentCategory::from_str(s) {
-            return Ok(FilterOption::Category(category));
+            return Ok(WardrobeFilterOption::Category(category));
         }
         // Then try as slot
         if let Ok(slot) = WardrobeSlot::from_str(s) {
-            return Ok(FilterOption::Slot(slot));
+            return Ok(WardrobeFilterOption::Slot(slot));
         }
         Err(format!("Unknown filter: {}", s))
     }
 }
 
-impl From<&EquipmentFilters> for SlotFilter<WardrobeSlot> {
-    fn from(value: &EquipmentFilters) -> Self {
+impl From<&WardrobeFilters> for SlotFilter<WardrobeSlot> {
+    fn from(value: &WardrobeFilters) -> Self {
         let mut filter = SlotFilter::<WardrobeSlot>::all();
         for f in &value.only {
             match f {
-                FilterOption::Category(category) => filter.retain_all(category.slots()),
-                FilterOption::Slot(slot) => {
+                WardrobeFilterOption::Category(category) => filter.retain_all(category.slots()),
+                WardrobeFilterOption::Slot(slot) => {
                     filter.retain(|s| s == slot);
                 }
             };
@@ -112,8 +114,8 @@ impl From<&EquipmentFilters> for SlotFilter<WardrobeSlot> {
 
         for f in &value.exclude {
             match f {
-                FilterOption::Category(category) => filter.remove_all(category.slots()),
-                FilterOption::Slot(slot) => {
+                WardrobeFilterOption::Category(category) => filter.remove_all(category.slots()),
+                WardrobeFilterOption::Slot(slot) => {
                     filter.remove(slot);
                 }
             };

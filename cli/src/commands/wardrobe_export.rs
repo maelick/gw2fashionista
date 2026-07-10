@@ -32,7 +32,7 @@ pub struct Command {
     no_default_name: bool,
 
     #[command(flatten)]
-    filters: args::EquipmentFilters,
+    filters: args::WardrobeFilters,
 
     /// Determine concurrency for API calls (maximum 255, default = number of characters)
     #[arg(long)]

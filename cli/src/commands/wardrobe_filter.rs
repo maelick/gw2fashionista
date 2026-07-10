@@ -10,7 +10,7 @@ pub struct Command {
     wardrobe_template: String,
 
     #[command(flatten)]
-    filters: args::EquipmentFilters,
+    filters: args::WardrobeFilters,
 }
 
 #[async_trait]
