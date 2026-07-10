@@ -16,20 +16,20 @@ The CLI can be run by
 
 It includes the following subcommands:
 * `help` and `help <subcommand>` to get the general help or help on a subcommand
-* `read`: read one or several GW chat links (currently only support wardrobe templates) and print its content,
-  resolving skin and dyes names using the GW2 API.
+* `read`: read one or several GW chat links (currently only supports wardrobe & travel templates) and print their content,
+  resolving skin and dye names using the GW2 API.
 * `wardrobe export`: export from the GW2 API one or several characters' equipment tabs as fashion templates.
-  It requires an API key with account, builds and characters permissions.
+  It requires an API key with `account`, `builds`, and `characters` permissions.
   The key can be provided as a CLI argument or environment variable (which can be placed in a .env file).
   For example, to export all characters to fashion.csv:
 ```bash
 GW2_API_KEY='<your-api-key-here>' cargo run wardrobe export -o fashion.csv
 ``` 
-* `wardrobe filter`: filter a wardrobe template (given as chat link) by removing undesired slots.
+* `wardrobe filter`: filter a wardrobe template (given as a chat link) by removing undesired slots.
 * `wardrobe merge` combines two wardrobe templates (given as chat links) by replacing in the first
   one slots that are set in the second one.
   The second template can be filtered using the same filters as for the `filter` command,
-  and the command also allows to only merge dyes or skins if desired.
+  and the command also allows only merging dyes or skins if desired.
 
 ## Examples
 
@@ -55,7 +55,7 @@ echo $fashion2_noweapons | ./gw2fashionista read | jq
 # Combines fashion1 weapons with fashion2
 ./gw2fashionista wardrobe merge "$fashion1" "$fashion2_noweapons" | ./gw2fashionista read | jq
 
-# Showcase the different filtering options and outputs how it affects the backpack:
+# Showcase the different filtering options and how it affects the backpack:
 
 # fashion2 backpack
 ./gw2fashionista wardrobe merge "$fashion1" "$fashion2_noweapons" | ./gw2fashionista read | jq .backpack
