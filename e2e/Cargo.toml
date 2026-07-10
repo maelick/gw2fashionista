@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 assert_cmd = "2.2.2"
 csv = "1.4.0"
-gw2fashionista-cli = { version = "0.2.0", path = "../cli" }
+gw2fashionista-cli = { version = "0.3.0-beta.1", path = "../cli" }
 gw2fashionista-fixtures = { version = "0.1.0", path = "../fixtures" }
 insta = { version = "1.48.0", features = ["json"] }
 regex = "1.12.4"
