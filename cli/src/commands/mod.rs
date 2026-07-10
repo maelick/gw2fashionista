@@ -3,6 +3,7 @@ use clap::{Args, Subcommand};
 
 mod args;
 mod read;
+mod wardrobe_args;
 mod wardrobe_export;
 mod wardrobe_filter;
 mod wardrobe_merge;

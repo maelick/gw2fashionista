@@ -7,6 +7,8 @@ use gw2fashionista_core::{
 use serde::{Deserialize, Serialize};
 use std::{fs, io};
 
+use crate::commands::wardrobe_args::WardrobeFilters;
+
 use super::args;
 
 #[derive(Args, Debug)]
@@ -32,7 +34,7 @@ pub struct Command {
     no_default_name: bool,
 
     #[command(flatten)]
-    filters: args::WardrobeFilters,
+    filters: WardrobeFilters,
 
     /// Determine concurrency for API calls (maximum 255, default = number of characters)
     #[arg(long)]
