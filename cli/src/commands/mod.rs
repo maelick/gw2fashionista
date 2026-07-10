@@ -3,6 +3,7 @@ use clap::{Args, Subcommand};
 
 mod args;
 mod read;
+mod travel;
 mod wardrobe;
 
 #[derive(Subcommand, Debug)]
@@ -11,6 +12,8 @@ pub enum Commands {
     Read(read::Command),
     /// Wardrobe template commands
     Wardrobe(WardrobeArgs),
+    /// Travel template commands
+    Travel(TravelArgs),
 }
 
 #[derive(Args, Debug)]
@@ -29,6 +32,20 @@ pub enum WardrobeCommands {
     Filter(wardrobe::filter::Command),
 }
 
+#[derive(Args, Debug)]
+pub struct TravelArgs {
+    #[command(subcommand)]
+    command: TravelCommands,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum TravelCommands {
+    /// Merge two travel templates by overriding specific parts of the first one with values of the second one
+    Merge(travel::merge::Command),
+    /// Filter a travel template to include only specific parts.
+    Filter(travel::filter::Command),
+}
+
 impl Commands {
     pub fn as_command(&self) -> &dyn Command {
         match self {
@@ -37,6 +54,10 @@ impl Commands {
                 WardrobeCommands::Export(cmd) => cmd,
                 WardrobeCommands::Merge(cmd) => cmd,
                 WardrobeCommands::Filter(cmd) => cmd,
+            },
+            Commands::Travel(args) => match &args.command {
+                TravelCommands::Merge(cmd) => cmd,
+                TravelCommands::Filter(cmd) => cmd,
             },
         }
     }
