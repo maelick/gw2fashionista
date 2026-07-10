@@ -3,9 +3,8 @@ use clap::{Args, Subcommand};
 
 mod args;
 mod read;
-mod wardrobe_export;
-mod wardrobe_filter;
-mod wardrobe_merge;
+mod travel;
+mod wardrobe;
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
@@ -13,6 +12,8 @@ pub enum Commands {
     Read(read::Command),
     /// Wardrobe template commands
     Wardrobe(WardrobeArgs),
+    /// Travel template commands
+    Travel(TravelArgs),
 }
 
 #[derive(Args, Debug)]
@@ -24,11 +25,25 @@ pub struct WardrobeArgs {
 #[derive(Subcommand, Debug)]
 pub enum WardrobeCommands {
     /// Export equipment tabs as wardrobe templates using the API.
-    Export(wardrobe_export::Command),
+    Export(wardrobe::export::Command),
     /// Merge two wardrobe templates by overriding specific parts of the first one with values of the second one
-    Merge(wardrobe_merge::Command),
+    Merge(wardrobe::merge::Command),
     /// Filter a wardrobe template to include only specific parts.
-    Filter(wardrobe_filter::Command),
+    Filter(wardrobe::filter::Command),
+}
+
+#[derive(Args, Debug)]
+pub struct TravelArgs {
+    #[command(subcommand)]
+    command: TravelCommands,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum TravelCommands {
+    /// Merge two travel templates by overriding specific parts of the first one with values of the second one
+    Merge(travel::merge::Command),
+    /// Filter a travel template to include only specific parts.
+    Filter(travel::filter::Command),
 }
 
 impl Commands {
@@ -39,6 +54,10 @@ impl Commands {
                 WardrobeCommands::Export(cmd) => cmd,
                 WardrobeCommands::Merge(cmd) => cmd,
                 WardrobeCommands::Filter(cmd) => cmd,
+            },
+            Commands::Travel(args) => match &args.command {
+                TravelCommands::Merge(cmd) => cmd,
+                TravelCommands::Filter(cmd) => cmd,
             },
         }
     }
