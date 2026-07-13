@@ -27,7 +27,7 @@ It includes the following subcommands:
   For example, to export all characters to fashion.csv:
 ```bash
 export GW2_API_KEY='<your-api-key-here>'
-cargo run wardrobe export -o fashion.csv
+./gw2fashionista wardrobe export -o fashion.csv
 ``` 
 * `wardrobe filter` and `travel filter`: filter a wardrobe or travel template (given as a chat link) by removing undesired slots.
 * `wardrobe merge` and `travel merge` combine two wardrobe or travel templates (given as chat links) by replacing in the first
