@@ -5,6 +5,8 @@ pub const ALL_TEMPLATES: &[TravelTemplate] = &[
     DEFAULT_MOUNT_TEMPLATE,
     NO_DYES_TEMPLATE,
     PEEKABOO_TEMPLATE,
+    KABOOM_TEMPLATE,
+    KABOOM_MOUNTS_TEMPLATE,
     ZIZI_TEMPLATE,
 ];
 
@@ -30,6 +32,18 @@ pub const NO_DYES_TEMPLATE: TravelTemplate = TravelTemplate::new(
 pub const PEEKABOO_TEMPLATE: TravelTemplate = TravelTemplate::new(
     "travel_peekaboo",
     "EJAABgDiBOIEHgUFAB4F4gTiBOIEbgIeBeIEHgXiBEoBBgAeBUgF4gTzAeIEHgVIBR4FJAPiBOIEHgVIBZMBBgAeBeIESAXnAkgFHgXiBOIEyAIGAB4F4gRIBXAC4gQGAAYAXwHDAR4F4gQeBeIE+AEeBeIESAUeBf8P",
+);
+
+/// Kaboom's travel template
+pub const KABOOM_TEMPLATE: TravelTemplate = TravelTemplate::new(
+    "travel_kaboom",
+    "EEkA2QE4BQEAAQACAAEAAQABAAEAYQBKBUoCSgJ1AnMASgVKBUoCSgKnAUoF2QFKAkoChwFKBUoCSgI4BUkBSgLZAUoFewAlAUoFSgJKBTgFzwBKAkoFSgVKAowBSgVKBdkBSgLDAYEEhgB5AVoAjQFKAgEAAQABAP8P",
+);
+
+/// Kaboom's mounts template
+pub const KABOOM_MOUNTS_TEMPLATE: TravelTemplate = TravelTemplate::new(
+    "travel_kaboom_mounts",
+    "EAAAAQABAAEAAQAAAAEAAQABAAEAYQBKBUoCSgJ1AnMASgVKBUoCSgKnAUoF2QFKAkoChwFKBUoCSgI4BUkBSgLZAUoFewAlAUoFSgJKBTgFzwBKAkoFSgVKAowBSgVKBdkBSgIAAAEAAQABAAEAjQFKAgEAAQABAP8P",
 );
 
 /// Zizï Skyhoof's travel template

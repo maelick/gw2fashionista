@@ -31,6 +31,8 @@ static NUMBER_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[0-9]$").u
 #[case(travel::DEFAULT_MOUNT_TEMPLATE)]
 #[case(travel::NO_DYES_TEMPLATE)]
 #[case(travel::PEEKABOO_TEMPLATE)]
+#[case(travel::KABOOM_TEMPLATE)]
+#[case(travel::KABOOM_MOUNTS_TEMPLATE)]
 #[case(travel::ZIZI_TEMPLATE)]
 fn test_read_command(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link], None)
@@ -48,6 +50,8 @@ fn test_read_command(#[case] template: FashionTemplate) {
 #[case(travel::DEFAULT_MOUNT_TEMPLATE)]
 #[case(travel::NO_DYES_TEMPLATE)]
 #[case(travel::PEEKABOO_TEMPLATE)]
+#[case(travel::KABOOM_TEMPLATE)]
+#[case(travel::KABOOM_MOUNTS_TEMPLATE)]
 #[case(travel::ZIZI_TEMPLATE)]
 fn test_read_command_pretty(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link, "--pretty"], None)
@@ -65,6 +69,8 @@ fn test_read_command_pretty(#[case] template: FashionTemplate) {
 #[case(travel::DEFAULT_MOUNT_TEMPLATE)]
 #[case(travel::NO_DYES_TEMPLATE)]
 #[case(travel::PEEKABOO_TEMPLATE)]
+#[case(travel::KABOOM_TEMPLATE)]
+#[case(travel::KABOOM_MOUNTS_TEMPLATE)]
 #[case(travel::ZIZI_TEMPLATE)]
 fn test_read_command_skip_names(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link, "--skip-names"], None)
