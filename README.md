@@ -1,6 +1,9 @@
 # GW2 Fashionista [![CI](https://github.com/maelick/gw2fashionista/actions/workflows/ci.yaml/badge.svg)](https://github.com/maelick/gw2fashionista/actions/workflows/ci.yaml)
 
-CLI tool to manage GW2 fashion templates
+CLI tool to manage GW2 fashion templates.
+Currently, it can:
+* parse, filter, and merge wardrobe and travel template chat links.
+* export equipment tabs as wardrobe templates using the GW2 API.
 
 ## Running the CLI
 
@@ -19,17 +22,18 @@ It includes the following subcommands:
 * `read`: read one or several GW chat links (currently only supports wardrobe & travel templates) and print their content,
   resolving skin and dye names using the GW2 API.
 * `wardrobe export`: export from the GW2 API one or several characters' equipment tabs as fashion templates.
-  It requires an API key with `account`, `builds`, and `characters` permissions.
-  The key can be provided as a CLI argument or environment variable (which can be placed in a .env file).
+  It requires an API key with the `account`, `builds`, and `characters` permissions.
+  The key can be provided as a CLI argument or as an environment variable.
   For example, to export all characters to fashion.csv:
 ```bash
-GW2_API_KEY='<your-api-key-here>' cargo run wardrobe export -o fashion.csv
+export GW2_API_KEY='<your-api-key-here>'
+cargo run wardrobe export -o fashion.csv
 ``` 
-* `wardrobe filter`: filter a wardrobe template (given as a chat link) by removing undesired slots.
-* `wardrobe merge` combines two wardrobe templates (given as chat links) by replacing in the first
+* `wardrobe filter` and `travel filter`: filter a wardrobe or travel template (given as a chat link) by removing undesired slots.
+* `wardrobe merge` and `travel merge` combine two wardrobe or travel templates (given as chat links) by replacing in the first
   one slots that are set in the second one.
   The second template can be filtered using the same filters as for the `filter` command,
-  and the command also allows only merging dyes or skins if desired.
+  and the command also allows merging only dyes or skins, if desired.
 
 ## Examples
 
