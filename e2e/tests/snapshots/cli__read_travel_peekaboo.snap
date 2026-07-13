@@ -1,0 +1,282 @@
+---
+source: e2e/tests/cli.rs
+expression: json
+---
+{
+  "beetle": {
+    "dyes": [
+      {
+        "id": 1352,
+        "name": "Shadow Purple"
+      },
+      {
+        "id": 1310,
+        "name": "Glint's Rebellion"
+      },
+      {
+        "id": 1250,
+        "name": "Violite"
+      },
+      {
+        "id": 1250,
+        "name": "Violite"
+      }
+    ],
+    "id": 743,
+    "name": "Panda Roller Beetle",
+    "visible": true
+  },
+  "doorway": {
+    "dyes": [
+      {
+        "id": 1310,
+        "name": "Glint's Rebellion"
+      },
+      {
+        "id": 1250,
+        "name": "Violite"
+      },
+      {
+        "id": 1250,
+        "name": "Violite"
+      },
+      {
+        "id": 1250,
+        "name": "Violite"
+      }
+    ],
+    "id": 5,
+    "name": "Choya Piñata Conjured Doorway",
+    "visible": true
+  },
+  "glider": {
+    "dyes": [
+      {
+        "id": 6,
+        "name": "Celestial"
+      },
+      {
+        "id": 1250,
+        "name": "Violite"
+      },
+      {
+        "id": 1250,
+        "name": "Violite"
+      },
+      {
+        "id": 1310,
+        "name": "Glint's Rebellion"
+      }
+    ],
+    "id": 144,
+    "name": "Orrax Manifested",
+    "visible": true
+  },
+  "griffon": {
+    "dyes": [
+      {
+        "id": 6,
+        "name": "Celestial"
+      },
+      {
+        "id": 1310,
+        "name": "Glint's Rebellion"
+      },
+      {
+        "id": 1352,
+        "name": "Shadow Purple"
+      },
+      {
+        "id": 1250,
+        "name": "Violite"
+      }
+    ],
+    "id": 330,
+    "name": "Plush Griffon",
+    "visible": true
+  },
+  "jackal": {
+    "dyes": [
+      {
+        "id": 1310,
+        "name": "Glint's Rebellion"
+      },
+      {
+        "id": 1250,
+        "name": "Violite"
+      },
+      {
+        "id": 1310,
+        "name": "Glint's Rebellion"
+      },
+      {
+        "id": 1250,
+        "name": "Violite"
+      }
+    ],
+    "id": 622,
+    "name": "Plush Vulpine Jackal",
+    "visible": true
+  },
+  "raptor": {
+    "dyes": [
+      {
+        "id": 6,
+        "name": "Celestial"
+      },
+      {
+        "id": 1310,
+        "name": "Glint's Rebellion"
+      },
+      {
+        "id": 1250,
+        "name": "Violite"
+      },
+      {
+        "id": 1352,
+        "name": "Shadow Purple"
+      }
+    ],
+    "id": 403,
+    "name": "Plush Raptor",
+    "visible": true
+  },
+  "skiff": {
+    "dyes": [
+      {
+        "id": 1310,
+        "name": "Glint's Rebellion"
+      },
+      {
+        "id": 1250,
+        "name": "Violite"
+      },
+      {
+        "id": 1310,
+        "name": "Glint's Rebellion"
+      },
+      {
+        "id": 1250,
+        "name": "Violite"
+      }
+    ],
+    "id": 451,
+    "name": "Floating Garden",
+    "visible": true
+  },
+  "skimmer": {
+    "dyes": [
+      {
+        "id": 1250,
+        "name": "Violite"
+      },
+      {
+        "id": 1250,
+        "name": "Violite"
+      },
+      {
+        "id": 1310,
+        "name": "Glint's Rebellion"
+      },
+      {
+        "id": 1352,
+        "name": "Shadow Purple"
+      }
+    ],
+    "id": 804,
+    "name": "Plush Skimmer",
+    "visible": true
+  },
+  "skyscale": {
+    "dyes": [
+      {
+        "id": 1250,
+        "name": "Violite"
+      },
+      {
+        "id": 6,
+        "name": "Celestial"
+      },
+      {
+        "id": 6,
+        "name": "Celestial"
+      },
+      {
+        "id": 351,
+        "name": "Scenic"
+      }
+    ],
+    "id": 624,
+    "name": "Plush Skyscale",
+    "visible": true
+  },
+  "springer": {
+    "dyes": [
+      {
+        "id": 1250,
+        "name": "Violite"
+      },
+      {
+        "id": 1310,
+        "name": "Glint's Rebellion"
+      },
+      {
+        "id": 1352,
+        "name": "Shadow Purple"
+      },
+      {
+        "id": 1310,
+        "name": "Glint's Rebellion"
+      }
+    ],
+    "id": 499,
+    "name": "Plush Cuckoo",
+    "visible": true
+  },
+  "turtle": {
+    "dyes": [
+      {
+        "id": 1310,
+        "name": "Glint's Rebellion"
+      },
+      {
+        "id": 1250,
+        "name": "Violite"
+      },
+      {
+        "id": 1352,
+        "name": "Shadow Purple"
+      },
+      {
+        "id": 1310,
+        "name": "Glint's Rebellion"
+      }
+    ],
+    "id": 504,
+    "name": "Plush Siege Turtle",
+    "visible": true
+  },
+  "warclaw": {
+    "dyes": [
+      {
+        "id": 6,
+        "name": "Celestial"
+      },
+      {
+        "id": 1310,
+        "name": "Glint's Rebellion"
+      },
+      {
+        "id": 1250,
+        "name": "Violite"
+      },
+      {
+        "id": 1352,
+        "name": "Shadow Purple"
+      }
+    ],
+    "id": 712,
+    "name": "Plush Tiger Warclaw",
+    "visible": true
+  }
+}
