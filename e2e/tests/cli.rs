@@ -7,6 +7,7 @@ use gw2fashionista_fixtures::templates_as_list;
 use regex::Regex;
 use rstest::rstest;
 
+use gw2fashionista_fixtures::travel;
 use gw2fashionista_fixtures::wardrobe;
 
 use e2e::{cli::spawn_cli, fail_if_no_api_key, read_csv};
@@ -26,6 +27,11 @@ static NUMBER_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[0-9]$").u
 #[case(wardrobe::PEEKABOO_TEMPLATE)]
 #[case(wardrobe::ZIZI_TEMPLATE)]
 #[case(wardrobe::ZIZI_ARMOR_TEMPLATE)]
+#[case(travel::EMPTY_TEMPLATE)]
+#[case(travel::DEFAULT_MOUNT_TEMPLATE)]
+#[case(travel::NO_DYES_TEMPLATE)]
+#[case(travel::PEEKABOO_TEMPLATE)]
+#[case(travel::ZIZI_TEMPLATE)]
 fn test_read_command(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link], None)
         .assert()
@@ -38,6 +44,11 @@ fn test_read_command(#[case] template: FashionTemplate) {
 #[case(wardrobe::PEEKABOO_TEMPLATE)]
 #[case(wardrobe::ZIZI_TEMPLATE)]
 #[case(wardrobe::ZIZI_ARMOR_TEMPLATE)]
+#[case(travel::EMPTY_TEMPLATE)]
+#[case(travel::DEFAULT_MOUNT_TEMPLATE)]
+#[case(travel::NO_DYES_TEMPLATE)]
+#[case(travel::PEEKABOO_TEMPLATE)]
+#[case(travel::ZIZI_TEMPLATE)]
 fn test_read_command_pretty(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link, "--pretty"], None)
         .assert()
@@ -50,6 +61,11 @@ fn test_read_command_pretty(#[case] template: FashionTemplate) {
 #[case(wardrobe::PEEKABOO_TEMPLATE)]
 #[case(wardrobe::ZIZI_TEMPLATE)]
 #[case(wardrobe::ZIZI_ARMOR_TEMPLATE)]
+#[case(travel::EMPTY_TEMPLATE)]
+#[case(travel::DEFAULT_MOUNT_TEMPLATE)]
+#[case(travel::NO_DYES_TEMPLATE)]
+#[case(travel::PEEKABOO_TEMPLATE)]
+#[case(travel::ZIZI_TEMPLATE)]
 fn test_read_command_skip_names(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link, "--skip-names"], None)
         .assert()
@@ -60,9 +76,13 @@ fn test_read_command_skip_names(#[case] template: FashionTemplate) {
     );
 }
 
+fn all_templates() -> Vec<FashionTemplate> {
+    [wardrobe::ALL_TEMPLATES, travel::ALL_TEMPLATES].concat()
+}
+
 #[test]
 fn test_read_command_input_list() {
-    let templates = templates_as_list(wardrobe::ALL_TEMPLATES);
+    let templates = templates_as_list(&all_templates());
     let input = templates.join("\n\n");
     let output = spawn_cli::<String>(&["read"], Some(input))
         .assert()
@@ -72,7 +92,7 @@ fn test_read_command_input_list() {
 
 #[test]
 fn test_read_command_input_list_invalid() {
-    let templates = templates_as_list(wardrobe::ALL_TEMPLATES);
+    let templates = templates_as_list(&all_templates());
     let input = format!("{}\nthis is not a chat link", templates.join("\n\n"));
     spawn_cli::<String>(&["read"], Some(input))
         .assert()
@@ -82,7 +102,7 @@ fn test_read_command_input_list_invalid() {
 
 #[test]
 fn test_read_command_input_list_invalid_lenient() {
-    let templates = templates_as_list(wardrobe::ALL_TEMPLATES);
+    let templates = templates_as_list(&all_templates());
     let input = format!("this is not a chat link\n{}", templates.join("\n\n"));
     let output = spawn_cli::<String>(&["read", "--lenient"], Some(input))
         .assert()
@@ -92,7 +112,7 @@ fn test_read_command_input_list_invalid_lenient() {
 
 #[test]
 fn test_read_command_input_csv() {
-    let templates = templates_as_csv(wardrobe::ALL_TEMPLATES);
+    let templates = templates_as_csv(&all_templates());
     let input = format!("name,fashion_link\n{}", templates.join("\n\n"));
     let output = spawn_cli::<String>(&["read"], Some(input))
         .assert()
@@ -102,7 +122,7 @@ fn test_read_command_input_csv() {
 
 #[test]
 fn test_read_command_input_csv_wrong_row() {
-    let templates = templates_as_csv(wardrobe::ALL_TEMPLATES);
+    let templates = templates_as_csv(&all_templates());
     let input = format!(
         "name,fashion_link\n{}\nwrong row,not a chat link",
         templates.join("\n\n")
@@ -115,7 +135,7 @@ fn test_read_command_input_csv_wrong_row() {
 
 #[test]
 fn test_read_command_input_csv_wrong_row_lenient() {
-    let templates = templates_as_csv(wardrobe::ALL_TEMPLATES);
+    let templates = templates_as_csv(&all_templates());
     let input = format!(
         "name,fashion_link\nwrong row,not a chat link\n{}",
         templates.join("\n\n")
@@ -128,7 +148,7 @@ fn test_read_command_input_csv_wrong_row_lenient() {
 
 #[test]
 fn test_read_command_input_csv_custom_column() {
-    let templates = templates_as_csv(wardrobe::ALL_TEMPLATES);
+    let templates = templates_as_csv(&all_templates());
     let input = format!("name,link\n{}", templates.join("\n\n"));
     let output = spawn_cli::<String>(&["read", "-c", "link"], Some(input))
         .assert()
@@ -138,7 +158,7 @@ fn test_read_command_input_csv_custom_column() {
 
 #[test]
 fn test_read_command_input_csv_column_missing() {
-    let templates = templates_as_csv(wardrobe::ALL_TEMPLATES);
+    let templates = templates_as_csv(&all_templates());
     let input = format!("name,link_typo\n{}", templates.join("\n\n"));
     spawn_cli::<String>(&["read", "-c", "link"], Some(input))
         .assert()
@@ -186,6 +206,9 @@ fn assert_snapshot(output: &Output, snapshot_name: &str) {
 fn assert_all_templates(output: &Output) {
     let stream = Deserializer::from_slice(&output.stdout).into_iter::<serde_json::Value>();
     let json: Vec<_> = stream.collect::<Result<_, _>>().unwrap();
-    assert_eq!(json.len(), wardrobe::ALL_TEMPLATES.len());
+    assert_eq!(
+        json.len(),
+        travel::ALL_TEMPLATES.len() + wardrobe::ALL_TEMPLATES.len()
+    );
     insta::assert_json_snapshot!("read_input_list", json);
 }

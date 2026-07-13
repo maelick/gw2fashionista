@@ -1,6 +1,7 @@
 pub mod travel;
 pub mod wardrobe;
 
+#[derive(Clone)]
 /// Represents a travel or wardrobe template test case
 pub struct FashionTemplate {
     pub name: &'static str,
