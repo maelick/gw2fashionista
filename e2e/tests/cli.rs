@@ -1,12 +1,13 @@
 use std::{process::Output, sync::LazyLock};
 
 use assert_cmd::assert::OutputAssertExt;
+use gw2fashionista_fixtures::FashionTemplate;
 use regex::Regex;
 use rstest::rstest;
 
 use gw2fashionista_fixtures::wardrobe::{
-    ALL_TEMPLATES, EMPTY_TEMPLATE, PEEKABOO_TEMPLATE, WardrobeTemplate, ZIZI_ARMOR_TEMPLATE,
-    ZIZI_TEMPLATE, all_templates_as_csv, all_templates_as_list,
+    ALL_TEMPLATES, EMPTY_TEMPLATE, PEEKABOO_TEMPLATE, ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE,
+    all_templates_as_csv, all_templates_as_list,
 };
 
 use e2e::{cli::spawn_cli, fail_if_no_api_key, read_csv};
@@ -26,7 +27,7 @@ static NUMBER_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[0-9]$").u
 #[case(PEEKABOO_TEMPLATE)]
 #[case(ZIZI_TEMPLATE)]
 #[case(ZIZI_ARMOR_TEMPLATE)]
-fn test_read_command(#[case] template: WardrobeTemplate) {
+fn test_read_command(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link], None)
         .assert()
         .success();
@@ -38,7 +39,7 @@ fn test_read_command(#[case] template: WardrobeTemplate) {
 #[case(PEEKABOO_TEMPLATE)]
 #[case(ZIZI_TEMPLATE)]
 #[case(ZIZI_ARMOR_TEMPLATE)]
-fn test_read_command_pretty(#[case] template: WardrobeTemplate) {
+fn test_read_command_pretty(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link, "--pretty"], None)
         .assert()
         .success();
@@ -50,7 +51,7 @@ fn test_read_command_pretty(#[case] template: WardrobeTemplate) {
 #[case(PEEKABOO_TEMPLATE)]
 #[case(ZIZI_TEMPLATE)]
 #[case(ZIZI_ARMOR_TEMPLATE)]
-fn test_read_command_skip_names(#[case] template: WardrobeTemplate) {
+fn test_read_command_skip_names(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link, "--skip-names"], None)
         .assert()
         .success();
