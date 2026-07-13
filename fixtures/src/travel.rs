@@ -1,22 +1,4 @@
-/// Represents a travel template test case
-pub struct TravelTemplate {
-    pub name: &'static str,
-    pub chat_link: &'static str,
-}
-
-impl TravelTemplate {
-    const fn new(name: &'static str, chat_link: &'static str) -> Self {
-        TravelTemplate { name, chat_link }
-    }
-
-    pub fn snapshot_name(&self, prefix: &str) -> String {
-        if prefix.is_empty() {
-            self.name.to_string()
-        } else {
-            format!("{}_{}", prefix, self.name)
-        }
-    }
-}
+pub type TravelTemplate = super::FashionTemplate;
 
 pub const ALL_TEMPLATES: &[TravelTemplate] = &[
     EMPTY_TEMPLATE,

@@ -1,22 +1,4 @@
-/// Represents a wardrobe template test case
-pub struct WardrobeTemplate {
-    pub name: &'static str,
-    pub chat_link: &'static str,
-}
-
-impl WardrobeTemplate {
-    const fn new(name: &'static str, chat_link: &'static str) -> Self {
-        WardrobeTemplate { name, chat_link }
-    }
-
-    pub fn snapshot_name(&self, prefix: &str) -> String {
-        if prefix.is_empty() {
-            self.name.to_string()
-        } else {
-            format!("{}_{}", prefix, self.name)
-        }
-    }
-}
+pub type WardrobeTemplate = super::FashionTemplate;
 
 pub const ALL_TEMPLATES: &[WardrobeTemplate] = &[
     EMPTY_TEMPLATE,
