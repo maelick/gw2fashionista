@@ -593,7 +593,7 @@ dependencies = [
 
 [[package]]
 name = "gw2fashionista-cli"
-version = "0.3.0-beta.1"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "async-trait",
