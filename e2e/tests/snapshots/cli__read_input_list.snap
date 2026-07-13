@@ -1,5 +1,5 @@
 ---
-source: e2e/src/cli.rs
+source: e2e/tests/cli.rs
 expression: json
 ---
 [
@@ -596,6 +596,1118 @@ expression: json
       ],
       "id": 5794,
       "name": "Shoulder Scarf",
+      "visible": true
+    }
+  },
+  {},
+  {
+    "beetle": {
+      "dyes": [
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        }
+      ],
+      "id": 103,
+      "name": "Roller Beetle",
+      "visible": true
+    },
+    "doorway": {
+      "dyes": [
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        }
+      ],
+      "id": 2,
+      "name": "Kodan Conjured Doorway",
+      "visible": true
+    },
+    "glider": {
+      "dyes": [
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        }
+      ],
+      "id": 2,
+      "visible": true
+    },
+    "griffon": {
+      "dyes": [
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        }
+      ],
+      "id": 4,
+      "name": "Griffon",
+      "visible": true
+    },
+    "jackal": {
+      "dyes": [
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        }
+      ],
+      "id": 6,
+      "name": "Jackal",
+      "visible": true
+    },
+    "raptor": {
+      "dyes": [
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        }
+      ],
+      "id": 1,
+      "name": "Raptor",
+      "visible": true
+    },
+    "skiff": {
+      "dyes": [
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        }
+      ],
+      "id": 410,
+      "name": "Fishing Skiff",
+      "visible": true
+    },
+    "skimmer": {
+      "dyes": [
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        }
+      ],
+      "id": 2,
+      "name": "Skimmer",
+      "visible": true
+    },
+    "skyscale": {
+      "dyes": [
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        }
+      ],
+      "id": 186,
+      "name": "Skyscale",
+      "visible": true
+    },
+    "springer": {
+      "dyes": [
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        }
+      ],
+      "id": 3,
+      "name": "Springer",
+      "visible": true
+    },
+    "turtle": {
+      "dyes": [
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        }
+      ],
+      "id": 397,
+      "name": "Siege Turtle",
+      "visible": true
+    },
+    "warclaw": {
+      "dyes": [
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        }
+      ],
+      "id": 161,
+      "name": "Warclaw",
+      "visible": true
+    }
+  },
+  {
+    "beetle": {
+      "dyes": [
+        {
+          "id": 25,
+          "name": "Walnut"
+        },
+        {
+          "id": 1641,
+          "name": "Godless"
+        },
+        {
+          "id": 1582,
+          "name": "Grave"
+        },
+        {
+          "id": 1629,
+          "name": "Arcane"
+        }
+      ],
+      "id": 293,
+      "name": "Synergetics Gyrocycle",
+      "visible": true
+    },
+    "doorway": {
+      "dyes": [
+        {
+          "id": 1597,
+          "name": "Vabbian Bronze"
+        },
+        {
+          "id": 129,
+          "name": "Green Apple"
+        },
+        {
+          "id": 670,
+          "name": "Purple"
+        },
+        {
+          "id": 641,
+          "name": "Mullberry"
+        }
+      ],
+      "id": 5,
+      "name": "Choya Piñata Conjured Doorway",
+      "visible": true
+    },
+    "glider": {
+      "dyes": [
+        {
+          "id": 458,
+          "name": "Night Shade"
+        },
+        {
+          "id": 475,
+          "name": "Dust"
+        },
+        {
+          "id": 1629,
+          "name": "Arcane"
+        },
+        {
+          "id": 1595,
+          "name": "Sand Shark"
+        }
+      ],
+      "id": 153,
+      "name": "Dynamics Hoverboard Glider",
+      "visible": true
+    },
+    "griffon": {
+      "dyes": [
+        {
+          "id": 77,
+          "name": "Midnight Sky"
+        },
+        {
+          "id": 1584,
+          "name": "Worn Bone"
+        },
+        {
+          "id": 588,
+          "name": "Blue Sky"
+        },
+        {
+          "id": 622,
+          "name": "Honeybutter"
+        }
+      ],
+      "id": 246,
+      "name": "Point-Tipped Corvus",
+      "visible": true
+    },
+    "jackal": {
+      "dyes": [
+        {
+          "id": 443,
+          "name": "White"
+        },
+        {
+          "id": 123,
+          "name": "Scarlet"
+        },
+        {
+          "id": 1158,
+          "name": "Sincerity"
+        },
+        {
+          "id": 698,
+          "name": "Strawberry"
+        }
+      ],
+      "id": 97,
+      "name": "Shrine Guardian",
+      "visible": true
+    },
+    "raptor": {
+      "dyes": [
+        {
+          "id": 336,
+          "name": "Refresh"
+        },
+        {
+          "id": 4,
+          "name": "Gray"
+        },
+        {
+          "id": 1576,
+          "name": "Ruin"
+        },
+        {
+          "id": 673,
+          "name": "Red"
+        }
+      ],
+      "id": 329,
+      "name": "Roadrunner",
+      "visible": true
+    },
+    "skiff": {
+      "dyes": [
+        {
+          "id": 85,
+          "name": "Midnight Rust"
+        },
+        {
+          "id": 332,
+          "name": "Shy Peach"
+        },
+        {
+          "id": 377,
+          "name": "Autumn"
+        },
+        {
+          "id": 668,
+          "name": "Pink Ice"
+        }
+      ],
+      "id": 451,
+      "name": "Floating Garden",
+      "visible": true
+    },
+    "skimmer": {
+      "dyes": [
+        {
+          "id": 476,
+          "name": "Graphite"
+        },
+        {
+          "id": 1582,
+          "name": "Grave"
+        },
+        {
+          "id": 1597,
+          "name": "Vabbian Bronze"
+        },
+        {
+          "id": 1595,
+          "name": "Sand Shark"
+        }
+      ],
+      "id": 391,
+      "name": "Synergetics Hoverbike",
+      "visible": true
+    },
+    "skyscale": {
+      "dyes": [
+        {
+          "id": 81,
+          "name": "Midnight Olive"
+        },
+        {
+          "id": 448,
+          "name": "Green Tint"
+        },
+        {
+          "id": 64,
+          "name": "Brass"
+        },
+        {
+          "id": 9,
+          "name": "Blue Rose"
+        }
+      ],
+      "id": 396,
+      "name": "Synergetics Cyberscale",
+      "visible": true
+    },
+    "springer": {
+      "dyes": [
+        {
+          "id": 87,
+          "name": "Midnight Violet"
+        },
+        {
+          "id": 1305,
+          "name": "Electro Blue"
+        },
+        {
+          "id": 1351,
+          "name": "Shadow Violet"
+        },
+        {
+          "id": 1636,
+          "name": "Celestial Blue"
+        }
+      ],
+      "id": 423,
+      "name": "Stormy Cuckoo",
+      "visible": true
+    },
+    "turtle": {
+      "dyes": [
+        {
+          "id": 665,
+          "name": "Peach Ice"
+        },
+        {
+          "id": 595,
+          "name": "Citrus Breeze"
+        },
+        {
+          "id": 109,
+          "name": "Apricot"
+        },
+        {
+          "id": 648,
+          "name": "Papaya"
+        }
+      ],
+      "id": 504,
+      "name": "Plush Siege Turtle",
+      "visible": true
+    },
+    "warclaw": {
+      "dyes": [
+        {
+          "id": 1709,
+          "name": "Deep Sea"
+        },
+        {
+          "id": 83,
+          "name": "Midnight Red"
+        },
+        {
+          "id": 611,
+          "name": "Fog"
+        },
+        {
+          "id": 1550,
+          "name": "Core Ice"
+        }
+      ],
+      "id": 706,
+      "name": "Enchanted Warclaw",
+      "visible": true
+    }
+  },
+  {
+    "beetle": {
+      "dyes": [
+        {
+          "id": 1352,
+          "name": "Shadow Purple"
+        },
+        {
+          "id": 1310,
+          "name": "Glint's Rebellion"
+        },
+        {
+          "id": 1250,
+          "name": "Violite"
+        },
+        {
+          "id": 1250,
+          "name": "Violite"
+        }
+      ],
+      "id": 743,
+      "name": "Panda Roller Beetle",
+      "visible": true
+    },
+    "doorway": {
+      "dyes": [
+        {
+          "id": 1310,
+          "name": "Glint's Rebellion"
+        },
+        {
+          "id": 1250,
+          "name": "Violite"
+        },
+        {
+          "id": 1250,
+          "name": "Violite"
+        },
+        {
+          "id": 1250,
+          "name": "Violite"
+        }
+      ],
+      "id": 5,
+      "name": "Choya Piñata Conjured Doorway",
+      "visible": true
+    },
+    "glider": {
+      "dyes": [
+        {
+          "id": 6,
+          "name": "Celestial"
+        },
+        {
+          "id": 1250,
+          "name": "Violite"
+        },
+        {
+          "id": 1250,
+          "name": "Violite"
+        },
+        {
+          "id": 1310,
+          "name": "Glint's Rebellion"
+        }
+      ],
+      "id": 144,
+      "name": "Orrax Manifested",
+      "visible": true
+    },
+    "griffon": {
+      "dyes": [
+        {
+          "id": 6,
+          "name": "Celestial"
+        },
+        {
+          "id": 1310,
+          "name": "Glint's Rebellion"
+        },
+        {
+          "id": 1352,
+          "name": "Shadow Purple"
+        },
+        {
+          "id": 1250,
+          "name": "Violite"
+        }
+      ],
+      "id": 330,
+      "name": "Plush Griffon",
+      "visible": true
+    },
+    "jackal": {
+      "dyes": [
+        {
+          "id": 1310,
+          "name": "Glint's Rebellion"
+        },
+        {
+          "id": 1250,
+          "name": "Violite"
+        },
+        {
+          "id": 1310,
+          "name": "Glint's Rebellion"
+        },
+        {
+          "id": 1250,
+          "name": "Violite"
+        }
+      ],
+      "id": 622,
+      "name": "Plush Vulpine Jackal",
+      "visible": true
+    },
+    "raptor": {
+      "dyes": [
+        {
+          "id": 6,
+          "name": "Celestial"
+        },
+        {
+          "id": 1310,
+          "name": "Glint's Rebellion"
+        },
+        {
+          "id": 1250,
+          "name": "Violite"
+        },
+        {
+          "id": 1352,
+          "name": "Shadow Purple"
+        }
+      ],
+      "id": 403,
+      "name": "Plush Raptor",
+      "visible": true
+    },
+    "skiff": {
+      "dyes": [
+        {
+          "id": 1310,
+          "name": "Glint's Rebellion"
+        },
+        {
+          "id": 1250,
+          "name": "Violite"
+        },
+        {
+          "id": 1310,
+          "name": "Glint's Rebellion"
+        },
+        {
+          "id": 1250,
+          "name": "Violite"
+        }
+      ],
+      "id": 451,
+      "name": "Floating Garden",
+      "visible": true
+    },
+    "skimmer": {
+      "dyes": [
+        {
+          "id": 1250,
+          "name": "Violite"
+        },
+        {
+          "id": 1250,
+          "name": "Violite"
+        },
+        {
+          "id": 1310,
+          "name": "Glint's Rebellion"
+        },
+        {
+          "id": 1352,
+          "name": "Shadow Purple"
+        }
+      ],
+      "id": 804,
+      "name": "Plush Skimmer",
+      "visible": true
+    },
+    "skyscale": {
+      "dyes": [
+        {
+          "id": 1250,
+          "name": "Violite"
+        },
+        {
+          "id": 6,
+          "name": "Celestial"
+        },
+        {
+          "id": 6,
+          "name": "Celestial"
+        },
+        {
+          "id": 351,
+          "name": "Scenic"
+        }
+      ],
+      "id": 624,
+      "name": "Plush Skyscale",
+      "visible": true
+    },
+    "springer": {
+      "dyes": [
+        {
+          "id": 1250,
+          "name": "Violite"
+        },
+        {
+          "id": 1310,
+          "name": "Glint's Rebellion"
+        },
+        {
+          "id": 1352,
+          "name": "Shadow Purple"
+        },
+        {
+          "id": 1310,
+          "name": "Glint's Rebellion"
+        }
+      ],
+      "id": 499,
+      "name": "Plush Cuckoo",
+      "visible": true
+    },
+    "turtle": {
+      "dyes": [
+        {
+          "id": 1310,
+          "name": "Glint's Rebellion"
+        },
+        {
+          "id": 1250,
+          "name": "Violite"
+        },
+        {
+          "id": 1352,
+          "name": "Shadow Purple"
+        },
+        {
+          "id": 1310,
+          "name": "Glint's Rebellion"
+        }
+      ],
+      "id": 504,
+      "name": "Plush Siege Turtle",
+      "visible": true
+    },
+    "warclaw": {
+      "dyes": [
+        {
+          "id": 6,
+          "name": "Celestial"
+        },
+        {
+          "id": 1310,
+          "name": "Glint's Rebellion"
+        },
+        {
+          "id": 1250,
+          "name": "Violite"
+        },
+        {
+          "id": 1352,
+          "name": "Shadow Purple"
+        }
+      ],
+      "id": 712,
+      "name": "Plush Tiger Warclaw",
+      "visible": true
+    }
+  },
+  {
+    "beetle": {
+      "dyes": [
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        },
+        {
+          "id": 1553,
+          "name": "Permafrost"
+        },
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        },
+        {
+          "id": 473,
+          "name": "Abyss"
+        }
+      ],
+      "id": 743,
+      "name": "Panda Roller Beetle",
+      "visible": true
+    },
+    "doorway": {
+      "dyes": [
+        {
+          "id": 126,
+          "name": "Hot Pink"
+        },
+        {
+          "id": 131,
+          "name": "Jalapeño"
+        },
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        },
+        {
+          "id": 641,
+          "name": "Mullberry"
+        }
+      ],
+      "id": 5,
+      "name": "Choya Piñata Conjured Doorway",
+      "visible": true
+    },
+    "glider": {
+      "dyes": [
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        },
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        },
+        {
+          "id": 1553,
+          "name": "Permafrost"
+        },
+        {
+          "id": 1553,
+          "name": "Permafrost"
+        }
+      ],
+      "id": 153,
+      "name": "Dynamics Hoverboard Glider",
+      "visible": true
+    },
+    "griffon": {
+      "dyes": [
+        {
+          "id": 1553,
+          "name": "Permafrost"
+        },
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        },
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        },
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        }
+      ],
+      "id": 330,
+      "name": "Plush Griffon",
+      "visible": true
+    },
+    "jackal": {
+      "dyes": [
+        {
+          "id": 443,
+          "name": "White"
+        },
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        },
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        },
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        }
+      ],
+      "id": 622,
+      "name": "Plush Vulpine Jackal",
+      "visible": true
+    },
+    "raptor": {
+      "dyes": [
+        {
+          "id": 1553,
+          "name": "Permafrost"
+        },
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        },
+        {
+          "id": 680,
+          "name": "Royal Rose"
+        },
+        {
+          "id": 1549,
+          "name": "Eternal Ice"
+        }
+      ],
+      "id": 403,
+      "name": "Plush Raptor",
+      "visible": true
+    },
+    "skiff": {
+      "dyes": [
+        {
+          "id": 1553,
+          "name": "Permafrost"
+        },
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        },
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        },
+        {
+          "id": 1553,
+          "name": "Permafrost"
+        }
+      ],
+      "id": 413,
+      "name": "Shing Jea Dragon Boat",
+      "visible": true
+    },
+    "skimmer": {
+      "dyes": [
+        {
+          "id": 1553,
+          "name": "Permafrost"
+        },
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        },
+        {
+          "id": 126,
+          "name": "Hot Pink"
+        },
+        {
+          "id": 126,
+          "name": "Hot Pink"
+        }
+      ],
+      "id": 804,
+      "name": "Plush Skimmer",
+      "visible": true
+    },
+    "skyscale": {
+      "dyes": [
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        },
+        {
+          "id": 1553,
+          "name": "Permafrost"
+        },
+        {
+          "id": 1553,
+          "name": "Permafrost"
+        },
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        }
+      ],
+      "id": 624,
+      "name": "Plush Skyscale",
+      "visible": true
+    },
+    "springer": {
+      "dyes": [
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        },
+        {
+          "id": 1553,
+          "name": "Permafrost"
+        },
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        },
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        }
+      ],
+      "id": 499,
+      "name": "Plush Cuckoo",
+      "visible": true
+    },
+    "turtle": {
+      "dyes": [
+        {
+          "id": 1553,
+          "name": "Permafrost"
+        },
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        },
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        },
+        {
+          "id": 1553,
+          "name": "Permafrost"
+        }
+      ],
+      "id": 504,
+      "name": "Plush Siege Turtle",
+      "visible": true
+    },
+    "warclaw": {
+      "dyes": [
+        {
+          "id": 1553,
+          "name": "Permafrost"
+        },
+        {
+          "id": 1304,
+          "name": "Electro Pink"
+        },
+        {
+          "id": 680,
+          "name": "Royal Rose"
+        },
+        {
+          "id": 126,
+          "name": "Hot Pink"
+        }
+      ],
+      "id": 712,
+      "name": "Plush Tiger Warclaw",
       "visible": true
     }
   }

@@ -1,0 +1,281 @@
+---
+source: e2e/tests/cli.rs
+expression: json
+---
+{
+  "beetle": {
+    "dyes": [
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      }
+    ],
+    "id": 103,
+    "name": "Roller Beetle",
+    "visible": true
+  },
+  "doorway": {
+    "dyes": [
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 2,
+    "name": "Kodan Conjured Doorway",
+    "visible": true
+  },
+  "glider": {
+    "dyes": [
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 2,
+    "visible": true
+  },
+  "griffon": {
+    "dyes": [
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 4,
+    "name": "Griffon",
+    "visible": true
+  },
+  "jackal": {
+    "dyes": [
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      }
+    ],
+    "id": 6,
+    "name": "Jackal",
+    "visible": true
+  },
+  "raptor": {
+    "dyes": [
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 1,
+    "name": "Raptor",
+    "visible": true
+  },
+  "skiff": {
+    "dyes": [
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 410,
+    "name": "Fishing Skiff",
+    "visible": true
+  },
+  "skimmer": {
+    "dyes": [
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 2,
+    "name": "Skimmer",
+    "visible": true
+  },
+  "skyscale": {
+    "dyes": [
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 186,
+    "name": "Skyscale",
+    "visible": true
+  },
+  "springer": {
+    "dyes": [
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 3,
+    "name": "Springer",
+    "visible": true
+  },
+  "turtle": {
+    "dyes": [
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 397,
+    "name": "Siege Turtle",
+    "visible": true
+  },
+  "warclaw": {
+    "dyes": [
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 161,
+    "name": "Warclaw",
+    "visible": true
+  }
+}

@@ -1,0 +1,222 @@
+---
+source: e2e/tests/cli.rs
+expression: json
+---
+{
+  "beetle": {
+    "dyes": [
+      {
+        "id": 25
+      },
+      {
+        "id": 1641
+      },
+      {
+        "id": 1582
+      },
+      {
+        "id": 1629
+      }
+    ],
+    "id": 293,
+    "visible": true
+  },
+  "doorway": {
+    "dyes": [
+      {
+        "id": 1597
+      },
+      {
+        "id": 129
+      },
+      {
+        "id": 670
+      },
+      {
+        "id": 641
+      }
+    ],
+    "id": 5,
+    "visible": true
+  },
+  "glider": {
+    "dyes": [
+      {
+        "id": 458
+      },
+      {
+        "id": 475
+      },
+      {
+        "id": 1629
+      },
+      {
+        "id": 1595
+      }
+    ],
+    "id": 153,
+    "visible": true
+  },
+  "griffon": {
+    "dyes": [
+      {
+        "id": 77
+      },
+      {
+        "id": 1584
+      },
+      {
+        "id": 588
+      },
+      {
+        "id": 622
+      }
+    ],
+    "id": 246,
+    "visible": true
+  },
+  "jackal": {
+    "dyes": [
+      {
+        "id": 443
+      },
+      {
+        "id": 123
+      },
+      {
+        "id": 1158
+      },
+      {
+        "id": 698
+      }
+    ],
+    "id": 97,
+    "visible": true
+  },
+  "raptor": {
+    "dyes": [
+      {
+        "id": 336
+      },
+      {
+        "id": 4
+      },
+      {
+        "id": 1576
+      },
+      {
+        "id": 673
+      }
+    ],
+    "id": 329,
+    "visible": true
+  },
+  "skiff": {
+    "dyes": [
+      {
+        "id": 85
+      },
+      {
+        "id": 332
+      },
+      {
+        "id": 377
+      },
+      {
+        "id": 668
+      }
+    ],
+    "id": 451,
+    "visible": true
+  },
+  "skimmer": {
+    "dyes": [
+      {
+        "id": 476
+      },
+      {
+        "id": 1582
+      },
+      {
+        "id": 1597
+      },
+      {
+        "id": 1595
+      }
+    ],
+    "id": 391,
+    "visible": true
+  },
+  "skyscale": {
+    "dyes": [
+      {
+        "id": 81
+      },
+      {
+        "id": 448
+      },
+      {
+        "id": 64
+      },
+      {
+        "id": 9
+      }
+    ],
+    "id": 396,
+    "visible": true
+  },
+  "springer": {
+    "dyes": [
+      {
+        "id": 87
+      },
+      {
+        "id": 1305
+      },
+      {
+        "id": 1351
+      },
+      {
+        "id": 1636
+      }
+    ],
+    "id": 423,
+    "visible": true
+  },
+  "turtle": {
+    "dyes": [
+      {
+        "id": 665
+      },
+      {
+        "id": 595
+      },
+      {
+        "id": 109
+      },
+      {
+        "id": 648
+      }
+    ],
+    "id": 504,
+    "visible": true
+  },
+  "warclaw": {
+    "dyes": [
+      {
+        "id": 1709
+      },
+      {
+        "id": 83
+      },
+      {
+        "id": 611
+      },
+      {
+        "id": 1550
+      }
+    ],
+    "id": 706,
+    "visible": true
+  }
+}

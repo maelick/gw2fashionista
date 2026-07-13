@@ -1,0 +1,282 @@
+---
+source: e2e/tests/cli.rs
+expression: json
+---
+{
+  "beetle": {
+    "dyes": [
+      {
+        "id": 25,
+        "name": "Walnut"
+      },
+      {
+        "id": 1641,
+        "name": "Godless"
+      },
+      {
+        "id": 1582,
+        "name": "Grave"
+      },
+      {
+        "id": 1629,
+        "name": "Arcane"
+      }
+    ],
+    "id": 293,
+    "name": "Synergetics Gyrocycle",
+    "visible": true
+  },
+  "doorway": {
+    "dyes": [
+      {
+        "id": 1597,
+        "name": "Vabbian Bronze"
+      },
+      {
+        "id": 129,
+        "name": "Green Apple"
+      },
+      {
+        "id": 670,
+        "name": "Purple"
+      },
+      {
+        "id": 641,
+        "name": "Mullberry"
+      }
+    ],
+    "id": 5,
+    "name": "Choya Piñata Conjured Doorway",
+    "visible": true
+  },
+  "glider": {
+    "dyes": [
+      {
+        "id": 458,
+        "name": "Night Shade"
+      },
+      {
+        "id": 475,
+        "name": "Dust"
+      },
+      {
+        "id": 1629,
+        "name": "Arcane"
+      },
+      {
+        "id": 1595,
+        "name": "Sand Shark"
+      }
+    ],
+    "id": 153,
+    "name": "Dynamics Hoverboard Glider",
+    "visible": true
+  },
+  "griffon": {
+    "dyes": [
+      {
+        "id": 77,
+        "name": "Midnight Sky"
+      },
+      {
+        "id": 1584,
+        "name": "Worn Bone"
+      },
+      {
+        "id": 588,
+        "name": "Blue Sky"
+      },
+      {
+        "id": 622,
+        "name": "Honeybutter"
+      }
+    ],
+    "id": 246,
+    "name": "Point-Tipped Corvus",
+    "visible": true
+  },
+  "jackal": {
+    "dyes": [
+      {
+        "id": 443,
+        "name": "White"
+      },
+      {
+        "id": 123,
+        "name": "Scarlet"
+      },
+      {
+        "id": 1158,
+        "name": "Sincerity"
+      },
+      {
+        "id": 698,
+        "name": "Strawberry"
+      }
+    ],
+    "id": 97,
+    "name": "Shrine Guardian",
+    "visible": true
+  },
+  "raptor": {
+    "dyes": [
+      {
+        "id": 336,
+        "name": "Refresh"
+      },
+      {
+        "id": 4,
+        "name": "Gray"
+      },
+      {
+        "id": 1576,
+        "name": "Ruin"
+      },
+      {
+        "id": 673,
+        "name": "Red"
+      }
+    ],
+    "id": 329,
+    "name": "Roadrunner",
+    "visible": true
+  },
+  "skiff": {
+    "dyes": [
+      {
+        "id": 85,
+        "name": "Midnight Rust"
+      },
+      {
+        "id": 332,
+        "name": "Shy Peach"
+      },
+      {
+        "id": 377,
+        "name": "Autumn"
+      },
+      {
+        "id": 668,
+        "name": "Pink Ice"
+      }
+    ],
+    "id": 451,
+    "name": "Floating Garden",
+    "visible": true
+  },
+  "skimmer": {
+    "dyes": [
+      {
+        "id": 476,
+        "name": "Graphite"
+      },
+      {
+        "id": 1582,
+        "name": "Grave"
+      },
+      {
+        "id": 1597,
+        "name": "Vabbian Bronze"
+      },
+      {
+        "id": 1595,
+        "name": "Sand Shark"
+      }
+    ],
+    "id": 391,
+    "name": "Synergetics Hoverbike",
+    "visible": true
+  },
+  "skyscale": {
+    "dyes": [
+      {
+        "id": 81,
+        "name": "Midnight Olive"
+      },
+      {
+        "id": 448,
+        "name": "Green Tint"
+      },
+      {
+        "id": 64,
+        "name": "Brass"
+      },
+      {
+        "id": 9,
+        "name": "Blue Rose"
+      }
+    ],
+    "id": 396,
+    "name": "Synergetics Cyberscale",
+    "visible": true
+  },
+  "springer": {
+    "dyes": [
+      {
+        "id": 87,
+        "name": "Midnight Violet"
+      },
+      {
+        "id": 1305,
+        "name": "Electro Blue"
+      },
+      {
+        "id": 1351,
+        "name": "Shadow Violet"
+      },
+      {
+        "id": 1636,
+        "name": "Celestial Blue"
+      }
+    ],
+    "id": 423,
+    "name": "Stormy Cuckoo",
+    "visible": true
+  },
+  "turtle": {
+    "dyes": [
+      {
+        "id": 665,
+        "name": "Peach Ice"
+      },
+      {
+        "id": 595,
+        "name": "Citrus Breeze"
+      },
+      {
+        "id": 109,
+        "name": "Apricot"
+      },
+      {
+        "id": 648,
+        "name": "Papaya"
+      }
+    ],
+    "id": 504,
+    "name": "Plush Siege Turtle",
+    "visible": true
+  },
+  "warclaw": {
+    "dyes": [
+      {
+        "id": 1709,
+        "name": "Deep Sea"
+      },
+      {
+        "id": 83,
+        "name": "Midnight Red"
+      },
+      {
+        "id": 611,
+        "name": "Fog"
+      },
+      {
+        "id": 1550,
+        "name": "Core Ice"
+      }
+    ],
+    "id": 706,
+    "name": "Enchanted Warclaw",
+    "visible": true
+  }
+}

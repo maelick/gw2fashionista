@@ -1,0 +1,282 @@
+---
+source: e2e/tests/cli.rs
+expression: json
+---
+{
+  "beetle": {
+    "dyes": [
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 473,
+        "name": "Abyss"
+      }
+    ],
+    "id": 743,
+    "name": "Panda Roller Beetle",
+    "visible": true
+  },
+  "doorway": {
+    "dyes": [
+      {
+        "id": 126,
+        "name": "Hot Pink"
+      },
+      {
+        "id": 131,
+        "name": "Jalapeño"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 641,
+        "name": "Mullberry"
+      }
+    ],
+    "id": 5,
+    "name": "Choya Piñata Conjured Doorway",
+    "visible": true
+  },
+  "glider": {
+    "dyes": [
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      }
+    ],
+    "id": 153,
+    "name": "Dynamics Hoverboard Glider",
+    "visible": true
+  },
+  "griffon": {
+    "dyes": [
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      }
+    ],
+    "id": 330,
+    "name": "Plush Griffon",
+    "visible": true
+  },
+  "jackal": {
+    "dyes": [
+      {
+        "id": 443,
+        "name": "White"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      }
+    ],
+    "id": 622,
+    "name": "Plush Vulpine Jackal",
+    "visible": true
+  },
+  "raptor": {
+    "dyes": [
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 680,
+        "name": "Royal Rose"
+      },
+      {
+        "id": 1549,
+        "name": "Eternal Ice"
+      }
+    ],
+    "id": 403,
+    "name": "Plush Raptor",
+    "visible": true
+  },
+  "skiff": {
+    "dyes": [
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      }
+    ],
+    "id": 413,
+    "name": "Shing Jea Dragon Boat",
+    "visible": true
+  },
+  "skimmer": {
+    "dyes": [
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 126,
+        "name": "Hot Pink"
+      },
+      {
+        "id": 126,
+        "name": "Hot Pink"
+      }
+    ],
+    "id": 804,
+    "name": "Plush Skimmer",
+    "visible": true
+  },
+  "skyscale": {
+    "dyes": [
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      }
+    ],
+    "id": 624,
+    "name": "Plush Skyscale",
+    "visible": true
+  },
+  "springer": {
+    "dyes": [
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      }
+    ],
+    "id": 499,
+    "name": "Plush Cuckoo",
+    "visible": true
+  },
+  "turtle": {
+    "dyes": [
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      }
+    ],
+    "id": 504,
+    "name": "Plush Siege Turtle",
+    "visible": true
+  },
+  "warclaw": {
+    "dyes": [
+      {
+        "id": 1553,
+        "name": "Permafrost"
+      },
+      {
+        "id": 1304,
+        "name": "Electro Pink"
+      },
+      {
+        "id": 680,
+        "name": "Royal Rose"
+      },
+      {
+        "id": 126,
+        "name": "Hot Pink"
+      }
+    ],
+    "id": 712,
+    "name": "Plush Tiger Warclaw",
+    "visible": true
+  }
+}

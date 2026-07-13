@@ -1,0 +1,5 @@
+---
+source: e2e/tests/cli.rs
+expression: json
+---
+{}
