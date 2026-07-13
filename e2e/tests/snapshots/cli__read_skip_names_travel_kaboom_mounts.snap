@@ -1,0 +1,168 @@
+---
+source: e2e/tests/cli.rs
+expression: json
+---
+{
+  "beetle": {
+    "dyes": [
+      {
+        "id": 1354
+      },
+      {
+        "id": 586
+      },
+      {
+        "id": 1354
+      },
+      {
+        "id": 1336
+      }
+    ],
+    "id": 293,
+    "visible": true
+  },
+  "griffon": {
+    "dyes": [
+      {
+        "id": 1354
+      },
+      {
+        "id": 1354
+      },
+      {
+        "id": 586
+      },
+      {
+        "id": 586
+      }
+    ],
+    "id": 115,
+    "visible": true
+  },
+  "jackal": {
+    "dyes": [
+      {
+        "id": 1354
+      },
+      {
+        "id": 586
+      },
+      {
+        "id": 586
+      },
+      {
+        "id": 629
+      }
+    ],
+    "id": 97,
+    "visible": true
+  },
+  "raptor": {
+    "dyes": [
+      {
+        "id": 586
+      },
+      {
+        "id": 473
+      },
+      {
+        "id": 1354
+      },
+      {
+        "id": 123
+      }
+    ],
+    "id": 329,
+    "visible": true
+  },
+  "skimmer": {
+    "dyes": [
+      {
+        "id": 1354
+      },
+      {
+        "id": 586
+      },
+      {
+        "id": 586
+      },
+      {
+        "id": 1336
+      }
+    ],
+    "id": 391,
+    "visible": true
+  },
+  "skyscale": {
+    "dyes": [
+      {
+        "id": 1354
+      },
+      {
+        "id": 1354
+      },
+      {
+        "id": 473
+      },
+      {
+        "id": 586
+      }
+    ],
+    "id": 396,
+    "visible": true
+  },
+  "springer": {
+    "dyes": [
+      {
+        "id": 1354
+      },
+      {
+        "id": 473
+      },
+      {
+        "id": 586
+      },
+      {
+        "id": 586
+      }
+    ],
+    "id": 423,
+    "visible": true
+  },
+  "turtle": {
+    "dyes": [
+      {
+        "id": 586
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 397,
+    "visible": true
+  },
+  "warclaw": {
+    "dyes": [
+      {
+        "id": 586
+      },
+      {
+        "id": 1354
+      },
+      {
+        "id": 1354
+      },
+      {
+        "id": 586
+      }
+    ],
+    "id": 207,
+    "visible": true
+  }
+}

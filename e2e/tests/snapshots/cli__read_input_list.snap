@@ -1437,6 +1437,493 @@ expression: json
     "beetle": {
       "dyes": [
         {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        },
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 1336,
+          "name": "Imperial Red"
+        }
+      ],
+      "id": 293,
+      "name": "Synergetics Gyrocycle",
+      "visible": true
+    },
+    "doorway": {
+      "dyes": [
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        }
+      ],
+      "id": 2,
+      "name": "Kodan Conjured Doorway",
+      "visible": true
+    },
+    "glider": {
+      "dyes": [
+        {
+          "id": 473,
+          "name": "Abyss"
+        },
+        {
+          "id": 1336,
+          "name": "Imperial Red"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        }
+      ],
+      "id": 73,
+      "name": "Inquest Overseer Glider",
+      "visible": true
+    },
+    "griffon": {
+      "dyes": [
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        }
+      ],
+      "id": 115,
+      "name": "Northern Feather Wing",
+      "visible": true
+    },
+    "jackal": {
+      "dyes": [
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        },
+        {
+          "id": 629,
+          "name": "Lifesblood"
+        }
+      ],
+      "id": 97,
+      "name": "Shrine Guardian",
+      "visible": true
+    },
+    "raptor": {
+      "dyes": [
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        },
+        {
+          "id": 473,
+          "name": "Abyss"
+        },
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 123,
+          "name": "Scarlet"
+        }
+      ],
+      "id": 329,
+      "name": "Roadrunner",
+      "visible": true
+    },
+    "skiff": {
+      "dyes": [
+        {
+          "id": 1153,
+          "name": "Blood"
+        },
+        {
+          "id": 134,
+          "name": "Seafoam"
+        },
+        {
+          "id": 377,
+          "name": "Autumn"
+        },
+        {
+          "id": 90,
+          "name": "Cream"
+        }
+      ],
+      "id": 451,
+      "name": "Floating Garden",
+      "visible": true
+    },
+    "skimmer": {
+      "dyes": [
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        },
+        {
+          "id": 1336,
+          "name": "Imperial Red"
+        }
+      ],
+      "id": 391,
+      "name": "Synergetics Hoverbike",
+      "visible": true
+    },
+    "skyscale": {
+      "dyes": [
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 473,
+          "name": "Abyss"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        }
+      ],
+      "id": 396,
+      "name": "Synergetics Cyberscale",
+      "visible": true
+    },
+    "springer": {
+      "dyes": [
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 473,
+          "name": "Abyss"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        }
+      ],
+      "id": 423,
+      "name": "Stormy Cuckoo",
+      "visible": true
+    },
+    "turtle": {
+      "dyes": [
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        }
+      ],
+      "id": 397,
+      "name": "Siege Turtle",
+      "visible": true
+    },
+    "warclaw": {
+      "dyes": [
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        },
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        }
+      ],
+      "id": 207,
+      "name": "Starclaw",
+      "visible": true
+    }
+  },
+  {
+    "beetle": {
+      "dyes": [
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        },
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 1336,
+          "name": "Imperial Red"
+        }
+      ],
+      "id": 293,
+      "name": "Synergetics Gyrocycle",
+      "visible": true
+    },
+    "griffon": {
+      "dyes": [
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        }
+      ],
+      "id": 115,
+      "name": "Northern Feather Wing",
+      "visible": true
+    },
+    "jackal": {
+      "dyes": [
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        },
+        {
+          "id": 629,
+          "name": "Lifesblood"
+        }
+      ],
+      "id": 97,
+      "name": "Shrine Guardian",
+      "visible": true
+    },
+    "raptor": {
+      "dyes": [
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        },
+        {
+          "id": 473,
+          "name": "Abyss"
+        },
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 123,
+          "name": "Scarlet"
+        }
+      ],
+      "id": 329,
+      "name": "Roadrunner",
+      "visible": true
+    },
+    "skimmer": {
+      "dyes": [
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        },
+        {
+          "id": 1336,
+          "name": "Imperial Red"
+        }
+      ],
+      "id": 391,
+      "name": "Synergetics Hoverbike",
+      "visible": true
+    },
+    "skyscale": {
+      "dyes": [
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 473,
+          "name": "Abyss"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        }
+      ],
+      "id": 396,
+      "name": "Synergetics Cyberscale",
+      "visible": true
+    },
+    "springer": {
+      "dyes": [
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 473,
+          "name": "Abyss"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        }
+      ],
+      "id": 423,
+      "name": "Stormy Cuckoo",
+      "visible": true
+    },
+    "turtle": {
+      "dyes": [
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        },
+        {
+          "id": 1,
+          "name": "Dye Remover"
+        }
+      ],
+      "id": 397,
+      "name": "Siege Turtle",
+      "visible": true
+    },
+    "warclaw": {
+      "dyes": [
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        },
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 1354,
+          "name": "Shadow Abyss"
+        },
+        {
+          "id": 586,
+          "name": "Black Cherry"
+        }
+      ],
+      "id": 207,
+      "name": "Starclaw",
+      "visible": true
+    }
+  },
+  {
+    "beetle": {
+      "dyes": [
+        {
           "id": 1304,
           "name": "Electro Pink"
         },

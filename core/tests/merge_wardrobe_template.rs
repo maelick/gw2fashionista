@@ -3,7 +3,7 @@ use gw2fashionista_fixtures::wardrobe::{PEEKABOO_TEMPLATE, ZIZI_ARMOR_TEMPLATE};
 
 #[test]
 #[test_log::test]
-fn test_filter_zizi() {
+fn test_merge_peekaboo_with_zizi_armor() {
     let chat_link = &ChatLink::try_from(PEEKABOO_TEMPLATE.chat_link).unwrap();
     let ChatLink::WardrobeTemplate(base_template) = chat_link else {
         panic!("Expected WardrobeTemplate, got {chat_link:?}");
@@ -36,7 +36,7 @@ fn test_filter_zizi() {
 
 #[test]
 #[test_log::test]
-fn test_filter_zizi_skins_only() {
+fn test_merge_peekaboo_with_zizi_armor_skins_only() {
     let chat_link = &ChatLink::try_from(PEEKABOO_TEMPLATE.chat_link).unwrap();
     let ChatLink::WardrobeTemplate(base_template) = chat_link else {
         panic!("Expected WardrobeTemplate, got {chat_link:?}");
@@ -74,7 +74,7 @@ fn test_filter_zizi_skins_only() {
 
 #[test]
 #[test_log::test]
-fn test_filter_zizi_dyes_only() {
+fn test_merge_peekaboo_with_zizi_armor_dyes_only() {
     let chat_link = &ChatLink::try_from(PEEKABOO_TEMPLATE.chat_link).unwrap();
     let ChatLink::WardrobeTemplate(base_template) = chat_link else {
         panic!("Expected WardrobeTemplate, got {chat_link:?}");
