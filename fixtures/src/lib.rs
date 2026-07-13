@@ -20,3 +20,14 @@ impl FashionTemplate {
         }
     }
 }
+
+pub fn templates_as_csv(templates: &[FashionTemplate]) -> Vec<String> {
+    templates
+        .iter()
+        .map(|t| format!("{},{}", t.name, t.chat_link))
+        .collect()
+}
+
+pub fn templates_as_list(templates: &[FashionTemplate]) -> Vec<String> {
+    templates.iter().map(|t| t.chat_link.to_string()).collect()
+}

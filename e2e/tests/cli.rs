@@ -2,6 +2,8 @@ use std::{process::Output, sync::LazyLock};
 
 use assert_cmd::assert::OutputAssertExt;
 use gw2fashionista_fixtures::FashionTemplate;
+use gw2fashionista_fixtures::templates_as_csv;
+use gw2fashionista_fixtures::templates_as_list;
 use regex::Regex;
 use rstest::rstest;
 
@@ -60,7 +62,7 @@ fn test_read_command_skip_names(#[case] template: FashionTemplate) {
 
 #[test]
 fn test_read_command_input_list() {
-    let templates = wardrobe::all_templates_as_list();
+    let templates = templates_as_list(wardrobe::ALL_TEMPLATES);
     let input = templates.join("\n\n");
     let output = spawn_cli::<String>(&["read"], Some(input))
         .assert()
@@ -70,7 +72,7 @@ fn test_read_command_input_list() {
 
 #[test]
 fn test_read_command_input_list_invalid() {
-    let templates = wardrobe::all_templates_as_list();
+    let templates = templates_as_list(wardrobe::ALL_TEMPLATES);
     let input = format!("{}\nthis is not a chat link", templates.join("\n\n"));
     spawn_cli::<String>(&["read"], Some(input))
         .assert()
@@ -80,7 +82,7 @@ fn test_read_command_input_list_invalid() {
 
 #[test]
 fn test_read_command_input_list_invalid_lenient() {
-    let templates = wardrobe::all_templates_as_list();
+    let templates = templates_as_list(wardrobe::ALL_TEMPLATES);
     let input = format!("this is not a chat link\n{}", templates.join("\n\n"));
     let output = spawn_cli::<String>(&["read", "--lenient"], Some(input))
         .assert()
@@ -90,7 +92,7 @@ fn test_read_command_input_list_invalid_lenient() {
 
 #[test]
 fn test_read_command_input_csv() {
-    let templates = wardrobe::all_templates_as_csv();
+    let templates = templates_as_csv(wardrobe::ALL_TEMPLATES);
     let input = format!("name,fashion_link\n{}", templates.join("\n\n"));
     let output = spawn_cli::<String>(&["read"], Some(input))
         .assert()
@@ -100,7 +102,7 @@ fn test_read_command_input_csv() {
 
 #[test]
 fn test_read_command_input_csv_wrong_row() {
-    let templates = wardrobe::all_templates_as_csv();
+    let templates = templates_as_csv(wardrobe::ALL_TEMPLATES);
     let input = format!(
         "name,fashion_link\n{}\nwrong row,not a chat link",
         templates.join("\n\n")
@@ -113,7 +115,7 @@ fn test_read_command_input_csv_wrong_row() {
 
 #[test]
 fn test_read_command_input_csv_wrong_row_lenient() {
-    let templates = wardrobe::all_templates_as_csv();
+    let templates = templates_as_csv(wardrobe::ALL_TEMPLATES);
     let input = format!(
         "name,fashion_link\nwrong row,not a chat link\n{}",
         templates.join("\n\n")
@@ -126,7 +128,7 @@ fn test_read_command_input_csv_wrong_row_lenient() {
 
 #[test]
 fn test_read_command_input_csv_custom_column() {
-    let templates = wardrobe::all_templates_as_csv();
+    let templates = templates_as_csv(wardrobe::ALL_TEMPLATES);
     let input = format!("name,link\n{}", templates.join("\n\n"));
     let output = spawn_cli::<String>(&["read", "-c", "link"], Some(input))
         .assert()
@@ -136,7 +138,7 @@ fn test_read_command_input_csv_custom_column() {
 
 #[test]
 fn test_read_command_input_csv_column_missing() {
-    let templates = wardrobe::all_templates_as_csv();
+    let templates = templates_as_csv(wardrobe::ALL_TEMPLATES);
     let input = format!("name,link_typo\n{}", templates.join("\n\n"));
     spawn_cli::<String>(&["read", "-c", "link"], Some(input))
         .assert()

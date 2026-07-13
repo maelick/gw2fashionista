@@ -30,17 +30,3 @@ pub const ZIZI_ARMOR_TEMPLATE: WardrobeTemplate = WardrobeTemplate::new(
     "zizi_armor",
     "DwAAPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAAAAAQABAAEAAQAAAAAAAAAAAAAAAAD/fw==",
 );
-
-pub fn all_templates_as_csv() -> Vec<String> {
-    ALL_TEMPLATES
-        .iter()
-        .map(|t| format!("{},{}", t.name, t.chat_link))
-        .collect()
-}
-
-pub fn all_templates_as_list() -> Vec<String> {
-    ALL_TEMPLATES
-        .iter()
-        .map(|t| t.chat_link.to_string())
-        .collect()
-}
