@@ -100,6 +100,10 @@ impl<S: FashionSlot> Template<S> {
         Self::new(slots)
     }
 
+    pub fn is_empty(&self) -> bool {
+        Iterator::all(&mut self.iter(), |(_, appearance)| appearance.is_empty())
+    }
+
     pub fn all_skin_ids(&self) -> HashMap<FashionSlotKind, HashSet<SkinId>> {
         let mut skins = HashMap::<FashionSlotKind, HashSet<SkinId>>::new();
         for (slot, appearance) in self {
@@ -170,6 +174,12 @@ impl<S: FashionSlot> Template<S> {
             .map(|slot| Appearance::encoded_size(slot.dyeable()))
             .sum::<usize>()
             + 2
+    }
+}
+
+impl<S: FashionSlot> Default for Template<S> {
+    fn default() -> Self {
+        Self::new(HashMap::<_, _>::new())
     }
 }
 
@@ -257,17 +267,22 @@ where
 
 #[cfg(test)]
 mod tests {
-    use gw2fashionista_fixtures::wardrobe::EMPTY_TEMPLATE;
-
-    use crate::domain::{chatlink::ChatLink, templates::wardrobe::WardrobeTemplate};
+    use crate::domain::{skins::DyeId, templates::wardrobe::WardrobeTemplate};
 
     #[test]
-    fn test_empty_has_no_skin_id() {
-        let template: WardrobeTemplate = ChatLink::try_from(EMPTY_TEMPLATE.chat_link)
-            .unwrap()
-            .try_into()
-            .unwrap();
+    fn test_empty_template() {
+        let template = WardrobeTemplate::default();
+
+        assert!(template.is_empty());
+
         let ids = template.all_skin_ids();
-        assert_eq!(ids.len(), 0);
+        assert_eq!(ids.len(), 0, "empty template should not have any skin ids");
+
+        let ids: Vec<_> = template.all_dye_ids().into_iter().collect();
+        assert_eq!(
+            ids,
+            vec![DyeId::from(1)],
+            "empty template should have only dye remover"
+        );
     }
 }
