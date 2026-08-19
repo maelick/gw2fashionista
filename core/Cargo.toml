@@ -8,6 +8,7 @@ async-trait = "0.1.89"
 backon = "1.6.0"
 base64 = "0.22.1"
 byteorder = "1.5.0"
+chrono = "0.4.45"
 dashmap = "6.2.1"
 futures = "0.3.32"
 gw2fashionista-fixtures = { version = "0.1.0", path = "../fixtures" }
