@@ -4,8 +4,10 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-sqlx = { version = "0.9.0", features = ["migrate", "runtime-tokio", "sqlite", "uuid"] }
-tokio = { version = "1.52.3", features = ["macros", "sync", "time"] }
+gw2fashionista-core = { version = "0.2.1", path = "../core" }
+sqlx = { version = "0.9.0", features = ["chrono", "migrate", "runtime-tokio", "sqlite", "uuid"] }
+thiserror = "2.0.19"
+
 
 [dev-dependencies]
 tokio = { version = "1.52.3", features = ["test-util", "rt-multi-thread"] }

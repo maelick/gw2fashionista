@@ -1,0 +1,77 @@
+use sqlx::types::{chrono::{DateTime, Utc}, uuid};
+use gw2fashionista_core::domain::{
+    self,
+    chatlink::ChatLink,
+    error::ChatLinkError,
+    templates::{FashionSlot, Template},
+};
+
+#[derive(sqlx::FromRow)]
+pub struct Fashion {
+    pub id: uuid::fmt::Hyphenated,
+    pub name: String,
+    pub description: String,
+    pub character: String,
+    pub wardrobe_template: String,
+    pub travel_template: String,
+    pub created_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<DateTime<Utc>>,
+}
+
+impl TryFrom<Fashion> for domain::fashion::Fashion {
+    type Error = crate::Error;
+
+    fn try_from(model: Fashion) -> Result<Self, Self::Error> {
+        Ok(domain::fashion::Fashion {
+            id: Some(model.id.into()),
+            name: model.name,
+            description: Some(model.description).filter(|s| !s.is_empty()),
+            character: Some(model.character).filter(|s| !s.is_empty()),
+            wardrobe_template: Some(parse_template(&model.wardrobe_template)?),
+            travel_template: Some(parse_template(&model.travel_template)?),
+            created_at: model.created_at,
+            updated_at: model.updated_at,
+            tags: Vec::new(),
+        })
+    }
+}
+
+impl From<&domain::fashion::Fashion> for Fashion {
+    fn from(fashion: &domain::fashion::Fashion) -> Self {
+        Fashion {
+            id: fashion.id.unwrap_or(uuid::Uuid::now_v7()).into(),
+            name: fashion.name.clone(),
+            description: fashion.description.clone().unwrap_or_default(),
+            character: fashion.character.clone().unwrap_or_default(),
+            wardrobe_template: serialize_template(fashion.wardrobe_template.clone()),
+            travel_template: serialize_template(fashion.travel_template.clone()),
+            created_at: fashion.created_at,
+            updated_at: fashion.updated_at,
+        }
+    }
+}
+
+fn parse_template<S: FashionSlot>(s: &str) -> crate::Result<Template<S>>
+where
+    Template<S>: Default + TryFrom<ChatLink, Error = ChatLinkError>,
+{
+    Ok(if s.is_empty() {
+        Template::<S>::default()
+    } else {
+        ChatLink::from_string(s)?.try_into()?
+    })
+}
+
+fn serialize_template<S: FashionSlot>(template: Option<Template<S>>) -> String
+where
+    ChatLink: From<Template<S>>,
+{
+    template
+        .filter(|t| !t.is_empty())
+        .map(|t| {
+            ChatLink::from(t)
+                .to_string()
+                .expect("ChatLink serialization should be infallible for supported FashionSlot")
+        })
+        .unwrap_or_default()
+}
