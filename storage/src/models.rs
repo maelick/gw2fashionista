@@ -1,9 +1,12 @@
-use sqlx::types::{chrono::{DateTime, Utc}, uuid};
 use gw2fashionista_core::domain::{
     self,
     chatlink::ChatLink,
     error::ChatLinkError,
     templates::{FashionSlot, Template},
+};
+use sqlx::types::{
+    chrono::{DateTime, Utc},
+    uuid,
 };
 
 #[derive(sqlx::FromRow)]
@@ -39,7 +42,7 @@ impl TryFrom<Fashion> for domain::fashion::Fashion {
 impl From<&domain::fashion::Fashion> for Fashion {
     fn from(fashion: &domain::fashion::Fashion) -> Self {
         Fashion {
-            id: fashion.id.unwrap_or(uuid::Uuid::now_v7()).into(),
+            id: fashion.id.unwrap_or_else(|| uuid::Uuid::now_v7()).into(),
             name: fashion.name.clone(),
             description: fashion.description.clone().unwrap_or_default(),
             character: fashion.character.clone().unwrap_or_default(),

@@ -58,7 +58,7 @@ impl Repository {
                 created_at as "created_at: _",
                 updated_at as "updated_at: _"
             FROM fashion WHERE id = ?"#,
-            id
+            id.hyphenated()
         )
         .fetch_optional(&self.pool)
         .await?
