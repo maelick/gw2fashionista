@@ -890,6 +890,7 @@ name = "gw2fashionista-storage"
 version = "0.1.0"
 dependencies = [
  "gw2fashionista-core",
+ "gw2fashionista-fixtures",
  "sqlx",
  "thiserror 2.0.19",
  "tokio",

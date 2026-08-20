@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 gw2fashionista-core = { version = "0.2.1", path = "../core" }
+gw2fashionista-fixtures = { version = "0.1.0", path = "../fixtures" }
 sqlx = { version = "0.9.0", features = ["chrono", "migrate", "runtime-tokio", "sqlite", "uuid"] }
 thiserror = "2.0.19"
 
