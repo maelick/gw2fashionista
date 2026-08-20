@@ -1,6 +1,7 @@
 use crate::domain::templates::{travel::TravelTemplate, wardrobe::WardrobeTemplate};
 
 pub struct Fashion {
+    pub id: Option<uuid::Uuid>,
     pub name: String,
     pub description: Option<String>,
     pub character: Option<String>,
@@ -23,6 +24,7 @@ impl Fashion {
         tags: &[String],
     ) -> Self {
         Self {
+            id: None,
             name,
             description,
             character,
