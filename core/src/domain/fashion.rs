@@ -2,6 +2,7 @@ use chrono::{DateTime, Utc};
 
 use crate::domain::templates::{travel::TravelTemplate, wardrobe::WardrobeTemplate};
 
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Fashion {
     pub id: Option<uuid::Uuid>,
     pub name: String,
