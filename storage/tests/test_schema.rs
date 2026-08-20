@@ -1,16 +1,10 @@
 use std::time::Duration;
 
-use sqlx::sqlite::SqlitePoolOptions;
+use sqlx::{SqlitePool};
 use tokio::time::sleep;
 
-#[tokio::test()]
-async fn test_fashion_unique_constraints() {
-    let pool = SqlitePoolOptions::new()
-        .connect("sqlite::memory:")
-        .await
-        .unwrap();
-    sqlx::migrate!("./migrations").run(&pool).await.unwrap();
-
+#[sqlx::test]
+async fn test_fashion_unique_constraints(pool: SqlitePool) {
     // Create the first fashion template
     sqlx::query!(
         "INSERT INTO fashion (id, name, wardrobe_template, travel_template) VALUES (?, ?, ?, ?)",
@@ -67,14 +61,8 @@ async fn test_fashion_unique_constraints() {
     assert_eq!(fashion.count, 2);
 }
 
-#[tokio::test()]
-async fn test_tag_unique_constraints() {
-    let pool = SqlitePoolOptions::new()
-        .connect("sqlite::memory:")
-        .await
-        .unwrap();
-    sqlx::migrate!("./migrations").run(&pool).await.unwrap();
-
+#[sqlx::test]
+async fn test_tag_unique_constraints(pool: SqlitePool) {
     // Create the first tag
     sqlx::query!("INSERT INTO tag (id, name) VALUES (?, ?)", "1", "test")
         .execute(&pool)
@@ -100,14 +88,8 @@ async fn test_tag_unique_constraints() {
     assert_eq!(tags.count, 1);
 }
 
-#[tokio::test()]
-async fn test_character_update_timestamps() {
-    let pool = SqlitePoolOptions::new()
-        .connect("sqlite::memory:")
-        .await
-        .unwrap();
-    sqlx::migrate!("./migrations").run(&pool).await.unwrap();
-
+#[sqlx::test]
+async fn test_character_update_timestamps(pool: SqlitePool) {
     sqlx::query!(
         "INSERT INTO fashion (id, name, wardrobe_template, travel_template) VALUES (?, ?, ?, ?)",
         "1",
@@ -138,14 +120,8 @@ async fn test_character_update_timestamps() {
     assert!(fashion[0].updated_at > fashion[0].created_at);
 }
 
-#[tokio::test()]
-async fn test_tag_update_timestamps() {
-    let pool = SqlitePoolOptions::new()
-        .connect("sqlite::memory:")
-        .await
-        .unwrap();
-    sqlx::migrate!("./migrations").run(&pool).await.unwrap();
-
+#[sqlx::test]
+async fn test_tag_update_timestamps(pool: SqlitePool) {
     sqlx::query!("INSERT INTO tag (id, name) VALUES (?, ?)", "1", "test")
         .execute(&pool)
         .await
