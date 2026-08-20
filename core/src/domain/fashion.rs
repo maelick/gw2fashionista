@@ -1,3 +1,5 @@
+use chrono::{DateTime, Utc};
+
 use crate::domain::templates::{travel::TravelTemplate, wardrobe::WardrobeTemplate};
 
 pub struct Fashion {
@@ -7,8 +9,8 @@ pub struct Fashion {
     pub character: Option<String>,
     pub wardrobe_template: Option<WardrobeTemplate>,
     pub travel_template: Option<TravelTemplate>,
-    pub created_at: Option<chrono::NaiveDateTime>,
-    pub updated_at: Option<chrono::NaiveDateTime>,
+    pub created_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<DateTime<Utc>>,
     pub tags: Vec<String>,
 }
 
@@ -19,8 +21,6 @@ impl Fashion {
         character: Option<String>,
         wardrobe_template: Option<WardrobeTemplate>,
         travel_template: Option<TravelTemplate>,
-        created_at: Option<chrono::NaiveDateTime>,
-        updated_at: Option<chrono::NaiveDateTime>,
         tags: &[String],
     ) -> Self {
         Self {
@@ -30,8 +30,8 @@ impl Fashion {
             character,
             wardrobe_template,
             travel_template,
-            created_at,
-            updated_at,
+            created_at: None,
+            updated_at: None,
             tags: tags.to_vec(),
         }
     }
