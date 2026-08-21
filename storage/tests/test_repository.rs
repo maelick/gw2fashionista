@@ -83,3 +83,29 @@ async fn test_create_not_empty_fashion(pool: SqlitePool) {
         .unwrap();
     assert_eq!(created, &retrieved_by_name);
 }
+
+#[sqlx::test]
+async fn test_create_tag(pool: SqlitePool) {
+    let repo = Repository::new(pool);
+
+    // We create a new tag
+    let created = &repo.ensure_tag("peekaboo").await.unwrap();
+
+    // Assert that timestamps are set
+    assert_eq!(created.created_at.unwrap(), created.updated_at.unwrap());
+
+    // We create it again and ensure the returned tag is exactly the same
+    let updated = repo.ensure_tag("peekaboo").await.unwrap();
+    assert_eq!(created, &updated);
+
+    // We retrieve the created tag and ensure it is identical to the one returned by insertion.
+    let retrieved = repo
+        .get_tag_by_id(&created.id.into())
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(created, &retrieved);
+
+    let retrieved_by_name = repo.get_tag_by_name("peekaboo").await.unwrap().unwrap();
+    assert_eq!(created, &retrieved_by_name);
+}

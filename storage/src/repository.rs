@@ -27,6 +27,25 @@ impl Repository {
     ) -> crate::Result<Option<Fashion>> {
         get_fashion_by_name(&self.pool, name, character).await
     }
+
+    pub async fn upsert_tag(&self, name: &str) -> crate::Result<Option<models::Tag>> {
+        upsert_tag(&self.pool, name).await
+    }
+
+    pub async fn ensure_tag(&self, name: &str) -> crate::Result<models::Tag> {
+        let mut tx = self.pool.begin().await?;
+        let tag = ensure_tag(&mut *tx, name).await?;
+        tx.commit().await?;
+        Ok(tag)
+    }
+
+    pub async fn get_tag_by_id(&self, id: &uuid::Uuid) -> crate::Result<Option<models::Tag>> {
+        get_tag_by_id(&self.pool, id).await
+    }
+
+    pub async fn get_tag_by_name(&self, name: &str) -> crate::Result<Option<models::Tag>> {
+        get_tag_by_name(&self.pool, name).await
+    }
 }
 
 pub async fn insert_fashion<'a, A>(conn: A, fashion: &Fashion) -> crate::Result<Fashion>
@@ -119,4 +138,82 @@ where
     .await?
     .map(|r| r.try_into())
     .transpose()
+}
+
+pub async fn upsert_tag<'a, A>(conn: A, name: &str) -> crate::Result<Option<models::Tag>>
+where
+    A: Acquire<'a, Database = Sqlite>,
+{
+    let id = uuid::Uuid::now_v7();
+    let mut conn = conn.acquire().await?;
+    Ok(sqlx::query_as!(
+        models::Tag,
+        r#"INSERT INTO tag (
+                id,
+                name
+            ) VALUES (?, ?)
+            ON CONFLICT(name)
+            DO NOTHING
+            RETURNING
+                id as "id: _",
+                name,
+                created_at as "created_at: _",
+                updated_at as "updated_at: _""#,
+        id.hyphenated(),
+        name,
+    )
+    .fetch_optional(&mut *conn)
+    .await?)
+}
+
+pub async fn ensure_tag<'a, A>(conn: A, name: &str) -> crate::Result<models::Tag>
+where
+    A: Acquire<'a, Database = Sqlite>,
+{
+    let mut conn = conn.acquire().await?;
+    if let Some(created_tag) = upsert_tag(&mut *conn, name).await? {
+        Ok(created_tag)
+    } else {
+        get_tag_by_name(&mut *conn, name)
+            .await?
+            .ok_or(crate::Error::NotFound) // should never happen
+    }
+}
+
+pub async fn get_tag_by_id<'a, A>(conn: A, id: &uuid::Uuid) -> crate::Result<Option<models::Tag>>
+where
+    A: Acquire<'a, Database = Sqlite>,
+{
+    let mut conn = conn.acquire().await?;
+    Ok(sqlx::query_as!(
+        models::Tag,
+        r#"SELECT
+                id as "id: _",
+                name,
+                created_at as "created_at: _",
+                updated_at as "updated_at: _"
+            FROM tag WHERE id = ?"#,
+        id.hyphenated()
+    )
+    .fetch_optional(&mut *conn)
+    .await?)
+}
+
+pub async fn get_tag_by_name<'a, A>(conn: A, name: &str) -> crate::Result<Option<models::Tag>>
+where
+    A: Acquire<'a, Database = Sqlite>,
+{
+    let mut conn = conn.acquire().await?;
+    Ok(sqlx::query_as!(
+        models::Tag,
+        r#"SELECT
+                id as "id: _",
+                name,
+                created_at as "created_at: _",
+                updated_at as "updated_at: _"
+            FROM tag WHERE name = ?"#,
+        name
+    )
+    .fetch_optional(&mut *conn)
+    .await?)
 }

@@ -10,6 +10,7 @@ use sqlx::types::{
 };
 
 #[derive(sqlx::FromRow)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Fashion {
     pub id: uuid::fmt::Hyphenated,
     pub name: String,
@@ -17,6 +18,15 @@ pub struct Fashion {
     pub character: String,
     pub wardrobe_template: String,
     pub travel_template: String,
+    pub created_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<DateTime<Utc>>,
+}
+
+#[derive(sqlx::FromRow)]
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub struct Tag {
+    pub id: uuid::fmt::Hyphenated,
+    pub name: String,
     pub created_at: Option<DateTime<Utc>>,
     pub updated_at: Option<DateTime<Utc>>,
 }
