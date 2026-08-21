@@ -65,4 +65,30 @@ impl Repository {
         .map(|r| r.try_into())
         .transpose()
     }
+
+    pub async fn get_fashion_by_name(
+        &self,
+        name: &str,
+        character: Option<&str>,
+    ) -> crate::Result<Option<Fashion>> {
+        sqlx::query_as!(
+            models::Fashion,
+            r#"SELECT
+                id as "id: _",
+                name,
+                description,
+                character,
+                wardrobe_template,
+                travel_template,
+                created_at as "created_at: _",
+                updated_at as "updated_at: _"
+            FROM fashion WHERE name = ? AND character = ?"#,
+            name,
+            &character.unwrap_or_default(),
+        )
+        .fetch_optional(&self.pool)
+        .await?
+        .map(|r| r.try_into())
+        .transpose()
+    }
 }

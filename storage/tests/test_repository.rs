@@ -26,6 +26,13 @@ async fn test_create_empty_fashion(pool: SqlitePool) {
         .unwrap()
         .unwrap();
     assert_eq!(created, &retrieved);
+
+    let retrieved_by_name = repo
+        .get_fashion_by_name("empty_fashion", None)
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(created, &retrieved_by_name);
 }
 
 #[sqlx::test]
@@ -36,7 +43,7 @@ async fn test_create_not_empty_fashion(pool: SqlitePool) {
     let fashion = Fashion::new(
         "peekaboo".to_string(),
         Some("description".to_string()),
-        Some("Pikku Peekabo".to_string()),
+        Some("Pikku Peekaboo".to_string()),
         Some(
             ChatLink::from_string(wardrobe::PEEKABOO_TEMPLATE.chat_link)
                 .unwrap()
@@ -68,4 +75,11 @@ async fn test_create_not_empty_fashion(pool: SqlitePool) {
         .unwrap()
         .unwrap();
     assert_eq!(created, &retrieved);
+
+    let retrieved_by_name = repo
+        .get_fashion_by_name("peekaboo", Some("Pikku Peekaboo"))
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(created, &retrieved_by_name);
 }
