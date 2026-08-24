@@ -33,6 +33,9 @@ async fn test_create_empty_fashion(pool: SqlitePool) {
         .unwrap()
         .unwrap();
     assert_eq!(created, &retrieved_by_name);
+
+    let listed_fashions = repo.list_fashions().await.unwrap();
+    assert_eq!(listed_fashions, vec![created.clone()]);
 }
 
 #[sqlx::test]
@@ -82,6 +85,9 @@ async fn test_create_not_empty_fashion(pool: SqlitePool) {
         .unwrap()
         .unwrap();
     assert_eq!(created, &retrieved_by_name);
+
+    let listed_fashions = repo.list_fashions().await.unwrap();
+    assert_eq!(listed_fashions, vec![created.clone()]);
 }
 
 #[sqlx::test]

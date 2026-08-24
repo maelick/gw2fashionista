@@ -28,6 +28,10 @@ impl Repository {
         get_fashion_by_name(&self.pool, name, character).await
     }
 
+    pub async fn list_fashions(&self) -> crate::Result<Vec<Fashion>> {
+        list_fashions(&self.pool).await
+    }
+
     pub async fn upsert_tag(&self, name: &str) -> crate::Result<Option<models::Tag>> {
         upsert_tag(&self.pool, name).await
     }
@@ -106,7 +110,7 @@ where
     )
     .fetch_optional(&mut *conn)
     .await?
-    .map(|r| r.try_into())
+    .map(Fashion::try_from)
     .transpose()
 }
 
@@ -136,8 +140,21 @@ where
     )
     .fetch_optional(&mut *conn)
     .await?
-    .map(|r| r.try_into())
+    .map(Fashion::try_from)
     .transpose()
+}
+
+async fn list_fashions<'a, A>(conn: A) -> crate::Result<Vec<Fashion>>
+where
+    A: Acquire<'a, Database = Sqlite>,
+{
+    let mut conn = conn.acquire().await?;
+    sqlx::query_as::<'_, _, models::Fashion>("SELECT * FROM fashion")
+        .fetch_all(&mut *conn)
+        .await?
+        .into_iter()
+        .map(Fashion::try_from)
+        .collect()
 }
 
 async fn upsert_tag<'a, A>(conn: A, name: &str) -> crate::Result<Option<models::Tag>>
