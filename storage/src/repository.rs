@@ -48,7 +48,7 @@ impl Repository {
     }
 }
 
-pub async fn insert_fashion<'a, A>(conn: A, fashion: &Fashion) -> crate::Result<Fashion>
+async fn insert_fashion<'a, A>(conn: A, fashion: &Fashion) -> crate::Result<Fashion>
 where
     A: Acquire<'a, Database = Sqlite>,
 {
@@ -85,7 +85,7 @@ where
     .try_into()?)
 }
 
-pub async fn get_fashion_by_id<'a, A>(conn: A, id: uuid::Uuid) -> crate::Result<Option<Fashion>>
+async fn get_fashion_by_id<'a, A>(conn: A, id: uuid::Uuid) -> crate::Result<Option<Fashion>>
 where
     A: Acquire<'a, Database = Sqlite>,
 {
@@ -110,7 +110,7 @@ where
     .transpose()
 }
 
-pub async fn get_fashion_by_name<'a, A>(
+async fn get_fashion_by_name<'a, A>(
     conn: A,
     name: &str,
     character: Option<&str>,
@@ -140,7 +140,7 @@ where
     .transpose()
 }
 
-pub async fn upsert_tag<'a, A>(conn: A, name: &str) -> crate::Result<Option<models::Tag>>
+async fn upsert_tag<'a, A>(conn: A, name: &str) -> crate::Result<Option<models::Tag>>
 where
     A: Acquire<'a, Database = Sqlite>,
 {
@@ -166,7 +166,7 @@ where
     .await?)
 }
 
-pub async fn ensure_tag<'a, A>(conn: A, name: &str) -> crate::Result<models::Tag>
+async fn ensure_tag<'a, A>(conn: A, name: &str) -> crate::Result<models::Tag>
 where
     A: Acquire<'a, Database = Sqlite>,
 {
@@ -180,7 +180,7 @@ where
     }
 }
 
-pub async fn get_tag_by_id<'a, A>(conn: A, id: &uuid::Uuid) -> crate::Result<Option<models::Tag>>
+async fn get_tag_by_id<'a, A>(conn: A, id: &uuid::Uuid) -> crate::Result<Option<models::Tag>>
 where
     A: Acquire<'a, Database = Sqlite>,
 {
@@ -199,7 +199,7 @@ where
     .await?)
 }
 
-pub async fn get_tag_by_name<'a, A>(conn: A, name: &str) -> crate::Result<Option<models::Tag>>
+async fn get_tag_by_name<'a, A>(conn: A, name: &str) -> crate::Result<Option<models::Tag>>
 where
     A: Acquire<'a, Database = Sqlite>,
 {
