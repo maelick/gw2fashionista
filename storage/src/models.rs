@@ -9,8 +9,7 @@ use sqlx::types::{
     uuid,
 };
 
-#[derive(sqlx::FromRow)]
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(sqlx::FromRow, Debug, Clone, Eq, PartialEq)]
 pub struct Fashion {
     pub id: uuid::fmt::Hyphenated,
     pub name: String,
@@ -22,8 +21,7 @@ pub struct Fashion {
     pub updated_at: Option<DateTime<Utc>>,
 }
 
-#[derive(sqlx::FromRow)]
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(sqlx::FromRow, Debug, Clone, Eq, PartialEq)]
 pub struct Tag {
     pub id: uuid::fmt::Hyphenated,
     pub name: String,
@@ -35,17 +33,16 @@ impl TryFrom<Fashion> for domain::fashion::Fashion {
     type Error = crate::Error;
 
     fn try_from(model: Fashion) -> Result<Self, Self::Error> {
-        Ok(domain::fashion::Fashion {
-            id: Some(model.id.into()),
-            name: model.name,
-            description: Some(model.description).filter(|s| !s.is_empty()),
-            character: Some(model.character).filter(|s| !s.is_empty()),
-            wardrobe_template: Some(parse_template(&model.wardrobe_template)?),
-            travel_template: Some(parse_template(&model.travel_template)?),
-            created_at: model.created_at,
-            updated_at: model.updated_at,
-            tags: Vec::new(),
-        })
+        Ok(domain::fashion::Fashion::builder()
+            .id(model.id)
+            .name(model.name)
+            .maybe_description(non_empty(model.description))
+            .maybe_character(non_empty(model.character))
+            .wardrobe_template(parse_template(&model.wardrobe_template)?)
+            .travel_template(parse_template(&model.travel_template)?)
+            .maybe_created_at(model.created_at)
+            .maybe_updated_at(model.updated_at)
+            .build())
     }
 }
 
@@ -87,4 +84,8 @@ where
                 .expect("ChatLink serialization should be infallible for supported FashionSlot")
         })
         .unwrap_or_default()
+}
+
+fn non_empty(s: String) -> Option<String> {
+    if s.is_empty() { None } else { Some(s) }
 }

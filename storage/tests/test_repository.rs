@@ -8,7 +8,7 @@ async fn test_create_empty_fashion(pool: SqlitePool) {
     let repo = Repository::new(pool);
 
     // We create a new template
-    let fashion = Fashion::new("empty_fashion".to_string(), None, None, None, None, &vec![]);
+    let fashion = Fashion::builder().name("empty_fashion").build();
     let created = &repo.insert_fashion(&fashion).await.unwrap();
 
     // Assert that timestamps and templates are set
@@ -43,24 +43,24 @@ async fn test_create_not_empty_fashion(pool: SqlitePool) {
     let repo = Repository::new(pool);
 
     // We create a new template
-    let fashion = Fashion::new(
-        "peekaboo".to_string(),
-        Some("description".to_string()),
-        Some("Pikku Peekaboo".to_string()),
-        Some(
+    let fashion = Fashion::builder()
+        .name("peekaboo")
+        .description("description")
+        .character("Pikku Peekaboo")
+        .wardrobe_template(
             ChatLink::from_string(wardrobe::PEEKABOO_TEMPLATE.chat_link)
                 .unwrap()
                 .try_into()
                 .unwrap(),
-        ),
-        Some(
+        )
+        .travel_template(
             ChatLink::from_string(travel::PEEKABOO_TEMPLATE.chat_link)
                 .unwrap()
                 .try_into()
                 .unwrap(),
-        ),
-        &vec![],
-    );
+        )
+        .tags(bon::vec!["hello"])
+        .build();
     let created = &repo.insert_fashion(&fashion).await.unwrap();
 
     // Assert that timestamps and templates are set
