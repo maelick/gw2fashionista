@@ -97,8 +97,7 @@ where
 {
     let model: models::Fashion = fashion.into();
     let mut conn = conn.acquire().await?;
-    Ok(sqlx::query_as!(
-        models::Fashion,
+    Ok(sqlx::query_as::<'_, _, models::Fashion>(
         r#"INSERT INTO fashion (
                 id,
                 name,
@@ -107,22 +106,14 @@ where
                 wardrobe_template,
                 travel_template
             ) VALUES (?, ?, ?, ?, ?, ?)
-            RETURNING 
-                id as "id: _",
-                name,
-                description,
-                character,
-                wardrobe_template,
-                travel_template,
-                created_at as "created_at: _",
-                updated_at as "updated_at: _""#,
-        model.id,
-        model.name,
-        model.description,
-        model.character,
-        model.wardrobe_template,
-        model.travel_template,
+            RETURNING *"#,
     )
+    .bind(model.id)
+    .bind(model.name)
+    .bind(model.description)
+    .bind(model.character)
+    .bind(model.wardrobe_template)
+    .bind(model.travel_template)
     .fetch_one(&mut *conn)
     .await?
     .try_into()?)
@@ -133,24 +124,12 @@ where
     A: Acquire<'a, Database = Sqlite>,
 {
     let mut conn = conn.acquire().await?;
-    sqlx::query_as!(
-        models::Fashion,
-        r#"SELECT
-                id as "id: _",
-                name,
-                description,
-                character,
-                wardrobe_template,
-                travel_template,
-                created_at as "created_at: _",
-                updated_at as "updated_at: _"
-            FROM fashion WHERE id = ?"#,
-        id.hyphenated()
-    )
-    .fetch_optional(&mut *conn)
-    .await?
-    .map(Fashion::try_from)
-    .transpose()
+    sqlx::query_as::<'_, _, models::Fashion>(r#"SELECT * FROM fashion WHERE id = ?"#)
+        .bind(id.hyphenated())
+        .fetch_optional(&mut *conn)
+        .await?
+        .map(Fashion::try_from)
+        .transpose()
 }
 
 async fn get_fashion_by_name<'a, A>(
@@ -162,21 +141,11 @@ where
     A: Acquire<'a, Database = Sqlite>,
 {
     let mut conn = conn.acquire().await?;
-    sqlx::query_as!(
-        models::Fashion,
-        r#"SELECT
-                id as "id: _",
-                name,
-                description,
-                character,
-                wardrobe_template,
-                travel_template,
-                created_at as "created_at: _",
-                updated_at as "updated_at: _"
-            FROM fashion WHERE name = ? AND character = ?"#,
-        name,
-        &character.unwrap_or_default(),
+    sqlx::query_as::<'_, _, models::Fashion>(
+        r#"SELECT * FROM fashion WHERE name = ? AND character = ?"#,
     )
+    .bind(name)
+    .bind(&character.unwrap_or_default())
     .fetch_optional(&mut *conn)
     .await?
     .map(Fashion::try_from)
@@ -202,22 +171,17 @@ where
 {
     let id = uuid::Uuid::now_v7();
     let mut conn = conn.acquire().await?;
-    Ok(sqlx::query_as!(
-        models::Tag,
+    Ok(sqlx::query_as(
         r#"INSERT INTO tag (
                 id,
                 name
             ) VALUES (?, ?)
             ON CONFLICT(name)
             DO NOTHING
-            RETURNING
-                id as "id: _",
-                name,
-                created_at as "created_at: _",
-                updated_at as "updated_at: _""#,
-        id.hyphenated(),
-        name,
+            RETURNING *"#,
     )
+    .bind(id.hyphenated())
+    .bind(name)
     .fetch_optional(&mut *conn)
     .await?)
 }
@@ -241,18 +205,10 @@ where
     A: Acquire<'a, Database = Sqlite>,
 {
     let mut conn = conn.acquire().await?;
-    Ok(sqlx::query_as!(
-        models::Tag,
-        r#"SELECT
-                id as "id: _",
-                name,
-                created_at as "created_at: _",
-                updated_at as "updated_at: _"
-            FROM tag WHERE id = ?"#,
-        id.hyphenated()
-    )
-    .fetch_optional(&mut *conn)
-    .await?)
+    Ok(sqlx::query_as(r#"SELECT * FROM tag WHERE id = ?"#)
+        .bind(id.hyphenated())
+        .fetch_optional(&mut *conn)
+        .await?)
 }
 
 async fn get_tag_by_name<'a, A>(conn: A, name: &str) -> crate::Result<Option<models::Tag>>
@@ -260,18 +216,10 @@ where
     A: Acquire<'a, Database = Sqlite>,
 {
     let mut conn = conn.acquire().await?;
-    Ok(sqlx::query_as!(
-        models::Tag,
-        r#"SELECT
-                id as "id: _",
-                name,
-                created_at as "created_at: _",
-                updated_at as "updated_at: _"
-            FROM tag WHERE name = ?"#,
-        name
-    )
-    .fetch_optional(&mut *conn)
-    .await?)
+    Ok(sqlx::query_as(r#"SELECT * FROM tag WHERE name = ?"#)
+        .bind(name)
+        .fetch_optional(&mut *conn)
+        .await?)
 }
 
 async fn list_tags<'a, A>(conn: A, filters: StringFilters) -> crate::Result<Vec<models::Tag>>
