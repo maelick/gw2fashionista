@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use sqlx::{SqlitePool};
+use sqlx::SqlitePool;
 use tokio::time::sleep;
 
 #[sqlx::test]
