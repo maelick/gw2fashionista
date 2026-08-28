@@ -138,28 +138,28 @@ async fn test_list_tags(pool: SqlitePool) {
 
     // Assert no match for prefix
     let retrieved_tags = repo
-        .list_tags(StringFilters::default().with_prefix("hello"))
+        .list_tags(StringFilters::builder().prefix("hello").build())
         .await
         .unwrap();
     assert!(retrieved_tags.is_empty());
 
     // Assert no match for suffix
     let retrieved_tags = repo
-        .list_tags(StringFilters::default().with_suffix("hello"))
+        .list_tags(StringFilters::builder().suffix("hello").build())
         .await
         .unwrap();
     assert!(retrieved_tags.is_empty());
 
     // Assert no match for substring
     let retrieved_tags = repo
-        .list_tags(StringFilters::default().with_substrings(vec!["hello"]))
+        .list_tags(StringFilters::builder().substrings(["hello"]).build())
         .await
         .unwrap();
     assert!(retrieved_tags.is_empty());
 
     // Assert match for prefix
     let retrieved_tags = repo
-        .list_tags(StringFilters::default().with_prefix("peek"))
+        .list_tags(StringFilters::builder().prefix("peek").build())
         .await
         .unwrap();
     assert_eq!(
@@ -169,7 +169,7 @@ async fn test_list_tags(pool: SqlitePool) {
 
     // Assert match for suffix
     let retrieved_tags = repo
-        .list_tags(StringFilters::default().with_suffix("oo"))
+        .list_tags(StringFilters::builder().suffix("oo").build())
         .await
         .unwrap();
     assert_eq!(
@@ -179,7 +179,7 @@ async fn test_list_tags(pool: SqlitePool) {
 
     // Assert match for single substring
     let retrieved_tags = repo
-        .list_tags(StringFilters::default().with_substrings(vec!["eek"]))
+        .list_tags(StringFilters::builder().substrings(["eek"]).build())
         .await
         .unwrap();
     assert_eq!(
@@ -189,18 +189,18 @@ async fn test_list_tags(pool: SqlitePool) {
 
     // Assert match for multiple substrings
     let retrieved_tags = repo
-        .list_tags(StringFilters::default().with_substrings(vec!["eek", "ka"]))
+        .list_tags(
+            StringFilters::builder()
+                .substrings(["eek", "ka"])
+                .build(),
+        )
         .await
         .unwrap();
     assert_eq!(retrieved_tags, vec![tag1.clone(), tag2.clone()]);
 
     // Assert match for prefix + substring
     let retrieved_tags = repo
-        .list_tags(
-            StringFilters::default()
-                .with_prefix("peek")
-                .with_suffix("oo"),
-        )
+        .list_tags(StringFilters::builder().prefix("peek").suffix("oo").build())
         .await
         .unwrap();
     assert_eq!(retrieved_tags, vec![tag1.clone(), tag4.clone()]);
@@ -208,10 +208,11 @@ async fn test_list_tags(pool: SqlitePool) {
     // Assert match for all
     let retrieved_tags = repo
         .list_tags(
-            StringFilters::default()
-                .with_prefix("peek")
-                .with_suffix("oo")
-                .with_substrings(vec!["ka"]),
+            StringFilters::builder()
+                .prefix("peek")
+                .suffix("oo")
+                .substrings(["ka"])
+                .build(),
         )
         .await
         .unwrap();
