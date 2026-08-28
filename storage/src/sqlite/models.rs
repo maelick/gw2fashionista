@@ -61,6 +61,17 @@ impl From<&domain::fashion::Fashion> for Fashion {
     }
 }
 
+impl From<Tag> for domain::tag::Tag {
+    fn from(model: Tag) -> Self {
+        domain::tag::Tag::builder()
+            .id(model.id)
+            .name(model.name)
+            .maybe_created_at(model.created_at)
+            .maybe_updated_at(model.updated_at)
+            .build()
+    }
+}
+
 fn parse_template<S: FashionSlot>(s: &str) -> crate::Result<Template<S>>
 where
     Template<S>: Default + TryFrom<ChatLink, Error = ChatLinkError>,
