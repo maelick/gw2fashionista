@@ -106,7 +106,7 @@ async fn test_create_tag(pool: SqlitePool) {
 
     // We retrieve the created tag and ensure it is identical to the one returned by insertion.
     let retrieved = repo
-        .get_tag_by_id(&created.id.into())
+        .get_tag_by_id(&created.id.unwrap())
         .await
         .unwrap()
         .unwrap();
@@ -189,11 +189,7 @@ async fn test_list_tags(pool: SqlitePool) {
 
     // Assert match for multiple substrings
     let retrieved_tags = repo
-        .list_tags(
-            StringFilters::builder()
-                .substrings(["eek", "ka"])
-                .build(),
-        )
+        .list_tags(StringFilters::builder().substrings(["eek", "ka"]).build())
         .await
         .unwrap();
     assert_eq!(retrieved_tags, vec![tag1.clone(), tag2.clone()]);

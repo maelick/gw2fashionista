@@ -1,7 +1,7 @@
-use gw2fashionista_core::domain::fashion::Fashion;
+use gw2fashionista_core::domain::{fashion::Fashion, tag::Tag};
 use sqlx::{Acquire, QueryBuilder, Sqlite, SqlitePool, types::uuid};
 
-use crate::{StringFilters};
+use crate::StringFilters;
 
 mod models;
 
@@ -34,26 +34,26 @@ impl Repository {
         list_fashions(&self.pool).await
     }
 
-    pub async fn upsert_tag(&self, name: &str) -> crate::Result<Option<models::Tag>> {
+    pub async fn upsert_tag(&self, name: &str) -> crate::Result<Option<Tag>> {
         upsert_tag(&self.pool, name).await
     }
 
-    pub async fn ensure_tag(&self, name: &str) -> crate::Result<models::Tag> {
+    pub async fn ensure_tag(&self, name: &str) -> crate::Result<Tag> {
         let mut tx = self.pool.begin().await?;
         let tag = ensure_tag(&mut *tx, name).await?;
         tx.commit().await?;
         Ok(tag)
     }
 
-    pub async fn get_tag_by_id(&self, id: &uuid::Uuid) -> crate::Result<Option<models::Tag>> {
+    pub async fn get_tag_by_id(&self, id: &uuid::Uuid) -> crate::Result<Option<Tag>> {
         get_tag_by_id(&self.pool, id).await
     }
 
-    pub async fn get_tag_by_name(&self, name: &str) -> crate::Result<Option<models::Tag>> {
+    pub async fn get_tag_by_name(&self, name: &str) -> crate::Result<Option<Tag>> {
         get_tag_by_name(&self.pool, name).await
     }
 
-    pub async fn list_tags(&self, filters: StringFilters) -> crate::Result<Vec<models::Tag>> {
+    pub async fn list_tags(&self, filters: StringFilters) -> crate::Result<Vec<Tag>> {
         list_tags(&self.pool, filters).await
     }
 
@@ -169,13 +169,13 @@ where
         .collect()
 }
 
-async fn upsert_tag<'a, A>(conn: A, name: &str) -> crate::Result<Option<models::Tag>>
+async fn upsert_tag<'a, A>(conn: A, name: &str) -> crate::Result<Option<Tag>>
 where
     A: Acquire<'a, Database = Sqlite>,
 {
     let id = uuid::Uuid::now_v7();
     let mut conn = conn.acquire().await?;
-    Ok(sqlx::query_as(
+    Ok(sqlx::query_as::<'_, _, models::Tag>(
         r#"INSERT INTO tag (
                 id,
                 name
@@ -187,10 +187,11 @@ where
     .bind(id.hyphenated())
     .bind(name)
     .fetch_optional(&mut *conn)
-    .await?)
+    .await?
+    .map(Tag::from))
 }
 
-async fn ensure_tag<'a, A>(conn: A, name: &str) -> crate::Result<models::Tag>
+async fn ensure_tag<'a, A>(conn: A, name: &str) -> crate::Result<Tag>
 where
     A: Acquire<'a, Database = Sqlite>,
 {
@@ -204,37 +205,46 @@ where
     }
 }
 
-async fn get_tag_by_id<'a, A>(conn: A, id: &uuid::Uuid) -> crate::Result<Option<models::Tag>>
+async fn get_tag_by_id<'a, A>(conn: A, id: &uuid::Uuid) -> crate::Result<Option<Tag>>
 where
     A: Acquire<'a, Database = Sqlite>,
 {
     let mut conn = conn.acquire().await?;
-    Ok(sqlx::query_as(r#"SELECT * FROM tag WHERE id = ?"#)
-        .bind(id.hyphenated())
-        .fetch_optional(&mut *conn)
-        .await?)
+    Ok(
+        sqlx::query_as::<'_, _, models::Tag>(r#"SELECT * FROM tag WHERE id = ?"#)
+            .bind(id.hyphenated())
+            .fetch_optional(&mut *conn)
+            .await?
+            .map(Tag::from),
+    )
 }
 
-async fn get_tag_by_name<'a, A>(conn: A, name: &str) -> crate::Result<Option<models::Tag>>
+async fn get_tag_by_name<'a, A>(conn: A, name: &str) -> crate::Result<Option<Tag>>
 where
     A: Acquire<'a, Database = Sqlite>,
 {
     let mut conn = conn.acquire().await?;
-    Ok(sqlx::query_as(r#"SELECT * FROM tag WHERE name = ?"#)
-        .bind(name)
-        .fetch_optional(&mut *conn)
-        .await?)
+    Ok(
+        sqlx::query_as::<'_, _, models::Tag>(r#"SELECT * FROM tag WHERE name = ?"#)
+            .bind(name)
+            .fetch_optional(&mut *conn)
+            .await?
+            .map(Tag::from),
+    )
 }
 
-async fn list_tags<'a, A>(conn: A, filters: StringFilters) -> crate::Result<Vec<models::Tag>>
+async fn list_tags<'a, A>(conn: A, filters: StringFilters) -> crate::Result<Vec<Tag>>
 where
     A: Acquire<'a, Database = Sqlite>,
 {
     let mut conn = conn.acquire().await?;
     Ok(list_tags_query(filters.patterns())
-        .build_query_as()
+        .build_query_as::<'_, models::Tag>()
         .fetch_all(&mut *conn)
-        .await?)
+        .await?
+        .into_iter()
+        .map(Tag::from)
+        .collect())
 }
 
 fn list_tags_query(patterns: impl Iterator<Item = String>) -> QueryBuilder<Sqlite> {
