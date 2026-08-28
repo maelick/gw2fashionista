@@ -33,8 +33,8 @@ impl StringFilters {
         self.substrings
             .iter()
             .map(|s| format!("%{}%", s))
-            .chain(self.prefix.as_ref().map(|s| format!("{}%", s)).into_iter())
-            .chain(self.suffix.as_ref().map(|s| format!("%{}", s)).into_iter())
+            .chain(self.prefix.as_ref().map(|s| format!("{}%", s)))
+            .chain(self.suffix.as_ref().map(|s| format!("%{}", s)))
     }
 }
 
@@ -134,7 +134,7 @@ where
 {
     let model: models::Fashion = fashion.into();
     let mut conn = conn.acquire().await?;
-    Ok(sqlx::query_as::<'_, _, models::Fashion>(
+    sqlx::query_as::<'_, _, models::Fashion>(
         r#"INSERT INTO fashion (
                 id,
                 name,
@@ -153,7 +153,7 @@ where
     .bind(model.travel_template)
     .fetch_one(&mut *conn)
     .await?
-    .try_into()?)
+    .try_into()
 }
 
 async fn get_fashion_by_id<'a, A>(conn: A, id: &uuid::Uuid) -> crate::Result<Option<Fashion>>
@@ -182,7 +182,7 @@ where
         r#"SELECT * FROM fashion WHERE name = ? AND character = ?"#,
     )
     .bind(name)
-    .bind(&character.unwrap_or_default())
+    .bind(character.unwrap_or_default())
     .fetch_optional(&mut *conn)
     .await?
     .map(Fashion::try_from)
