@@ -1,31 +1,9 @@
-use bon::Builder;
 use gw2fashionista_core::domain::fashion::Fashion;
 use sqlx::{Acquire, QueryBuilder, Sqlite, SqlitePool, types::uuid};
 
-use crate::models;
+use crate::{StringFilters};
 
-#[derive(Debug, Clone, Eq, PartialEq, Default, Builder)]
-pub struct StringFilters {
-    #[builder(into)]
-    prefix: Option<String>,
-
-    #[builder(into)]
-    suffix: Option<String>,
-
-    #[builder(default)]
-    #[builder(with = |s: impl IntoIterator<Item: Into<String>>| collect_strings(s))]
-    substrings: Vec<String>,
-}
-
-impl StringFilters {
-    pub fn patterns(&self) -> impl Iterator<Item = String> {
-        self.substrings
-            .iter()
-            .map(|s| format!("%{}%", s))
-            .chain(self.prefix.as_ref().map(|s| format!("{}%", s)))
-            .chain(self.suffix.as_ref().map(|s| format!("%{}", s)))
-    }
-}
+mod models;
 
 pub struct Repository {
     pool: SqlitePool,
@@ -327,8 +305,4 @@ where
     );
     query.execute(&mut *conn).await?;
     Ok(())
-}
-
-fn collect_strings(strings: impl IntoIterator<Item: Into<String>>) -> Vec<String> {
-    strings.into_iter().map(Into::into).collect()
 }

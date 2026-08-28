@@ -1,6 +1,6 @@
 use gw2fashionista_core::domain::{chatlink::ChatLink, fashion::Fashion};
 use gw2fashionista_fixtures::{travel, wardrobe};
-use gw2fashionista_storage::repository::{Repository, StringFilters};
+use gw2fashionista_storage::{Repository, StringFilters};
 use sqlx::SqlitePool;
 
 #[sqlx::test]
