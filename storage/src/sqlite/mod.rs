@@ -1,5 +1,6 @@
+use async_trait::async_trait;
 use gw2fashionista_core::domain::{fashion::Fashion, tag::Tag};
-use sqlx::{Acquire, QueryBuilder, Sqlite, SqlitePool, types::uuid};
+use sqlx::{QueryBuilder, Sqlite, SqliteConnection, SqlitePool, types::uuid};
 
 use crate::StringFilters;
 
@@ -13,58 +14,70 @@ impl Repository {
     pub fn new(pool: SqlitePool) -> Self {
         Self { pool }
     }
+}
 
-    pub async fn insert_fashion(&self, fashion: &Fashion) -> crate::Result<Fashion> {
-        insert_fashion(&self.pool, fashion).await
+#[async_trait]
+impl crate::Repository for Repository {
+    async fn insert_fashion(&self, fashion: &Fashion) -> crate::Result<Fashion> {
+        let mut conn = self.pool.acquire().await?;
+        insert_fashion(&mut conn, fashion).await
     }
 
-    pub async fn get_fashion_by_id(&self, id: &uuid::Uuid) -> crate::Result<Option<Fashion>> {
-        get_fashion_by_id(&self.pool, id).await
+    async fn get_fashion_by_id(&self, id: &uuid::Uuid) -> crate::Result<Option<Fashion>> {
+        let mut conn = self.pool.acquire().await?;
+        get_fashion_by_id(&mut conn, id).await
     }
 
-    pub async fn get_fashion_by_name(
+    async fn get_fashion_by_name(
         &self,
         name: &str,
         character: Option<&str>,
     ) -> crate::Result<Option<Fashion>> {
-        get_fashion_by_name(&self.pool, name, character).await
+        let mut conn = self.pool.acquire().await?;
+        get_fashion_by_name(&mut conn, name, character).await
     }
 
-    pub async fn list_fashions(&self) -> crate::Result<Vec<Fashion>> {
-        list_fashions(&self.pool).await
+    async fn list_fashions(&self) -> crate::Result<Vec<Fashion>> {
+        let mut conn = self.pool.acquire().await?;
+        list_fashions(&mut conn).await
     }
 
-    pub async fn upsert_tag(&self, name: &str) -> crate::Result<Option<Tag>> {
-        upsert_tag(&self.pool, name).await
+    async fn upsert_tag(&self, name: &str) -> crate::Result<Option<Tag>> {
+        let mut conn = self.pool.acquire().await?;
+        upsert_tag(&mut conn, name).await
     }
 
-    pub async fn ensure_tag(&self, name: &str) -> crate::Result<Tag> {
+    async fn ensure_tag(&self, name: &str) -> crate::Result<Tag> {
         let mut tx = self.pool.begin().await?;
         let tag = ensure_tag(&mut *tx, name).await?;
         tx.commit().await?;
         Ok(tag)
     }
 
-    pub async fn get_tag_by_id(&self, id: &uuid::Uuid) -> crate::Result<Option<Tag>> {
-        get_tag_by_id(&self.pool, id).await
+    async fn get_tag_by_id(&self, id: &uuid::Uuid) -> crate::Result<Option<Tag>> {
+        let mut conn = self.pool.acquire().await?;
+        get_tag_by_id(&mut conn, id).await
     }
 
-    pub async fn get_tag_by_name(&self, name: &str) -> crate::Result<Option<Tag>> {
-        get_tag_by_name(&self.pool, name).await
+    async fn get_tag_by_name(&self, name: &str) -> crate::Result<Option<Tag>> {
+        let mut conn = self.pool.acquire().await?;
+        get_tag_by_name(&mut conn, name).await
     }
 
-    pub async fn list_tags(&self, filters: StringFilters) -> crate::Result<Vec<Tag>> {
-        list_tags(&self.pool, filters).await
+    async fn list_tags(&self, filters: StringFilters) -> crate::Result<Vec<Tag>> {
+        let mut conn = self.pool.acquire().await?;
+        list_tags(&mut conn, filters).await
     }
 
-    pub async fn get_fashion_tags(&self, fashion_id: &uuid::Uuid) -> crate::Result<Vec<String>> {
-        get_fashion_tags(&self.pool, fashion_id).await
+    async fn get_fashion_tags(&self, fashion_id: &uuid::Uuid) -> crate::Result<Vec<String>> {
+        let mut conn = self.pool.acquire().await?;
+        get_fashion_tags(&mut conn, fashion_id).await
     }
 
-    pub async fn ensure_fashion_tags(
+    async fn ensure_fashion_tags(
         &self,
-        fashion_ids: impl IntoIterator<Item = &uuid::Uuid>,
-        tags: impl IntoIterator<Item = impl Into<String>>,
+        fashion_ids: impl IntoIterator<Item = &uuid::Uuid> + Send,
+        tags: impl IntoIterator<Item: Into<String>, IntoIter: Send> + Send,
     ) -> crate::Result<()> {
         let fashion_ids: Vec<_> = fashion_ids.into_iter().collect();
         let mut tx = self.pool.begin().await?;
@@ -78,10 +91,10 @@ impl Repository {
         Ok(())
     }
 
-    pub async fn remove_fashion_tags(
+    async fn remove_fashion_tags(
         &self,
-        fashion_ids: impl IntoIterator<Item = &uuid::Uuid>,
-        tags: impl IntoIterator<Item = impl Into<String>>,
+        fashion_ids: impl IntoIterator<Item = &uuid::Uuid> + Send,
+        tags: impl IntoIterator<Item: Into<String>, IntoIter: Send> + Send,
     ) -> crate::Result<()> {
         let fashion_ids: Vec<_> = fashion_ids.into_iter().collect();
         let mut tx = self.pool.begin().await?;
@@ -95,12 +108,8 @@ impl Repository {
     }
 }
 
-async fn insert_fashion<'a, A>(conn: A, fashion: &Fashion) -> crate::Result<Fashion>
-where
-    A: Acquire<'a, Database = Sqlite>,
-{
+async fn insert_fashion(conn: &mut SqliteConnection, fashion: &Fashion) -> crate::Result<Fashion> {
     let model: models::Fashion = fashion.into();
-    let mut conn = conn.acquire().await?;
     sqlx::query_as::<'_, _, models::Fashion>(
         r#"INSERT INTO fashion (
                 id,
@@ -118,63 +127,50 @@ where
     .bind(model.character)
     .bind(model.wardrobe_template)
     .bind(model.travel_template)
-    .fetch_one(&mut *conn)
+    .fetch_one(conn)
     .await?
     .try_into()
 }
 
-async fn get_fashion_by_id<'a, A>(conn: A, id: &uuid::Uuid) -> crate::Result<Option<Fashion>>
-where
-    A: Acquire<'a, Database = Sqlite>,
-{
-    let mut conn = conn.acquire().await?;
+async fn get_fashion_by_id(
+    conn: &mut SqliteConnection,
+    id: &uuid::Uuid,
+) -> crate::Result<Option<Fashion>> {
     sqlx::query_as::<'_, _, models::Fashion>(r#"SELECT * FROM fashion WHERE id = ?"#)
         .bind(id.hyphenated())
-        .fetch_optional(&mut *conn)
+        .fetch_optional(conn)
         .await?
         .map(Fashion::try_from)
         .transpose()
 }
 
-async fn get_fashion_by_name<'a, A>(
-    conn: A,
+async fn get_fashion_by_name(
+    conn: &mut SqliteConnection,
     name: &str,
     character: Option<&str>,
-) -> crate::Result<Option<Fashion>>
-where
-    A: Acquire<'a, Database = Sqlite>,
-{
-    let mut conn = conn.acquire().await?;
+) -> crate::Result<Option<Fashion>> {
     sqlx::query_as::<'_, _, models::Fashion>(
         r#"SELECT * FROM fashion WHERE name = ? AND character = ?"#,
     )
     .bind(name)
     .bind(character.unwrap_or_default())
-    .fetch_optional(&mut *conn)
+    .fetch_optional(conn)
     .await?
     .map(Fashion::try_from)
     .transpose()
 }
 
-async fn list_fashions<'a, A>(conn: A) -> crate::Result<Vec<Fashion>>
-where
-    A: Acquire<'a, Database = Sqlite>,
-{
-    let mut conn = conn.acquire().await?;
+async fn list_fashions(conn: &mut SqliteConnection) -> crate::Result<Vec<Fashion>> {
     sqlx::query_as::<'_, _, models::Fashion>("SELECT * FROM fashion")
-        .fetch_all(&mut *conn)
+        .fetch_all(conn)
         .await?
         .into_iter()
         .map(Fashion::try_from)
         .collect()
 }
 
-async fn upsert_tag<'a, A>(conn: A, name: &str) -> crate::Result<Option<Tag>>
-where
-    A: Acquire<'a, Database = Sqlite>,
-{
+async fn upsert_tag(conn: &mut SqliteConnection, name: &str) -> crate::Result<Option<Tag>> {
     let id = uuid::Uuid::now_v7();
-    let mut conn = conn.acquire().await?;
     Ok(sqlx::query_as::<'_, _, models::Tag>(
         r#"INSERT INTO tag (
                 id,
@@ -186,16 +182,12 @@ where
     )
     .bind(id.hyphenated())
     .bind(name)
-    .fetch_optional(&mut *conn)
+    .fetch_optional(conn)
     .await?
     .map(Tag::from))
 }
 
-async fn ensure_tag<'a, A>(conn: A, name: &str) -> crate::Result<Tag>
-where
-    A: Acquire<'a, Database = Sqlite>,
-{
-    let mut conn = conn.acquire().await?;
+async fn ensure_tag(conn: &mut SqliteConnection, name: &str) -> crate::Result<Tag> {
     if let Some(created_tag) = upsert_tag(&mut *conn, name).await? {
         Ok(created_tag)
     } else {
@@ -205,42 +197,30 @@ where
     }
 }
 
-async fn get_tag_by_id<'a, A>(conn: A, id: &uuid::Uuid) -> crate::Result<Option<Tag>>
-where
-    A: Acquire<'a, Database = Sqlite>,
-{
-    let mut conn = conn.acquire().await?;
+async fn get_tag_by_id(conn: &mut SqliteConnection, id: &uuid::Uuid) -> crate::Result<Option<Tag>> {
     Ok(
         sqlx::query_as::<'_, _, models::Tag>(r#"SELECT * FROM tag WHERE id = ?"#)
             .bind(id.hyphenated())
-            .fetch_optional(&mut *conn)
+            .fetch_optional(conn)
             .await?
             .map(Tag::from),
     )
 }
 
-async fn get_tag_by_name<'a, A>(conn: A, name: &str) -> crate::Result<Option<Tag>>
-where
-    A: Acquire<'a, Database = Sqlite>,
-{
-    let mut conn = conn.acquire().await?;
+async fn get_tag_by_name(conn: &mut SqliteConnection, name: &str) -> crate::Result<Option<Tag>> {
     Ok(
         sqlx::query_as::<'_, _, models::Tag>(r#"SELECT * FROM tag WHERE name = ?"#)
             .bind(name)
-            .fetch_optional(&mut *conn)
+            .fetch_optional(conn)
             .await?
             .map(Tag::from),
     )
 }
 
-async fn list_tags<'a, A>(conn: A, filters: StringFilters) -> crate::Result<Vec<Tag>>
-where
-    A: Acquire<'a, Database = Sqlite>,
-{
-    let mut conn = conn.acquire().await?;
+async fn list_tags(conn: &mut SqliteConnection, filters: StringFilters) -> crate::Result<Vec<Tag>> {
     Ok(list_tags_query(filters.patterns())
         .build_query_as::<'_, models::Tag>()
-        .fetch_all(&mut *conn)
+        .fetch_all(conn)
         .await?
         .into_iter()
         .map(Tag::from)
@@ -256,29 +236,24 @@ fn list_tags_query(patterns: impl Iterator<Item = String>) -> QueryBuilder<Sqlit
     query
 }
 
-async fn get_fashion_tags<'a, A>(conn: A, fashion_id: &uuid::Uuid) -> crate::Result<Vec<String>>
-where
-    A: Acquire<'a, Database = Sqlite>,
-{
-    let mut conn = conn.acquire().await?;
+async fn get_fashion_tags(
+    conn: &mut SqliteConnection,
+    fashion_id: &uuid::Uuid,
+) -> crate::Result<Vec<String>> {
     let query = sqlx::query!(
         r#"SELECT name FROM tag
         JOIN fashion_tag ON tag.id = fashion_tag.tag_id
         WHERE fashion_tag.fashion_id = ?"#,
         fashion_id.hyphenated()
     );
-    Ok(query.map(|r| r.name).fetch_all(&mut *conn).await?)
+    Ok(query.map(|r| r.name).fetch_all(conn).await?)
 }
 
-async fn add_fashion_tag<'a, A>(
-    conn: A,
+async fn add_fashion_tag(
+    conn: &mut SqliteConnection,
     fashion_id: &uuid::Uuid,
     tag: impl Into<String>,
-) -> crate::Result<()>
-where
-    A: Acquire<'a, Database = Sqlite>,
-{
-    let mut conn = conn.acquire().await?;
+) -> crate::Result<()> {
     let query = sqlx::query!(
         r#"INSERT INTO fashion_tag (
                 fashion_id,
@@ -291,19 +266,15 @@ where
         fashion_id.hyphenated(),
         tag.into(),
     );
-    query.execute(&mut *conn).await?;
+    query.execute(conn).await?;
     Ok(())
 }
 
-async fn remove_fashion_tag<'a, A>(
-    conn: A,
+async fn remove_fashion_tag(
+    conn: &mut SqliteConnection,
     fashion_id: &uuid::Uuid,
     tag: impl Into<String>,
-) -> crate::Result<()>
-where
-    A: Acquire<'a, Database = Sqlite>,
-{
-    let mut conn = conn.acquire().await?;
+) -> crate::Result<()> {
     let query = sqlx::query!(
         r#"DELETE FROM fashion_tag
             WHERE fashion_id = ?
@@ -313,6 +284,6 @@ where
         fashion_id.hyphenated(),
         tag.into(),
     );
-    query.execute(&mut *conn).await?;
+    query.execute(conn).await?;
     Ok(())
 }

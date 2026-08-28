@@ -1,11 +1,11 @@
 use gw2fashionista_core::domain::{chatlink::ChatLink, fashion::Fashion};
 use gw2fashionista_fixtures::{travel, wardrobe};
-use gw2fashionista_storage::{Repository, StringFilters};
+use gw2fashionista_storage::{Repository, StringFilters, sqlite};
 use sqlx::SqlitePool;
 
 #[sqlx::test]
 async fn test_create_empty_fashion(pool: SqlitePool) {
-    let repo = Repository::new(pool);
+    let repo = sqlite::Repository::new(pool);
 
     // We create a new template
     let fashion = Fashion::builder().name("empty_fashion").build();
@@ -40,7 +40,7 @@ async fn test_create_empty_fashion(pool: SqlitePool) {
 
 #[sqlx::test]
 async fn test_create_not_empty_fashion(pool: SqlitePool) {
-    let repo = Repository::new(pool);
+    let repo = sqlite::Repository::new(pool);
 
     // We create a new template
     let fashion = Fashion::builder()
@@ -92,7 +92,7 @@ async fn test_create_not_empty_fashion(pool: SqlitePool) {
 
 #[sqlx::test]
 async fn test_create_tag(pool: SqlitePool) {
-    let repo = Repository::new(pool);
+    let repo = sqlite::Repository::new(pool);
 
     // We create a new tag
     let created = &repo.ensure_tag("peekaboo").await.unwrap();
@@ -121,7 +121,7 @@ async fn test_create_tag(pool: SqlitePool) {
 
 #[sqlx::test]
 async fn test_list_tags(pool: SqlitePool) {
-    let repo = Repository::new(pool);
+    let repo = sqlite::Repository::new(pool);
 
     // We create tags
     let tag1 = &repo.ensure_tag("peekaboo").await.unwrap();
@@ -217,7 +217,7 @@ async fn test_list_tags(pool: SqlitePool) {
 
 #[sqlx::test]
 async fn test_crud_fashion_tags(pool: SqlitePool) {
-    let repo = Repository::new(pool);
+    let repo = sqlite::Repository::new(pool);
 
     // We create two templates
     let fashion1 = &repo
