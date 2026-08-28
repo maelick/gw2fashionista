@@ -49,7 +49,7 @@ impl crate::Repository for Repository {
 
     async fn ensure_tag(&self, name: &str) -> crate::Result<Tag> {
         let mut tx = self.pool.begin().await?;
-        let tag = ensure_tag(&mut *tx, name).await?;
+        let tag = ensure_tag(&mut tx, name).await?;
         tx.commit().await?;
         Ok(tag)
     }
@@ -82,9 +82,9 @@ impl crate::Repository for Repository {
         let fashion_ids: Vec<_> = fashion_ids.into_iter().collect();
         let mut tx = self.pool.begin().await?;
         for tag in tags.into_iter().map(Into::into) {
-            upsert_tag(&mut *tx, &tag).await?;
+            upsert_tag(&mut tx, &tag).await?;
             for fashion_id in &fashion_ids {
-                add_fashion_tag(&mut *tx, fashion_id, &tag).await?;
+                add_fashion_tag(&mut tx, fashion_id, &tag).await?;
             }
         }
         tx.commit().await?;
@@ -100,7 +100,7 @@ impl crate::Repository for Repository {
         let mut tx = self.pool.begin().await?;
         for tag in tags.into_iter().map(Into::into) {
             for fashion_id in &fashion_ids {
-                remove_fashion_tag(&mut *tx, fashion_id, &tag).await?;
+                remove_fashion_tag(&mut tx, fashion_id, &tag).await?;
             }
         }
         tx.commit().await?;
