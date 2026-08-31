@@ -163,13 +163,30 @@ async fn test_update_fashion(pool: SqlitePool) {
     assert!(created.travel_template.clone().unwrap().is_empty());
     assert!(updated.updated_at.unwrap() > updated.created_at.unwrap());
 
+    // We create a new empty template
+    let fashion = Fashion::builder().name("peekaboo2").build();
+    let created = &repo.insert_fashion(&fashion).await.unwrap();
+
+    // We try to rename it to the first one
+    let fashion = Fashion::builder()
+        .id(created.id.unwrap())
+        .name("peekaboo")
+        .build();
+    repo.update_fashion(&fashion).await.unwrap_err();
+
+    // Assert both templates are unchanged
+    assert_eq!(
+        repo.list_fashions().await.unwrap(),
+        vec![updated.clone(), created.clone()]
+    );
+
     // We update a template that does not exist
     let fashion = Fashion::builder()
         .id(uuid::Uuid::now_v7())
         .name("does not exist")
         .build();
     let updated = repo.update_fashion(&fashion).await.unwrap();
-    assert!(updated.is_none())
+    assert!(updated.is_none());
 }
 
 #[sqlx::test]
