@@ -24,17 +24,12 @@ async fn test_create_empty_fashion(pool: SqlitePool) {
     repo.insert_fashion(&fashion).await.unwrap_err();
 
     // We retrieve the created template and ensure it is identical to the one returned by insertion.
-    let retrieved = repo
-        .get_fashion_by_id(&created.id.unwrap())
-        .await
-        .unwrap()
-        .unwrap();
+    let retrieved = repo.get_fashion_by_id(&created.id.unwrap()).await.unwrap();
     assert_eq!(created, &retrieved);
 
     let retrieved_by_name = repo
         .get_fashion_by_name("empty_fashion", None)
         .await
-        .unwrap()
         .unwrap();
     assert_eq!(created, &retrieved_by_name);
 
@@ -78,17 +73,12 @@ async fn test_create_not_empty_fashion(pool: SqlitePool) {
     repo.insert_fashion(&fashion).await.unwrap_err();
 
     // We retrieve the created template and ensure it is identical to the one returned by insertion.
-    let retrieved = repo
-        .get_fashion_by_id(&created.id.unwrap())
-        .await
-        .unwrap()
-        .unwrap();
+    let retrieved = repo.get_fashion_by_id(&created.id.unwrap()).await.unwrap();
     assert_eq!(created, &retrieved);
 
     let retrieved_by_name = repo
         .get_fashion_by_name("peekaboo", Some("Pikku Peekaboo"))
         .await
-        .unwrap()
         .unwrap();
     assert_eq!(created, &retrieved_by_name);
 
@@ -124,7 +114,7 @@ async fn test_update_fashion(pool: SqlitePool) {
         )
         .tags(bon::vec!["hello"])
         .build();
-    let updated = &repo.update_fashion(&fashion).await.unwrap().unwrap();
+    let updated = &repo.update_fashion(&fashion).await.unwrap();
 
     // Assert that timestamps are set and fields are not
     assert_eq!(updated.description.clone().unwrap(), "description");
@@ -134,17 +124,12 @@ async fn test_update_fashion(pool: SqlitePool) {
     assert!(updated.updated_at.unwrap() > updated.created_at.unwrap());
 
     // We retrieve the updated template and ensure it is identical to the one returned by the update.
-    let retrieved = repo
-        .get_fashion_by_id(&updated.id.unwrap())
-        .await
-        .unwrap()
-        .unwrap();
+    let retrieved = repo.get_fashion_by_id(&updated.id.unwrap()).await.unwrap();
     assert_eq!(updated, &retrieved);
 
     let retrieved_by_name = repo
         .get_fashion_by_name("peekaboo", Some("Pikku Peekaboo"))
         .await
-        .unwrap()
         .unwrap();
     assert_eq!(updated, &retrieved_by_name);
 
@@ -156,7 +141,7 @@ async fn test_update_fashion(pool: SqlitePool) {
         .id(created.id.unwrap())
         .name("peekaboo")
         .build();
-    let updated = &repo.update_fashion(&fashion).await.unwrap().unwrap();
+    let updated = &repo.update_fashion(&fashion).await.unwrap();
 
     // Assert that timestamps are set and fields are not
     assert!(created.description.is_none());
@@ -187,8 +172,8 @@ async fn test_update_fashion(pool: SqlitePool) {
         .id(uuid::Uuid::now_v7())
         .name("does not exist")
         .build();
-    let updated = repo.update_fashion(&fashion).await.unwrap();
-    assert!(updated.is_none());
+    let err = repo.update_fashion(&fashion).await.unwrap_err();
+    assert_matches!(err, gw2fashionista_storage::Error::NotFound);
 }
 
 #[sqlx::test]
@@ -206,14 +191,10 @@ async fn test_create_tag(pool: SqlitePool) {
     assert_eq!(created, &updated);
 
     // We retrieve the created tag and ensure it is identical to the one returned by insertion.
-    let retrieved = repo
-        .get_tag_by_id(&created.id.unwrap())
-        .await
-        .unwrap()
-        .unwrap();
+    let retrieved = repo.get_tag_by_id(&created.id.unwrap()).await.unwrap();
     assert_eq!(created, &retrieved);
 
-    let retrieved_by_name = repo.get_tag_by_name("peekaboo").await.unwrap().unwrap();
+    let retrieved_by_name = repo.get_tag_by_name("peekaboo").await.unwrap();
     assert_eq!(created, &retrieved_by_name);
 
     let retrieved_tags = repo.list_tags(StringFilters::default()).await.unwrap();
@@ -331,8 +312,8 @@ async fn test_crud_fashion_tags(pool: SqlitePool) {
         .unwrap();
 
     // We create 2 tags
-    repo.upsert_tag("tag1").await.unwrap();
-    repo.upsert_tag("tag2").await.unwrap();
+    repo.ensure_tag("tag1").await.unwrap();
+    repo.ensure_tag("tag2").await.unwrap();
 
     // We ensure the templates have no tags
     let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
@@ -388,18 +369,10 @@ async fn test_crud_fashion_tags(pool: SqlitePool) {
     assert_eq!(tags, vec!["tag3"]);
 
     // We ensure the templates themselves are unchanged
-    let fetched_fashion1 = repo
-        .get_fashion_by_id(&fashion1.id.unwrap())
-        .await
-        .unwrap()
-        .unwrap();
+    let fetched_fashion1 = repo.get_fashion_by_id(&fashion1.id.unwrap()).await.unwrap();
     assert_eq!(&fetched_fashion1, fashion1);
 
-    let fetched_fashion2 = repo
-        .get_fashion_by_id(&fashion2.id.unwrap())
-        .await
-        .unwrap()
-        .unwrap();
+    let fetched_fashion2 = repo.get_fashion_by_id(&fashion2.id.unwrap()).await.unwrap();
     assert_eq!(&fetched_fashion2, fashion2);
 }
 
@@ -432,7 +405,7 @@ async fn test_rename_tag(pool: SqlitePool) {
     assert_eq!(tags, vec!["tag2", "tag3"]);
 
     // We rename tag1 to tag1new
-    let updated_tag1 = repo.rename_tag("tag1", "tag1new").await.unwrap().unwrap();
+    let updated_tag1 = repo.rename_tag("tag1", "tag1new").await.unwrap();
 
     // We ensure the tag has been updated
     assert!(updated_tag1.updated_at.unwrap() > updated_tag1.created_at.unwrap());
@@ -446,7 +419,7 @@ async fn test_rename_tag(pool: SqlitePool) {
     repo.rename_tag("tag2", "tag3").await.unwrap_err();
 
     // We ensure the tag hasn't been updated
-    let tag2 = repo.get_tag_by_name("tag2").await.unwrap().unwrap();
+    let tag2 = repo.get_tag_by_name("tag2").await.unwrap();
     assert_eq!(tag2.updated_at.unwrap(), tag2.created_at.unwrap());
 
     let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
@@ -455,7 +428,7 @@ async fn test_rename_tag(pool: SqlitePool) {
     assert_eq!(tags, vec!["tag2", "tag3"]);
 
     // We rename tag2 to tag2new
-    let updated_tag2 = repo.rename_tag("tag2", "tag2new").await.unwrap().unwrap();
+    let updated_tag2 = repo.rename_tag("tag2", "tag2new").await.unwrap();
 
     // We ensure the tag has been updated
     assert!(updated_tag2.updated_at.unwrap() > updated_tag2.created_at.unwrap());
@@ -466,7 +439,10 @@ async fn test_rename_tag(pool: SqlitePool) {
     assert_eq!(tags, vec!["tag2new", "tag3"]);
 
     // We try to rename a tag that doesn't exist
-    assert_eq!(repo.rename_tag("pikku", "peekaboo").await.unwrap(), None);
+    assert_matches!(
+        repo.rename_tag("pikku", "peekaboo").await.unwrap_err(),
+        gw2fashionista_storage::Error::NotFound
+    );
 
     // We ensure the tag hasn't been created or the existing tags updated
     let tags = repo

@@ -12,15 +12,15 @@ use sqlx::types::uuid;
 pub trait Repository {
     async fn insert_fashion(&self, fashion: &Fashion) -> Result<Fashion>;
 
-    async fn update_fashion(&self, fashion: &Fashion) -> Result<Option<Fashion>>;
+    async fn update_fashion(&self, fashion: &Fashion) -> Result<Fashion>;
 
-    async fn get_fashion_by_id(&self, id: &uuid::Uuid) -> Result<Option<Fashion>>;
+    async fn get_fashion_by_id(&self, id: &uuid::Uuid) -> Result<Fashion>;
 
     async fn get_fashion_by_name(
         &self,
         name: &str,
         character: Option<&str>,
-    ) -> Result<Option<Fashion>>;
+    ) -> Result<Fashion>;
 
     async fn list_fashions(&self) -> Result<Vec<Fashion>>;
 
@@ -28,11 +28,11 @@ pub trait Repository {
 
     async fn ensure_tag(&self, name: &str) -> Result<Tag>;
 
-    async fn rename_tag(&self, from: &str, to: &str) -> crate::Result<Option<Tag>>;
+    async fn rename_tag(&self, from: &str, to: &str) -> crate::Result<Tag>;
 
-    async fn get_tag_by_id(&self, id: &uuid::Uuid) -> Result<Option<Tag>>;
+    async fn get_tag_by_id(&self, id: &uuid::Uuid) -> Result<Tag>;
 
-    async fn get_tag_by_name(&self, name: &str) -> Result<Option<Tag>>;
+    async fn get_tag_by_name(&self, name: &str) -> Result<Tag>;
 
     async fn list_tags(&self, filters: StringFilters) -> Result<Vec<Tag>>;
 
