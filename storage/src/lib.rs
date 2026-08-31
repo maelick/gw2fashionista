@@ -26,6 +26,8 @@ pub trait Repository {
 
     async fn ensure_tag(&self, name: &str) -> Result<Tag>;
 
+    async fn rename_tag(&self, from: &str, to: &str) -> crate::Result<Option<Tag>>;
+
     async fn get_tag_by_id(&self, id: &uuid::Uuid) -> Result<Option<Tag>>;
 
     async fn get_tag_by_name(&self, name: &str) -> Result<Option<Tag>>;

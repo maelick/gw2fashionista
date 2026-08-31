@@ -301,3 +301,82 @@ async fn test_crud_fashion_tags(pool: SqlitePool) {
         .unwrap();
     assert_eq!(&fetched_fashion2, fashion2);
 }
+
+#[sqlx::test]
+async fn test_rename_tag(pool: SqlitePool) {
+    let repo = sqlite::Repository::new(pool);
+
+    // We create two templates
+    let fashion1 = &repo
+        .insert_fashion(&Fashion::builder().name("fashion1").build())
+        .await
+        .unwrap();
+    let fashion2 = &repo
+        .insert_fashion(&Fashion::builder().name("fashion2").build())
+        .await
+        .unwrap();
+
+    // We create and add tags to the templates
+    repo.ensure_fashion_tags(std::iter::once(&fashion1.id.unwrap()), vec!["tag1", "tag2"])
+        .await
+        .unwrap();
+    repo.ensure_fashion_tags(std::iter::once(&fashion2.id.unwrap()), vec!["tag2", "tag3"])
+        .await
+        .unwrap();
+
+    // We ensure the templates have the right tags
+    let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag1", "tag2"]);
+    let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag2", "tag3"]);
+
+    // We rename tag1 to tag1new
+    let updated_tag1 = repo.rename_tag("tag1", "tag1new").await.unwrap().unwrap();
+
+    // We ensure the tag has been updated
+    assert!(updated_tag1.updated_at.unwrap() > updated_tag1.created_at.unwrap());
+
+    let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag1new", "tag2"]);
+    let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag2", "tag3"]);
+
+    // We try to rename tag2 to tag3
+    assert_eq!(repo.rename_tag("tag2", "tag3").await.unwrap(), None);
+
+    // We ensure the tag hasn't been updated
+    let tag2 = repo.get_tag_by_name("tag2").await.unwrap().unwrap();
+    assert_eq!(tag2.updated_at.unwrap(), tag2.created_at.unwrap());
+
+    let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag1new", "tag2"]);
+    let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag2", "tag3"]);
+
+    // We rename tag2 to tag2new
+    let updated_tag2 = repo.rename_tag("tag2", "tag2new").await.unwrap().unwrap();
+
+    // We ensure the tag has been updated
+    assert!(updated_tag2.updated_at.unwrap() > updated_tag2.created_at.unwrap());
+
+    let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag1new", "tag2new"]);
+    let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag2new", "tag3"]);
+
+    // We try to rename a tag that doesn't exist
+    assert_eq!(repo.rename_tag("pikku", "peekaboo").await.unwrap(), None);
+
+    // We ensure the tag hasn't been created or the existing tags updated
+    let tags = repo
+        .list_tags(StringFilters::builder().build())
+        .await
+        .unwrap();
+    let tags: Vec<_> = tags.iter().map(|t| &t.name).collect();
+    assert_eq!(tags, vec!["tag1new", "tag2new", "tag3"]);
+
+    let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag1new", "tag2new"]);
+    let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag2new", "tag3"]);
+}

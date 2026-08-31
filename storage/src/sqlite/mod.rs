@@ -1,6 +1,9 @@
 use async_trait::async_trait;
 use gw2fashionista_core::domain::{fashion::Fashion, tag::Tag};
-use sqlx::{QueryBuilder, Sqlite, SqliteConnection, SqlitePool, types::uuid};
+use sqlx::{
+    QueryBuilder, Sqlite, SqliteConnection, SqlitePool,
+    types::{chrono, uuid},
+};
 
 use crate::StringFilters;
 
@@ -52,6 +55,11 @@ impl crate::Repository for Repository {
         let tag = ensure_tag(&mut tx, name).await?;
         tx.commit().await?;
         Ok(tag)
+    }
+
+    async fn rename_tag(&self, from: &str, to: &str) -> crate::Result<Option<Tag>> {
+        let mut conn = self.pool.acquire().await?;
+        rename_tag(&mut conn, from, to).await
     }
 
     async fn get_tag_by_id(&self, id: &uuid::Uuid) -> crate::Result<Option<Tag>> {
@@ -195,6 +203,25 @@ async fn ensure_tag(conn: &mut SqliteConnection, name: &str) -> crate::Result<Ta
             .await?
             .ok_or(crate::Error::NotFound) // should never happen
     }
+}
+
+async fn rename_tag(
+    conn: &mut SqliteConnection,
+    from: &str,
+    to: &str,
+) -> crate::Result<Option<Tag>> {
+    Ok(sqlx::query_as::<'_, _, models::Tag>(
+        r#"UPDATE OR IGNORE tag
+        SET name = ?, updated_at = ?
+        WHERE name = ?
+        RETURNING *"#,
+    )
+    .bind(to)
+    .bind(chrono::Utc::now())
+    .bind(from)
+    .fetch_optional(conn)
+    .await?
+    .map(Tag::from))
 }
 
 async fn get_tag_by_id(conn: &mut SqliteConnection, id: &uuid::Uuid) -> crate::Result<Option<Tag>> {
