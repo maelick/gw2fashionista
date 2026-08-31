@@ -26,6 +26,11 @@ impl crate::Repository for Repository {
         insert_fashion(&mut conn, fashion).await
     }
 
+    async fn update_fashion(&self, fashion: &Fashion) -> crate::Result<Option<Fashion>> {
+        let mut conn = self.pool.acquire().await?;
+        update_fashion(&mut conn, fashion).await
+    }
+
     async fn get_fashion_by_id(&self, id: &uuid::Uuid) -> crate::Result<Option<Fashion>> {
         let mut conn = self.pool.acquire().await?;
         get_fashion_by_id(&mut conn, id).await
@@ -138,6 +143,30 @@ async fn insert_fashion(conn: &mut SqliteConnection, fashion: &Fashion) -> crate
     .fetch_one(conn)
     .await?
     .try_into()
+}
+
+async fn update_fashion(
+    conn: &mut SqliteConnection,
+    fashion: &Fashion,
+) -> crate::Result<Option<Fashion>> {
+    let model: models::Fashion = fashion.into();
+    sqlx::query_as::<'_, _, models::Fashion>(
+        r#"UPDATE OR IGNORE fashion
+        SET name = ?, description = ?, character = ?, wardrobe_template = ?, travel_template = ?, updated_at = ?
+        WHERE id = ?
+        RETURNING *"#,
+    )
+    .bind(model.name)
+    .bind(model.description)
+    .bind(model.character)
+    .bind(model.wardrobe_template)
+    .bind(model.travel_template)
+    .bind(chrono::Utc::now())
+    .bind(model.id)
+    .fetch_optional(conn)
+    .await?
+    .map(Fashion::try_from)
+    .transpose()
 }
 
 async fn get_fashion_by_id(

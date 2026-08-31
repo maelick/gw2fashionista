@@ -12,6 +12,8 @@ use sqlx::types::uuid;
 pub trait Repository {
     async fn insert_fashion(&self, fashion: &Fashion) -> Result<Fashion>;
 
+    async fn update_fashion(&self, fashion: &Fashion) -> Result<Option<Fashion>>;
+
     async fn get_fashion_by_id(&self, id: &uuid::Uuid) -> Result<Option<Fashion>>;
 
     async fn get_fashion_by_name(

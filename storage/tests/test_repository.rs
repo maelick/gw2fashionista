@@ -1,7 +1,7 @@
 use gw2fashionista_core::domain::{chatlink::ChatLink, fashion::Fashion};
 use gw2fashionista_fixtures::{travel, wardrobe};
 use gw2fashionista_storage::{Repository, StringFilters, sqlite};
-use sqlx::SqlitePool;
+use sqlx::{SqlitePool, types::uuid};
 
 #[sqlx::test]
 async fn test_create_empty_fashion(pool: SqlitePool) {
@@ -11,7 +11,9 @@ async fn test_create_empty_fashion(pool: SqlitePool) {
     let fashion = Fashion::builder().name("empty_fashion").build();
     let created = &repo.insert_fashion(&fashion).await.unwrap();
 
-    // Assert that timestamps and templates are set
+    // Assert that timestamps are set and fields are not
+    assert!(created.description.is_none());
+    assert!(created.character.is_none());
     assert!(created.wardrobe_template.clone().unwrap().is_empty());
     assert!(created.travel_template.clone().unwrap().is_empty());
     assert_eq!(created.created_at.unwrap(), created.updated_at.unwrap());
@@ -63,7 +65,9 @@ async fn test_create_not_empty_fashion(pool: SqlitePool) {
         .build();
     let created = &repo.insert_fashion(&fashion).await.unwrap();
 
-    // Assert that timestamps and templates are set
+    // Assert that timestamps and fields are set
+    assert_eq!(created.description.clone().unwrap(), "description");
+    assert_eq!(created.character.clone().unwrap(), "Pikku Peekaboo");
     assert!(!created.wardrobe_template.clone().unwrap().is_empty());
     assert!(!created.travel_template.clone().unwrap().is_empty());
     assert_eq!(created.created_at.unwrap(), created.updated_at.unwrap());
@@ -88,6 +92,84 @@ async fn test_create_not_empty_fashion(pool: SqlitePool) {
 
     let listed_fashions = repo.list_fashions().await.unwrap();
     assert_eq!(listed_fashions, vec![created.clone()]);
+}
+
+#[sqlx::test]
+async fn test_update_fashion(pool: SqlitePool) {
+    let repo = sqlite::Repository::new(pool);
+
+    // We create a new empty template
+    let fashion = Fashion::builder().name("peekaboo").build();
+    let created = &repo.insert_fashion(&fashion).await.unwrap();
+
+    // We update it with fields
+    let fashion = Fashion::builder()
+        .id(created.id.unwrap())
+        .name("peekaboo")
+        .description("description")
+        .character("Pikku Peekaboo")
+        .wardrobe_template(
+            ChatLink::from_string(wardrobe::PEEKABOO_TEMPLATE.chat_link)
+                .unwrap()
+                .try_into()
+                .unwrap(),
+        )
+        .travel_template(
+            ChatLink::from_string(travel::PEEKABOO_TEMPLATE.chat_link)
+                .unwrap()
+                .try_into()
+                .unwrap(),
+        )
+        .tags(bon::vec!["hello"])
+        .build();
+    let updated = &repo.update_fashion(&fashion).await.unwrap().unwrap();
+
+    // Assert that timestamps are set and fields are not
+    assert_eq!(updated.description.clone().unwrap(), "description");
+    assert_eq!(updated.character.clone().unwrap(), "Pikku Peekaboo");
+    assert!(!updated.wardrobe_template.clone().unwrap().is_empty());
+    assert!(!updated.travel_template.clone().unwrap().is_empty());
+    assert!(updated.updated_at.unwrap() > updated.created_at.unwrap());
+
+    // We retrieve the updated template and ensure it is identical to the one returned by the update.
+    let retrieved = repo
+        .get_fashion_by_id(&updated.id.unwrap())
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(updated, &retrieved);
+
+    let retrieved_by_name = repo
+        .get_fashion_by_name("peekaboo", Some("Pikku Peekaboo"))
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(updated, &retrieved_by_name);
+
+    let listed_fashions = repo.list_fashions().await.unwrap();
+    assert_eq!(listed_fashions, vec![updated.clone()]);
+
+    // We update it back to empty
+    let fashion = Fashion::builder()
+        .id(created.id.unwrap())
+        .name("peekaboo")
+        .build();
+    let updated = &repo.update_fashion(&fashion).await.unwrap().unwrap();
+
+    // Assert that timestamps are set and fields are not
+    assert!(created.description.is_none());
+    assert!(created.character.is_none());
+    assert!(created.wardrobe_template.clone().unwrap().is_empty());
+    assert!(created.travel_template.clone().unwrap().is_empty());
+    assert!(updated.updated_at.unwrap() > updated.created_at.unwrap());
+
+    // We update a template that does not exist
+    let fashion = Fashion::builder()
+        .id(uuid::Uuid::now_v7())
+        .name("does not exist")
+        .build();
+    let updated = repo.update_fashion(&fashion).await.unwrap();
+    assert!(updated.is_none())
 }
 
 #[sqlx::test]
