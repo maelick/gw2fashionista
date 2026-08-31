@@ -424,7 +424,7 @@ async fn test_rename_tag(pool: SqlitePool) {
     assert_eq!(tags, vec!["tag2", "tag3"]);
 
     // We try to rename tag2 to tag3
-    assert_eq!(repo.rename_tag("tag2", "tag3").await.unwrap(), None);
+    repo.rename_tag("tag2", "tag3").await.unwrap_err();
 
     // We ensure the tag hasn't been updated
     let tag2 = repo.get_tag_by_name("tag2").await.unwrap().unwrap();

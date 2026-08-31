@@ -151,7 +151,7 @@ async fn update_fashion(
 ) -> crate::Result<Option<Fashion>> {
     let model: models::Fashion = fashion.into();
     sqlx::query_as::<'_, _, models::Fashion>(
-        r#"UPDATE OR IGNORE fashion
+        r#"UPDATE OR ABORT fashion
         SET name = ?, description = ?, character = ?, wardrobe_template = ?, travel_template = ?, updated_at = ?
         WHERE id = ?
         RETURNING *"#,
@@ -240,7 +240,7 @@ async fn rename_tag(
     to: &str,
 ) -> crate::Result<Option<Tag>> {
     Ok(sqlx::query_as::<'_, _, models::Tag>(
-        r#"UPDATE OR IGNORE tag
+        r#"UPDATE OR ABORT tag
         SET name = ?, updated_at = ?
         WHERE name = ?
         RETURNING *"#,
