@@ -12,29 +12,12 @@ CREATE TABLE fashion (
     UNIQUE (name, character)
 ) STRICT;
 
-CREATE TRIGGER update_fashion_updated_at
-AFTER UPDATE ON fashion
-FOR EACH ROW
-WHEN NEW.updated_at IS OLD.updated_at
-BEGIN
-    UPDATE fashion SET updated_at = (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) WHERE id = OLD.id;
-END;
-
 CREATE TABLE tag (
     id TEXT PRIMARY KEY, -- UUIDv7
     name TEXT NOT NULL UNIQUE COLLATE NOCASE,
     created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
     updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 ) STRICT;
-
-CREATE TRIGGER update_tag_updated_at
-AFTER UPDATE ON tag
-FOR EACH ROW
-WHEN NEW.updated_at IS OLD.updated_at
-BEGIN
-    UPDATE tag SET updated_at = (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) WHERE id = OLD.id;
-END;
-
 
 CREATE TABLE fashion_tag (
     fashion_id TEXT NOT NULL REFERENCES fashion(id) ON DELETE CASCADE,
@@ -43,4 +26,3 @@ CREATE TABLE fashion_tag (
 ) STRICT, WITHOUT ROWID;
 
 CREATE INDEX idx_fashion_tag_tag_id ON fashion_tag(tag_id);
-

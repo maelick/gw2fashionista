@@ -1,7 +1,4 @@
-use std::time::Duration;
-
 use sqlx::SqlitePool;
-use tokio::time::sleep;
 
 #[sqlx::test]
 async fn test_fashion_unique_constraints(pool: SqlitePool) {
@@ -86,58 +83,4 @@ async fn test_tag_unique_constraints(pool: SqlitePool) {
         .await
         .unwrap();
     assert_eq!(tags.count, 1);
-}
-
-#[sqlx::test]
-async fn test_character_update_timestamps(pool: SqlitePool) {
-    sqlx::query!(
-        "INSERT INTO fashion (id, name, wardrobe_template, travel_template) VALUES (?, ?, ?, ?)",
-        "1",
-        "test",
-        "[&wardrobe]",
-        "[&travel]"
-    )
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    sleep(Duration::from_millis(100)).await;
-
-    sqlx::query!(
-        "UPDATE fashion SET description = ? WHERE id = ?",
-        "Test",
-        "1"
-    )
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    let fashion = sqlx::query!("SELECT * FROM fashion")
-        .fetch_all(&pool)
-        .await
-        .unwrap();
-    assert_eq!(fashion.len(), 1);
-    assert!(fashion[0].updated_at > fashion[0].created_at);
-}
-
-#[sqlx::test]
-async fn test_tag_update_timestamps(pool: SqlitePool) {
-    sqlx::query!("INSERT INTO tag (id, name) VALUES (?, ?)", "1", "test")
-        .execute(&pool)
-        .await
-        .unwrap();
-
-    sleep(Duration::from_millis(100)).await;
-
-    sqlx::query!("UPDATE tag SET name = ? WHERE id = ?", "test2", "1")
-        .execute(&pool)
-        .await
-        .unwrap();
-
-    let tags = sqlx::query!("SELECT * FROM tag")
-        .fetch_all(&pool)
-        .await
-        .unwrap();
-    assert_eq!(tags.len(), 1);
-    assert!(tags[0].updated_at > tags[0].created_at);
 }
