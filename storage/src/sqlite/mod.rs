@@ -82,6 +82,26 @@ impl crate::Repository for Repository {
         list_tags(&mut conn, filters).await
     }
 
+    async fn replace_tags(
+        &self,
+        tags: impl IntoIterator<Item: Into<String>, IntoIter: Send> + Send,
+        with: &str,
+    ) -> crate::Result<()> {
+        let mut tx = self.pool.begin().await?;
+        let with_id = resolve_tag_id(&mut tx, with).await?;
+        for tag in tags.into_iter().map(Into::into) {
+            let tag_id = resolve_tag_id(&mut tx, &tag).await?;
+            replace_tag(&mut tx, &tag_id, &with_id).await?;
+        }
+        tx.commit().await?;
+        Ok(())
+    }
+
+    async fn clean_tags(&self) -> crate::Result<()> {
+        let mut conn = self.pool.acquire().await?;
+        clean_tags(&mut conn).await
+    }
+
     async fn get_fashion_tags(&self, fashion_id: &uuid::Uuid) -> crate::Result<Vec<String>> {
         let mut conn = self.pool.acquire().await?;
         get_fashion_tags(&mut conn, fashion_id).await
@@ -273,6 +293,13 @@ async fn get_tag_by_name(conn: &mut SqliteConnection, name: &str) -> crate::Resu
     )
 }
 
+async fn resolve_tag_id(conn: &mut SqliteConnection, name: &str) -> crate::Result<uuid::Uuid> {
+    let res = sqlx::query!(r#"SELECT id FROM tag WHERE name = ?"#, name)
+        .fetch_one(conn)
+        .await?;
+    Ok(res.id.try_into()?)
+}
+
 async fn list_tags(conn: &mut SqliteConnection, filters: StringFilters) -> crate::Result<Vec<Tag>> {
     Ok(list_tags_query(filters.patterns())
         .build_query_as::<'_, models::Tag>()
@@ -281,6 +308,35 @@ async fn list_tags(conn: &mut SqliteConnection, filters: StringFilters) -> crate
         .into_iter()
         .map(Tag::from)
         .collect())
+}
+
+async fn replace_tag(
+    conn: &mut SqliteConnection,
+    tag: &uuid::Uuid,
+    with: &uuid::Uuid,
+) -> crate::Result<()> {
+    sqlx::query!(
+        r#"UPDATE OR REPLACE fashion_tag
+        SET tag_id = ?
+        WHERE tag_id = ?"#,
+        with.hyphenated(),
+        tag.hyphenated(),
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+async fn clean_tags(conn: &mut SqliteConnection) -> crate::Result<()> {
+    sqlx::query!(
+        r#"DELETE FROM tag
+        WHERE NOT EXISTS (
+            SELECT 1 FROM fashion_tag WHERE fashion_tag.tag_id = tag.id
+        )"#
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 fn list_tags_query(patterns: impl Iterator<Item = String>) -> QueryBuilder<Sqlite> {

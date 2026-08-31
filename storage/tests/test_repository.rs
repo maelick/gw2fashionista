@@ -1,3 +1,5 @@
+use std::assert_matches;
+
 use gw2fashionista_core::domain::{chatlink::ChatLink, fashion::Fashion};
 use gw2fashionista_fixtures::{travel, wardrobe};
 use gw2fashionista_storage::{Repository, StringFilters, sqlite};
@@ -478,4 +480,153 @@ async fn test_rename_tag(pool: SqlitePool) {
     assert_eq!(tags, vec!["tag1new", "tag2new"]);
     let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
     assert_eq!(tags, vec!["tag2new", "tag3"]);
+}
+
+#[sqlx::test]
+async fn test_replace_tags(pool: SqlitePool) {
+    let repo = sqlite::Repository::new(pool);
+
+    // We create two templates
+    let fashion1 = &repo
+        .insert_fashion(&Fashion::builder().name("fashion1").build())
+        .await
+        .unwrap();
+    let fashion2 = &repo
+        .insert_fashion(&Fashion::builder().name("fashion2").build())
+        .await
+        .unwrap();
+
+    // We create and add tags to the templates
+    repo.ensure_fashion_tags(std::iter::once(&fashion1.id.unwrap()), vec!["tag1", "tag2"])
+        .await
+        .unwrap();
+    repo.ensure_fashion_tags(std::iter::once(&fashion2.id.unwrap()), vec!["tag2", "tag3"])
+        .await
+        .unwrap();
+    repo.upsert_tag("tag4").await.unwrap();
+
+    // We ensure the templates have the right tags
+    let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag1", "tag2"]);
+    let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag2", "tag3"]);
+
+    // We replace tag1 with tag4
+    repo.replace_tags(std::iter::once("tag1"), "tag4")
+        .await
+        .unwrap();
+
+    let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag2", "tag4"]);
+    let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag2", "tag3"]);
+
+    // We replace tag4 with tag2
+    repo.replace_tags(std::iter::once("tag4"), "tag2")
+        .await
+        .unwrap();
+
+    let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag2"]);
+    let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag2", "tag3"]);
+
+    // We replace tag2 with tag1
+    repo.replace_tags(std::iter::once("tag2"), "tag1")
+        .await
+        .unwrap();
+
+    let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag1"]);
+    let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag1", "tag3"]);
+
+    // We replace tag3 with tag5 (does not exist)
+    let err = repo
+        .replace_tags(std::iter::once("tag3"), "tag5")
+        .await
+        .unwrap_err();
+    assert_matches!(err, gw2fashionista_storage::Error::NotFound);
+
+    let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag1"]);
+    let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag1", "tag3"]);
+
+    // We replace tag5 (does not exist) with tag3
+    let err = repo
+        .replace_tags(std::iter::once("tag5"), "tag3")
+        .await
+        .unwrap_err();
+    assert_matches!(err, gw2fashionista_storage::Error::NotFound);
+
+    let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag1"]);
+    let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag1", "tag3"]);
+
+    // We replace tag3 with tag2 (still exist)
+    repo.replace_tags(std::iter::once("tag3"), "tag2")
+        .await
+        .unwrap();
+
+    let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag1"]);
+    let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag1", "tag2"]);
+
+    // List the tags
+    let tags = repo
+        .list_tags(StringFilters::builder().build())
+        .await
+        .unwrap();
+    let tags: Vec<_> = tags.iter().map(|t| &t.name).collect();
+    assert_eq!(tags, vec!["tag1", "tag2", "tag3", "tag4"]);
+}
+
+#[sqlx::test]
+async fn test_clean_tags(pool: SqlitePool) {
+    let repo = sqlite::Repository::new(pool);
+
+    // We create two templates
+    let fashion1 = &repo
+        .insert_fashion(&Fashion::builder().name("fashion1").build())
+        .await
+        .unwrap();
+    let fashion2 = &repo
+        .insert_fashion(&Fashion::builder().name("fashion2").build())
+        .await
+        .unwrap();
+
+    // We create and add tags to the templates + create one unused tag
+    repo.ensure_fashion_tags(std::iter::once(&fashion1.id.unwrap()), vec!["tag1", "tag2"])
+        .await
+        .unwrap();
+    repo.ensure_fashion_tags(std::iter::once(&fashion2.id.unwrap()), vec!["tag2", "tag3"])
+        .await
+        .unwrap();
+    repo.upsert_tag("tag4").await.unwrap();
+
+    // We assert there are 4 tags
+    let tags = repo
+        .list_tags(StringFilters::builder().build())
+        .await
+        .unwrap();
+    let tags: Vec<_> = tags.iter().map(|t| &t.name).collect();
+    assert_eq!(tags, vec!["tag1", "tag2", "tag3", "tag4"]);
+
+    // We clean the tags and asserts that tag4 was cleaned
+    repo.clean_tags().await.unwrap();
+    let tags = repo
+        .list_tags(StringFilters::builder().build())
+        .await
+        .unwrap();
+    let tags: Vec<_> = tags.iter().map(|t| &t.name).collect();
+    assert_eq!(tags, vec!["tag1", "tag2", "tag3"]);
+
+    // We ensure tagged templates are untouched
+    let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag1", "tag2"]);
+    let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag2", "tag3"]);
 }

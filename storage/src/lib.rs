@@ -36,6 +36,14 @@ pub trait Repository {
 
     async fn list_tags(&self, filters: StringFilters) -> Result<Vec<Tag>>;
 
+    async fn replace_tags(
+        &self,
+        tags: impl IntoIterator<Item: Into<String>, IntoIter: Send> + Send,
+        with: &str,
+    ) -> Result<()>;
+
+    async fn clean_tags(&self) -> Result<()>;
+
     async fn get_fashion_tags(&self, fashion_id: &uuid::Uuid) -> Result<Vec<String>>;
 
     async fn ensure_fashion_tags(

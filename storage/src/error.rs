@@ -1,11 +1,15 @@
 use gw2fashionista_core::domain::error::ChatLinkError;
+use sqlx::types::uuid;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("fashion not found")]
+    #[error("not found")]
     NotFound,
+
+    #[error("id is not a valid UUID")]
+    InvalidId(#[from] uuid::Error),
 
     #[error("database constraint violation")]
     Conflict(#[source] sqlx::Error),
@@ -19,10 +23,10 @@ pub enum Error {
 
 impl From<sqlx::Error> for Error {
     fn from(err: sqlx::Error) -> Self {
-        if matches!(&err, sqlx::Error::Database(db) if db.is_unique_violation()) {
-            Self::Conflict(err)
-        } else {
-            Self::Database(err)
+        match &err {
+            sqlx::Error::Database(db_err) if db_err.is_unique_violation() => Self::Conflict(err),
+            sqlx::Error::RowNotFound => Self::NotFound,
+            _ => Self::Database(err),
         }
     }
 }
