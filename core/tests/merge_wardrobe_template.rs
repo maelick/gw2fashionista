@@ -1,18 +1,18 @@
-use gw2fashionista_core::domain::{chatlink::ChatLink, templates::wardrobe::WardrobeSlot};
+use gw2fashionista_core::domain::templates::wardrobe::{WardrobeSlot, WardrobeTemplate};
 use gw2fashionista_fixtures::wardrobe::{PEEKABOO_TEMPLATE, ZIZI_ARMOR_TEMPLATE};
 
 #[test]
 #[test_log::test]
 fn test_merge_peekaboo_with_zizi_armor() {
-    let chat_link = &ChatLink::try_from(PEEKABOO_TEMPLATE.chat_link).unwrap();
-    let ChatLink::WardrobeTemplate(base_template) = chat_link else {
-        panic!("Expected WardrobeTemplate, got {chat_link:?}");
-    };
+    let base_template = &PEEKABOO_TEMPLATE
+        .chat_link
+        .parse::<WardrobeTemplate>()
+        .unwrap();
 
-    let chat_link = &ChatLink::try_from(ZIZI_ARMOR_TEMPLATE.chat_link).unwrap();
-    let ChatLink::WardrobeTemplate(armor_template) = chat_link else {
-        panic!("Expected WardrobeTemplate, got {chat_link:?}");
-    };
+    let armor_template = &ZIZI_ARMOR_TEMPLATE
+        .chat_link
+        .parse::<WardrobeTemplate>()
+        .unwrap();
 
     let merged = base_template.merge(&armor_template, false, false);
 
@@ -37,15 +37,15 @@ fn test_merge_peekaboo_with_zizi_armor() {
 #[test]
 #[test_log::test]
 fn test_merge_peekaboo_with_zizi_armor_skins_only() {
-    let chat_link = &ChatLink::try_from(PEEKABOO_TEMPLATE.chat_link).unwrap();
-    let ChatLink::WardrobeTemplate(base_template) = chat_link else {
-        panic!("Expected WardrobeTemplate, got {chat_link:?}");
-    };
+    let base_template = &PEEKABOO_TEMPLATE
+        .chat_link
+        .parse::<WardrobeTemplate>()
+        .unwrap();
 
-    let chat_link = &ChatLink::try_from(ZIZI_ARMOR_TEMPLATE.chat_link).unwrap();
-    let ChatLink::WardrobeTemplate(armor_template) = chat_link else {
-        panic!("Expected WardrobeTemplate, got {chat_link:?}");
-    };
+    let armor_template = &ZIZI_ARMOR_TEMPLATE
+        .chat_link
+        .parse::<WardrobeTemplate>()
+        .unwrap();
 
     let merged = base_template.merge(&armor_template, false, true);
 
@@ -75,15 +75,15 @@ fn test_merge_peekaboo_with_zizi_armor_skins_only() {
 #[test]
 #[test_log::test]
 fn test_merge_peekaboo_with_zizi_armor_dyes_only() {
-    let chat_link = &ChatLink::try_from(PEEKABOO_TEMPLATE.chat_link).unwrap();
-    let ChatLink::WardrobeTemplate(base_template) = chat_link else {
-        panic!("Expected WardrobeTemplate, got {chat_link:?}");
-    };
+    let base_template = &PEEKABOO_TEMPLATE
+        .chat_link
+        .parse::<WardrobeTemplate>()
+        .unwrap();
 
-    let chat_link = &ChatLink::try_from(ZIZI_ARMOR_TEMPLATE.chat_link).unwrap();
-    let ChatLink::WardrobeTemplate(armor_template) = chat_link else {
-        panic!("Expected WardrobeTemplate, got {chat_link:?}");
-    };
+    let armor_template = &ZIZI_ARMOR_TEMPLATE
+        .chat_link
+        .parse::<WardrobeTemplate>()
+        .unwrap();
 
     let merged = base_template.merge(&armor_template, true, false);
 

@@ -3,7 +3,7 @@ use std::{
     collections::{HashMap, HashSet},
     fmt,
     hash::Hash,
-    io::Cursor,
+    io::{self, Cursor},
 };
 
 use byteorder::{LittleEndian, WriteBytesExt};
@@ -125,32 +125,11 @@ impl<S: FashionSlot> Template<S> {
         HashSet::from_iter(dyes)
     }
 
-    pub fn from_bytes(bytes: &[u8]) -> Result<Self, ChatLinkError> {
-        if bytes.len() != Self::payload_size() {
-            return Err(ChatLinkError::TruncatedData(bytes.to_vec()));
-        }
-
-        let visibility = Self::read_visibility(bytes)?;
-        let mut cursor = Cursor::new(bytes);
-
-        Ok(Self {
-            slots: static_map! {
-                slot => Appearance::read(
-                    &mut cursor,
-                    slot.dyeable(),
-                    slot.is_visible(visibility),
-                )?
-            },
-        })
-    }
-
-    pub fn serialize(&self) -> Result<Vec<u8>, std::io::Error> {
-        let mut buffer = Vec::with_capacity(Self::payload_size());
+    pub fn encode<T: io::Write + ?Sized>(&self, buffer: &mut T) -> Result<(), io::Error> {
         for (_, slot) in self {
-            slot.serialize(&mut buffer)?;
+            slot.encode(buffer)?;
         }
-        buffer.write_u16::<LittleEndian>(self.visibility())?;
-        Ok(buffer)
+        buffer.write_u16::<LittleEndian>(self.visibility())
     }
 
     fn read_visibility(bytes: &[u8]) -> Result<u16, ChatLinkError> {
@@ -196,15 +175,32 @@ impl<S: FashionSlot> TryFrom<&[u8]> for Template<S> {
     type Error = ChatLinkError;
 
     fn try_from(bytes: &[u8]) -> Result<Self, ChatLinkError> {
-        Self::from_bytes(bytes)
+        if bytes.len() != Self::payload_size() {
+            return Err(ChatLinkError::TruncatedData(bytes.to_vec()));
+        }
+
+        let visibility = Self::read_visibility(bytes)?;
+        let mut cursor = Cursor::new(bytes);
+
+        Ok(Self {
+            slots: static_map! {
+                slot => Appearance::read(
+                    &mut cursor,
+                    slot.dyeable(),
+                    slot.is_visible(visibility),
+                )?
+            },
+        })
     }
 }
 
-impl<S: FashionSlot> TryFrom<&Template<S>> for Vec<u8> {
-    type Error = std::io::Error;
-
-    fn try_from(template: &Template<S>) -> Result<Self, std::io::Error> {
-        template.serialize()
+impl<S: FashionSlot> From<&Template<S>> for Vec<u8> {
+    fn from(template: &Template<S>) -> Self {
+        let mut buffer = Vec::with_capacity(Template::<S>::payload_size());
+        template
+            .encode(&mut buffer)
+            .expect("writing to a Vec<u8> cannot fail");
+        buffer
     }
 }
 

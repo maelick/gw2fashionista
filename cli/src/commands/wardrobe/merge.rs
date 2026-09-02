@@ -1,7 +1,8 @@
 use async_trait::async_trait;
 use clap::Args;
 
-use gw2fashionista_core::domain::{chatlink::ChatLink, error::ChatLinkError};
+use gw2fashionista_core::domain::chatlink::ChatLink;
+use gw2fashionista_core::domain::templates::wardrobe::WardrobeTemplate;
 
 use crate::commands;
 use crate::commands::args;
@@ -30,16 +31,9 @@ impl commands::Command for Command {
 
     #[tracing::instrument(name = "wardrobe-merge", skip_all)]
     async fn execute(&self) -> anyhow::Result<()> {
-        let base_template = match ChatLink::try_from(self.base_wardrobe_template.as_str())? {
-            ChatLink::WardrobeTemplate(wardrobe_template) => Ok(wardrobe_template),
-            _ => Err(ChatLinkError::NotImplemented),
-        }?;
-
+        let base_template: WardrobeTemplate = self.base_wardrobe_template.parse()?;
         let filter = (&self.filters).into();
-        let new_template = match ChatLink::try_from(self.new_wardrobe_template.as_str())? {
-            ChatLink::WardrobeTemplate(wardrobe_template) => Ok(wardrobe_template),
-            _ => Err(ChatLinkError::NotImplemented),
-        }?;
+        let new_template: WardrobeTemplate = self.new_wardrobe_template.parse()?;
 
         let new_template = new_template.filter(&filter);
         let merged = base_template.merge(
@@ -48,7 +42,7 @@ impl commands::Command for Command {
             self.skin_dyes_only.no_dyes,
         );
 
-        println!("{}", ChatLink::WardrobeTemplate(merged).to_string()?);
+        println!("{}", ChatLink::WardrobeTemplate(merged));
         Ok(())
     }
 }

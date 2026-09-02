@@ -16,7 +16,7 @@ use serde_json::Deserializer;
 const BASE64_RE: &str = r"[-A-Za-z0-9+/]*={0,3}";
 
 static CHAT_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    let pattern = format!(r"^\[?&?({})\]?$", BASE64_RE);
+    let pattern = format!(r"^\[&({})\]$", BASE64_RE);
     Regex::new(&pattern).unwrap()
 });
 

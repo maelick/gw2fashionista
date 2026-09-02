@@ -1,4 +1,3 @@
-use gw2fashionista_core::domain::chatlink::ChatLink;
 use gw2fashionista_core::domain::templates::wardrobe::{WardrobeSlot, WardrobeTemplate};
 use gw2fashionista_core::gw2::resolve::Resolver;
 use gw2fashionista_core::models::skin::Skin;
@@ -11,7 +10,10 @@ use gw2fashionista_fixtures::wardrobe::{EMPTY_TEMPLATE, ZIZI_ARMOR_TEMPLATE, ZIZ
 #[test_log::test]
 async fn test_resolve_empty() {
     let resolver = Resolver::default();
-    let template = &parse_template(EMPTY_TEMPLATE.chat_link);
+    let template = &EMPTY_TEMPLATE
+        .chat_link
+        .parse::<WardrobeTemplate>()
+        .unwrap();
 
     resolver.cache_template(template).await.unwrap();
 
@@ -23,7 +25,7 @@ async fn test_resolve_empty() {
 #[test_log::test]
 async fn test_resolve_zizi_armor() {
     let resolver = Resolver::default();
-    let template = &parse_template(ZIZI_ARMOR_TEMPLATE.chat_link);
+    let template = &ZIZI_ARMOR_TEMPLATE.chat_link.parse().unwrap();
 
     resolver.cache_template(template).await.unwrap();
 
@@ -45,7 +47,7 @@ async fn test_resolve_zizi_armor() {
 #[test_log::test]
 async fn test_resolve_zizi() {
     let resolver = Resolver::default();
-    let template = &parse_template(ZIZI_TEMPLATE.chat_link);
+    let template = &ZIZI_TEMPLATE.chat_link.parse().unwrap();
 
     resolver.cache_template(template).await.unwrap();
 
@@ -185,12 +187,4 @@ fn assert_dyeable_skin(
     assert_eq!(d2.name.clone().unwrap(), dye2_name);
     assert_eq!(d3.name.clone().unwrap(), dye3_name);
     assert_eq!(d4.name.clone().unwrap(), dye4_name);
-}
-
-fn parse_template(raw_chat_link: &str) -> WardrobeTemplate {
-    let chat_link = ChatLink::try_from(raw_chat_link).unwrap();
-    let ChatLink::WardrobeTemplate(template) = chat_link else {
-        panic!("Expected WardrobeTemplate, got {chat_link:?}");
-    };
-    template
 }

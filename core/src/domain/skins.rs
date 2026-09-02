@@ -282,7 +282,7 @@ impl Appearance {
         }
     }
 
-    pub fn serialize(&self, buffer: &mut dyn std::io::Write) -> Result<(), std::io::Error> {
+    pub fn encode<T: std::io::Write + ?Sized>(&self, buffer: &mut T) -> Result<(), std::io::Error> {
         match self {
             Appearance::NonDyeable { skin, visible: _ } => {
                 buffer.write_u16::<LittleEndian>((*skin).into())?;

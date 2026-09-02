@@ -4,7 +4,7 @@ use clap::Args;
 use crate::commands;
 use crate::commands::wardrobe::args::WardrobeFilters;
 
-use gw2fashionista_core::domain::{chatlink::ChatLink, error::ChatLinkError};
+use gw2fashionista_core::domain::{chatlink::ChatLink, templates::wardrobe::WardrobeTemplate};
 
 #[derive(Args, Debug)]
 pub struct Command {
@@ -23,15 +23,11 @@ impl commands::Command for Command {
 
     #[tracing::instrument(name = "wardrobe-filter", skip_all)]
     async fn execute(&self) -> anyhow::Result<()> {
-        let link = ChatLink::try_from(self.wardrobe_template.as_str())?;
-        let template = match link {
-            ChatLink::WardrobeTemplate(wardrobe_template) => Ok(wardrobe_template),
-            _ => Err(ChatLinkError::NotImplemented),
-        }?;
+        let template: WardrobeTemplate = self.wardrobe_template.parse()?;
 
         let filter = (&self.filters).into();
         let filtered = ChatLink::WardrobeTemplate(template.filter(&filter));
-        println!("{}", filtered.to_string()?);
+        println!("{}", filtered);
         Ok(())
     }
 }

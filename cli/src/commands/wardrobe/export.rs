@@ -143,7 +143,7 @@ impl ExportedEquipment {
             char_name: equipment.char_name.clone(),
             tab_id: equipment.tab_id,
             tab_name: equipment.tab_name.clone(),
-            fashion_link: chat_link.to_string()?,
+            fashion_link: chat_link.to_string(),
         })
     }
 
