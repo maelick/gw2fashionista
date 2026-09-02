@@ -27,7 +27,7 @@ impl commands::Command for Command {
 
         let filter = (&self.filters).into();
         let filtered = ChatLink::WardrobeTemplate(template.filter(&filter));
-        println!("{}", filtered.to_string()?);
+        println!("{}", filtered);
         Ok(())
     }
 }

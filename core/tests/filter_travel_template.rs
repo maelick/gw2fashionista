@@ -18,9 +18,8 @@ fn test_filter_kaboom() {
     let filtered = template.filter(&filter);
 
     let filtered_link = &ChatLink::TravelTemplate(filtered);
-    let filtered_link: String = filtered_link.try_into().unwrap();
     assert_eq!(
-        filtered_link,
+        filtered_link.to_string(),
         format!("[&{}]", KABOOM_MOUNTS_TEMPLATE.chat_link)
     );
 }

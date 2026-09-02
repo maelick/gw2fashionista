@@ -42,7 +42,7 @@ impl commands::Command for Command {
             self.skin_dyes_only.no_dyes,
         );
 
-        println!("{}", ChatLink::TravelTemplate(merged).to_string()?);
+        println!("{}", ChatLink::TravelTemplate(merged));
         Ok(())
     }
 }

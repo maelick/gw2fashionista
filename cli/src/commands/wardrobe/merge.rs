@@ -42,7 +42,7 @@ impl commands::Command for Command {
             self.skin_dyes_only.no_dyes,
         );
 
-        println!("{}", ChatLink::WardrobeTemplate(merged).to_string()?);
+        println!("{}", ChatLink::WardrobeTemplate(merged));
         Ok(())
     }
 }

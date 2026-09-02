@@ -26,7 +26,7 @@ impl commands::Command for Command {
         let template: TravelTemplate = self.travel_template.parse()?;
         let filter = (&self.filters).into();
         let filtered = ChatLink::TravelTemplate(template.filter(&filter));
-        println!("{}", filtered.to_string()?);
+        println!("{}", filtered);
         Ok(())
     }
 }

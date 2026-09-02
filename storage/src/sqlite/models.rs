@@ -89,11 +89,7 @@ where
 {
     template
         .filter(|t| !t.is_empty())
-        .map(|t| {
-            ChatLink::from(t)
-                .to_string()
-                .expect("ChatLink serialization should be infallible for supported FashionSlot")
-        })
+        .map(|t| ChatLink::from(t).to_string())
         .unwrap_or_default()
 }
 

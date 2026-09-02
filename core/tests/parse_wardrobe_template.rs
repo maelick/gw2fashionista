@@ -100,8 +100,7 @@ fn test_parse_empty() {
 
     assert_matches!(result_with_brackets, ChatLink::WardrobeTemplate(actual) if actual == &expected_template);
 
-    let actual_encoded: String = result_with_brackets.try_into().unwrap();
-    assert_eq!(actual_encoded, raw_with_brackets);
+    assert_eq!(result_with_brackets.to_string(), raw_with_brackets);
 }
 
 #[test]
@@ -206,8 +205,7 @@ fn test_parse_zizi() {
         }
     }
 
-    let actual_encoded: String = result.try_into().unwrap();
-    assert_eq!(actual_encoded, raw);
+    assert_eq!(result.to_string(), raw);
 }
 
 #[test]
@@ -299,8 +297,7 @@ fn test_parse_zizi_armor_only() {
         }
     }
 
-    let actual_encoded: String = result.try_into().unwrap();
-    assert_eq!(actual_encoded, raw);
+    assert_eq!(result.to_string(), raw);
 }
 
 fn empty_skin(slot: WardrobeSlot) -> Appearance {

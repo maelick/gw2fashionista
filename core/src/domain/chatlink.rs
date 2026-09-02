@@ -44,22 +44,12 @@ pub enum ChatLinkType {
 
 #[derive(Debug)]
 pub enum ChatLink {
-    Coin,
-    Item,
-    NPCText,
-    MapLink,
-    PvPGame,
-    Skill,
-    Trait,
-    User,
-    Recipe,
-    Wardrobe,
-    Outfit,
-    WvWObjective,
-    BuildTemplate,
-    Achievement,
     WardrobeTemplate(WardrobeTemplate),
     TravelTemplate(TravelTemplate),
+    Other {
+        link_type: ChatLinkType,
+        bytes: Vec<u8>,
+    },
 }
 
 impl ChatLink {
@@ -77,29 +67,14 @@ impl ChatLink {
         }
     }
 
-    pub fn to_string(&self) -> Result<String, ChatLinkError> {
-        let serialized = SerializedChatLink::from_chat_link(self)?;
-        Ok(serialized.to_string())
-    }
-
     pub fn link_type(&self) -> ChatLinkType {
         match self {
-            ChatLink::Coin => ChatLinkType::Coin,
-            ChatLink::Item => ChatLinkType::Item,
-            ChatLink::NPCText => ChatLinkType::NPCText,
-            ChatLink::MapLink => ChatLinkType::MapLink,
-            ChatLink::PvPGame => ChatLinkType::PvPGame,
-            ChatLink::Skill => ChatLinkType::Skill,
-            ChatLink::Trait => ChatLinkType::Trait,
-            ChatLink::User => ChatLinkType::User,
-            ChatLink::Recipe => ChatLinkType::Recipe,
-            ChatLink::Wardrobe => ChatLinkType::Wardrobe,
-            ChatLink::Outfit => ChatLinkType::Outfit,
-            ChatLink::WvWObjective => ChatLinkType::WvWObjective,
-            ChatLink::BuildTemplate => ChatLinkType::BuildTemplate,
-            ChatLink::Achievement => ChatLinkType::Achievement,
             ChatLink::WardrobeTemplate(_) => ChatLinkType::WardrobeTemplate,
             ChatLink::TravelTemplate(_) => ChatLinkType::TravelTemplate,
+            ChatLink::Other {
+                link_type,
+                bytes: _,
+            } => *link_type,
         }
     }
 }
@@ -113,20 +88,6 @@ pub struct SerializedChatLink {
 impl SerializedChatLink {
     pub fn new(link_type: ChatLinkType, bytes: Vec<u8>) -> Self {
         SerializedChatLink { link_type, bytes }
-    }
-
-    pub fn from_chat_link(chat_link: &ChatLink) -> Result<Self, ChatLinkError> {
-        match chat_link {
-            ChatLink::WardrobeTemplate(template) => {
-                let bytes = template.into();
-                Ok(Self::new(ChatLinkType::WardrobeTemplate, bytes))
-            }
-            ChatLink::TravelTemplate(template) => {
-                let bytes = template.into();
-                Ok(Self::new(ChatLinkType::TravelTemplate, bytes))
-            }
-            _ => Err(ChatLinkError::NotImplemented),
-        }
     }
 
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, ChatLinkError> {
@@ -148,6 +109,12 @@ impl Display for SerializedChatLink {
         let bytes = self.to_bytes();
         let b64_encoded = BASE64.encode(bytes);
         write!(f, "[&{}]", b64_encoded)
+    }
+}
+
+impl Display for ChatLink {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        SerializedChatLink::from(self).fmt(f)
     }
 }
 
@@ -198,7 +165,8 @@ where
 
 impl<S: FashionSlot> TryFrom<&str> for Template<S>
 where
-    Template<S>: TryFrom<ChatLink, Error = ChatLinkError>, {
+    Template<S>: TryFrom<ChatLink, Error = ChatLinkError>,
+{
     type Error = ChatLinkError;
 
     fn try_from(raw_chat_link: &str) -> Result<Self, Self::Error> {
@@ -222,14 +190,6 @@ impl FromStr for ChatLink {
     }
 }
 
-impl TryFrom<&ChatLink> for String {
-    type Error = ChatLinkError;
-
-    fn try_from(chat_link: &ChatLink) -> Result<Self, ChatLinkError> {
-        chat_link.to_string()
-    }
-}
-
 impl TryFrom<SerializedChatLink> for ChatLink {
     type Error = ChatLinkError;
 
@@ -238,11 +198,21 @@ impl TryFrom<SerializedChatLink> for ChatLink {
     }
 }
 
-impl TryFrom<&ChatLink> for SerializedChatLink {
-    type Error = ChatLinkError;
-
-    fn try_from(chat_link: &ChatLink) -> Result<Self, ChatLinkError> {
-        Self::from_chat_link(chat_link)
+impl From<&ChatLink> for SerializedChatLink {
+    fn from(chat_link: &ChatLink) -> Self {
+        match chat_link {
+            ChatLink::WardrobeTemplate(template) => {
+                let bytes = template.into();
+                SerializedChatLink::new(ChatLinkType::WardrobeTemplate, bytes)
+            }
+            ChatLink::TravelTemplate(template) => {
+                let bytes = template.into();
+                SerializedChatLink::new(ChatLinkType::TravelTemplate, bytes)
+            }
+            ChatLink::Other { link_type, bytes } => {
+                SerializedChatLink::new(*link_type, bytes.clone())
+            }
+        }
     }
 }
 
