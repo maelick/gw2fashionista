@@ -31,11 +31,9 @@ impl commands::Command for Command {
 
     #[tracing::instrument(name = "travel-merge", skip_all)]
     async fn execute(&self) -> anyhow::Result<()> {
-        let base_template: TravelTemplate =
-            ChatLink::try_from(self.base_travel_template.as_str())?.try_into()?;
+        let base_template: TravelTemplate = self.base_travel_template.parse()?;
         let filter = (&self.filters).into();
-        let new_template: TravelTemplate =
-            ChatLink::try_from(self.new_travel_template.as_str())?.try_into()?;
+        let new_template: TravelTemplate = self.new_travel_template.parse()?;
 
         let new_template = new_template.filter(&filter);
         let merged = base_template.merge(

@@ -23,8 +23,7 @@ impl commands::Command for Command {
 
     #[tracing::instrument(name = "wardrobe-filter", skip_all)]
     async fn execute(&self) -> anyhow::Result<()> {
-        let template: WardrobeTemplate =
-            ChatLink::try_from(self.wardrobe_template.as_str())?.try_into()?;
+        let template: WardrobeTemplate = self.wardrobe_template.parse()?;
 
         let filter = (&self.filters).into();
         let filtered = ChatLink::WardrobeTemplate(template.filter(&filter));

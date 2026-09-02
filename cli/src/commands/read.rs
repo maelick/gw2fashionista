@@ -113,7 +113,7 @@ impl Command {
     fn parse(&self, chat_links: &[String]) -> Result<Vec<ChatLink>, ChatLinkError> {
         let iter = chat_links
             .iter()
-            .map(|raw_link| (raw_link, ChatLink::try_from(raw_link.as_str())));
+            .map(|raw_link| (raw_link, raw_link.parse()));
         self.collect(iter, |link, err| {
             tracing::error!(message = "Error parsing chat link", chat_link = ?link, error = ?err);
         })

@@ -23,9 +23,7 @@ impl commands::Command for Command {
 
     #[tracing::instrument(name = "travel-filter", skip_all)]
     async fn execute(&self) -> anyhow::Result<()> {
-        let template: TravelTemplate =
-            ChatLink::try_from(self.travel_template.as_str())?.try_into()?;
-
+        let template: TravelTemplate = self.travel_template.parse()?;
         let filter = (&self.filters).into();
         let filtered = ChatLink::TravelTemplate(template.filter(&filter));
         println!("{}", filtered.to_string()?);

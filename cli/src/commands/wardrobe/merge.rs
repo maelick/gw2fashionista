@@ -31,12 +31,9 @@ impl commands::Command for Command {
 
     #[tracing::instrument(name = "wardrobe-merge", skip_all)]
     async fn execute(&self) -> anyhow::Result<()> {
-        let base_template: WardrobeTemplate =
-            ChatLink::try_from(self.base_wardrobe_template.as_str())?.try_into()?;
-
+        let base_template: WardrobeTemplate = self.base_wardrobe_template.parse()?;
         let filter = (&self.filters).into();
-        let new_template: WardrobeTemplate =
-            ChatLink::try_from(self.new_wardrobe_template.as_str())?.try_into()?;
+        let new_template: WardrobeTemplate = self.new_wardrobe_template.parse()?;
 
         let new_template = new_template.filter(&filter);
         let merged = base_template.merge(
