@@ -12,7 +12,7 @@ use crate::domain::templates::travel::TravelTemplate;
 use crate::domain::templates::wardrobe::WardrobeTemplate;
 use crate::domain::templates::{FashionSlot, Template};
 
-#[derive(IntoPrimitive, TryFromPrimitive, Debug, Copy, Clone)]
+#[derive(IntoPrimitive, TryFromPrimitive, Debug, Copy, Clone, PartialEq, Eq)]
 #[num_enum(error_type(name = ChatLinkError, constructor = ChatLinkError::UnknownType))]
 #[repr(u8)]
 pub enum ChatLinkType {
@@ -34,7 +34,7 @@ pub enum ChatLinkType {
     TravelTemplate = 0x10,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ChatLink {
     WardrobeTemplate(WardrobeTemplate),
     TravelTemplate(TravelTemplate),
