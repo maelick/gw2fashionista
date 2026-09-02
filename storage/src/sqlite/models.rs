@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use gw2fashionista_core::domain::{
     self,
     chatlink::ChatLink,
@@ -53,8 +55,8 @@ impl From<&domain::fashion::Fashion> for Fashion {
             name: fashion.name.clone(),
             description: fashion.description.clone().unwrap_or_default(),
             character: fashion.character.clone().unwrap_or_default(),
-            wardrobe_template: serialize_template(fashion.wardrobe_template.clone()),
-            travel_template: serialize_template(fashion.travel_template.clone()),
+            wardrobe_template: serialize_template(fashion.wardrobe_template.as_ref()),
+            travel_template: serialize_template(fashion.travel_template.as_ref()),
             created_at: fashion.created_at,
             updated_at: fashion.updated_at,
         }
@@ -83,13 +85,13 @@ where
     })
 }
 
-fn serialize_template<S: FashionSlot>(template: Option<Template<S>>) -> String
+fn serialize_template<S: FashionSlot>(template: Option<&Template<S>>) -> String
 where
-    ChatLink: From<Template<S>>,
+    Template<S>: Display,
 {
     template
         .filter(|t| !t.is_empty())
-        .map(|t| ChatLink::from(t).to_string())
+        .map(|t| t.to_string())
         .unwrap_or_default()
 }
 

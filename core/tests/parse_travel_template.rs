@@ -15,11 +15,11 @@ fn test_parse_not_chat_link() {
     let raw = "This is not a chat link";
 
     let result = raw.parse::<ChatLink>();
-    assert_matches!(result, Err(ChatLinkError::InvalidString));
+    assert_matches!(result, Err(ChatLinkError::InvalidBase64(_)));
 
     let raw_with_brackets = format!("[&{}]", raw);
     let result_with_brackets = raw_with_brackets.parse::<ChatLink>();
-    assert_matches!(result_with_brackets, Err(ChatLinkError::InvalidString));
+    assert_matches!(result_with_brackets, Err(ChatLinkError::InvalidBase64(_)));
 }
 
 #[test]

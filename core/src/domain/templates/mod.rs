@@ -3,7 +3,7 @@ use std::{
     collections::{HashMap, HashSet},
     fmt,
     hash::Hash,
-    io::Cursor,
+    io::{self, Cursor},
 };
 
 use byteorder::{LittleEndian, WriteBytesExt};
@@ -125,12 +125,9 @@ impl<S: FashionSlot> Template<S> {
         HashSet::from_iter(dyes)
     }
 
-    pub fn serialize<T: std::io::Write + ?Sized>(
-        &self,
-        buffer: &mut T,
-    ) -> Result<(), std::io::Error> {
+    pub fn encode<T: io::Write + ?Sized>(&self, buffer: &mut T) -> Result<(), io::Error> {
         for (_, slot) in self {
-            slot.serialize(buffer)?;
+            slot.encode(buffer)?;
         }
         buffer.write_u16::<LittleEndian>(self.visibility())
     }
@@ -201,7 +198,7 @@ impl<S: FashionSlot> From<&Template<S>> for Vec<u8> {
     fn from(template: &Template<S>) -> Self {
         let mut buffer = Vec::with_capacity(Template::<S>::payload_size());
         template
-            .serialize(&mut buffer)
+            .encode(&mut buffer)
             .expect("writing to a Vec<u8> cannot fail");
         buffer
     }

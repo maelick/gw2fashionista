@@ -1,24 +1,16 @@
 use std::fmt::Display;
+use std::io;
 use std::str::FromStr;
-use std::sync::LazyLock;
-
-use regex::Regex;
 
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64;
+use byteorder::WriteBytesExt;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 
 use crate::domain::error::ChatLinkError;
 use crate::domain::templates::travel::TravelTemplate;
 use crate::domain::templates::wardrobe::WardrobeTemplate;
 use crate::domain::templates::{FashionSlot, Template};
-
-const BASE64_RE: &str = r"[-A-Za-z0-9+/]*={0,3}";
-
-static CHAT_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    let pattern = format!(r"^\[?&?({})\]?$", BASE64_RE);
-    Regex::new(&pattern).unwrap()
-});
 
 #[derive(IntoPrimitive, TryFromPrimitive, Debug, Copy, Clone)]
 #[num_enum(error_type(name = ChatLinkError, constructor = ChatLinkError::UnknownType))]
@@ -63,44 +55,36 @@ impl ChatLink {
             } => *link_type,
         }
     }
-}
 
-#[derive(Debug)]
-pub struct SerializedChatLink {
-    link_type: ChatLinkType,
-    bytes: Vec<u8>,
-}
-
-impl SerializedChatLink {
-    pub fn new(link_type: ChatLinkType, bytes: Vec<u8>) -> Self {
-        SerializedChatLink { link_type, bytes }
+    pub fn encode<W: io::Write + ?Sized>(&self, w: &mut W) -> io::Result<()> {
+        w.write_u8(self.link_type().into())?;
+        self.encode_payload(w)
     }
 
-    pub fn from_bytes(bytes: &[u8]) -> Result<Self, ChatLinkError> {
-        let (header, payload) = bytes.split_first().ok_or(ChatLinkError::EmptyPayload)?;
-        let link_type = ChatLinkType::try_from(*header)?;
-        Ok(Self::new(link_type, payload.to_vec()))
-    }
-
-    pub fn to_bytes(&self) -> Vec<u8> {
-        let mut bytes = Vec::with_capacity(self.bytes.len() + 1);
-        bytes.push(self.link_type.into());
-        bytes.extend_from_slice(&self.bytes);
-        bytes
-    }
-}
-
-impl Display for SerializedChatLink {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let bytes = self.to_bytes();
-        let b64_encoded = BASE64.encode(bytes);
-        write!(f, "[&{}]", b64_encoded)
+    fn encode_payload<W: io::Write + ?Sized>(&self, w: &mut W) -> io::Result<()> {
+        match self {
+            Self::WardrobeTemplate(t) => t.encode(w),
+            Self::TravelTemplate(t) => t.encode(w),
+            Self::Unparsed { bytes, .. } => w.write_all(bytes),
+        }
     }
 }
 
 impl Display for ChatLink {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        SerializedChatLink::from(self).fmt(f)
+        encode_base64(self.link_type(), f, |w| self.encode_payload(w))
+    }
+}
+
+impl Display for WardrobeTemplate {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        encode_base64(ChatLinkType::WardrobeTemplate, f, |w| self.encode(w))
+    }
+}
+
+impl Display for TravelTemplate {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        encode_base64(ChatLinkType::TravelTemplate, f, |w| self.encode(w))
     }
 }
 
@@ -132,18 +116,6 @@ impl TryFrom<ChatLink> for TravelTemplate {
     }
 }
 
-impl From<WardrobeTemplate> for ChatLink {
-    fn from(template: WardrobeTemplate) -> Self {
-        ChatLink::WardrobeTemplate(template)
-    }
-}
-
-impl From<TravelTemplate> for ChatLink {
-    fn from(template: TravelTemplate) -> Self {
-        ChatLink::TravelTemplate(template)
-    }
-}
-
 impl<S: FashionSlot> FromStr for Template<S>
 where
     Template<S>: TryFrom<ChatLink, Error = ChatLinkError>,
@@ -155,109 +127,60 @@ where
     }
 }
 
-impl<S: FashionSlot> TryFrom<&str> for Template<S>
-where
-    Template<S>: TryFrom<ChatLink, Error = ChatLinkError>,
-{
-    type Error = ChatLinkError;
-
-    fn try_from(raw_chat_link: &str) -> Result<Self, Self::Error> {
-        raw_chat_link.parse()
-    }
-}
-
-impl TryFrom<&str> for ChatLink {
-    type Error = ChatLinkError;
-
-    fn try_from(raw_chat_link: &str) -> Result<Self, Self::Error> {
-        raw_chat_link.parse()
-    }
-}
-
 impl FromStr for ChatLink {
     type Err = ChatLinkError;
 
     fn from_str(raw_chat_link: &str) -> Result<Self, Self::Err> {
-        raw_chat_link.parse::<SerializedChatLink>()?.try_into()
-    }
-}
+        let decoded = decode_base64(raw_chat_link)?;
+        let (link_type, payload) = decode_header(&decoded)?;
 
-impl TryFrom<SerializedChatLink> for ChatLink {
-    type Error = ChatLinkError;
-
-    fn try_from(serialized: SerializedChatLink) -> Result<Self, ChatLinkError> {
-        Ok(match serialized.link_type {
+        Ok(match link_type {
             ChatLinkType::WardrobeTemplate => {
-                let template = WardrobeTemplate::try_from(serialized.bytes.as_slice())?;
+                let template = WardrobeTemplate::try_from(payload)?;
                 Self::WardrobeTemplate(template)
             }
             ChatLinkType::TravelTemplate => {
-                let template = TravelTemplate::try_from(serialized.bytes.as_slice())?;
+                let template = TravelTemplate::try_from(payload)?;
                 Self::TravelTemplate(template)
             }
             _ => Self::Unparsed {
-                link_type: serialized.link_type,
-                bytes: serialized.bytes.clone(),
+                link_type,
+                bytes: payload.to_vec(),
             },
         })
     }
 }
 
-impl From<&ChatLink> for SerializedChatLink {
-    fn from(chat_link: &ChatLink) -> Self {
-        match chat_link {
-            ChatLink::WardrobeTemplate(template) => {
-                let bytes = template.into();
-                SerializedChatLink::new(ChatLinkType::WardrobeTemplate, bytes)
-            }
-            ChatLink::TravelTemplate(template) => {
-                let bytes = template.into();
-                SerializedChatLink::new(ChatLinkType::TravelTemplate, bytes)
-            }
-            ChatLink::Unparsed { link_type, bytes } => {
-                SerializedChatLink::new(*link_type, bytes.clone())
-            }
-        }
-    }
+fn decode_base64(raw_chat_link: &str) -> Result<Vec<u8>, ChatLinkError> {
+    let base64_str = strip_delimiters(raw_chat_link)?;
+    Ok(BASE64.decode(base64_str)?)
 }
 
-impl TryFrom<&[u8]> for SerializedChatLink {
-    type Error = ChatLinkError;
-
-    fn try_from(bytes: &[u8]) -> Result<Self, ChatLinkError> {
-        Self::from_bytes(bytes)
-    }
+fn strip_delimiters(raw: &str) -> Result<&str, ChatLinkError> {
+    let inner = match raw.strip_prefix('[') {
+        Some(rest) => rest.strip_suffix(']').ok_or(ChatLinkError::InvalidString)?,
+        None if raw.ends_with(']') => return Err(ChatLinkError::InvalidString),
+        None => raw,
+    };
+    Ok(inner.strip_prefix('&').unwrap_or(inner))
 }
 
-impl TryFrom<&str> for SerializedChatLink {
-    type Error = ChatLinkError;
-
-    fn try_from(raw_chat_link: &str) -> Result<Self, ChatLinkError> {
-        raw_chat_link.parse()
-    }
+fn decode_header(decoded: &[u8]) -> Result<(ChatLinkType, &[u8]), ChatLinkError> {
+    let (header, payload) = decoded.split_first().ok_or(ChatLinkError::EmptyPayload)?;
+    Ok((ChatLinkType::try_from(*header)?, payload))
 }
 
-impl FromStr for SerializedChatLink {
-    type Err = ChatLinkError;
-
-    fn from_str(raw_chat_link: &str) -> Result<Self, Self::Err> {
-        let caps = CHAT_LINK_REGEX
-            .captures(raw_chat_link)
-            .ok_or(ChatLinkError::InvalidString)?;
-        let base64_str = caps.get(1).ok_or(ChatLinkError::InvalidString)?.as_str();
-        let decoded = BASE64.decode(base64_str)?;
-        Self::from_bytes(decoded.as_slice())
-    }
-}
-
-impl From<SerializedChatLink> for Vec<u8> {
-    fn from(chat_link: SerializedChatLink) -> Self {
-        chat_link.to_bytes()
-    }
-}
-
-impl From<SerializedChatLink> for String {
-    fn from(chat_link: SerializedChatLink) -> Self {
-        chat_link.to_string()
-    }
+fn encode_base64<F>(
+    link_type: ChatLinkType,
+    f: &mut std::fmt::Formatter<'_>,
+    encode_payload: F,
+) -> std::fmt::Result
+where
+    F: FnOnce(&mut dyn io::Write) -> io::Result<()>,
+{
+    let mut enc = base64::write::EncoderStringWriter::new(&BASE64);
+    enc.write_u8(link_type.into())
+        .and_then(|()| encode_payload(&mut enc))
+        .expect("writing to a String cannot fail");
+    write!(f, "[&{}]", enc.into_inner())
 }
