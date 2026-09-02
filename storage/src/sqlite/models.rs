@@ -1,8 +1,7 @@
 use std::fmt::Display;
 
-use gw2fashionista_chatlink::domain::{
-    chatlink::ChatLink,
-    error::ChatLinkError,
+use gw2fashionista_chatlink::{
+    ChatLink, ChatLinkError,
     templates::{FashionSlot, Template},
 };
 use gw2fashionista_core::{fashion, tag};

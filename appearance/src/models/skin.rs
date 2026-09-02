@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use gw2fashionista_chatlink::domain::skins;
+use gw2fashionista_chatlink::skins;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Skin {

@@ -1,6 +1,6 @@
 use std::assert_matches;
 
-use gw2fashionista_chatlink::domain::chatlink::ChatLink;
+use gw2fashionista_chatlink::ChatLink;
 use gw2fashionista_core::fashion::Fashion;
 use gw2fashionista_fixtures::{travel, wardrobe};
 use gw2fashionista_storage::{Repository, StringFilters, sqlite};

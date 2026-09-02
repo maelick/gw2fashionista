@@ -4,7 +4,7 @@ use clap::Args;
 use crate::commands;
 use crate::commands::wardrobe::args::WardrobeFilters;
 
-use gw2fashionista_chatlink::domain::{chatlink::ChatLink, templates::wardrobe::WardrobeTemplate};
+use gw2fashionista_chatlink::{ChatLink, templates::wardrobe::WardrobeTemplate};
 
 #[derive(Args, Debug)]
 pub struct Command {

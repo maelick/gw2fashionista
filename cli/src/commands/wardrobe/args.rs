@@ -3,7 +3,7 @@ use std::{str::FromStr, sync::LazyLock};
 use clap::{Args, ValueEnum, builder::TypedValueParser};
 use linearize::LinearizeExt;
 
-use gw2fashionista_chatlink::domain::templates::{
+use gw2fashionista_chatlink::templates::{
     SlotFilter, SlotFilterExt,
     wardrobe::{EquipmentCategory, WardrobeSlot},
 };

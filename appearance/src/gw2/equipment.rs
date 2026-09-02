@@ -5,7 +5,7 @@ use gw2lib::model::{
     items::ItemId,
 };
 
-use gw2fashionista_chatlink::domain::{
+use gw2fashionista_chatlink::{
     skins::{Appearance, DyeId, Dyes},
     templates::{
         FashionSlot,

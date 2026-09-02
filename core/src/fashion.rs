@@ -1,7 +1,7 @@
 use bon::Builder;
 use chrono::{DateTime, Utc};
 
-use gw2fashionista_chatlink::domain::templates::{
+use gw2fashionista_chatlink::templates::{
     travel::TravelTemplate, wardrobe::WardrobeTemplate,
 };
 

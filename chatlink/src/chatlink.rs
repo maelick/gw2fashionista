@@ -7,10 +7,10 @@ use base64::engine::general_purpose::STANDARD as BASE64;
 use byteorder::WriteBytesExt;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 
-use crate::domain::error::ChatLinkError;
-use crate::domain::templates::travel::TravelTemplate;
-use crate::domain::templates::wardrobe::WardrobeTemplate;
-use crate::domain::templates::{FashionSlot, Template};
+use crate::error::ChatLinkError;
+use crate::templates::travel::TravelTemplate;
+use crate::templates::wardrobe::WardrobeTemplate;
+use crate::templates::{FashionSlot, Template};
 
 #[derive(IntoPrimitive, TryFromPrimitive, Debug, Copy, Clone, PartialEq, Eq)]
 #[num_enum(error_type(name = ChatLinkError, constructor = ChatLinkError::UnknownType))]
