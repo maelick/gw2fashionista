@@ -17,11 +17,11 @@ use gw2fashionista_fixtures::wardrobe::{EMPTY_TEMPLATE, ZIZI_ARMOR_TEMPLATE, ZIZ
 fn test_parse_empty_link() {
     let raw = "";
 
-    let result = ChatLink::try_from(raw);
+    let result = raw.parse::<ChatLink>();
     assert_matches!(result, Err(ChatLinkError::EmptyPayload));
 
     let raw_with_brackets = format!("[&{}]", raw);
-    let result_with_brackets = ChatLink::try_from(raw_with_brackets.as_str());
+    let result_with_brackets = raw_with_brackets.parse::<ChatLink>();
     assert_matches!(result_with_brackets, Err(ChatLinkError::EmptyPayload));
 }
 
@@ -30,11 +30,11 @@ fn test_parse_empty_link() {
 fn test_parse_not_chat_link() {
     let raw = "This is not a chat link";
 
-    let result = ChatLink::try_from(raw);
+    let result = raw.parse::<ChatLink>();
     assert_matches!(result, Err(ChatLinkError::InvalidString));
 
     let raw_with_brackets = format!("[&{}]", raw);
-    let result_with_brackets = ChatLink::try_from(raw_with_brackets.as_str());
+    let result_with_brackets = raw_with_brackets.parse::<ChatLink>();
     assert_matches!(result_with_brackets, Err(ChatLinkError::InvalidString));
 }
 
@@ -43,11 +43,11 @@ fn test_parse_not_chat_link() {
 fn test_parse_invalid_base64() {
     let raw = "hello";
 
-    let result = ChatLink::try_from(raw);
+    let result = raw.parse::<ChatLink>();
     assert_matches!(result, Err(ChatLinkError::InvalidBase64(_)));
 
     let raw_with_brackets = format!("[&{}]", raw);
-    let result_with_brackets = ChatLink::try_from(raw_with_brackets.as_str());
+    let result_with_brackets = raw_with_brackets.parse::<ChatLink>();
     assert_matches!(result_with_brackets, Err(ChatLinkError::InvalidBase64(_)));
 }
 
@@ -56,11 +56,11 @@ fn test_parse_invalid_base64() {
 fn test_parse_invalid_link_type() {
     let raw = "abcd";
 
-    let result = ChatLink::try_from(raw);
+    let result = raw.parse::<ChatLink>();
     assert_matches!(result, Err(ChatLinkError::UnknownType(_)));
 
     let raw_with_brackets = format!("[&{}]", raw);
-    let result_with_brackets = ChatLink::try_from(raw_with_brackets.as_str());
+    let result_with_brackets = raw_with_brackets.parse::<ChatLink>();
     assert_matches!(result_with_brackets, Err(ChatLinkError::UnknownType(_)));
 }
 
@@ -69,11 +69,11 @@ fn test_parse_invalid_link_type() {
 fn test_parse_invalid_length() {
     let raw = "DwAAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAAAAAAAAAD/fw==";
 
-    let result = ChatLink::try_from(raw);
+    let result = raw.parse::<ChatLink>();
     assert_matches!(result, Err(ChatLinkError::TruncatedData(_)));
 
     let raw_with_brackets = format!("[&{}]", raw);
-    let result_with_brackets = ChatLink::try_from(raw_with_brackets.as_str());
+    let result_with_brackets = raw_with_brackets.parse::<ChatLink>();
     assert_matches!(result_with_brackets, Err(ChatLinkError::TruncatedData(_)));
 }
 
@@ -85,11 +85,7 @@ fn test_parse_empty() {
         .map(|slot| (slot, empty_skin(slot)))
         .collect();
     let expected_template = WardrobeTemplate::new(expected_slots);
-
-    let result = &ChatLink::try_from(raw).unwrap();
-    let ChatLink::WardrobeTemplate(actual) = result else {
-        panic!("Expected WardrobeTemplate, got {result:?}");
-    };
+    let actual = &raw.parse::<WardrobeTemplate>().unwrap();
 
     assert_eq!(actual, &expected_template);
     for (slot, appearance) in actual {
@@ -100,7 +96,7 @@ fn test_parse_empty() {
     }
 
     let raw_with_brackets = format!("[&{}]", raw);
-    let result_with_brackets = &ChatLink::try_from(raw_with_brackets.as_str()).unwrap();
+    let result_with_brackets = &raw_with_brackets.parse::<ChatLink>().unwrap();
 
     assert_matches!(result_with_brackets, ChatLink::WardrobeTemplate(actual) if actual == &expected_template);
 
@@ -112,7 +108,7 @@ fn test_parse_empty() {
 #[test_log::test]
 fn test_parse_zizi() {
     let raw = format!("[&{}]", ZIZI_TEMPLATE.chat_link);
-    let result = &ChatLink::try_from(raw.as_str()).unwrap();
+    let result = &raw.parse::<ChatLink>().unwrap();
 
     let ChatLink::WardrobeTemplate(actual) = result else {
         panic!("Expected WardrobeTemplate, got {result:?}");
@@ -218,7 +214,7 @@ fn test_parse_zizi() {
 #[test_log::test]
 fn test_parse_zizi_armor_only() {
     let raw = format!("[&{}]", ZIZI_ARMOR_TEMPLATE.chat_link);
-    let result = &ChatLink::try_from(raw.as_str()).unwrap();
+    let result = &raw.parse::<ChatLink>().unwrap();
 
     let ChatLink::WardrobeTemplate(actual) = result else {
         panic!("Expected WardrobeTemplate, got {result:?}");

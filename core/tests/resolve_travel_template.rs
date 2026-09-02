@@ -1,5 +1,5 @@
+use gw2fashionista_core::domain::templates::travel::TravelSlot;
 use gw2fashionista_core::domain::templates::travel::TravelTemplate;
-use gw2fashionista_core::domain::{chatlink::ChatLink, templates::travel::TravelSlot};
 use gw2fashionista_core::gw2::resolve::Resolver;
 use gw2fashionista_core::models::skin::Skin;
 
@@ -9,7 +9,7 @@ use gw2fashionista_fixtures::travel::{EMPTY_TEMPLATE, PEEKABOO_TEMPLATE, ZIZI_TE
 #[test_log::test]
 async fn test_resolve_empty() {
     let resolver = Resolver::default();
-    let template = &parse_template(EMPTY_TEMPLATE.chat_link);
+    let template = &EMPTY_TEMPLATE.chat_link.parse::<TravelTemplate>().unwrap();
 
     resolver.cache_template(&template).await.unwrap();
 
@@ -21,7 +21,7 @@ async fn test_resolve_empty() {
 #[test_log::test]
 async fn test_resolve_peekaboo() {
     let resolver = Resolver::default();
-    let template = &parse_template(PEEKABOO_TEMPLATE.chat_link);
+    let template = &PEEKABOO_TEMPLATE.chat_link.parse().unwrap();
 
     resolver.cache_template(&template).await.unwrap();
 
@@ -137,7 +137,7 @@ async fn test_resolve_peekaboo() {
 #[test_log::test]
 async fn test_resolve_zizi() {
     let resolver = Resolver::default();
-    let template = &parse_template(ZIZI_TEMPLATE.chat_link);
+    let template = &ZIZI_TEMPLATE.chat_link.parse().unwrap();
 
     resolver.cache_template(&template).await.unwrap();
 
@@ -265,12 +265,4 @@ fn assert_dyes(skin: &Skin, dye1_name: &str, dye2_name: &str, dye3_name: &str, d
     assert_eq!(d2.name.clone().unwrap(), dye2_name);
     assert_eq!(d3.name.clone().unwrap(), dye3_name);
     assert_eq!(d4.name.clone().unwrap(), dye4_name);
-}
-
-fn parse_template(raw_chat_link: &str) -> TravelTemplate {
-    let chat_link = ChatLink::try_from(raw_chat_link).unwrap();
-    let ChatLink::TravelTemplate(template) = chat_link else {
-        panic!("Expected TravelTemplate, got {chat_link:?}");
-    };
-    template
 }

@@ -1,18 +1,12 @@
 use gw2fashionista_core::domain::{
-    chatlink::ChatLink,
-    templates::wardrobe::{EquipmentCategory, WardrobeSlot},
-    templates::{SlotFilter, SlotFilterExt},
+    chatlink::ChatLink, templates::{SlotFilter, SlotFilterExt, wardrobe::{EquipmentCategory, WardrobeSlot, WardrobeTemplate}},
 };
 use gw2fashionista_fixtures::wardrobe::{ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE};
 
 #[test]
 #[test_log::test]
 fn test_filter_zizi() {
-    let chat_link = &ChatLink::try_from(ZIZI_TEMPLATE.chat_link).unwrap();
-
-    let ChatLink::WardrobeTemplate(template) = chat_link else {
-        panic!("Expected WardrobeTemplate, got {chat_link:?}");
-    };
+    let template = &ZIZI_TEMPLATE.chat_link.parse::<WardrobeTemplate>().unwrap();
 
     let mut filter = SlotFilter::<WardrobeSlot>::all();
     filter.remove(&WardrobeSlot::Outfit);

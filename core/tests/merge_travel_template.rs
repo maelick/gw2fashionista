@@ -1,21 +1,20 @@
-use gw2fashionista_core::domain::{
-    chatlink::ChatLink,
-    templates::{FashionSlot, FashionSlotKind},
+use gw2fashionista_core::domain::templates::{
+    FashionSlot, FashionSlotKind, travel::TravelTemplate,
 };
 use gw2fashionista_fixtures::travel::{KABOOM_MOUNTS_TEMPLATE, PEEKABOO_TEMPLATE};
 
 #[test]
 #[test_log::test]
 fn test_merge_peekaboo_with_kaboom_mounts() {
-    let chat_link = &ChatLink::try_from(PEEKABOO_TEMPLATE.chat_link).unwrap();
-    let ChatLink::TravelTemplate(base_template) = chat_link else {
-        panic!("Expected TravelTemplate, got {chat_link:?}");
-    };
+    let base_template = &PEEKABOO_TEMPLATE
+        .chat_link
+        .parse::<TravelTemplate>()
+        .unwrap();
 
-    let chat_link = &ChatLink::try_from(KABOOM_MOUNTS_TEMPLATE.chat_link).unwrap();
-    let ChatLink::TravelTemplate(mount_template) = chat_link else {
-        panic!("Expected TravelTemplate, got {chat_link:?}");
-    };
+    let mount_template = &KABOOM_MOUNTS_TEMPLATE
+        .chat_link
+        .parse::<TravelTemplate>()
+        .unwrap();
 
     let merged = base_template.merge(&mount_template, false, false);
 
@@ -31,24 +30,24 @@ fn test_merge_peekaboo_with_kaboom_mounts() {
 #[test]
 #[test_log::test]
 fn test_merge_peekaboo_with_kaboom_mounts_skins_only() {
-    let chat_link = &ChatLink::try_from(PEEKABOO_TEMPLATE.chat_link).unwrap();
-    let ChatLink::TravelTemplate(base_template) = chat_link else {
-        panic!("Expected TravelTemplate, got {chat_link:?}");
-    };
+    let base_template = &PEEKABOO_TEMPLATE
+        .chat_link
+        .parse::<TravelTemplate>()
+        .unwrap();
 
-    let chat_link = &ChatLink::try_from(KABOOM_MOUNTS_TEMPLATE.chat_link).unwrap();
-    let ChatLink::TravelTemplate(armor_template) = chat_link else {
-        panic!("Expected TravelTemplate, got {chat_link:?}");
-    };
+    let mount_template = &KABOOM_MOUNTS_TEMPLATE
+        .chat_link
+        .parse::<TravelTemplate>()
+        .unwrap();
 
-    let merged = base_template.merge(&armor_template, false, true);
+    let merged = base_template.merge(&mount_template, false, true);
 
     for (slot, appearance) in &merged {
         if slot.kind() == FashionSlotKind::Mount {
-            assert_eq!(appearance.skin(), armor_template.get_slot(&slot).skin());
+            assert_eq!(appearance.skin(), mount_template.get_slot(&slot).skin());
             assert_eq!(
                 appearance.is_visible(),
-                armor_template.get_slot(&slot).is_visible()
+                mount_template.get_slot(&slot).is_visible()
             );
             assert_eq!(appearance.dyes(), base_template.get_slot(&slot).dyes());
         } else {
@@ -60,17 +59,17 @@ fn test_merge_peekaboo_with_kaboom_mounts_skins_only() {
 #[test]
 #[test_log::test]
 fn test_merge_peekaboo_with_kaboom_mounts_dyes_only() {
-    let chat_link = &ChatLink::try_from(PEEKABOO_TEMPLATE.chat_link).unwrap();
-    let ChatLink::TravelTemplate(base_template) = chat_link else {
-        panic!("Expected TravelTemplate, got {chat_link:?}");
-    };
+    let base_template = &PEEKABOO_TEMPLATE
+        .chat_link
+        .parse::<TravelTemplate>()
+        .unwrap();
 
-    let chat_link = &ChatLink::try_from(KABOOM_MOUNTS_TEMPLATE.chat_link).unwrap();
-    let ChatLink::TravelTemplate(armor_template) = chat_link else {
-        panic!("Expected TravelTemplate, got {chat_link:?}");
-    };
+    let mount_template = &KABOOM_MOUNTS_TEMPLATE
+        .chat_link
+        .parse::<TravelTemplate>()
+        .unwrap();
 
-    let merged = base_template.merge(&armor_template, true, false);
+    let merged = base_template.merge(&mount_template, true, false);
 
     for (slot, appearance) in &merged {
         if slot.kind() == FashionSlotKind::Mount {
@@ -79,7 +78,7 @@ fn test_merge_peekaboo_with_kaboom_mounts_dyes_only() {
                 appearance.is_visible(),
                 base_template.get_slot(&slot).is_visible()
             );
-            assert_eq!(appearance.dyes(), armor_template.get_slot(&slot).dyes());
+            assert_eq!(appearance.dyes(), mount_template.get_slot(&slot).dyes());
         } else {
             assert_eq!(appearance, base_template.get_slot(&slot));
         }
