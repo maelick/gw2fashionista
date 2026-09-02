@@ -16,7 +16,7 @@ pub struct Command {
     /// If empty, chat links will be read from stdin,
     /// either as a CSV file from a specific column (with headers),
     /// or as one link per row (without headers).
-    chat_links: Vec<String>,
+    chat_links: Vec<ChatLink>,
 
     /// Do not exit on parse errors.
     /// Attempt to parse all chat links and log the encountered errors on stderr.
@@ -41,15 +41,21 @@ pub struct Command {
 }
 
 impl Command {
-    fn get_links(&self) -> anyhow::Result<Vec<String>> {
-        if self.chat_links.is_empty() {
-            self.read_links(io::stdin().lock())
-        } else {
-            Ok(self.chat_links.clone())
-        }
+    fn read_links(&self) -> anyhow::Result<Vec<ChatLink>> {
+        let raw_links = self.read_raw_links(io::stdin().lock())?;
+        Ok(self.parse_links(raw_links.as_slice())?)
     }
 
-    fn read_links<R: io::BufRead>(&self, reader: R) -> anyhow::Result<Vec<String>> {
+    fn parse_links(&self, chat_links: &[String]) -> Result<Vec<ChatLink>, ChatLinkError> {
+        let iter = chat_links
+            .iter()
+            .map(|raw_link| (raw_link, raw_link.parse()));
+        self.collect(iter, |link, err| {
+            tracing::error!(message = "Error parsing chat link", chat_link = ?link, error = ?err);
+        })
+    }
+
+    fn read_raw_links<R: io::BufRead>(&self, reader: R) -> anyhow::Result<Vec<String>> {
         let mut reader = csv::Reader::from_reader(reader);
         let headers = reader.headers()?.clone();
         if headers.is_empty() {
@@ -110,15 +116,6 @@ impl Command {
         }
     }
 
-    fn parse(&self, chat_links: &[String]) -> Result<Vec<ChatLink>, ChatLinkError> {
-        let iter = chat_links
-            .iter()
-            .map(|raw_link| (raw_link, raw_link.parse()));
-        self.collect(iter, |link, err| {
-            tracing::error!(message = "Error parsing chat link", chat_link = ?link, error = ?err);
-        })
-    }
-
     fn collect<V, T, E, I, F>(&self, iter: I, on_error: F) -> Result<Vec<T>, E>
     where
         I: IntoIterator<Item = (V, Result<T, E>)>,
@@ -154,15 +151,19 @@ impl super::Command for Command {
 
     #[tracing::instrument(name = "read", skip_all)]
     async fn execute(&self) -> anyhow::Result<()> {
-        let raw_links = self.get_links()?;
-        let links = self.parse(&raw_links)?;
+        let links = if self.chat_links.is_empty() {
+            &self.read_links()?
+        } else {
+            &self.chat_links
+        };
+
         let resolver = Resolver::default().with_buffer_size(self.concurrency as usize);
         if !self.skip_names {
             resolver.cache_templates(wardrobe_templates(&links)).await?;
             resolver.cache_templates(travel_templates(&links)).await?;
         }
 
-        for link in &links {
+        for link in links {
             match link {
                 ChatLink::WardrobeTemplate(template) => {
                     self.process(&resolver, &template.into()).await
