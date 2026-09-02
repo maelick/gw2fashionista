@@ -888,6 +888,39 @@ dependencies = [
 ]
 
 [[package]]
+name = "gw2fashionista-appearance"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "backon",
+ "base64 0.22.1",
+ "bon",
+ "byteorder",
+ "chrono",
+ "dashmap 6.2.1",
+ "futures",
+ "gw2fashionista-chatlink",
+ "gw2fashionista-fixtures",
+ "gw2lib",
+ "hyper",
+ "hyper-rustls",
+ "itertools",
+ "linearize",
+ "mockall",
+ "num_enum",
+ "regex",
+ "serde",
+ "strum",
+ "strum_macros",
+ "test-log",
+ "thiserror 2.0.19",
+ "tokio",
+ "toml",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
 name = "gw2fashionista-chatlink"
 version = "0.1.0"
 dependencies = [
@@ -929,6 +962,7 @@ dependencies = [
  "clap-verbosity-flag",
  "csv",
  "env_logger",
+ "gw2fashionista-appearance",
  "gw2fashionista-chatlink",
  "gw2fashionista-core",
  "linearize",
@@ -952,6 +986,7 @@ dependencies = [
  "chrono",
  "dashmap 6.2.1",
  "futures",
+ "gw2fashionista-appearance",
  "gw2fashionista-chatlink",
  "gw2fashionista-fixtures",
  "gw2lib",

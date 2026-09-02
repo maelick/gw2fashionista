@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use clap::Args;
+use gw2fashionista_appearance::gw2::{equipment::Equipment, import::Importer, resolve::Resolver};
 use gw2fashionista_chatlink::domain::error::ChatLinkError;
-use gw2fashionista_core::gw2::{equipment::Equipment, import::Importer, resolve::Resolver};
 use serde::{Deserialize, Serialize};
 use std::{fs, io};
 

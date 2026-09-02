@@ -1,12 +1,12 @@
 use async_trait::async_trait;
 use clap::Args;
+use gw2fashionista_appearance::gw2::resolve::Resolver;
+use gw2fashionista_appearance::models::template::TemplateData;
 use gw2fashionista_chatlink::domain::templates::FashionSlot;
 use gw2fashionista_chatlink::domain::templates::travel::TravelTemplate;
 use gw2fashionista_chatlink::domain::{
     chatlink::ChatLink, error::ChatLinkError, templates::wardrobe::WardrobeTemplate,
 };
-use gw2fashionista_core::gw2::resolve::Resolver;
-use gw2fashionista_core::models::template::TemplateData;
 use serde::Serialize;
 use std::{io, iter};
 
