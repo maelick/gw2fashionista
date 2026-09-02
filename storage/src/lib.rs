@@ -16,11 +16,7 @@ pub trait Repository {
 
     async fn get_fashion_by_id(&self, id: &uuid::Uuid) -> Result<Fashion>;
 
-    async fn get_fashion_by_name(
-        &self,
-        name: &str,
-        character: Option<&str>,
-    ) -> Result<Fashion>;
+    async fn get_fashion_by_name(&self, name: &str, character: Option<&str>) -> Result<Fashion>;
 
     async fn list_fashions(&self) -> Result<Vec<Fashion>>;
 

@@ -187,10 +187,10 @@ async fn update_fashion(conn: &mut SqliteConnection, fashion: &Fashion) -> crate
 
 async fn get_fashion_by_id(conn: &mut SqliteConnection, id: &uuid::Uuid) -> crate::Result<Fashion> {
     sqlx::query_as::<'_, _, models::Fashion>(r#"SELECT * FROM fashion WHERE id = ?"#)
-            .bind(id.hyphenated())
-            .fetch_one(conn)
-            .await?
-            .try_into()
+        .bind(id.hyphenated())
+        .fetch_one(conn)
+        .await?
+        .try_into()
 }
 
 async fn get_fashion_by_name(
