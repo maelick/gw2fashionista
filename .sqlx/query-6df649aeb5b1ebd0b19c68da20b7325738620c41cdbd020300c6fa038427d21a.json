@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO fashion (id, name, wardrobe_template, travel_template) VALUES (?, ?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": []
+  },
+  "hash": "6df649aeb5b1ebd0b19c68da20b7325738620c41cdbd020300c6fa038427d21a"
+}
