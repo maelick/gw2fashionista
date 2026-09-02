@@ -53,20 +53,6 @@ pub enum ChatLink {
 }
 
 impl ChatLink {
-    pub fn from_serialized(serialized: &SerializedChatLink) -> Result<Self, ChatLinkError> {
-        match serialized.link_type {
-            ChatLinkType::WardrobeTemplate => {
-                let template = WardrobeTemplate::try_from(serialized.bytes.as_slice())?;
-                Ok(Self::WardrobeTemplate(template))
-            }
-            ChatLinkType::TravelTemplate => {
-                let template = TravelTemplate::try_from(serialized.bytes.as_slice())?;
-                Ok(Self::TravelTemplate(template))
-            }
-            _ => Err(ChatLinkError::UnsupportedType(serialized.link_type)),
-        }
-    }
-
     pub fn link_type(&self) -> ChatLinkType {
         match self {
             ChatLink::WardrobeTemplate(_) => ChatLinkType::WardrobeTemplate,
@@ -186,7 +172,7 @@ impl FromStr for ChatLink {
     type Err = ChatLinkError;
 
     fn from_str(raw_chat_link: &str) -> Result<Self, Self::Err> {
-        Self::from_serialized(&raw_chat_link.parse()?)
+        raw_chat_link.parse::<SerializedChatLink>()?.try_into()
     }
 }
 
@@ -194,7 +180,20 @@ impl TryFrom<SerializedChatLink> for ChatLink {
     type Error = ChatLinkError;
 
     fn try_from(serialized: SerializedChatLink) -> Result<Self, ChatLinkError> {
-        Self::from_serialized(&serialized)
+        Ok(match serialized.link_type {
+            ChatLinkType::WardrobeTemplate => {
+                let template = WardrobeTemplate::try_from(serialized.bytes.as_slice())?;
+                Self::WardrobeTemplate(template)
+            }
+            ChatLinkType::TravelTemplate => {
+                let template = TravelTemplate::try_from(serialized.bytes.as_slice())?;
+                Self::TravelTemplate(template)
+            }
+            _ => Self::Unparsed {
+                link_type: serialized.link_type,
+                bytes: serialized.bytes.clone(),
+            },
+        })
     }
 }
 
