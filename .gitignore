@@ -34,3 +34,5 @@ rustc-ice-*.txt
 .env
 
 /gw2lib
+
+*.sqlite
