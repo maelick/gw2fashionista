@@ -125,25 +125,6 @@ impl<S: FashionSlot> Template<S> {
         HashSet::from_iter(dyes)
     }
 
-    pub fn from_bytes(bytes: &[u8]) -> Result<Self, ChatLinkError> {
-        if bytes.len() != Self::payload_size() {
-            return Err(ChatLinkError::TruncatedData(bytes.to_vec()));
-        }
-
-        let visibility = Self::read_visibility(bytes)?;
-        let mut cursor = Cursor::new(bytes);
-
-        Ok(Self {
-            slots: static_map! {
-                slot => Appearance::read(
-                    &mut cursor,
-                    slot.dyeable(),
-                    slot.is_visible(visibility),
-                )?
-            },
-        })
-    }
-
     pub fn serialize<T: std::io::Write + ?Sized>(
         &self,
         buffer: &mut T,
@@ -197,7 +178,22 @@ impl<S: FashionSlot> TryFrom<&[u8]> for Template<S> {
     type Error = ChatLinkError;
 
     fn try_from(bytes: &[u8]) -> Result<Self, ChatLinkError> {
-        Self::from_bytes(bytes)
+        if bytes.len() != Self::payload_size() {
+            return Err(ChatLinkError::TruncatedData(bytes.to_vec()));
+        }
+
+        let visibility = Self::read_visibility(bytes)?;
+        let mut cursor = Cursor::new(bytes);
+
+        Ok(Self {
+            slots: static_map! {
+                slot => Appearance::read(
+                    &mut cursor,
+                    slot.dyeable(),
+                    slot.is_visible(visibility),
+                )?
+            },
+        })
     }
 }
 
