@@ -90,7 +90,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_no_retry_on_cached() {
-        let mut mock = MockFetch::new();
+        let mut mock = new_mock("test_endpoint");
         mock_single(&mut mock, ITEM_ID);
 
         let cache = Cache::new(mock);
@@ -103,7 +103,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_ensure() {
-        let mut mock = MockFetch::new();
+        let mut mock = new_mock("test_endpoint");
         mock_many(
             &mut mock,
             vec![ITEM_ID],
@@ -120,7 +120,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_ensure_already_cached() {
-        let mut mock = MockFetch::new();
+        let mut mock = new_mock("test_endpoint");
         mock_single(&mut mock, ITEM_ID);
 
         let cache = Cache::new(mock);
@@ -135,7 +135,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_ensure_many_with_missing() {
-        let mut mock = MockFetch::new();
+        let mut mock = new_mock("test_endpoint");
         mock_many(
             &mut mock,
             vec![1, ITEM_ID, 101010],
@@ -168,5 +168,11 @@ mod tests {
             .with(predicate::eq(ids))
             .times(1)
             .returning(move |_| Ok(result.clone()));
+    }
+
+    fn new_mock(endpoint_name: &'static str) -> MockFetch<String, u32> {
+        let mut mock = MockFetch::new();
+        mock.expect_endpoint_name().returning(move || endpoint_name);
+        mock
     }
 }

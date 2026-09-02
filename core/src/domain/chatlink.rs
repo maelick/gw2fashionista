@@ -185,6 +185,18 @@ impl TryFrom<ChatLink> for TravelTemplate {
     }
 }
 
+impl From<WardrobeTemplate> for ChatLink {
+    fn from(template: WardrobeTemplate) -> Self {
+        ChatLink::WardrobeTemplate(template)
+    }
+}
+
+impl From<TravelTemplate> for ChatLink {
+    fn from(template: TravelTemplate) -> Self {
+        ChatLink::TravelTemplate(template)
+    }
+}
+
 impl TryFrom<&str> for ChatLink {
     type Error = ChatLinkError;
 

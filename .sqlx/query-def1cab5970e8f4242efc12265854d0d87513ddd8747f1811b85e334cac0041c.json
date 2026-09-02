@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO fashion_tag (\n                fashion_id,\n                tag_id\n            )\n            SELECT ?, id\n            FROM tag WHERE name = ?\n            ON CONFLICT(fashion_id, tag_id)\n            DO NOTHING",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "def1cab5970e8f4242efc12265854d0d87513ddd8747f1811b85e334cac0041c"
+}

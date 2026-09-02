@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE OR REPLACE fashion_tag\n        SET tag_id = ?\n        WHERE tag_id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "18334dc4221ae542161a45fb9ac24413eaebce5d94e3f0aa27931f0b43b73e41"
+}

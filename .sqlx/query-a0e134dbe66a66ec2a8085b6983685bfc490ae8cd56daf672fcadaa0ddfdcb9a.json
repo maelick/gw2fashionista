@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM tag\n        WHERE NOT EXISTS (\n            SELECT 1 FROM fashion_tag WHERE fashion_tag.tag_id = tag.id\n        )",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": []
+  },
+  "hash": "a0e134dbe66a66ec2a8085b6983685bfc490ae8cd56daf672fcadaa0ddfdcb9a"
+}

@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM fashion_tag\n            WHERE fashion_id = ?\n            AND tag_id IN (\n                SELECT id FROM tag WHERE name = ?\n            )",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "90f8b464a93b9bca15e9a858cef265c7d3a5e9b958d4067c2503203d14d3f80e"
+}
