@@ -1,4 +1,5 @@
 use std::fmt::Display;
+use std::str::FromStr;
 use std::sync::LazyLock;
 
 use regex::Regex;
@@ -10,6 +11,7 @@ use num_enum::{IntoPrimitive, TryFromPrimitive};
 use crate::domain::error::ChatLinkError;
 use crate::domain::templates::travel::TravelTemplate;
 use crate::domain::templates::wardrobe::WardrobeTemplate;
+use crate::domain::templates::{FashionSlot, Template};
 
 const BASE64_RE: &str = r"[-A-Za-z0-9+/]*={0,3}";
 
@@ -61,11 +63,6 @@ pub enum ChatLink {
 }
 
 impl ChatLink {
-    pub fn from_string(raw_chat_link: &str) -> Result<Self, ChatLinkError> {
-        let serialized = SerializedChatLink::try_from(raw_chat_link)?;
-        Self::from_serialized(&serialized)
-    }
-
     pub fn from_serialized(serialized: &SerializedChatLink) -> Result<Self, ChatLinkError> {
         match serialized.link_type {
             ChatLinkType::WardrobeTemplate => {
@@ -138,15 +135,6 @@ impl SerializedChatLink {
         Ok(Self::new(link_type, payload.to_vec()))
     }
 
-    pub fn from_string(raw_chat_link: &str) -> Result<Self, ChatLinkError> {
-        let caps = CHAT_LINK_REGEX
-            .captures(raw_chat_link)
-            .ok_or(ChatLinkError::InvalidString)?;
-        let base64_str = caps.get(1).ok_or(ChatLinkError::InvalidString)?.as_str();
-        let decoded = BASE64.decode(base64_str)?;
-        Self::from_bytes(decoded.as_slice())
-    }
-
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut bytes = Vec::with_capacity(self.bytes.len() + 1);
         bytes.push(self.link_type.into());
@@ -197,11 +185,40 @@ impl From<TravelTemplate> for ChatLink {
     }
 }
 
+impl<S: FashionSlot> FromStr for Template<S>
+where
+    Template<S>: TryFrom<ChatLink, Error = ChatLinkError>,
+{
+    type Err = ChatLinkError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        s.parse::<ChatLink>()?.try_into()
+    }
+}
+
+impl<S: FashionSlot> TryFrom<&str> for Template<S>
+where
+    Template<S>: TryFrom<ChatLink, Error = ChatLinkError>, {
+    type Error = ChatLinkError;
+
+    fn try_from(raw_chat_link: &str) -> Result<Self, Self::Error> {
+        raw_chat_link.parse()
+    }
+}
+
 impl TryFrom<&str> for ChatLink {
     type Error = ChatLinkError;
 
-    fn try_from(raw_chat_link: &str) -> Result<Self, ChatLinkError> {
-        Self::from_string(raw_chat_link)
+    fn try_from(raw_chat_link: &str) -> Result<Self, Self::Error> {
+        raw_chat_link.parse()
+    }
+}
+
+impl FromStr for ChatLink {
+    type Err = ChatLinkError;
+
+    fn from_str(raw_chat_link: &str) -> Result<Self, Self::Err> {
+        Self::from_serialized(&raw_chat_link.parse()?)
     }
 }
 
@@ -241,7 +258,20 @@ impl TryFrom<&str> for SerializedChatLink {
     type Error = ChatLinkError;
 
     fn try_from(raw_chat_link: &str) -> Result<Self, ChatLinkError> {
-        Self::from_string(raw_chat_link)
+        raw_chat_link.parse()
+    }
+}
+
+impl FromStr for SerializedChatLink {
+    type Err = ChatLinkError;
+
+    fn from_str(raw_chat_link: &str) -> Result<Self, Self::Err> {
+        let caps = CHAT_LINK_REGEX
+            .captures(raw_chat_link)
+            .ok_or(ChatLinkError::InvalidString)?;
+        let base64_str = caps.get(1).ok_or(ChatLinkError::InvalidString)?.as_str();
+        let decoded = BASE64.decode(base64_str)?;
+        Self::from_bytes(decoded.as_slice())
     }
 }
 

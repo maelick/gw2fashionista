@@ -79,7 +79,7 @@ where
     Ok(if s.is_empty() {
         Template::<S>::default()
     } else {
-        ChatLink::from_string(s)?.try_into()?
+        s.parse()?
     })
 }
 
