@@ -118,11 +118,11 @@ impl SerializedChatLink {
     pub fn from_chat_link(chat_link: &ChatLink) -> Result<Self, ChatLinkError> {
         match chat_link {
             ChatLink::WardrobeTemplate(template) => {
-                let bytes = template.serialize()?;
+                let bytes = template.into();
                 Ok(Self::new(ChatLinkType::WardrobeTemplate, bytes))
             }
             ChatLink::TravelTemplate(template) => {
-                let bytes = template.serialize()?;
+                let bytes = template.into();
                 Ok(Self::new(ChatLinkType::TravelTemplate, bytes))
             }
             _ => Err(ChatLinkError::NotImplemented),

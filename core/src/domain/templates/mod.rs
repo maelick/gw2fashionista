@@ -144,13 +144,14 @@ impl<S: FashionSlot> Template<S> {
         })
     }
 
-    pub fn serialize(&self) -> Result<Vec<u8>, std::io::Error> {
-        let mut buffer = Vec::with_capacity(Self::payload_size());
+    pub fn serialize<T: std::io::Write + ?Sized>(
+        &self,
+        buffer: &mut T,
+    ) -> Result<(), std::io::Error> {
         for (_, slot) in self {
-            slot.serialize(&mut buffer)?;
+            slot.serialize(buffer)?;
         }
-        buffer.write_u16::<LittleEndian>(self.visibility())?;
-        Ok(buffer)
+        buffer.write_u16::<LittleEndian>(self.visibility())
     }
 
     fn read_visibility(bytes: &[u8]) -> Result<u16, ChatLinkError> {
@@ -200,11 +201,13 @@ impl<S: FashionSlot> TryFrom<&[u8]> for Template<S> {
     }
 }
 
-impl<S: FashionSlot> TryFrom<&Template<S>> for Vec<u8> {
-    type Error = std::io::Error;
-
-    fn try_from(template: &Template<S>) -> Result<Self, std::io::Error> {
-        template.serialize()
+impl<S: FashionSlot> From<&Template<S>> for Vec<u8> {
+    fn from(template: &Template<S>) -> Self {
+        let mut buffer = Vec::with_capacity(Template::<S>::payload_size());
+        template
+            .serialize(&mut buffer)
+            .expect("writing to a Vec<u8> cannot fail");
+        buffer
     }
 }
 
