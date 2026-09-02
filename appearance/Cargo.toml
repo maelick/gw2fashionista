@@ -6,26 +6,17 @@ edition = "2024"
 [dependencies]
 async-trait = "0.1.89"
 backon = "1.6.0"
-base64 = "0.22.1"
-bon = "3.10.0"
-byteorder = "1.5.0"
-chrono = "0.4.45"
 dashmap = "6.2.1"
 futures = "0.3.32"
 gw2fashionista-chatlink = { version = "0.1.0", path = "../chatlink" }
-gw2fashionista-fixtures = { version = "0.1.0", path = "../fixtures" }
 gw2lib = { version = "3.0.2" }
-itertools = "0.14.0"
 linearize = { version = "0.1.7", features = ["derive"] }
-num_enum = "0.7.6"
-regex = "1.12.3"
 serde = { version = "1.0.228", features = ["derive"] }
 strum = { version = "0.28.0" }
 strum_macros = "0.28.0"
 thiserror = "2.0.18"
 tokio = { version = "1.52.3", features = ["macros", "sync", "time"] }
 toml = "1.1.2"
-uuid = { version = "1.24.0", features = ["serde", "v7"] }
 
 [dependencies.tracing]
 version = "0.1.44"
