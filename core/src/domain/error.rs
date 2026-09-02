@@ -2,8 +2,11 @@ use crate::domain::chatlink::ChatLinkType;
 
 #[derive(Debug, thiserror::Error)]
 pub enum ChatLinkError {
-    #[error("Unsupported chat link type: {0:?}")]
-    UnsupportedType(ChatLinkType),
+    #[error("Expected chat link type {expected:?}, found {found:?}")]
+    UnexpectedType {
+        expected: ChatLinkType,
+        found: ChatLinkType,
+    },
 
     #[error("Unknown or invalid chat link type header: {0:?}")]
     UnknownType(u8),
@@ -25,7 +28,4 @@ pub enum ChatLinkError {
 
     #[error("Empty payload")]
     EmptyPayload,
-
-    #[error("Not implemented")]
-    NotImplemented,
 }

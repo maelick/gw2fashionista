@@ -110,7 +110,10 @@ impl TryFrom<ChatLink> for WardrobeTemplate {
     fn try_from(link: ChatLink) -> Result<Self, Self::Error> {
         match link {
             ChatLink::WardrobeTemplate(template) => Ok(template),
-            _ => Err(ChatLinkError::UnsupportedType(link.link_type())),
+            _ => Err(ChatLinkError::UnexpectedType {
+                expected: ChatLinkType::WardrobeTemplate,
+                found: link.link_type(),
+            }),
         }
     }
 }
@@ -121,7 +124,10 @@ impl TryFrom<ChatLink> for TravelTemplate {
     fn try_from(link: ChatLink) -> Result<Self, Self::Error> {
         match link {
             ChatLink::TravelTemplate(template) => Ok(template),
-            _ => Err(ChatLinkError::UnsupportedType(link.link_type())),
+            _ => Err(ChatLinkError::UnexpectedType {
+                expected: ChatLinkType::TravelTemplate,
+                found: link.link_type(),
+            }),
         }
     }
 }
