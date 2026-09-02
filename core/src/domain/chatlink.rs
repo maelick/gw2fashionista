@@ -46,7 +46,7 @@ pub enum ChatLinkType {
 pub enum ChatLink {
     WardrobeTemplate(WardrobeTemplate),
     TravelTemplate(TravelTemplate),
-    Other {
+    Unparsed {
         link_type: ChatLinkType,
         bytes: Vec<u8>,
     },
@@ -57,7 +57,7 @@ impl ChatLink {
         match self {
             ChatLink::WardrobeTemplate(_) => ChatLinkType::WardrobeTemplate,
             ChatLink::TravelTemplate(_) => ChatLinkType::TravelTemplate,
-            ChatLink::Other {
+            ChatLink::Unparsed {
                 link_type,
                 bytes: _,
             } => *link_type,
@@ -208,7 +208,7 @@ impl From<&ChatLink> for SerializedChatLink {
                 let bytes = template.into();
                 SerializedChatLink::new(ChatLinkType::TravelTemplate, bytes)
             }
-            ChatLink::Other { link_type, bytes } => {
+            ChatLink::Unparsed { link_type, bytes } => {
                 SerializedChatLink::new(*link_type, bytes.clone())
             }
         }
