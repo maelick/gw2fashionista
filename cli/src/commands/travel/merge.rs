@@ -11,10 +11,10 @@ use crate::commands::travel::args::TravelFilters;
 #[derive(Args, Debug)]
 pub struct Command {
     /// Chat link of the base fashion template to override
-    base_travel_template: String,
+    base_travel_template: TravelTemplate,
 
     /// Chat link of the fashion template with new values to apply to the base one
-    new_travel_template: String,
+    new_travel_template: TravelTemplate,
 
     #[command(flatten)]
     skin_dyes_only: args::SkinsOrDyes,
@@ -31,12 +31,9 @@ impl commands::Command for Command {
 
     #[tracing::instrument(name = "travel-merge", skip_all)]
     async fn execute(&self) -> anyhow::Result<()> {
-        let base_template: TravelTemplate = self.base_travel_template.parse()?;
         let filter = (&self.filters).into();
-        let new_template: TravelTemplate = self.new_travel_template.parse()?;
-
-        let new_template = new_template.filter(&filter);
-        let merged = base_template.merge(
+        let new_template = self.new_travel_template.filter(&filter);
+        let merged = self.base_travel_template.merge(
             &new_template,
             self.skin_dyes_only.no_skins,
             self.skin_dyes_only.no_dyes,

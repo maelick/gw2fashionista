@@ -9,7 +9,7 @@ use gw2fashionista_core::domain::{chatlink::ChatLink, templates::wardrobe::Wardr
 #[derive(Args, Debug)]
 pub struct Command {
     /// Chat link of the wardrobe template to filter
-    wardrobe_template: String,
+    wardrobe_template: WardrobeTemplate,
 
     #[command(flatten)]
     filters: WardrobeFilters,
@@ -23,10 +23,8 @@ impl commands::Command for Command {
 
     #[tracing::instrument(name = "wardrobe-filter", skip_all)]
     async fn execute(&self) -> anyhow::Result<()> {
-        let template: WardrobeTemplate = self.wardrobe_template.parse()?;
-
         let filter = (&self.filters).into();
-        let filtered = ChatLink::WardrobeTemplate(template.filter(&filter));
+        let filtered = ChatLink::WardrobeTemplate(self.wardrobe_template.filter(&filter));
         println!("{}", filtered);
         Ok(())
     }

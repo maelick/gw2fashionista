@@ -11,10 +11,10 @@ use crate::commands::wardrobe::args::WardrobeFilters;
 #[derive(Args, Debug)]
 pub struct Command {
     /// Chat link of the base fashion template to override
-    base_wardrobe_template: String,
+    base_wardrobe_template: WardrobeTemplate,
 
     /// Chat link of the fashion template with new values to apply to the base one
-    new_wardrobe_template: String,
+    new_wardrobe_template: WardrobeTemplate,
 
     #[command(flatten)]
     skin_dyes_only: args::SkinsOrDyes,
@@ -31,12 +31,9 @@ impl commands::Command for Command {
 
     #[tracing::instrument(name = "wardrobe-merge", skip_all)]
     async fn execute(&self) -> anyhow::Result<()> {
-        let base_template: WardrobeTemplate = self.base_wardrobe_template.parse()?;
         let filter = (&self.filters).into();
-        let new_template: WardrobeTemplate = self.new_wardrobe_template.parse()?;
-
-        let new_template = new_template.filter(&filter);
-        let merged = base_template.merge(
+        let new_template = self.new_wardrobe_template.filter(&filter);
+        let merged = self.base_wardrobe_template.merge(
             &new_template,
             self.skin_dyes_only.no_skins,
             self.skin_dyes_only.no_dyes,

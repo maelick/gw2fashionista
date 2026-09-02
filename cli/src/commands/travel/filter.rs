@@ -9,7 +9,7 @@ use gw2fashionista_core::domain::{chatlink::ChatLink, templates::travel::TravelT
 #[derive(Args, Debug)]
 pub struct Command {
     /// Chat link of the travel template to filter
-    travel_template: String,
+    travel_template: TravelTemplate,
 
     #[command(flatten)]
     filters: TravelFilters,
@@ -23,9 +23,8 @@ impl commands::Command for Command {
 
     #[tracing::instrument(name = "travel-filter", skip_all)]
     async fn execute(&self) -> anyhow::Result<()> {
-        let template: TravelTemplate = self.travel_template.parse()?;
         let filter = (&self.filters).into();
-        let filtered = ChatLink::TravelTemplate(template.filter(&filter));
+        let filtered = ChatLink::TravelTemplate(self.travel_template.filter(&filter));
         println!("{}", filtered);
         Ok(())
     }
