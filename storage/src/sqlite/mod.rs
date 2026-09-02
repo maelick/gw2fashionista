@@ -167,8 +167,7 @@ async fn insert_fashion(conn: &mut SqliteConnection, fashion: &Fashion) -> crate
 
 async fn update_fashion(conn: &mut SqliteConnection, fashion: &Fashion) -> crate::Result<Fashion> {
     let model: models::Fashion = fashion.into();
-    Ok(
-        sqlx::query_as::<'_, _, models::Fashion>(
+    sqlx::query_as::<'_, _, models::Fashion>(
             r#"UPDATE OR ABORT fashion
             SET name = ?, description = ?, character = ?, wardrobe_template = ?, travel_template = ?, updated_at = ?
             WHERE id = ?
@@ -183,18 +182,15 @@ async fn update_fashion(conn: &mut SqliteConnection, fashion: &Fashion) -> crate
         .bind(model.id)
         .fetch_one(conn)
         .await?
-        .try_into()?,
-    )
+        .try_into()
 }
 
 async fn get_fashion_by_id(conn: &mut SqliteConnection, id: &uuid::Uuid) -> crate::Result<Fashion> {
-    Ok(
-        sqlx::query_as::<'_, _, models::Fashion>(r#"SELECT * FROM fashion WHERE id = ?"#)
+    sqlx::query_as::<'_, _, models::Fashion>(r#"SELECT * FROM fashion WHERE id = ?"#)
             .bind(id.hyphenated())
             .fetch_one(conn)
             .await?
-            .try_into()?,
-    )
+            .try_into()
 }
 
 async fn get_fashion_by_name(
@@ -202,14 +198,14 @@ async fn get_fashion_by_name(
     name: &str,
     character: Option<&str>,
 ) -> crate::Result<Fashion> {
-    Ok(sqlx::query_as::<'_, _, models::Fashion>(
+    sqlx::query_as::<'_, _, models::Fashion>(
         r#"SELECT * FROM fashion WHERE name = ? AND character = ?"#,
     )
     .bind(name)
     .bind(character.unwrap_or_default())
     .fetch_one(conn)
     .await?
-    .try_into()?)
+    .try_into()
 }
 
 async fn list_fashions(conn: &mut SqliteConnection) -> crate::Result<Vec<Fashion>> {
