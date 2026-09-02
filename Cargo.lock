@@ -888,28 +888,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "gw2fashionista-cli"
-version = "0.3.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "clap",
- "clap-verbosity-flag",
- "csv",
- "env_logger",
- "gw2fashionista-core",
- "linearize",
- "log",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
-name = "gw2fashionista-core"
-version = "0.2.1"
+name = "gw2fashionista-chatlink"
+version = "0.1.0"
 dependencies = [
  "async-trait",
  "backon",
@@ -940,6 +920,60 @@ dependencies = [
 ]
 
 [[package]]
+name = "gw2fashionista-cli"
+version = "0.3.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "clap",
+ "clap-verbosity-flag",
+ "csv",
+ "env_logger",
+ "gw2fashionista-chatlink",
+ "gw2fashionista-core",
+ "linearize",
+ "log",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "gw2fashionista-core"
+version = "0.2.1"
+dependencies = [
+ "async-trait",
+ "backon",
+ "base64 0.22.1",
+ "bon",
+ "byteorder",
+ "chrono",
+ "dashmap 6.2.1",
+ "futures",
+ "gw2fashionista-chatlink",
+ "gw2fashionista-fixtures",
+ "gw2lib",
+ "hyper",
+ "hyper-rustls",
+ "itertools",
+ "linearize",
+ "mockall",
+ "num_enum",
+ "regex",
+ "serde",
+ "strum",
+ "strum_macros",
+ "test-log",
+ "thiserror 2.0.19",
+ "tokio",
+ "toml",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
 name = "gw2fashionista-fixtures"
 version = "0.1.0"
 
@@ -949,6 +983,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "bon",
+ "gw2fashionista-chatlink",
  "gw2fashionista-core",
  "gw2fashionista-fixtures",
  "sqlx",

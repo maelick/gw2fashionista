@@ -1,4 +1,4 @@
-use gw2fashionista_core::domain::{
+use gw2fashionista_chatlink::domain::{
     chatlink::ChatLink,
     templates::{
         SlotFilter, SlotFilterExt,

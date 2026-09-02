@@ -1,4 +1,4 @@
-use gw2fashionista_core::domain::error::ChatLinkError;
+use gw2fashionista_chatlink::domain::error::ChatLinkError;
 use sqlx::types::uuid;
 
 pub type Result<T> = std::result::Result<T, Error>;

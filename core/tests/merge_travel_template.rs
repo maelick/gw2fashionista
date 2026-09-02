@@ -1,4 +1,4 @@
-use gw2fashionista_core::domain::templates::{
+use gw2fashionista_chatlink::domain::templates::{
     FashionSlot, FashionSlotKind, travel::TravelTemplate,
 };
 use gw2fashionista_fixtures::travel::{KABOOM_MOUNTS_TEMPLATE, PEEKABOO_TEMPLATE};

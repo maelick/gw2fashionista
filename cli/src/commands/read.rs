@@ -1,8 +1,8 @@
 use async_trait::async_trait;
 use clap::Args;
-use gw2fashionista_core::domain::templates::FashionSlot;
-use gw2fashionista_core::domain::templates::travel::TravelTemplate;
-use gw2fashionista_core::domain::{
+use gw2fashionista_chatlink::domain::templates::FashionSlot;
+use gw2fashionista_chatlink::domain::templates::travel::TravelTemplate;
+use gw2fashionista_chatlink::domain::{
     chatlink::ChatLink, error::ChatLinkError, templates::wardrobe::WardrobeTemplate,
 };
 use gw2fashionista_core::gw2::resolve::Resolver;

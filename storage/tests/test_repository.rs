@@ -1,6 +1,7 @@
 use std::assert_matches;
 
-use gw2fashionista_core::domain::{chatlink::ChatLink, fashion::Fashion};
+use gw2fashionista_chatlink::domain::chatlink::ChatLink;
+use gw2fashionista_core::domain::fashion::Fashion;
 use gw2fashionista_fixtures::{travel, wardrobe};
 use gw2fashionista_storage::{Repository, StringFilters, sqlite};
 use sqlx::{SqlitePool, types::uuid};

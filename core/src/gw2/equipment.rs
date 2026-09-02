@@ -3,11 +3,10 @@ use std::collections::{HashMap, HashSet};
 use gw2lib::model::{
     authenticated::characters::{Equip, EquipmentTab, Slot as EquipmentSlot},
     items::ItemId,
-    misc::colors::ColorId,
 };
 
-use crate::domain::{
-    skins::{Appearance, DyeId, Dyes, SkinId},
+use gw2fashionista_chatlink::domain::{
+    skins::{Appearance, DyeId, Dyes},
     templates::{
         FashionSlot,
         wardrobe::{WardrobeSlot, WardrobeTemplate},
@@ -48,88 +47,63 @@ impl Equipment {
                 .filter_map(|s| if s.skin.is_none() { Some(s.id) } else { None }),
         )
     }
-}
 
-impl From<&Equipment> for WardrobeTemplate {
-    fn from(equipment: &Equipment) -> Self {
-        (&equipment.slots).into()
-    }
-}
-
-impl From<&Vec<Equip>> for WardrobeTemplate {
-    fn from(equipment: &Vec<Equip>) -> Self {
+    pub fn to_template(&self) -> WardrobeTemplate {
         let mut slots = HashMap::new();
-        for equip in equipment {
-            if let Some(Ok(slot)) = equip.slot.as_ref().map(WardrobeSlot::try_from) {
-                slots.insert(slot, Appearance::from((&slot, equip)));
+        for equip in &self.slots {
+            if let Some(slot) = equip.slot.as_ref().and_then(to_wardrobe_slot) {
+                slots.insert(slot, appearance_from(&slot, equip));
             }
         }
-        Self::new(slots)
+        WardrobeTemplate::new(slots)
     }
 }
 
-impl TryFrom<&EquipmentSlot> for WardrobeSlot {
-    type Error = ();
-
-    fn try_from(slot: &EquipmentSlot) -> Result<Self, Self::Error> {
-        match slot {
-            EquipmentSlot::HelmAquatic => Ok(WardrobeSlot::Aquabreather),
-            EquipmentSlot::Backpack => Ok(WardrobeSlot::Backpack),
-            EquipmentSlot::Coat => Ok(WardrobeSlot::Chest),
-            EquipmentSlot::Boots => Ok(WardrobeSlot::Shoes),
-            EquipmentSlot::Gloves => Ok(WardrobeSlot::Gloves),
-            EquipmentSlot::Helm => Ok(WardrobeSlot::Head),
-            EquipmentSlot::Leggings => Ok(WardrobeSlot::Legs),
-            EquipmentSlot::Shoulders => Ok(WardrobeSlot::Shoulders),
-            EquipmentSlot::WeaponAquaticA => Ok(WardrobeSlot::WeaponAquaticA),
-            EquipmentSlot::WeaponAquaticB => Ok(WardrobeSlot::WeaponAquaticB),
-            EquipmentSlot::WeaponA1 => Ok(WardrobeSlot::WeaponA1),
-            EquipmentSlot::WeaponA2 => Ok(WardrobeSlot::WeaponA2),
-            EquipmentSlot::WeaponB1 => Ok(WardrobeSlot::WeaponB1),
-            EquipmentSlot::WeaponB2 => Ok(WardrobeSlot::WeaponB2),
-            _ => Err(()),
-        }
+fn to_wardrobe_slot(slot: &EquipmentSlot) -> Option<WardrobeSlot> {
+    match slot {
+        EquipmentSlot::HelmAquatic => Some(WardrobeSlot::Aquabreather),
+        EquipmentSlot::Backpack => Some(WardrobeSlot::Backpack),
+        EquipmentSlot::Coat => Some(WardrobeSlot::Chest),
+        EquipmentSlot::Boots => Some(WardrobeSlot::Shoes),
+        EquipmentSlot::Gloves => Some(WardrobeSlot::Gloves),
+        EquipmentSlot::Helm => Some(WardrobeSlot::Head),
+        EquipmentSlot::Leggings => Some(WardrobeSlot::Legs),
+        EquipmentSlot::Shoulders => Some(WardrobeSlot::Shoulders),
+        EquipmentSlot::WeaponAquaticA => Some(WardrobeSlot::WeaponAquaticA),
+        EquipmentSlot::WeaponAquaticB => Some(WardrobeSlot::WeaponAquaticB),
+        EquipmentSlot::WeaponA1 => Some(WardrobeSlot::WeaponA1),
+        EquipmentSlot::WeaponA2 => Some(WardrobeSlot::WeaponA2),
+        EquipmentSlot::WeaponB1 => Some(WardrobeSlot::WeaponB1),
+        EquipmentSlot::WeaponB2 => Some(WardrobeSlot::WeaponB2),
+        _ => None,
     }
 }
 
-impl From<(&WardrobeSlot, &Equip)> for Appearance {
-    fn from((slot, equip): (&WardrobeSlot, &Equip)) -> Self {
-        let skin = equip.skin.unwrap_or(0).into();
-        if slot.dyeable() {
-            let dyes = equip.dyes.as_ref().map_or(Dyes::default(), Dyes::from);
-            Appearance::Dyeable {
-                skin,
-                visible: true,
-                dyes,
-            }
-        } else {
-            Appearance::NonDyeable {
-                skin,
-                visible: true,
-            }
+fn appearance_from(slot: &WardrobeSlot, equip: &Equip) -> Appearance {
+    let skin = equip.skin.unwrap_or(0).into();
+    if slot.dyeable() {
+        Appearance::Dyeable {
+            skin,
+            visible: true,
+            dyes: if let Some(dyes) = equip.dyes.as_ref() {
+                dyes_from_iter(dyes.iter().map(DyeId::from))
+            } else {
+                Dyes::default()
+            },
+        }
+    } else {
+        Appearance::NonDyeable {
+            skin,
+            visible: true,
         }
     }
 }
 
-impl From<&Vec<Option<ColorId>>> for Dyes {
-    fn from(dyes: &Vec<Option<ColorId>>) -> Self {
-        Dyes::new(
-            dyes.first().into(),
-            dyes.get(1).into(),
-            dyes.get(2).into(),
-            dyes.get(3).into(),
-        )
-    }
-}
-
-impl From<Option<&Option<u16>>> for DyeId {
-    fn from(dye: Option<&Option<u16>>) -> Self {
-        dye.unwrap_or(&None).map(DyeId::from).unwrap_or_default()
-    }
-}
-
-impl From<u32> for SkinId {
-    fn from(id: u32) -> Self {
-        Self::new(id as u16)
-    }
+fn dyes_from_iter(mut dyes: impl Iterator<Item = DyeId>) -> Dyes {
+    Dyes::new(
+        dyes.next().unwrap_or_default(),
+        dyes.next().unwrap_or_default(),
+        dyes.next().unwrap_or_default(),
+        dyes.next().unwrap_or_default(),
+    )
 }

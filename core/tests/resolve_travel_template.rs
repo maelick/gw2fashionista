@@ -1,5 +1,5 @@
-use gw2fashionista_core::domain::templates::travel::TravelSlot;
-use gw2fashionista_core::domain::templates::travel::TravelTemplate;
+use gw2fashionista_chatlink::domain::templates::travel::TravelSlot;
+use gw2fashionista_chatlink::domain::templates::travel::TravelTemplate;
 use gw2fashionista_core::gw2::resolve::Resolver;
 use gw2fashionista_core::models::skin::Skin;
 

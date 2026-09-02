@@ -1,7 +1,9 @@
 use bon::Builder;
 use chrono::{DateTime, Utc};
 
-use crate::domain::templates::{travel::TravelTemplate, wardrobe::WardrobeTemplate};
+use gw2fashionista_chatlink::domain::templates::{
+    travel::TravelTemplate, wardrobe::WardrobeTemplate,
+};
 
 #[derive(Debug, Clone, Eq, PartialEq, Builder)]
 pub struct Fashion {

@@ -10,8 +10,6 @@ use gw2lib::model::{
 use gw2lib::{Client, Requester};
 use linearize::StaticMap;
 
-use crate::domain::skins::{DyeId, SkinId};
-use crate::domain::templates::{FashionSlot, FashionSlotKind, Template};
 use crate::gw2::cache::Cache;
 use crate::gw2::endpoints::glider::Glider;
 use crate::gw2::endpoints::mount::MountSkin;
@@ -25,6 +23,8 @@ use crate::gw2::missing;
 use crate::gw2::named::{Named, StaticName};
 use crate::models::skin;
 use crate::models::template::TemplateData;
+use gw2fashionista_chatlink::domain::skins::{DyeId, SkinId};
+use gw2fashionista_chatlink::domain::templates::{FashionSlot, FashionSlotKind, Template};
 
 const DEFAULT_BUFFER_SIZE: usize = 10;
 

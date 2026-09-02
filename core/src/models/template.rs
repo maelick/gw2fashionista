@@ -3,11 +3,11 @@ use std::collections::hash_map::Iter;
 
 use serde::{Deserialize, Serialize};
 
-use crate::domain::skins::Appearance;
-use crate::domain::templates::travel::TravelSlot;
-use crate::domain::templates::wardrobe::WardrobeSlot;
-use crate::domain::templates::{FashionSlot, Template};
 use crate::models::skin::Skin;
+use gw2fashionista_chatlink::domain::skins::Appearance;
+use gw2fashionista_chatlink::domain::templates::travel::TravelSlot;
+use gw2fashionista_chatlink::domain::templates::wardrobe::WardrobeSlot;
+use gw2fashionista_chatlink::domain::templates::{FashionSlot, Template};
 
 pub type WardrobeTemplateData = TemplateData<WardrobeSlot>;
 pub type TravelTemplateData = TemplateData<TravelSlot>;

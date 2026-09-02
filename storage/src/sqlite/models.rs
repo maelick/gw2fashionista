@@ -1,11 +1,11 @@
 use std::fmt::Display;
 
-use gw2fashionista_core::domain::{
-    self,
+use gw2fashionista_chatlink::domain::{
     chatlink::ChatLink,
     error::ChatLinkError,
     templates::{FashionSlot, Template},
 };
+use gw2fashionista_core::domain;
 use sqlx::types::{
     chrono::{DateTime, Utc},
     uuid,
