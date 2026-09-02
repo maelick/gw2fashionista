@@ -70,3 +70,35 @@ echo $fashion2_noweapons | ./gw2fashionista read | jq
 # fashion2 backpack skin and fashion1 dyes
 ./gw2fashionista wardrobe merge "$fashion1" "$fashion2_noweapons" --no-dyes | ./gw2fashionista read | jq .backpack
 ```
+
+## Development
+
+### Running the tests
+
+```bash
+cargo test --all-features
+```
+
+The e2e tests for the wardrobe export call the real GW2 API and require a `GW2_API_KEY`
+environment variable (same permissions as `wardrobe export`, see above).
+Without it, those tests fail.
+
+The `storage` crate uses [sqlx](https://github.com/launchbadge/sqlx) with compile-time
+checked queries (`sqlx::query!`/`query_as!`).
+These macros need to validate each query against a real schema at compile time, using one of two modes:
+* **online**: set `DATABASE_URL` to a SQLite database with the crate's migrations
+  applied, e.g. `DATABASE_URL=sqlite://path/to/db.sqlite`.
+  You can setup the database with the sqlx-cli (see below).
+* **offline**: set `SQLX_OFFLINE=true`. This reads the query metadata cache committed
+  in the workspace-root `.sqlx` directory instead of connecting to a database
+  This is what CI uses, and what you'll want if you don't have a database set up locally.
+
+If you add or change a query in the `storage` crate, regenerate the cache (requires
+`sqlx-cli` and a real database, i.e. online mode) and commit the result:
+
+```bash
+sqlx database drop
+sqlx database create
+sqlx migrate run --source storage/migrations
+cargo sqlx prepare --workspace -- --all-targets
+```
