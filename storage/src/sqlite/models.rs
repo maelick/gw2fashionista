@@ -5,7 +5,7 @@ use gw2fashionista_chatlink::domain::{
     error::ChatLinkError,
     templates::{FashionSlot, Template},
 };
-use gw2fashionista_core::domain;
+use gw2fashionista_core::{fashion, tag};
 use sqlx::types::{
     chrono::{DateTime, Utc},
     uuid,
@@ -31,11 +31,11 @@ pub struct Tag {
     pub updated_at: Option<DateTime<Utc>>,
 }
 
-impl TryFrom<Fashion> for domain::fashion::Fashion {
+impl TryFrom<Fashion> for fashion::Fashion {
     type Error = crate::Error;
 
     fn try_from(model: Fashion) -> Result<Self, Self::Error> {
-        Ok(domain::fashion::Fashion::builder()
+        Ok(fashion::Fashion::builder()
             .id(model.id)
             .name(model.name)
             .maybe_description(non_empty(model.description))
@@ -48,8 +48,8 @@ impl TryFrom<Fashion> for domain::fashion::Fashion {
     }
 }
 
-impl From<&domain::fashion::Fashion> for Fashion {
-    fn from(fashion: &domain::fashion::Fashion) -> Self {
+impl From<&fashion::Fashion> for Fashion {
+    fn from(fashion: &fashion::Fashion) -> Self {
         Fashion {
             id: fashion.id.unwrap_or_else(uuid::Uuid::now_v7).into(),
             name: fashion.name.clone(),
@@ -63,9 +63,9 @@ impl From<&domain::fashion::Fashion> for Fashion {
     }
 }
 
-impl From<Tag> for domain::tag::Tag {
+impl From<Tag> for tag::Tag {
     fn from(model: Tag) -> Self {
-        domain::tag::Tag::builder()
+        tag::Tag::builder()
             .id(model.id)
             .name(model.name)
             .maybe_created_at(model.created_at)

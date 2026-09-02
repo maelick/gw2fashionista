@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use gw2fashionista_core::domain::{fashion::Fashion, tag::Tag};
+use gw2fashionista_core::{fashion::Fashion, tag::Tag};
 use sqlx::{
     QueryBuilder, Sqlite, SqliteConnection, SqlitePool,
     types::{chrono, uuid},

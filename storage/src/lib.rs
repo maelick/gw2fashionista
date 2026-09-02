@@ -5,7 +5,7 @@ pub mod sqlite;
 use async_trait::async_trait;
 pub use error::{Error, Result};
 pub use filters::StringFilters;
-use gw2fashionista_core::domain::{fashion::Fashion, tag::Tag};
+use gw2fashionista_core::{fashion::Fashion, tag::Tag};
 use sqlx::types::uuid;
 
 #[async_trait]
