@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use gw2fashionista_core::{
     fashion::Fashion,
-    ports::repositories::{self, FashionRepository},
+    ports::repositories::{self, FashionResult},
     tag::Tag,
 };
 use sqlx::{
@@ -34,18 +34,18 @@ impl Repository {
 }
 
 #[async_trait]
-impl FashionRepository for Repository {
-    async fn insert_fashion(&self, fashion: &Fashion) -> repositories::Result<Fashion> {
+impl repositories::FashionRepository for Repository {
+    async fn insert_fashion(&self, fashion: &Fashion) -> FashionResult<Fashion> {
         let mut conn = self.acquire_conn().await?;
         Ok(insert_fashion(&mut conn, fashion).await?)
     }
 
-    async fn update_fashion(&self, fashion: &Fashion) -> repositories::Result<Fashion> {
+    async fn update_fashion(&self, fashion: &Fashion) -> FashionResult<Fashion> {
         let mut conn = self.acquire_conn().await?;
         Ok(update_fashion(&mut conn, fashion).await?)
     }
 
-    async fn get_fashion_by_id(&self, id: &uuid::Uuid) -> repositories::Result<Fashion> {
+    async fn get_fashion_by_id(&self, id: &uuid::Uuid) -> FashionResult<Fashion> {
         let mut conn = self.acquire_conn().await?;
         Ok(get_fashion_by_id(&mut conn, id).await?)
     }
@@ -54,44 +54,44 @@ impl FashionRepository for Repository {
         &self,
         name: &str,
         character: Option<&str>,
-    ) -> repositories::Result<Fashion> {
+    ) -> FashionResult<Fashion> {
         let mut conn = self.acquire_conn().await?;
         Ok(get_fashion_by_name(&mut conn, name, character).await?)
     }
 
-    async fn list_fashions(&self) -> repositories::Result<Vec<Fashion>> {
+    async fn list_fashions(&self) -> FashionResult<Vec<Fashion>> {
         let mut conn = self.acquire_conn().await?;
         Ok(list_fashions(&mut conn).await?)
     }
 
-    async fn upsert_tag(&self, name: &str) -> repositories::Result<Option<Tag>> {
+    async fn upsert_tag(&self, name: &str) -> FashionResult<Option<Tag>> {
         let mut conn = self.acquire_conn().await?;
         Ok(upsert_tag(&mut conn, name).await?)
     }
 
-    async fn ensure_tag(&self, name: &str) -> repositories::Result<Tag> {
+    async fn ensure_tag(&self, name: &str) -> FashionResult<Tag> {
         let mut tx = self.begin_transaction().await?;
         let tag = ensure_tag(&mut tx, name).await?;
         commit(tx).await?;
         Ok(tag)
     }
 
-    async fn rename_tag(&self, from: &str, to: &str) -> repositories::Result<Tag> {
+    async fn rename_tag(&self, from: &str, to: &str) -> FashionResult<Tag> {
         let mut conn = self.acquire_conn().await?;
         Ok(rename_tag(&mut conn, from, to).await?)
     }
 
-    async fn get_tag_by_id(&self, id: &uuid::Uuid) -> repositories::Result<Tag> {
+    async fn get_tag_by_id(&self, id: &uuid::Uuid) -> FashionResult<Tag> {
         let mut conn = self.acquire_conn().await?;
         Ok(get_tag_by_id(&mut conn, id).await?)
     }
 
-    async fn get_tag_by_name(&self, name: &str) -> repositories::Result<Tag> {
+    async fn get_tag_by_name(&self, name: &str) -> FashionResult<Tag> {
         let mut conn = self.acquire_conn().await?;
         Ok(get_tag_by_name(&mut conn, name).await?)
     }
 
-    async fn list_tags(&self, filters: StringFilters) -> repositories::Result<Vec<Tag>> {
+    async fn list_tags(&self, filters: StringFilters) -> FashionResult<Vec<Tag>> {
         let mut conn = self.acquire_conn().await?;
         Ok(list_tags(&mut conn, SqliteStringFilters(filters)).await?)
     }
@@ -100,7 +100,7 @@ impl FashionRepository for Repository {
         &self,
         tags: impl IntoIterator<Item: Into<String>, IntoIter: Send> + Send,
         with: &str,
-    ) -> repositories::Result<()> {
+    ) -> FashionResult<()> {
         let mut tx = self.begin_transaction().await?;
         let with_id = resolve_tag_id(&mut tx, with).await?;
         for tag in tags.into_iter().map(Into::into) {
@@ -111,12 +111,12 @@ impl FashionRepository for Repository {
         Ok(())
     }
 
-    async fn clean_tags(&self) -> repositories::Result<()> {
+    async fn clean_tags(&self) -> FashionResult<()> {
         let mut conn = self.acquire_conn().await?;
         Ok(clean_tags(&mut conn).await?)
     }
 
-    async fn get_fashion_tags(&self, fashion_id: &uuid::Uuid) -> repositories::Result<Vec<String>> {
+    async fn get_fashion_tags(&self, fashion_id: &uuid::Uuid) -> FashionResult<Vec<String>> {
         let mut conn = self.acquire_conn().await?;
         Ok(get_fashion_tags(&mut conn, fashion_id).await?)
     }
@@ -125,7 +125,7 @@ impl FashionRepository for Repository {
         &self,
         fashion_ids: impl IntoIterator<Item = &uuid::Uuid> + Send,
         tags: impl IntoIterator<Item: Into<String>, IntoIter: Send> + Send,
-    ) -> repositories::Result<()> {
+    ) -> FashionResult<()> {
         let fashion_ids: Vec<_> = fashion_ids.into_iter().collect();
         let mut tx = self.begin_transaction().await?;
         for tag in tags.into_iter().map(Into::into) {
@@ -142,7 +142,7 @@ impl FashionRepository for Repository {
         &self,
         fashion_ids: impl IntoIterator<Item = &uuid::Uuid> + Send,
         tags: impl IntoIterator<Item: Into<String>, IntoIter: Send> + Send,
-    ) -> repositories::Result<()> {
+    ) -> FashionResult<()> {
         let fashion_ids: Vec<_> = fashion_ids.into_iter().collect();
         let mut tx = self.begin_transaction().await?;
         for tag in tags.into_iter().map(Into::into) {

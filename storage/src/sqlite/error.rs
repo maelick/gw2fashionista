@@ -1,5 +1,5 @@
 use gw2fashionista_chatlink::ChatLinkError;
-use gw2fashionista_core::ports::repositories;
+use gw2fashionista_core::ports::repositories::{self, FashionError};
 use sqlx::types::uuid;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -32,15 +32,15 @@ impl From<sqlx::Error> for Error {
     }
 }
 
-impl From<Error> for repositories::Error {
+impl From<Error> for repositories::Error<FashionError> {
     fn from(err: Error) -> Self {
         match err {
             Error::NotFound => Self::NotFound,
-            Error::InvalidId(error) => Self::InvalidId(error),
-            Error::Conflict(error) => Self::Conflict {
+            Error::InvalidId(error) => Self::Repository(FashionError::InvalidId(error)),
+            Error::Conflict(error) => Self::Repository(FashionError::Conflict {
                 message: error.to_string(),
-            },
-            Error::InvalidChatLink(error) => Self::InvalidChatLink(error),
+            }),
+            Error::InvalidChatLink(error) => Self::Repository(FashionError::InvalidChatLink(error)),
             Error::Database(error) => Self::Backend(Box::new(error)),
         }
     }
