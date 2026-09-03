@@ -10,7 +10,7 @@ use byteorder::{LittleEndian, WriteBytesExt};
 use linearize::{Linearize, LinearizeExt, StaticMap, static_map};
 use serde::Serialize;
 
-use crate::domain::{
+use crate::{
     error::ChatLinkError,
     skins::{Appearance, DyeId, SkinId},
 };
@@ -263,7 +263,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::domain::{skins::DyeId, templates::wardrobe::WardrobeTemplate};
+    use crate::{skins::DyeId, templates::wardrobe::WardrobeTemplate};
 
     #[test]
     fn test_empty_template() {

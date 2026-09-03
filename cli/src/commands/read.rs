@@ -1,12 +1,10 @@
 use async_trait::async_trait;
 use clap::Args;
-use gw2fashionista_core::domain::templates::FashionSlot;
-use gw2fashionista_core::domain::templates::travel::TravelTemplate;
-use gw2fashionista_core::domain::{
-    chatlink::ChatLink, error::ChatLinkError, templates::wardrobe::WardrobeTemplate,
-};
-use gw2fashionista_core::gw2::resolve::Resolver;
-use gw2fashionista_core::models::template::TemplateData;
+use gw2fashionista_appearance::gw2::resolve::Resolver;
+use gw2fashionista_appearance::models::template::TemplateData;
+use gw2fashionista_chatlink::templates::FashionSlot;
+use gw2fashionista_chatlink::templates::travel::TravelTemplate;
+use gw2fashionista_chatlink::{ChatLink, ChatLinkError, templates::wardrobe::WardrobeTemplate};
 use serde::Serialize;
 use std::{io, iter};
 
@@ -159,8 +157,8 @@ impl super::Command for Command {
 
         let resolver = Resolver::default().with_buffer_size(self.concurrency as usize);
         if !self.skip_names {
-            resolver.cache_templates(wardrobe_templates(&links)).await?;
-            resolver.cache_templates(travel_templates(&links)).await?;
+            resolver.cache_templates(wardrobe_templates(links)).await?;
+            resolver.cache_templates(travel_templates(links)).await?;
         }
 
         for link in links {

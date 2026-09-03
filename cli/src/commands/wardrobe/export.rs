@@ -1,9 +1,7 @@
 use async_trait::async_trait;
 use clap::Args;
-use gw2fashionista_core::{
-    domain::{chatlink::ChatLink, error::ChatLinkError},
-    gw2::{equipment::Equipment, import::Importer, resolve::Resolver},
-};
+use gw2fashionista_appearance::gw2::{equipment::Equipment, import::Importer, resolve::Resolver};
+use gw2fashionista_chatlink::ChatLinkError;
 use serde::{Deserialize, Serialize};
 use std::{fs, io};
 
@@ -138,12 +136,11 @@ struct ExportedEquipment {
 
 impl ExportedEquipment {
     pub fn new(equipment: &Equipment) -> Result<Self, ChatLinkError> {
-        let chat_link = ChatLink::WardrobeTemplate(equipment.into());
         Ok(ExportedEquipment {
             char_name: equipment.char_name.clone(),
             tab_id: equipment.tab_id,
             tab_name: equipment.tab_name.clone(),
-            fashion_link: chat_link.to_string(),
+            fashion_link: equipment.to_template().to_string(),
         })
     }
 

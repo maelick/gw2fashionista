@@ -1,7 +1,7 @@
 use linearize::Linearize;
 use serde::{Deserialize, Serialize};
 
-use crate::domain::templates::{FashionSlot, Template};
+use crate::templates::{FashionSlot, Template};
 
 pub type WardrobeTemplate = Template<WardrobeSlot>;
 
@@ -120,7 +120,7 @@ impl EquipmentCategory {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::error::ChatLinkError;
+    use crate::error::ChatLinkError;
     use std::assert_matches;
 
     #[test]

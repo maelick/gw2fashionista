@@ -4,7 +4,7 @@ use clap::Args;
 use crate::commands;
 use crate::commands::travel::args::TravelFilters;
 
-use gw2fashionista_core::domain::{chatlink::ChatLink, templates::travel::TravelTemplate};
+use gw2fashionista_chatlink::{ChatLink, templates::travel::TravelTemplate};
 
 #[derive(Args, Debug)]
 pub struct Command {

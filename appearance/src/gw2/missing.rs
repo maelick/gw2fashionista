@@ -4,7 +4,8 @@ use linearize::StaticMap;
 use serde::Deserialize;
 use toml::value::Datetime;
 
-use crate::{domain::templates::FashionSlotKind, gw2::named::StaticName};
+use crate::gw2::named::StaticName;
+use gw2fashionista_chatlink::templates::FashionSlotKind;
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]

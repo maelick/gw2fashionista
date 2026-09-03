@@ -1,6 +1,5 @@
-use gw2fashionista_core::domain::{
-    chatlink::ChatLink,
-    error::ChatLinkError,
+use gw2fashionista_chatlink::{
+    ChatLink, ChatLinkError,
     skins::{Appearance, Dyes, SkinId},
     templates::travel::{TravelSlot, TravelTemplate},
 };

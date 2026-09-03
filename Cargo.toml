@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["cli", "core", "fixtures", "e2e", "storage"]
+members = ["cli", "core", "fixtures", "e2e", "storage", "chatlink", "appearance"]
 
 [workspace.metadata.release]
 consolidate-commits = false

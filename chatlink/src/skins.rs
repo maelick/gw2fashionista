@@ -37,6 +37,12 @@ impl From<SkinId> for u32 {
     }
 }
 
+impl From<u32> for SkinId {
+    fn from(id: u32) -> Self {
+        Self::new(id as u16)
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct DyeId(u16);
 
@@ -121,6 +127,12 @@ impl From<Dyes> for (DyeId, DyeId, DyeId, DyeId) {
 impl From<Dyes> for (u16, u16, u16, u16) {
     fn from(Dyes(dye1, dye2, dye3, dye4): Dyes) -> (u16, u16, u16, u16) {
         (dye1.into(), dye2.into(), dye3.into(), dye4.into())
+    }
+}
+
+impl From<&Option<u16>> for DyeId {
+    fn from(dye: &Option<u16>) -> Self {
+        dye.map(DyeId::from).unwrap_or_default()
     }
 }
 

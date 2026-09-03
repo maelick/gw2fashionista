@@ -1,8 +1,8 @@
 use async_trait::async_trait;
 use clap::Args;
 
-use gw2fashionista_core::domain::chatlink::ChatLink;
-use gw2fashionista_core::domain::templates::travel::TravelTemplate;
+use gw2fashionista_chatlink::ChatLink;
+use gw2fashionista_chatlink::templates::travel::TravelTemplate;
 
 use crate::commands;
 use crate::commands::args;

@@ -1,5 +1,5 @@
-use gw2fashionista_core::domain::{
-    chatlink::ChatLink,
+use gw2fashionista_chatlink::{
+    ChatLink,
     templates::{
         SlotFilter, SlotFilterExt,
         travel::{TravelCategory, TravelSlot, TravelTemplate},

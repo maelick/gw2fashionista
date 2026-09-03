@@ -1,4 +1,4 @@
-use crate::domain::templates::FashionSlot;
+use gw2fashionista_chatlink::templates::FashionSlot;
 
 #[derive(Debug, Clone, Copy)]
 pub enum AppearanceKind {

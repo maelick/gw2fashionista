@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::domain::skins;
+use gw2fashionista_chatlink::skins;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Skin {
@@ -28,7 +28,7 @@ impl From<&Skin> for skins::Appearance {
             Some(dyes) => skins::Appearance::Dyeable {
                 skin: skin.id.into(),
                 visible: skin.visible.unwrap_or(true),
-                dyes: dyes.clone().into(),
+                dyes: dyes_from_model(dyes.clone()),
             },
             None => skins::Appearance::NonDyeable {
                 skin: skin.id.into(),
@@ -54,7 +54,7 @@ impl From<&skins::Appearance> for Skin {
             } => Skin {
                 id: (*skin).into(),
                 name: None,
-                dyes: Some((*dyes).into()),
+                dyes: Some(model_from_dyes(*dyes)),
                 visible: Some(*visible),
             },
         }
@@ -76,16 +76,12 @@ impl From<skins::DyeId> for Dye {
     }
 }
 
-impl From<Dyes> for skins::Dyes {
-    fn from((dye1, dye2, dye3, dye4): Dyes) -> Self {
-        skins::Dyes::new(dye1.into(), dye2.into(), dye3.into(), dye4.into())
-    }
+fn dyes_from_model((dye1, dye2, dye3, dye4): Dyes) -> skins::Dyes {
+    skins::Dyes::new(dye1.into(), dye2.into(), dye3.into(), dye4.into())
 }
 
-impl From<skins::Dyes> for Dyes {
-    fn from(dyes: skins::Dyes) -> Self {
-        let (dye1, dye2, dye3, dye4): (skins::DyeId, skins::DyeId, skins::DyeId, skins::DyeId) =
-            dyes.into();
-        (dye1.into(), dye2.into(), dye3.into(), dye4.into())
-    }
+fn model_from_dyes(dyes: skins::Dyes) -> Dyes {
+    let (dye1, dye2, dye3, dye4): (skins::DyeId, skins::DyeId, skins::DyeId, skins::DyeId) =
+        dyes.into();
+    (dye1.into(), dye2.into(), dye3.into(), dye4.into())
 }
