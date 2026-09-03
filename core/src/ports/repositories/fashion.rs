@@ -1,5 +1,4 @@
-use crate::filters::StringFilters;
-use crate::{fashion::Fashion, tag::Tag};
+use crate::domain::{fashion::Fashion, filters::StringFilters, tag::Tag};
 use async_trait::async_trait;
 use gw2fashionista_chatlink::ChatLinkError;
 use uuid;

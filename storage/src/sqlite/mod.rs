@@ -1,16 +1,13 @@
 use async_trait::async_trait;
 use gw2fashionista_core::{
-    fashion::Fashion,
+    domain::{fashion::Fashion, filters::StringFilters, tag::Tag},
     ports::repositories::{self, FashionResult},
-    tag::Tag,
 };
 use sqlx::{
     QueryBuilder, Sqlite, SqliteConnection, SqlitePool, Transaction,
     pool::PoolConnection,
     types::{chrono, uuid},
 };
-
-use gw2fashionista_core::filters::StringFilters;
 
 mod error;
 mod models;

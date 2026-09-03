@@ -4,7 +4,7 @@ use gw2fashionista_chatlink::{
     ChatLink, ChatLinkError,
     templates::{FashionSlot, Template},
 };
-use gw2fashionista_core::{fashion, tag};
+use gw2fashionista_core::domain::{fashion, tag};
 use sqlx::types::{
     chrono::{DateTime, Utc},
     uuid,

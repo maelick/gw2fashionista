@@ -2,8 +2,7 @@ use std::assert_matches;
 
 use gw2fashionista_chatlink::ChatLink;
 use gw2fashionista_core::{
-    fashion::Fashion,
-    filters::StringFilters,
+    domain::{fashion::Fashion, filters::StringFilters},
     ports::repositories::{self, FashionRepository},
 };
 use gw2fashionista_fixtures::{travel, wardrobe};
