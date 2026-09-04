@@ -4,11 +4,13 @@ use gw2fashionista_chatlink::{
     ChatLink, ChatLinkError,
     templates::{FashionSlot, Template},
 };
-use gw2fashionista_core::{fashion, tag};
+use gw2fashionista_core::domain::{fashion, tag};
 use sqlx::types::{
     chrono::{DateTime, Utc},
     uuid,
 };
+
+use crate::sqlite::error;
 
 #[derive(sqlx::FromRow, Debug, Clone, Eq, PartialEq)]
 pub struct Fashion {
@@ -31,7 +33,7 @@ pub struct Tag {
 }
 
 impl TryFrom<Fashion> for fashion::Fashion {
-    type Error = crate::Error;
+    type Error = error::Error;
 
     fn try_from(model: Fashion) -> Result<Self, Self::Error> {
         Ok(fashion::Fashion::builder()
@@ -73,7 +75,7 @@ impl From<Tag> for tag::Tag {
     }
 }
 
-fn parse_template<S: FashionSlot>(s: &str) -> crate::Result<Template<S>>
+fn parse_template<S: FashionSlot>(s: &str) -> error::Result<Template<S>>
 where
     Template<S>: Default + TryFrom<ChatLink, Error = ChatLinkError>,
 {

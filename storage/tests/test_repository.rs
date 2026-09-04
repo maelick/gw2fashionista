@@ -1,9 +1,12 @@
 use std::assert_matches;
 
 use gw2fashionista_chatlink::ChatLink;
-use gw2fashionista_core::fashion::Fashion;
+use gw2fashionista_core::{
+    domain::{fashion::Fashion, filters::StringFilters},
+    ports::repositories::{self, FashionRepository},
+};
 use gw2fashionista_fixtures::{travel, wardrobe};
-use gw2fashionista_storage::{Repository, StringFilters, sqlite};
+use gw2fashionista_storage::sqlite;
 use sqlx::{SqlitePool, types::uuid};
 
 #[sqlx::test]
@@ -182,7 +185,7 @@ async fn test_update_fashion(pool: SqlitePool) {
         .name("does not exist")
         .build();
     let err = repo.update_fashion(&fashion).await.unwrap_err();
-    assert_matches!(err, gw2fashionista_storage::Error::NotFound);
+    assert_matches!(err, repositories::Error::NotFound);
 }
 
 #[sqlx::test]
@@ -450,7 +453,7 @@ async fn test_rename_tag(pool: SqlitePool) {
     // We try to rename a tag that doesn't exist
     assert_matches!(
         repo.rename_tag("pikku", "peekaboo").await.unwrap_err(),
-        gw2fashionista_storage::Error::NotFound
+        repositories::Error::NotFound
     );
 
     // We ensure the tag hasn't been created or the existing tags updated
@@ -531,7 +534,7 @@ async fn test_replace_tags(pool: SqlitePool) {
         .replace_tags(std::iter::once("tag3"), "tag5")
         .await
         .unwrap_err();
-    assert_matches!(err, gw2fashionista_storage::Error::NotFound);
+    assert_matches!(err, repositories::Error::NotFound);
 
     let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
     assert_eq!(tags, vec!["tag1"]);
@@ -543,7 +546,7 @@ async fn test_replace_tags(pool: SqlitePool) {
         .replace_tags(std::iter::once("tag5"), "tag3")
         .await
         .unwrap_err();
-    assert_matches!(err, gw2fashionista_storage::Error::NotFound);
+    assert_matches!(err, repositories::Error::NotFound);
 
     let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
     assert_eq!(tags, vec!["tag1"]);

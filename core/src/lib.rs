@@ -1,2 +1,2 @@
-pub mod fashion;
-pub mod tag;
+pub mod domain;
+pub mod ports;
