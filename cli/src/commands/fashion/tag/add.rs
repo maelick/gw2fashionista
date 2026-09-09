@@ -1,6 +1,5 @@
 use crate::{
-    commands::{self, args::DataFormat, fashion::args::FashionIdentifier},
-    environment::Environment,
+    commands::{self, args::{DataFormat, InputMode}, fashion::args::FashionIdentifier}, environment::Environment,
 };
 
 #[derive(clap::Args, Debug)]
@@ -18,6 +17,10 @@ pub struct Command {
     /// Input format. Auto is based on whether stdin is a TTY (CSV for TTY, JSON if not).
     #[arg(short, long, value_enum, default_value_t = DataFormat::Auto)]
     format: DataFormat,
+
+    /// Input mode. Auto is based on whether stdin is a TTY (never for TTY, always otherwise).
+    #[arg(long, value_enum, default_value_t = InputMode::Auto)]
+    stdin: InputMode,
 }
 
 impl commands::Command for Command {

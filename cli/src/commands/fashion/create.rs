@@ -9,7 +9,11 @@ use gw2fashionista_core::{
 use gw2fashionista_storage::sqlite;
 
 use crate::{
-    commands::{self, args::DataFormat, fashion::args::FashionFields},
+    commands::{
+        self,
+        args::{DataFormat, InputMode},
+        fashion::args::FashionFields,
+    },
     environment::Environment,
     input, output,
 };
@@ -25,6 +29,10 @@ pub struct Command {
     /// Input and output format. Auto is based on whether stdin and stdout are TTYs (CSV for TTY, JSON if not).
     #[arg(short, long, value_enum, default_value_t = DataFormat::Auto)]
     format: DataFormat,
+
+    /// Input mode. Auto is based on whether stdin is a TTY (never for TTY, always otherwise).
+    #[arg(long, value_enum, default_value_t = InputMode::Auto)]
+    stdin: InputMode,
 }
 
 impl commands::Command for Command {

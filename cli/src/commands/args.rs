@@ -20,6 +20,16 @@ pub enum ChatLinkFormat {
     Json,
 }
 
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
+pub enum InputMode {
+    /// Auto detection based on whether stdin is a terminal
+    Auto,
+    /// Always read from stdin
+    Always,
+    /// Never read from stdin
+    Never,
+}
+
 #[derive(Args, Debug)]
 #[group(multiple = false)]
 pub struct SkinsOrDyes {
