@@ -7,7 +7,7 @@ pub enum Format {
     None,
 }
 
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone)]
 pub enum Input<T> {
     None,
     Zero,
@@ -15,6 +15,8 @@ pub enum Input<T> {
     Many(Vec<T>),
 }
 
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
 pub enum OneOrMany<T> {
     One(T),
     Many(Vec<T>),
@@ -25,7 +27,7 @@ where
     T: serde::de::DeserializeOwned,
 {
     pub fn from_json<R: io::Read>(reader: R) -> Result<Self, serde_json::Error> {
-        serde_json::from_reader::<_, Self>(reader)
+        Ok(serde_json::from_reader::<_, OneOrMany<T>>(reader)?.into())
     }
 
     pub fn from_csv<R: io::Read>(reader: R) -> Result<Self, csv::Error> {
@@ -35,6 +37,19 @@ where
             .deserialize()
             .collect();
         Ok(items?.into())
+    }
+}
+
+impl<T> From<OneOrMany<T>> for Input<T> {
+    fn from(value: OneOrMany<T>) -> Self {
+        match value {
+            OneOrMany::One(item) => Self::One(item),
+            OneOrMany::Many(items) => match items.len() {
+                0 => Self::Zero,
+                1 => Self::One(items.into_iter().next().unwrap()),
+                _ => Self::Many(items),
+            },
+        }
     }
 }
 

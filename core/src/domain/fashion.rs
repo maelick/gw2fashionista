@@ -18,10 +18,10 @@ pub struct Fashion {
     #[builder(into)]
     pub character: Option<String>,
 
-    #[serde(with = "display_fromstr_option")]
+    #[serde(default, with = "display_fromstr_option")]
     pub wardrobe_template: Option<WardrobeTemplate>,
 
-    #[serde(with = "display_fromstr_option")]
+    #[serde(default, with = "display_fromstr_option")]
     pub travel_template: Option<TravelTemplate>,
 
     pub created_at: Option<DateTime<Utc>>,
@@ -29,6 +29,7 @@ pub struct Fashion {
     pub updated_at: Option<DateTime<Utc>>,
 
     #[builder(default, into)]
+    #[serde(default)]
     pub tags: Vec<String>,
 }
 
