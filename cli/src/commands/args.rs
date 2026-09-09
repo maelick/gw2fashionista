@@ -1,3 +1,5 @@
+use std::io::{self, IsTerminal};
+
 use clap::{Args, ValueEnum};
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
@@ -40,4 +42,14 @@ pub struct SkinsOrDyes {
     /// Do not merge dyes (i.e. original dyes will be preserved)
     #[arg(long, default_value_t = false, display_order = 20)]
     pub no_dyes: bool,
+}
+
+impl From<&InputMode> for bool {
+    fn from(value: &InputMode) -> Self {
+        match value {
+            InputMode::Auto => !io::stdin().is_terminal(),
+            InputMode::Always => true,
+            InputMode::Never => false,
+        }
+    }
 }

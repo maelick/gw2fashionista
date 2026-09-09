@@ -59,7 +59,17 @@ impl Command {
     }
 
     fn read_templates(&self) -> anyhow::Result<(input::OneOrMany<Fashion>, input::Format)> {
-        let (fashions, format) = self.read_templates_from_stdin()?;
+        let (fashions, format) = if (&self.stdin).into() {
+            self.read_templates_from_stdin()?
+        } else {
+            (
+                input::Input::None,
+                match self.format {
+                    DataFormat::Csv => input::Format::Csv,
+                    DataFormat::Json | DataFormat::Auto => input::Format::Json,
+                },
+            )
+        };
         let fashions = match fashions {
             input::Input::None => input::OneOrMany::One((&self.data).try_into()?),
             input::Input::Zero => input::OneOrMany::Many(Vec::new()),
