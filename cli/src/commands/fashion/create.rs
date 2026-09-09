@@ -4,7 +4,7 @@ use futures::StreamExt;
 use futures::stream::FuturesOrdered;
 use gw2fashionista_core::{
     app::{FashionError, FashionService},
-    domain::fashion::Fashion,
+    domain::fashion::{Fashion, FashionRecord},
 };
 use gw2fashionista_storage::sqlite;
 
@@ -84,11 +84,13 @@ impl Command {
         match self.format {
             DataFormat::Auto => {
                 let (format, mut reader) = input::detect_format(&mut stdin)?;
-                input::read_templates::<Fashion, _>(&mut reader, format)
+                input::read_csv_json::<Fashion, _, FashionRecord>(&mut reader, format)
             }
-            DataFormat::Csv => input::read_templates::<Fashion, _>(&mut stdin, input::Format::Csv),
+            DataFormat::Csv => {
+                input::read_csv_json::<Fashion, _, FashionRecord>(&mut stdin, input::Format::Csv)
+            }
             DataFormat::Json => {
-                input::read_templates::<Fashion, _>(&mut stdin, input::Format::Json)
+                input::read_csv_json::<Fashion, _, FashionRecord>(&mut stdin, input::Format::Json)
             }
         }
     }

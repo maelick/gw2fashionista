@@ -56,3 +56,54 @@ mod display_fromstr_option {
             .transpose()
     }
 }
+
+#[derive(Deserialize, Serialize)]
+pub struct FashionRecord {
+    pub id: Option<uuid::Uuid>,
+    pub name: String,
+    pub description: Option<String>,
+    pub character: Option<String>,
+    #[serde(default, with = "display_fromstr_option")]
+    pub wardrobe_template: Option<WardrobeTemplate>,
+    #[serde(default, with = "display_fromstr_option")]
+    pub travel_template: Option<TravelTemplate>,
+    pub created_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<DateTime<Utc>>,
+    #[serde(default)]
+    pub tags: Tags,
+}
+
+impl From<FashionRecord> for Fashion {
+    fn from(record: FashionRecord) -> Self {
+        Self {
+            id: record.id,
+            name: record.name,
+            description: record.description,
+            character: record.character,
+            wardrobe_template: record.wardrobe_template,
+            travel_template: record.travel_template,
+            created_at: record.created_at,
+            updated_at: record.updated_at,
+            tags: record.tags.into(),
+        }
+    }
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct Tags(String);
+
+impl From<Tags> for Vec<String> {
+    fn from(Tags(tags): Tags) -> Self {
+        tags.split(",")
+            .map(|s| s.trim())
+            .filter(|s| !s.is_empty())
+            .map(|s| s.to_string())
+            .collect()
+    }
+}
+
+impl Default for Tags {
+    fn default() -> Self {
+        Self(Default::default())
+    }
+}

@@ -29,12 +29,20 @@ where
     pub fn from_json<R: io::Read>(reader: R) -> Result<Self, serde_json::Error> {
         Ok(serde_json::from_reader::<_, OneOrMany<T>>(reader)?.into())
     }
+}
 
-    pub fn from_csv<R: io::Read>(reader: R) -> Result<Self, csv::Error> {
+impl<T> Input<T> {
+    pub fn from_csv<R, Row>(reader: R) -> Result<Self, csv::Error>
+    where
+        R: io::Read,
+        T: From<Row>,
+        Row: serde::de::DeserializeOwned,
+    {
         let items: Result<Vec<T>, _> = csv::ReaderBuilder::new()
             .has_headers(true)
             .from_reader(reader)
             .deserialize()
+            .map(|row| Ok::<_, csv::Error>(T::from(row?)))
             .collect();
         Ok(items?.into())
     }
@@ -75,12 +83,14 @@ impl<T> From<Input<T>> for Vec<T> {
     }
 }
 
-pub fn read_templates<T, R: io::BufRead>(
+pub fn read_csv_json<T, R, Row>(
     reader: &mut R,
     format: Format,
 ) -> anyhow::Result<(Input<T>, Format)>
 where
-    T: serde::de::DeserializeOwned,
+    R: io::BufRead,
+    T: serde::de::DeserializeOwned + From<Row>,
+    Row: serde::de::DeserializeOwned,
 {
     Ok((
         match format {
