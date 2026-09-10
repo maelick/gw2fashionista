@@ -89,6 +89,38 @@ impl From<FashionRecord> for Fashion {
     }
 }
 
+#[derive(Serialize)]
+pub struct FashionRecordRef<'a> {
+    pub id: Option<&'a uuid::Uuid>,
+    pub name: &'a str,
+    pub description: Option<&'a str>,
+    pub character: Option<&'a str>,
+    #[serde(default, with = "display_fromstr_option")]
+    pub wardrobe_template: Option<&'a WardrobeTemplate>,
+    #[serde(default, with = "display_fromstr_option")]
+    pub travel_template: Option<&'a TravelTemplate>,
+    pub created_at: Option<&'a DateTime<Utc>>,
+    pub updated_at: Option<&'a DateTime<Utc>>,
+    #[serde(default)]
+    pub tags: Tags,
+}
+
+impl<'a> From<&'a Fashion> for FashionRecordRef<'a> {
+    fn from(fashion: &'a Fashion) -> Self {
+        Self {
+            id: fashion.id.as_ref(),
+            name: &fashion.name,
+            description: fashion.description.as_deref(),
+            character: fashion.character.as_deref(),
+            wardrobe_template: fashion.wardrobe_template.as_ref(),
+            travel_template: fashion.travel_template.as_ref(),
+            created_at: fashion.created_at.as_ref(),
+            updated_at: fashion.updated_at.as_ref(),
+            tags: Tags(fashion.tags.join(",")),
+        }
+    }
+}
+
 #[derive(Deserialize, Serialize)]
 pub struct Tags(String);
 
