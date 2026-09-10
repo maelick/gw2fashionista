@@ -30,6 +30,10 @@ pub struct Command {
     /// Input mode. Auto is based on whether stdin is a TTY (never for TTY, always otherwise).
     #[arg(long, value_enum, default_value_t = InputMode::Auto)]
     stdin: InputMode,
+
+    /// Pretty print (JSON) output.
+    #[arg(short, long)]
+    pretty: bool,
 }
 
 impl commands::Command for Command {

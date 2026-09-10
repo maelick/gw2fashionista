@@ -37,6 +37,10 @@ pub struct Command {
     /// Input mode. Auto is based on whether stdin is a TTY (never for TTY, always otherwise).
     #[arg(long, value_enum, default_value_t = InputMode::Auto)]
     stdin: InputMode,
+
+    /// Pretty print (JSON) output.
+    #[arg(short, long)]
+    pretty: bool,
 }
 
 impl commands::Command for Command {
@@ -59,9 +63,11 @@ impl Command {
             DataFormat::Json => output::Format::Json,
         };
         match fashions {
-            input::OneOrMany::One(fashion) => create_one_and_print(&service, fashion, format).await,
+            input::OneOrMany::One(fashion) => {
+                self.create_one_and_print(&service, fashion, format).await
+            }
             input::OneOrMany::Many(fashions) => {
-                create_many_and_print(&service, fashions, format).await
+                self.create_many_and_print(&service, fashions, format).await
             }
         }
     }
@@ -137,30 +143,32 @@ impl Command {
         }
         Ok(fashions)
     }
-}
 
-async fn create_one_and_print(
-    service: &FashionService<sqlite::Repository>,
-    fashion: Fashion,
-    format: output::Format,
-) -> anyhow::Result<()> {
-    let created = service.create(&fashion).await?;
-    output::OneOrMany::One(&created).print::<FashionRecordRef>(format, true)
-}
+    async fn create_one_and_print(
+        &self,
+        service: &FashionService<sqlite::Repository>,
+        fashion: Fashion,
+        format: output::Format,
+    ) -> anyhow::Result<()> {
+        let created = service.create(&fashion).await?;
+        output::OneOrMany::One(&created).print::<FashionRecordRef>(format, self.pretty)
+    }
 
-async fn create_many_and_print(
-    service: &FashionService<sqlite::Repository>,
-    fashions: Vec<Fashion>,
-    format: output::Format,
-) -> anyhow::Result<()> {
-    let (created, failed) = create_many(service, fashions).await;
-    output::OneOrMany::Many(&created).print::<FashionRecordRef>(format, false)?;
-    anyhow::ensure!(
-        failed.is_empty(),
-        "Failed to create {} fashions",
-        failed.len()
-    );
-    Ok(())
+    async fn create_many_and_print(
+        &self,
+        service: &FashionService<sqlite::Repository>,
+        fashions: Vec<Fashion>,
+        format: output::Format,
+    ) -> anyhow::Result<()> {
+        let (created, failed) = create_many(service, fashions).await;
+        output::OneOrMany::Many(&created).print::<FashionRecordRef>(format, self.pretty)?;
+        anyhow::ensure!(
+            failed.is_empty(),
+            "Failed to create {} fashions",
+            failed.len()
+        );
+        Ok(())
+    }
 }
 
 async fn create_many(

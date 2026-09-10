@@ -15,6 +15,10 @@ pub struct Command {
     /// Output format. Auto is based on whether stdout is a TTY (CSV for TTY, JSON if not).
     #[arg(short, long, value_enum, default_value_t = DataFormat::Auto)]
     format: DataFormat,
+
+    /// Pretty print (JSON) output.
+    #[arg(short, long)]
+    pretty: bool,
 }
 
 impl commands::Command for Command {

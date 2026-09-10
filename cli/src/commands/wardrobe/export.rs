@@ -22,6 +22,10 @@ pub struct Command {
     #[arg(short, long, value_enum, default_value_t = args::DataFormat::Auto, display_order = 3)]
     format: args::DataFormat,
 
+    /// Pretty print (JSON) output.
+    #[arg(short, long)]
+    pretty: bool,
+
     /// Filename to use as output
     #[arg(short, long, display_order = 3)]
     output: Option<std::path::PathBuf>,
@@ -89,7 +93,7 @@ impl Command {
         output::OneOrMany::Many(&equipments).output::<_, &ExportedEquipment>(
             format,
             self.open_output()?,
-            false,
+            self.pretty,
         )
     }
 
