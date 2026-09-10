@@ -163,6 +163,19 @@ impl repositories::FashionRepository for Repository {
         commit(tx).await?;
         Ok(())
     }
+
+    async fn remove_all_fashion_tags(
+        &self,
+        fashion_ids: impl IntoIterator<Item = &uuid::Uuid> + Send,
+    ) -> FashionResult<()> {
+        let fashion_ids: Vec<_> = fashion_ids.into_iter().collect();
+        let mut tx = self.begin_transaction().await?;
+        for fashion_id in &fashion_ids {
+            remove_all_fashion_tags(&mut tx, fashion_id).await?;
+        }
+        commit(tx).await?;
+        Ok(())
+    }
 }
 
 struct SqliteStringFilters(StringFilters);
@@ -420,6 +433,19 @@ async fn remove_fashion_tag(
             )"#,
         fashion_id.hyphenated(),
         tag.into(),
+    );
+    query.execute(conn).await?;
+    Ok(())
+}
+
+async fn remove_all_fashion_tags(
+    conn: &mut SqliteConnection,
+    fashion_id: &uuid::Uuid,
+) -> error::Result<()> {
+    let query = sqlx::query!(
+        r#"DELETE FROM fashion_tag
+            WHERE fashion_id = ?"#,
+        fashion_id.hyphenated(),
     );
     query.execute(conn).await?;
     Ok(())
