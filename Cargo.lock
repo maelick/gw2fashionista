@@ -965,6 +965,7 @@ dependencies = [
  "async-trait",
  "bon",
  "chrono",
+ "futures",
  "gw2fashionista-appearance",
  "gw2fashionista-chatlink",
  "gw2fashionista-fixtures",

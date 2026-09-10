@@ -7,6 +7,7 @@ edition = "2024"
 async-trait = "0.1.89"
 bon = "3.10.0"
 chrono = { version = "0.4.45", features = ["serde"] }
+futures = "0.3.32"
 gw2fashionista-appearance = { version = "0.1.0", path = "../appearance" }
 gw2fashionista-chatlink = { version = "0.1.0", path = "../chatlink" }
 regex = "1.12.3"

@@ -1,5 +1,8 @@
 use std::{iter, sync::Arc};
 
+use futures::TryStreamExt;
+use futures::stream::FuturesOrdered;
+
 use crate::{
     domain::fashion::Fashion,
     ports::repositories::{self, FashionError, FashionRepository},
@@ -32,17 +35,24 @@ where
 
     pub async fn create(&self, fashion: &Fashion) -> Result<Fashion> {
         let mut created = self.fashion_repo.insert_fashion(fashion).await?;
-        let id = created.id.ok_or(Error::MissingFashionId)?;
+        let id = created.id.as_ref().ok_or(Error::MissingFashionId)?;
         self.fashion_repo
-            .ensure_fashion_tags(iter::once(&id), &fashion.tags)
+            .ensure_fashion_tags(iter::once(id), &fashion.tags)
             .await?;
         created.tags.extend_from_slice(&fashion.tags);
         Ok(created)
     }
 
     pub async fn list(&self) -> Result<Vec<Fashion>> {
-        let fashions = self.fashion_repo.list_fashions().await?;
-        Ok(fashions)
+        FuturesOrdered::from_iter(
+            self.fashion_repo
+                .list_fashions()
+                .await?
+                .into_iter()
+                .map(async |f| self.retrieve_fashion_tags(f).await),
+        )
+        .try_collect()
+        .await
     }
 
     pub async fn get_by_name(&self, name: &str, character: Option<&str>) -> Result<Fashion> {
@@ -50,11 +60,18 @@ where
             .fashion_repo
             .get_fashion_by_name(name, character)
             .await?;
-        Ok(fashions)
+        Ok(self.retrieve_fashion_tags(fashions).await?)
     }
 
     pub async fn get_by_id(&self, id: &uuid::Uuid) -> Result<Fashion> {
         let fashions = self.fashion_repo.get_fashion_by_id(id).await?;
-        Ok(fashions)
+        Ok(self.retrieve_fashion_tags(fashions).await?)
+    }
+
+    async fn retrieve_fashion_tags(&self, mut fashion: Fashion) -> Result<Fashion> {
+        let fashion_id = fashion.id.as_ref().ok_or(Error::MissingFashionId)?;
+        let tags = self.fashion_repo.get_fashion_tags(fashion_id).await?;
+        fashion.tags = tags;
+        Ok(fashion)
     }
 }
