@@ -26,9 +26,13 @@ pub struct Command {
     #[command(flatten)]
     data: FashionFields,
 
-    /// Input and output format. Auto is based on whether stdin and stdout are TTYs (CSV for TTY, JSON if not).
+    /// Input format. Auto is based on whether stdin is a TTY (CSV for TTY, JSON if not).
     #[arg(short, long, value_enum, default_value_t = DataFormat::Auto)]
-    format: DataFormat,
+    input: DataFormat,
+
+    /// Output format. Auto uses the same format as the input.
+    #[arg(short, long, value_enum, default_value_t = DataFormat::Auto)]
+    output: DataFormat,
 
     /// Input mode. Auto is based on whether stdin is a TTY (never for TTY, always otherwise).
     #[arg(long, value_enum, default_value_t = InputMode::Auto)]
@@ -46,9 +50,13 @@ impl Command {
     pub async fn execute(&self, mut env: Environment) -> anyhow::Result<()> {
         let service = env.fashion_service().await?;
         let (fashions, format) = self.read_templates()?;
-        let format = match format {
-            input::Format::Csv => output::Format::Csv,
-            _ => output::Format::Json,
+        let format = match self.output {
+            DataFormat::Auto => match format {
+                input::Format::Csv => output::Format::Csv,
+                _ => output::Format::Json,
+            },
+            DataFormat::Csv => output::Format::Csv,
+            DataFormat::Json => output::Format::Json,
         };
         match fashions {
             input::OneOrMany::One(fashion) => create_one_and_print(&service, fashion, format).await,
@@ -64,7 +72,7 @@ impl Command {
         } else {
             (
                 input::Input::None,
-                match self.format {
+                match self.input {
                     DataFormat::Csv => input::Format::Csv,
                     DataFormat::Json | DataFormat::Auto => input::Format::Json,
                 },
@@ -81,7 +89,7 @@ impl Command {
 
     fn read_templates_from_stdin(&self) -> anyhow::Result<(input::Input<Fashion>, input::Format)> {
         let mut stdin = io::stdin().lock();
-        match self.format {
+        match self.input {
             DataFormat::Auto => {
                 let (format, mut reader) = input::detect_format(&mut stdin)?;
                 input::read_csv_json::<Fashion, _, FashionRecord>(&mut reader, format)

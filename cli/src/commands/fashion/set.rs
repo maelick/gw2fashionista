@@ -19,9 +19,13 @@ pub struct Command {
     #[command(flatten)]
     data: FashionFields,
 
-    /// Input and output format. Auto is based on whether stdin and stdout are TTYs (CSV for TTY, JSON if not).
+    /// Input format. Auto is based on whether stdin is a TTY (CSV for TTY, JSON if not).
     #[arg(short, long, value_enum, default_value_t = DataFormat::Auto)]
-    format: DataFormat,
+    input: DataFormat,
+
+    /// Output format. Auto uses the same format as the input.
+    #[arg(short, long, value_enum, default_value_t = DataFormat::Auto)]
+    output: DataFormat,
 
     /// Input mode. Auto is based on whether stdin is a TTY (never for TTY, always otherwise).
     #[arg(long, value_enum, default_value_t = InputMode::Auto)]
