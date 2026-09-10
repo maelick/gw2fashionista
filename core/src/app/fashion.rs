@@ -39,4 +39,22 @@ where
         created.tags.extend_from_slice(&fashion.tags);
         Ok(created)
     }
+
+    pub async fn list(&self) -> Result<Vec<Fashion>> {
+        let fashions = self.fashion_repo.list_fashions().await?;
+        Ok(fashions)
+    }
+
+    pub async fn get_by_name(&self, name: &str, character: Option<&str>) -> Result<Fashion> {
+        let fashions = self
+            .fashion_repo
+            .get_fashion_by_name(name, character)
+            .await?;
+        Ok(fashions)
+    }
+
+    pub async fn get_by_id(&self, id: &uuid::Uuid) -> Result<Fashion> {
+        let fashions = self.fashion_repo.get_fashion_by_id(id).await?;
+        Ok(fashions)
+    }
 }

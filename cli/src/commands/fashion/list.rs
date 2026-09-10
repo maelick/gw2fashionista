@@ -1,6 +1,11 @@
+use std::io::{self, IsTerminal};
+
+use gw2fashionista_core::domain::fashion::FashionRecordRef;
+
 use crate::{
     commands::{self, args::DataFormat},
     environment::Environment,
+    output,
 };
 
 #[derive(clap::Args, Debug)]
@@ -29,7 +34,20 @@ impl commands::Command for Command {
 
 impl Command {
     #[tracing::instrument(name = "fashion-list", skip_all)]
-    pub async fn execute(&self, _env: Environment) -> anyhow::Result<()> {
-        todo!()
+    pub async fn execute(&self, mut env: Environment) -> anyhow::Result<()> {
+        let service = env.fashion_service().await?;
+        let fashions = service.list().await?;
+        let format = match self.format {
+            DataFormat::Auto => {
+                if io::stdout().is_terminal() {
+                    output::Format::Csv
+                } else {
+                    output::Format::Json
+                }
+            }
+            DataFormat::Csv => output::Format::Csv,
+            DataFormat::Json => output::Format::Json,
+        };
+        output::OneOrMany::Many(&fashions).print::<FashionRecordRef>(format, self.pretty)
     }
 }

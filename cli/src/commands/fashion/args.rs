@@ -53,7 +53,7 @@ impl TryFrom<&FashionFields> for Fashion {
 pub struct FashionIdentifier {
     /// Id of the fashion template.
     #[arg(long, value_name = "UUID", group = "identifier")]
-    id: Option<String>,
+    pub id: Option<uuid::fmt::Hyphenated>,
 
     /// Name of the fashion template.
     #[arg(short, long, group = "identifier")]
