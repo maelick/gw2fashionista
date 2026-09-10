@@ -62,6 +62,31 @@ impl Fashion {
         self.id = Some(id);
         self
     }
+
+    pub fn patch(mut self, other: &Fashion) -> Self {
+        if let Some(id) = &other.id {
+            self.id = Some(*id);
+        }
+        if !other.name.is_empty() {
+            self.name = other.name.clone();
+        }
+        if let Some(description) = &other.description {
+            self.description = Some(description.clone());
+        }
+        if let Some(character) = &other.character {
+            self.character = Some(character.clone());
+        }
+        if let Some(wardrobe_template) = &other.wardrobe_template {
+            self.wardrobe_template = Some(wardrobe_template.clone());
+        }
+        if let Some(travel_template) = &other.travel_template {
+            self.travel_template = Some(travel_template.clone());
+        }
+        if !other.tags.is_empty() {
+            merge_tags(&mut self.tags, &other.tags);
+        }
+        self
+    }
 }
 
 #[derive(Deserialize, Serialize)]
@@ -145,4 +170,14 @@ impl Default for Tags {
     fn default() -> Self {
         Self(Default::default())
     }
+}
+
+fn merge_tags(existing: &mut Vec<String>, new: &[String]) {
+    let existing_set: std::collections::HashSet<_> = existing.iter().collect();
+    let new_tags: Vec<String> = new
+        .iter()
+        .filter(|t| !existing_set.contains(t))
+        .cloned()
+        .collect();
+    existing.extend(new_tags);
 }

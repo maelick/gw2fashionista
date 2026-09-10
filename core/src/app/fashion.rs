@@ -69,6 +69,25 @@ where
         Ok(updated)
     }
 
+    pub async fn patch(&self, fashion: &Fashion) -> Result<Fashion> {
+        let existing = if fashion.id.is_some() {
+            self.get_by_id(fashion.id.as_ref().unwrap()).await?
+        } else {
+            self.get_by_name(&fashion.name, fashion.character.as_deref())
+                .await?
+        };
+        let patched = existing.patch(fashion);
+
+        let mut updated = self.fashion_repo.update_fashion(&patched).await?;
+        let id = updated.id.as_ref().ok_or(Error::MissingFashionId)?;
+
+        self.fashion_repo
+            .ensure_fashion_tags(iter::once(id), &fashion.tags)
+            .await?;
+        updated.tags = patched.tags;
+        Ok(updated)
+    }
+
     pub async fn get_by_name(&self, name: &str, character: Option<&str>) -> Result<Fashion> {
         let fashions = self
             .fashion_repo
