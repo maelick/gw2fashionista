@@ -170,8 +170,7 @@ impl Command {
         } else {
             &resolver.resolve_template(template).await?
         };
-
-        output::OneOrMany::One(&data).print(output::Format::Json, self.pretty)
+        output::OneOrMany::One(data).print_json(self.pretty)
     }
 }
 

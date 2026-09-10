@@ -1,4 +1,4 @@
-use std::{io, path::PathBuf};
+use std::{io, iter, path::PathBuf};
 
 use serde::Serialize;
 
@@ -19,26 +19,49 @@ where
     Many(&'a [T]),
 }
 
-impl<'a, T: Serialize> OneOrMany<'a, T> {
-    pub fn print(&self, format: Format, pretty: bool) -> anyhow::Result<()> {
-        self.output(format, io::stdout(), pretty)
-    }
-
-    pub fn output<W: io::Write>(
+impl<'a, T: Serialize + 'static> OneOrMany<'a, T> {
+    pub fn print<FlatRecord: Serialize + From<&'a T>>(
         &self,
         format: Format,
-        dest: W,
         pretty: bool,
     ) -> anyhow::Result<()> {
+        self.output::<_, FlatRecord>(format, io::stdout(), pretty)
+    }
+
+    pub fn print_csv<FlatRecord: Serialize + From<&'a T>>(&self) -> anyhow::Result<()> {
+        self.output_csv::<_, FlatRecord>(io::stdout())
+    }
+
+    pub fn print_json(&self, pretty: bool) -> anyhow::Result<()> {
+        self.output_json(io::stdout(), pretty)
+    }
+
+    pub fn output<W, FlatRecord>(&self, format: Format, dest: W, pretty: bool) -> anyhow::Result<()>
+    where
+        W: io::Write,
+        FlatRecord: Serialize + From<&'a T>,
+    {
+        match format {
+            Format::Csv => self.output_csv::<_, FlatRecord>(dest),
+            Format::Json => self.output_json(dest, pretty),
+        }
+    }
+
+    pub fn output_csv<W, FlatRecord>(&self, dest: W) -> anyhow::Result<()>
+    where
+        W: io::Write,
+        FlatRecord: Serialize + From<&'a T>,
+    {
         match self {
-            OneOrMany::One(data) => match format {
-                Format::Csv => output_csv(data, dest),
-                Format::Json => output_json(data, dest, pretty),
-            },
-            OneOrMany::Many(data) => match format {
-                Format::Csv => output_csv(data, dest),
-                Format::Json => output_json(data, dest, pretty),
-            },
+            OneOrMany::One(data) => output_csv::<_, _, _, FlatRecord>(iter::once(*data), dest),
+            OneOrMany::Many(data) => output_csv::<_, _, _, FlatRecord>(data.iter(), dest),
+        }
+    }
+
+    pub fn output_json<W: io::Write>(&self, dest: W, pretty: bool) -> anyhow::Result<()> {
+        match self {
+            OneOrMany::One(data) => output_json(data, dest, pretty),
+            OneOrMany::Many(data) => output_json(data, dest, pretty),
         }
     }
 }
@@ -62,8 +85,17 @@ fn output_json<T: Serialize, W: io::Write>(data: &T, dest: W, pretty: bool) -> a
     Ok(())
 }
 
-fn output_csv<T: Serialize, W: io::Write>(data: &T, dest: W) -> anyhow::Result<()> {
+fn output_csv<'a, T, W, FlatRecords, FlatRecord>(data: FlatRecords, dest: W) -> anyhow::Result<()>
+where
+    W: io::Write,
+    T: Serialize + 'static,
+    FlatRecords: Iterator<Item = &'a T>,
+    FlatRecord: Serialize + From<&'a T>,
+{
     let mut writer = csv::Writer::from_writer(dest);
-    writer.serialize(data)?;
+    for d in data {
+        writer.serialize(FlatRecord::from(d.into()))?;
+    }
+
     Ok(())
 }

@@ -4,7 +4,7 @@ use futures::StreamExt;
 use futures::stream::FuturesOrdered;
 use gw2fashionista_core::{
     app::{FashionError, FashionService},
-    domain::fashion::{Fashion, FashionRecord},
+    domain::fashion::{Fashion, FashionRecord, FashionRecordRef},
 };
 use gw2fashionista_storage::sqlite;
 
@@ -137,7 +137,7 @@ async fn create_one_and_print(
     format: output::Format,
 ) -> anyhow::Result<()> {
     let created = service.create(&fashion).await?;
-    output::OneOrMany::One(&created).print(format, true)
+    output::OneOrMany::One(&created).print::<FashionRecordRef>(format, true)
 }
 
 async fn create_many_and_print(
@@ -146,7 +146,7 @@ async fn create_many_and_print(
     format: output::Format,
 ) -> anyhow::Result<()> {
     let (created, failed) = create_many(service, fashions).await;
-    output::OneOrMany::Many(&created).print(format, false)?;
+    output::OneOrMany::Many(&created).print::<FashionRecordRef>(format, false)?;
     anyhow::ensure!(
         failed.is_empty(),
         "Failed to create {} fashions",

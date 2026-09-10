@@ -86,7 +86,11 @@ impl Command {
             args::DataFormat::Csv => output::Format::Csv,
             args::DataFormat::Json => output::Format::Json,
         };
-        output::OneOrMany::Many(&equipments).output(format, self.open_output()?, false)
+        output::OneOrMany::Many(&equipments).output::<_, &ExportedEquipment>(
+            format,
+            self.open_output()?,
+            false,
+        )
     }
 
     fn open_output(&self) -> anyhow::Result<Box<dyn io::Write>> {
