@@ -55,6 +55,20 @@ where
         .await
     }
 
+    pub async fn set(&self, fashion: &Fashion) -> Result<Fashion> {
+        let fashion = self.resolve_id(fashion).await?;
+        let mut updated = self.fashion_repo.update_fashion(&fashion).await?;
+        let id = updated.id.as_ref().ok_or(Error::MissingFashionId)?;
+        self.fashion_repo
+            .remove_all_fashion_tags(iter::once(id))
+            .await?;
+        self.fashion_repo
+            .ensure_fashion_tags(iter::once(id), &fashion.tags)
+            .await?;
+        updated.tags = fashion.tags.clone();
+        Ok(updated)
+    }
+
     pub async fn get_by_name(&self, name: &str, character: Option<&str>) -> Result<Fashion> {
         let fashions = self
             .fashion_repo
@@ -66,6 +80,19 @@ where
     pub async fn get_by_id(&self, id: &uuid::Uuid) -> Result<Fashion> {
         let fashions = self.fashion_repo.get_fashion_by_id(id).await?;
         Ok(self.retrieve_fashion_tags(fashions).await?)
+    }
+
+    async fn resolve_id(&self, fashion: &Fashion) -> Result<Fashion> {
+        if fashion.id.is_none() {
+            let id = self
+                .get_by_name(&fashion.name, fashion.character.as_deref())
+                .await?
+                .id
+                .ok_or(Error::MissingFashionId)?;
+            Ok(fashion.clone().with_id(id))
+        } else {
+            Ok(fashion.clone())
+        }
     }
 
     async fn retrieve_fashion_tags(&self, mut fashion: Fashion) -> Result<Fashion> {

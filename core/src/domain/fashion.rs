@@ -57,6 +57,13 @@ mod display_fromstr_option {
     }
 }
 
+impl Fashion {
+    pub fn with_id(mut self, id: uuid::Uuid) -> Self {
+        self.id = Some(id);
+        self
+    }
+}
+
 #[derive(Deserialize, Serialize)]
 pub struct FashionRecord {
     pub id: Option<uuid::Uuid>,
