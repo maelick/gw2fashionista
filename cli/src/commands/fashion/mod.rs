@@ -1,6 +1,16 @@
-use std::path::PathBuf;
+use std::{io, path::PathBuf};
 
-use crate::{commands::Command, environment::Environment};
+use gw2fashionista_core::domain::fashion::{Fashion, FashionRecord};
+
+use crate::{
+    commands::{
+        Command,
+        args::{DataFormat, InputMode},
+        fashion::args::FashionFields,
+    },
+    environment::Environment,
+    input,
+};
 
 mod args;
 mod create;
@@ -77,4 +87,86 @@ pub enum Commands {
     /// Manage fashion template tags
     #[command(visible_alias = "tags")]
     Tag(tag::Args),
+}
+
+pub fn read_templates(
+    fashion_fields: &FashionFields,
+    input: &DataFormat,
+    stdin: &InputMode,
+) -> anyhow::Result<(input::OneOrMany<Fashion>, input::Format)> {
+    let (fashions, format) = if (stdin).into() {
+        read_templates_from_stdin(input)?
+    } else {
+        (
+            input::Input::None,
+            match input {
+                DataFormat::Csv => input::Format::Csv,
+                DataFormat::Json | DataFormat::Auto => input::Format::Json,
+            },
+        )
+    };
+    let fashions = match fashions {
+        input::Input::None => input::OneOrMany::One((fashion_fields).try_into()?),
+        input::Input::Zero => input::OneOrMany::Many(Vec::new()),
+        input::Input::One(fashion) => {
+            input::OneOrMany::One(merge_fashion(fashion, fashion_fields)?)
+        }
+        input::Input::Many(fashions) => {
+            input::OneOrMany::Many(merge_tags(fashions, &fashion_fields.tags)?)
+        }
+    };
+    Ok((fashions, format))
+}
+
+fn read_templates_from_stdin(
+    input: &DataFormat,
+) -> anyhow::Result<(input::Input<Fashion>, input::Format)> {
+    let mut stdin = io::stdin().lock();
+    match input {
+        DataFormat::Auto => {
+            let (format, mut reader) = input::detect_format(&mut stdin)?;
+            input::read_csv_json::<Fashion, _, FashionRecord>(&mut reader, format)
+        }
+        DataFormat::Csv => {
+            input::read_csv_json::<Fashion, _, FashionRecord>(&mut stdin, input::Format::Csv)
+        }
+        DataFormat::Json => {
+            input::read_csv_json::<Fashion, _, FashionRecord>(&mut stdin, input::Format::Json)
+        }
+    }
+}
+
+fn merge_fashion(mut fashion: Fashion, fashion_fields: &FashionFields) -> anyhow::Result<Fashion> {
+    if let Some(name) = &fashion_fields.name {
+        fashion.name = name.clone();
+    }
+    if let Some(description) = &fashion_fields.description {
+        fashion.description = Some(description.clone());
+    }
+    if let Some(character) = &fashion_fields.character {
+        fashion.character = Some(character.clone());
+    }
+    if let Some(wardrobe_template) = &fashion_fields.wardrobe {
+        fashion.wardrobe_template = Some(wardrobe_template.clone());
+    }
+    if let Some(travel_template) = &fashion_fields.travel {
+        fashion.travel_template = Some(travel_template.clone());
+    }
+    ensure_tags(fashion, &fashion_fields.tags)
+}
+
+fn ensure_tags(mut fashion: Fashion, tags: &[String]) -> anyhow::Result<Fashion> {
+    for tag in tags {
+        if !fashion.tags.contains(tag) {
+            fashion.tags.push(tag.clone());
+        }
+    }
+    Ok(fashion)
+}
+
+fn merge_tags(mut fashions: Vec<Fashion>, tags: &[String]) -> anyhow::Result<Vec<Fashion>> {
+    for fashion in &mut fashions {
+        *fashion = ensure_tags(fashion.clone(), tags)?;
+    }
+    Ok(fashions)
 }
