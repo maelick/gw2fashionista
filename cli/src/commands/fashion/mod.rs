@@ -6,7 +6,7 @@ use crate::{
     commands::{
         Command,
         args::{DataFormat, InputMode},
-        fashion::args::FashionFields,
+        fashion::args::{FashionFields, FashionIdentifier},
     },
     environment::Environment,
     input,
@@ -20,6 +20,7 @@ mod patch;
 mod set;
 mod tag;
 mod travel;
+mod untag;
 mod wardrobe;
 
 #[derive(clap::Args, Debug)]
@@ -49,6 +50,7 @@ impl Args {
             Commands::Wardrobe(args) => args.command(),
             Commands::Travel(args) => args.command(),
             Commands::Tag(args) => args.command(),
+            Commands::Untag(cmd) => cmd,
         }
     }
 
@@ -63,6 +65,7 @@ impl Args {
             Commands::Wardrobe(args) => args.execute(env).await,
             Commands::Travel(args) => args.execute(env).await,
             Commands::Tag(args) => args.execute(env).await,
+            Commands::Untag(cmd) => cmd.execute(env).await,
         }
     }
 }
@@ -87,6 +90,28 @@ pub enum Commands {
     /// Manage fashion template tags
     #[command(visible_alias = "tags")]
     Tag(tag::Args),
+    /// Untag fashion templates
+    Untag(untag::Command),
+}
+
+pub fn read_identifiers(
+    input: &DataFormat,
+) -> anyhow::Result<(input::Input<FashionIdentifier>, input::Format)> {
+    let mut stdin = io::stdin().lock();
+    match input {
+        DataFormat::Auto => {
+            let (format, mut reader) = input::detect_format(&mut stdin)?;
+            input::read_csv_json::<FashionIdentifier, _, FashionIdentifier>(&mut reader, format)
+        }
+        DataFormat::Csv => input::read_csv_json::<FashionIdentifier, _, FashionIdentifier>(
+            &mut stdin,
+            input::Format::Csv,
+        ),
+        DataFormat::Json => input::read_csv_json::<FashionIdentifier, _, FashionIdentifier>(
+            &mut stdin,
+            input::Format::Json,
+        ),
+    }
 }
 
 pub fn read_templates(
@@ -94,7 +119,7 @@ pub fn read_templates(
     input: &DataFormat,
     stdin: &InputMode,
 ) -> anyhow::Result<(input::OneOrMany<Fashion>, input::Format)> {
-    let (fashions, format) = if (stdin).into() {
+    let (fashions, format) = if stdin.into() {
         read_templates_from_stdin(input)?
     } else {
         (
