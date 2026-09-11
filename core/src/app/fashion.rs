@@ -4,7 +4,7 @@ use futures::TryStreamExt;
 use futures::stream::FuturesOrdered;
 
 use crate::{
-    domain::fashion::Fashion,
+    domain::{fashion::Fashion, filters::StringFilters, tag::Tag},
     ports::repositories::{self, FashionError, FashionRepository},
 };
 
@@ -121,6 +121,14 @@ where
                 Error::MissingFashionId, // Should never happen
             )
         }
+    }
+
+    pub async fn list_tags(&self, filters: StringFilters) -> Result<Vec<Tag>> {
+        Ok(self.fashion_repo.list_tags(filters).await?)
+    }
+
+    pub async fn clean_tags(&self) -> Result<u64> {
+        Ok(self.fashion_repo.clean_tags().await?)
     }
 
     async fn retrieve_fashion_tags(&self, mut fashion: Fashion) -> Result<Fashion> {
