@@ -121,7 +121,7 @@ impl repositories::FashionRepository for Repository {
         Ok(())
     }
 
-    async fn clean_tags(&self) -> FashionResult<()> {
+    async fn clean_tags(&self) -> FashionResult<u64> {
         let mut conn = self.acquire_conn().await?;
         Ok(clean_tags(&mut conn).await?)
     }
@@ -365,8 +365,8 @@ async fn replace_tag(
     Ok(())
 }
 
-async fn clean_tags(conn: &mut SqliteConnection) -> error::Result<()> {
-    sqlx::query!(
+async fn clean_tags(conn: &mut SqliteConnection) -> error::Result<u64> {
+    let res = sqlx::query!(
         r#"DELETE FROM tag
         WHERE NOT EXISTS (
             SELECT 1 FROM fashion_tag WHERE fashion_tag.tag_id = tag.id
@@ -374,7 +374,7 @@ async fn clean_tags(conn: &mut SqliteConnection) -> error::Result<()> {
     )
     .execute(conn)
     .await?;
-    Ok(())
+    Ok(res.rows_affected())
 }
 
 fn list_tags_query(patterns: impl Iterator<Item = String>) -> QueryBuilder<Sqlite> {

@@ -47,7 +47,7 @@ pub trait Repository {
         with: &str,
     ) -> Result<()>;
 
-    async fn clean_tags(&self) -> Result<()>;
+    async fn clean_tags(&self) -> Result<u64>;
 
     async fn get_fashion_tags(&self, fashion_id: &uuid::Uuid) -> Result<Vec<String>>;
 
