@@ -12,7 +12,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("The repository returned a fashion template without id")] // should not be possible
+    #[error("Fashion template has no id")]
     MissingFashionId,
     #[error(transparent)]
     Repository(#[from] repositories::Error<FashionError>),
@@ -56,7 +56,8 @@ where
     }
 
     pub async fn set(&self, fashion: &Fashion) -> Result<Fashion> {
-        let fashion = self.resolve_id(fashion).await?;
+        let id = self.resolve_id(fashion).await?;
+        let fashion = fashion.clone().with_id(id);
         let mut updated = self.fashion_repo.update_fashion(&fashion).await?;
         let id = updated.id.as_ref().ok_or(Error::MissingFashionId)?;
         self.untag(iter::once(id)).await?;
@@ -109,16 +110,16 @@ where
         Ok(())
     }
 
-    async fn resolve_id(&self, fashion: &Fashion) -> Result<Fashion> {
+    pub async fn resolve_id(&self, fashion: &Fashion) -> Result<uuid::Uuid> {
         if fashion.id.is_none() {
-            let id = self
-                .get_by_name(&fashion.name, fashion.character.as_deref())
+            self.get_by_name(&fashion.name, fashion.character.as_deref())
                 .await?
                 .id
-                .ok_or(Error::MissingFashionId)?;
-            Ok(fashion.clone().with_id(id))
+                .ok_or(Error::MissingFashionId)
         } else {
-            Ok(fashion.clone())
+            fashion.id.ok_or(
+                Error::MissingFashionId, // Should never happen
+            )
         }
     }
 
