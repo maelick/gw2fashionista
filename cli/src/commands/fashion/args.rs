@@ -2,6 +2,7 @@ use anyhow::anyhow;
 use gw2fashionista_chatlink::templates::{travel::TravelTemplate, wardrobe::WardrobeTemplate};
 use gw2fashionista_core::{app::FashionService, domain::fashion::Fashion};
 use gw2fashionista_storage::sqlite;
+use serde::Deserialize;
 
 #[derive(clap::Args, Debug)]
 pub struct FashionFields {
@@ -49,7 +50,7 @@ impl TryFrom<&FashionFields> for Fashion {
     }
 }
 
-#[derive(clap::Args, Debug)]
+#[derive(clap::Args, Debug, Clone, Deserialize)]
 #[command(group(clap::ArgGroup::new("identifier").multiple(false)))]
 pub struct FashionIdentifier {
     /// Id of the fashion template.
@@ -66,6 +67,10 @@ pub struct FashionIdentifier {
 }
 
 impl FashionIdentifier {
+    pub fn is_empty(&self) -> bool {
+        self.id.is_none() && self.name.as_ref().is_none_or(String::is_empty)
+    }
+
     pub async fn get_fashion(
         &self,
         service: &FashionService<sqlite::Repository>,
@@ -80,5 +85,25 @@ impl FashionIdentifier {
                 None => anyhow::bail!("Missing fashion template id or name"), // Should never happen
             },
         })
+    }
+}
+
+impl From<Fashion> for FashionIdentifier {
+    fn from(fashion: Fashion) -> Self {
+        Self {
+            id: fashion.id.map(uuid::fmt::Hyphenated::from),
+            name: Some(fashion.name),
+            character: fashion.character,
+        }
+    }
+}
+
+impl From<FashionIdentifier> for Fashion {
+    fn from(id: FashionIdentifier) -> Self {
+        Self::builder()
+            .maybe_id(id.id.map(uuid::Uuid::from))
+            .name(id.name.unwrap_or_default())
+            .maybe_character(id.character)
+            .build()
     }
 }
