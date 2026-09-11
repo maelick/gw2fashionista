@@ -1,6 +1,7 @@
 use anyhow::anyhow;
 use gw2fashionista_chatlink::templates::{travel::TravelTemplate, wardrobe::WardrobeTemplate};
-use gw2fashionista_core::domain::fashion::Fashion;
+use gw2fashionista_core::{app::FashionService, domain::fashion::Fashion};
+use gw2fashionista_storage::sqlite;
 
 #[derive(clap::Args, Debug)]
 pub struct FashionFields {
@@ -62,4 +63,22 @@ pub struct FashionIdentifier {
     /// Associated character.
     #[arg(short, long, requires = "name", conflicts_with = "id", alias = "char")]
     pub character: Option<String>,
+}
+
+impl FashionIdentifier {
+    pub async fn get_fashion(
+        &self,
+        service: &FashionService<sqlite::Repository>,
+    ) -> anyhow::Result<Fashion> {
+        Ok(match self.id {
+            Some(id) => service.get_by_id(&id.into()).await?,
+            None => match &self.name {
+                Some(name) => {
+                    let character = self.character.as_deref();
+                    service.get_by_name(name, character).await?
+                }
+                None => anyhow::bail!("Missing fashion template id or name"), // Should never happen
+            },
+        })
+    }
 }
