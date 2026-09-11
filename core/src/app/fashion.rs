@@ -59,9 +59,7 @@ where
         let fashion = self.resolve_id(fashion).await?;
         let mut updated = self.fashion_repo.update_fashion(&fashion).await?;
         let id = updated.id.as_ref().ok_or(Error::MissingFashionId)?;
-        self.fashion_repo
-            .remove_all_fashion_tags(iter::once(id))
-            .await?;
+        self.untag(iter::once(id)).await?;
         self.fashion_repo
             .ensure_fashion_tags(iter::once(id), &fashion.tags)
             .await?;
@@ -99,6 +97,16 @@ where
     pub async fn get_by_id(&self, id: &uuid::Uuid) -> Result<Fashion> {
         let fashions = self.fashion_repo.get_fashion_by_id(id).await?;
         Ok(self.retrieve_fashion_tags(fashions).await?)
+    }
+
+    pub async fn untag(
+        &self,
+        fashion_ids: impl IntoIterator<Item = &uuid::Uuid> + Send,
+    ) -> Result<()> {
+        self.fashion_repo
+            .remove_all_fashion_tags(fashion_ids)
+            .await?;
+        Ok(())
     }
 
     async fn resolve_id(&self, fashion: &Fashion) -> Result<Fashion> {
