@@ -1,6 +1,9 @@
+use std::io;
+
 use crate::{
-    commands::{self, args::ChatLinkFormat, fashion::args::FashionIdentifier},
+    commands::{self, fashion::args::FashionIdentifier},
     environment::Environment,
+    input::read_parseable,
 };
 
 #[derive(clap::Args, Debug)]
@@ -11,10 +14,6 @@ pub struct Command {
 
     #[command(flatten)]
     id: FashionIdentifier,
-
-    /// Input format.
-    #[arg(short, long, value_enum, default_value_t = ChatLinkFormat::Auto)]
-    format: ChatLinkFormat,
 }
 
 impl commands::Command for Command {
@@ -25,7 +24,12 @@ impl commands::Command for Command {
 
 impl Command {
     #[tracing::instrument(name = "fashion-travel-set", skip_all)]
-    pub async fn execute(&self, _env: Environment) -> anyhow::Result<()> {
-        todo!()
+    pub async fn execute(&self, mut env: Environment) -> anyhow::Result<()> {
+        let template = read_parseable(io::stdin().lock(), true)?;
+        let service = env.fashion_service().await?;
+        let mut fashion = self.id.get_fashion(&service).await?;
+        fashion.travel_template = Some(template);
+        service.set(&fashion).await?;
+        Ok(())
     }
 }

@@ -13,16 +13,6 @@ pub enum DataFormat {
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
-pub enum ChatLinkFormat {
-    /// Auto detection
-    Auto,
-    /// CSV
-    Chat,
-    /// JSON
-    Json,
-}
-
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
 pub enum InputMode {
     /// Auto detection based on whether stdin is a terminal
     Auto,

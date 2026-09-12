@@ -1,5 +1,5 @@
 use crate::{
-    commands::{self, args::ChatLinkFormat, fashion::args::FashionIdentifier},
+    commands::{self, fashion::args::FashionIdentifier},
     environment::Environment,
 };
 
@@ -11,10 +11,6 @@ pub struct Command {
 
     #[command(flatten)]
     id: FashionIdentifier,
-
-    /// Input format.
-    #[arg(short, long, value_enum, default_value_t = ChatLinkFormat::Auto)]
-    format: ChatLinkFormat,
 }
 
 impl commands::Command for Command {
@@ -25,7 +21,11 @@ impl commands::Command for Command {
 
 impl Command {
     #[tracing::instrument(name = "fashion-wardrobe-get", skip_all)]
-    pub async fn execute(&self, _env: Environment) -> anyhow::Result<()> {
-        todo!()
+    pub async fn execute(&self, mut env: Environment) -> anyhow::Result<()> {
+        let service = env.fashion_service().await?;
+        let fashion = self.id.get_fashion(&service).await?;
+        let template = fashion.wardrobe_template.unwrap_or_default();
+        println!("{}", template);
+        Ok(())
     }
 }

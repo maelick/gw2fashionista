@@ -1,4 +1,7 @@
-use std::io::{self, Read};
+use std::{
+    io::{self, Read},
+    str::FromStr,
+};
 
 pub enum Format {
     Json,
@@ -81,6 +84,17 @@ impl<T> From<Input<T>> for Vec<T> {
             Input::Many(items) => items,
         }
     }
+}
+
+pub fn read_parseable<T, R>(reader: R, trim_whitspaces: bool) -> anyhow::Result<T>
+where
+    T: FromStr,
+    <T as FromStr>::Err: std::error::Error + Send + Sync + 'static,
+    R: Read,
+{
+    let s = io::read_to_string(reader)?;
+    let s = if trim_whitspaces { s.trim() } else { &s };
+    Ok(s.parse()?)
 }
 
 pub fn read_csv_json<T, R, Row>(
