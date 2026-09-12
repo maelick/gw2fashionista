@@ -94,7 +94,7 @@ where
 {
     let mut writer = csv::Writer::from_writer(dest);
     for d in data {
-        writer.serialize(FlatRecord::from(d.into()))?;
+        writer.serialize(FlatRecord::from(d))?;
     }
 
     Ok(())

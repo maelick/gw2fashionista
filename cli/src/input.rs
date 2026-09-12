@@ -146,7 +146,7 @@ fn read_first_line<R: io::BufRead>(reader: &mut R) -> anyhow::Result<Vec<u8>> {
 fn line_is_json(line: &[u8]) -> bool {
     line.iter()
         .find(|&&b| !b.is_ascii_whitespace())
-        .map_or(false, |&b| b == b'{' || b == b'[')
+        .is_some_and(|&b| b == b'{' || b == b'[')
 }
 
 fn line_is_chatlink(line: &[u8]) -> bool {

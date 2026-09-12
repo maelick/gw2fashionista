@@ -69,8 +69,8 @@ where
     }
 
     pub async fn patch(&self, fashion: &Fashion) -> Result<Fashion> {
-        let existing = if fashion.id.is_some() {
-            self.get_by_id(fashion.id.as_ref().unwrap()).await?
+        let existing = if let Some(id) = fashion.id {
+            self.get_by_id(&id).await?
         } else {
             self.get_by_name(&fashion.name, fashion.character.as_deref())
                 .await?
@@ -92,12 +92,12 @@ where
             .fashion_repo
             .get_fashion_by_name(name, character)
             .await?;
-        Ok(self.retrieve_fashion_tags(fashions).await?)
+        self.retrieve_fashion_tags(fashions).await
     }
 
     pub async fn get_by_id(&self, id: &uuid::Uuid) -> Result<Fashion> {
         let fashions = self.fashion_repo.get_fashion_by_id(id).await?;
-        Ok(self.retrieve_fashion_tags(fashions).await?)
+        self.retrieve_fashion_tags(fashions).await
     }
 
     pub async fn untag(

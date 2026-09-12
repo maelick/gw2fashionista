@@ -153,7 +153,7 @@ impl<'a> From<&'a Fashion> for FashionRecordRef<'a> {
     }
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, Deserialize, Serialize)]
 pub struct Tags(String);
 
 impl From<Tags> for Vec<String> {
@@ -163,12 +163,6 @@ impl From<Tags> for Vec<String> {
             .filter(|s| !s.is_empty())
             .map(|s| s.to_string())
             .collect()
-    }
-}
-
-impl Default for Tags {
-    fn default() -> Self {
-        Self(Default::default())
     }
 }
 
