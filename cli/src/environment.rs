@@ -1,7 +1,7 @@
 use std::{path::PathBuf, sync::Arc};
 
 use bon::Builder;
-use gw2fashionista_core::app::FashionService;
+use gw2fashionista_core::{app::FashionService, config};
 use gw2fashionista_storage::sqlite;
 use sqlx::SqlitePool;
 
@@ -13,18 +13,20 @@ pub struct Environment {
     sql_pool: Option<SqlitePool>,
 
     fashion_repo: Option<Arc<sqlite::Repository>>,
+
+    #[builder(default)]
+    dirs: config::Config,
 }
 
 impl Environment {
+    pub fn db_path(&self) -> &PathBuf {
+        self.db_path.as_ref().unwrap_or(&self.dirs.db_path)
+    }
+
     async fn connect_sqlite(&self) -> sqlx::Result<SqlitePool> {
-        sqlite::init(
-            self.db_path
-                .as_ref()
-                .expect("SQLite DB path should be provided")
-                .to_str()
-                .unwrap(),
-        )
-        .await
+        let db_path = self.db_path().to_str();
+        tracing::debug!(message = "Opening SQLite database", path = db_path);
+        sqlite::init(db_path.unwrap()).await
     }
 
     async fn sql_pool(&mut self) -> sqlx::Result<SqlitePool> {

@@ -21,7 +21,7 @@ struct Cli {
     pub all_logs: bool,
 
     /// SQLite database path
-    #[arg(long = "db", env = "GW2FASHIONISTA_DB", required = true)]
+    #[arg(long = "db", env = "GW2FASHIONISTA_DB")]
     #[clap(hide_env_values = false)]
     db_path: Option<PathBuf>,
 
@@ -51,6 +51,7 @@ impl Cli {
         let env = Environment::builder()
             .maybe_db_path(self.db_path.clone())
             .build();
+        tracing::debug!(message = "Using environment", env = ?env);
         match self.command.execute(env).await {
             Ok(_) => {
                 tracing::debug!(message = "Command successful", name = cmd.name())
