@@ -1,11 +1,14 @@
-use std::io::{self, IsTerminal};
+use std::{
+    io::{self, IsTerminal},
+    path::PathBuf,
+};
 
 use clap::Parser;
 use clap_verbosity_flag::{InfoLevel, Verbosity};
 use tracing::level_filters::LevelFilter;
 use tracing_subscriber::{Layer, layer::SubscriberExt, util::SubscriberInitExt};
 
-use gw2fashionista_cli::commands::Commands;
+use gw2fashionista_cli::{commands::Commands, environment::Environment};
 
 #[derive(Parser, Debug)]
 #[command(version, about = "GW2 Fashion Exporter CLI", long_about = None)]
@@ -16,6 +19,11 @@ struct Cli {
     /// Output all logs (from external libraries)
     #[arg(long, global = true)]
     pub all_logs: bool,
+
+    /// SQLite database path
+    #[arg(long = "db", env = "GW2FASHIONISTA_DB", required = true)]
+    #[clap(hide_env_values = false)]
+    db_path: Option<PathBuf>,
 
     #[command(subcommand)]
     command: Commands,
@@ -40,7 +48,10 @@ impl Cli {
     async fn execute(&self) {
         let cmd = self.command.as_command();
         tracing::debug!(message = "Executing command", name = cmd.name(), args = ?cmd);
-        match self.command.execute().await {
+        let env = Environment::builder()
+            .maybe_db_path(self.db_path.clone())
+            .build();
+        match self.command.execute(env).await {
             Ok(_) => {
                 tracing::debug!(message = "Command successful", name = cmd.name())
             }

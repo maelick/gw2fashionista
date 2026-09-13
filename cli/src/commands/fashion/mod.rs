@@ -1,4 +1,4 @@
-use std::{io, path::PathBuf};
+use std::io;
 
 use gw2fashionista_core::domain::fashion::{Fashion, FashionRecord};
 
@@ -32,11 +32,6 @@ pub struct Args {
     /// If any other data is also provided on stdin or as arguments, it overrides the data from the clipboard.
     #[arg(long, global = true)]
     clipboard: bool,
-
-    /// GW2 API key
-    #[arg(long = "db", env = "GW2FASHIONISTA_DB", required = true)]
-    #[clap(hide_env_values = false)]
-    db_path: PathBuf,
 }
 
 impl Args {
@@ -54,8 +49,7 @@ impl Args {
         }
     }
 
-    pub async fn execute(&self) -> anyhow::Result<()> {
-        let env = Environment::builder().db_path(&self.db_path).build();
+    pub async fn execute(&self, env: Environment) -> anyhow::Result<()> {
         match &self.command {
             Commands::Create(cmd) => cmd.execute(env).await,
             Commands::Get(cmd) => cmd.execute(env).await,
