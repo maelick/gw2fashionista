@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use async_trait::async_trait;
 use gw2fashionista_core::{
     domain::{fashion::Fashion, filters::StringFilters, tag::Tag},
@@ -6,14 +8,25 @@ use gw2fashionista_core::{
 use sqlx::{
     QueryBuilder, Sqlite, SqliteConnection, SqlitePool, Transaction,
     pool::PoolConnection,
+    sqlite::{SqliteConnectOptions, SqlitePoolOptions},
     types::{chrono, uuid},
 };
 
 mod error;
 mod models;
 
+static MIGRATOR: sqlx::migrate::Migrator = sqlx::migrate!();
+
+#[derive(Debug, Clone)]
 pub struct Repository {
     pool: SqlitePool,
+}
+
+pub async fn init(url: &str) -> sqlx::Result<SqlitePool> {
+    let opts = SqliteConnectOptions::from_str(url)?.create_if_missing(true);
+    let pool = SqlitePoolOptions::new().connect_with(opts).await?;
+    MIGRATOR.run(&pool).await?;
+    Ok(pool)
 }
 
 impl Repository {
@@ -108,7 +121,7 @@ impl repositories::FashionRepository for Repository {
         Ok(())
     }
 
-    async fn clean_tags(&self) -> FashionResult<()> {
+    async fn clean_tags(&self) -> FashionResult<u64> {
         let mut conn = self.acquire_conn().await?;
         Ok(clean_tags(&mut conn).await?)
     }
@@ -146,6 +159,19 @@ impl repositories::FashionRepository for Repository {
             for fashion_id in &fashion_ids {
                 remove_fashion_tag(&mut tx, fashion_id, &tag).await?;
             }
+        }
+        commit(tx).await?;
+        Ok(())
+    }
+
+    async fn remove_all_fashion_tags(
+        &self,
+        fashion_ids: impl IntoIterator<Item = &uuid::Uuid> + Send,
+    ) -> FashionResult<()> {
+        let fashion_ids: Vec<_> = fashion_ids.into_iter().collect();
+        let mut tx = self.begin_transaction().await?;
+        for fashion_id in &fashion_ids {
+            remove_all_fashion_tags(&mut tx, fashion_id).await?;
         }
         commit(tx).await?;
         Ok(())
@@ -339,8 +365,8 @@ async fn replace_tag(
     Ok(())
 }
 
-async fn clean_tags(conn: &mut SqliteConnection) -> error::Result<()> {
-    sqlx::query!(
+async fn clean_tags(conn: &mut SqliteConnection) -> error::Result<u64> {
+    let res = sqlx::query!(
         r#"DELETE FROM tag
         WHERE NOT EXISTS (
             SELECT 1 FROM fashion_tag WHERE fashion_tag.tag_id = tag.id
@@ -348,7 +374,7 @@ async fn clean_tags(conn: &mut SqliteConnection) -> error::Result<()> {
     )
     .execute(conn)
     .await?;
-    Ok(())
+    Ok(res.rows_affected())
 }
 
 fn list_tags_query(patterns: impl Iterator<Item = String>) -> QueryBuilder<Sqlite> {
@@ -407,6 +433,19 @@ async fn remove_fashion_tag(
             )"#,
         fashion_id.hyphenated(),
         tag.into(),
+    );
+    query.execute(conn).await?;
+    Ok(())
+}
+
+async fn remove_all_fashion_tags(
+    conn: &mut SqliteConnection,
+    fashion_id: &uuid::Uuid,
+) -> error::Result<()> {
+    let query = sqlx::query!(
+        r#"DELETE FROM fashion_tag
+            WHERE fashion_id = ?"#,
+        fashion_id.hyphenated(),
     );
     query.execute(conn).await?;
     Ok(())

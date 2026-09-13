@@ -13,13 +13,6 @@ use gw2fashionista_fixtures::wardrobe;
 use e2e::{cli::spawn_cli, fail_if_no_api_key, read_csv};
 use serde_json::Deserializer;
 
-const BASE64_RE: &str = r"[-A-Za-z0-9+/]*={0,3}";
-
-static CHAT_LINK_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    let pattern = format!(r"^\[&({})\]$", BASE64_RE);
-    Regex::new(&pattern).unwrap()
-});
-
 static NUMBER_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[0-9]$").unwrap());
 
 #[rstest]
@@ -198,7 +191,7 @@ fn test_export_command_csv() {
             "second field should be a number"
         );
         assert!(
-            CHAT_LINK_REGEX.is_match(record.get(3).unwrap()),
+            gw2fashionista_chatlink::CHAT_LINK_REGEX.is_match(record.get(3).unwrap()),
             "fourth field should be a chat link"
         );
     }

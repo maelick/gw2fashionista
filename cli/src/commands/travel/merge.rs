@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use clap::Args;
 
 use gw2fashionista_chatlink::ChatLink;
@@ -23,14 +22,15 @@ pub struct Command {
     filters: TravelFilters,
 }
 
-#[async_trait]
 impl commands::Command for Command {
     fn name(&self) -> &str {
         "travel-merge"
     }
+}
 
+impl Command {
     #[tracing::instrument(name = "travel-merge", skip_all)]
-    async fn execute(&self) -> anyhow::Result<()> {
+    pub async fn execute(&self) -> anyhow::Result<()> {
         let filter = (&self.filters).into();
         let new_template = self.new_travel_template.filter(&filter);
         let merged = self.base_travel_template.merge(

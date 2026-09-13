@@ -1,6 +1,7 @@
-use async_trait::async_trait;
+use crate::environment::Environment;
 
-mod args;
+pub mod args;
+mod fashion;
 mod read;
 mod travel;
 mod wardrobe;
@@ -13,6 +14,8 @@ pub enum Commands {
     Wardrobe(wardrobe::Args),
     /// Travel template commands
     Travel(travel::Args),
+    /// Fashion template commands
+    Fashion(fashion::Args),
 }
 
 impl Commands {
@@ -21,12 +24,20 @@ impl Commands {
             Commands::Read(cmd) => cmd,
             Commands::Wardrobe(args) => args.command(),
             Commands::Travel(args) => args.command(),
+            Commands::Fashion(args) => args.command(),
+        }
+    }
+
+    pub async fn execute(&self, env: Environment) -> anyhow::Result<()> {
+        match self {
+            Commands::Read(cmd) => cmd.execute().await,
+            Commands::Wardrobe(args) => args.execute().await,
+            Commands::Travel(args) => args.execute().await,
+            Commands::Fashion(args) => args.execute(env).await,
         }
     }
 }
 
-#[async_trait]
 pub trait Command: std::fmt::Debug {
     fn name(&self) -> &str;
-    async fn execute(&self) -> anyhow::Result<()>;
 }

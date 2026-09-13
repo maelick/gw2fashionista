@@ -47,7 +47,7 @@ pub trait Repository {
         with: &str,
     ) -> Result<()>;
 
-    async fn clean_tags(&self) -> Result<()>;
+    async fn clean_tags(&self) -> Result<u64>;
 
     async fn get_fashion_tags(&self, fashion_id: &uuid::Uuid) -> Result<Vec<String>>;
 
@@ -61,5 +61,10 @@ pub trait Repository {
         &self,
         fashion_ids: impl IntoIterator<Item = &uuid::Uuid> + Send,
         tags: impl IntoIterator<Item: Into<String>, IntoIter: Send> + Send,
+    ) -> Result<()>;
+
+    async fn remove_all_fashion_tags(
+        &self,
+        fashion_ids: impl IntoIterator<Item = &uuid::Uuid> + Send,
     ) -> Result<()>;
 }

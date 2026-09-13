@@ -1,12 +1,12 @@
-use async_trait::async_trait;
 use clap::Args;
 use gw2fashionista_appearance::gw2::resolve::Resolver;
 use gw2fashionista_appearance::models::template::TemplateData;
 use gw2fashionista_chatlink::templates::FashionSlot;
 use gw2fashionista_chatlink::templates::travel::TravelTemplate;
 use gw2fashionista_chatlink::{ChatLink, ChatLinkError, templates::wardrobe::WardrobeTemplate};
-use serde::Serialize;
 use std::{io, iter};
+
+use crate::output;
 
 #[derive(Args, Debug)]
 pub struct Command {
@@ -38,7 +38,41 @@ pub struct Command {
     concurrency: u8,
 }
 
+impl super::Command for Command {
+    fn name(&self) -> &str {
+        "read"
+    }
+}
+
 impl Command {
+    #[tracing::instrument(name = "read", skip_all)]
+    pub async fn execute(&self) -> anyhow::Result<()> {
+        let links = if self.chat_links.is_empty() {
+            &self.read_links()?
+        } else {
+            &self.chat_links
+        };
+
+        let resolver = Resolver::default().with_buffer_size(self.concurrency as usize);
+        if !self.skip_names {
+            resolver.cache_templates(wardrobe_templates(links)).await?;
+            resolver.cache_templates(travel_templates(links)).await?;
+        }
+
+        for link in links {
+            match link {
+                ChatLink::WardrobeTemplate(template) => {
+                    self.process(&resolver, &template.into()).await
+                }
+                ChatLink::TravelTemplate(template) => {
+                    self.process(&resolver, &template.into()).await
+                }
+                _ => Err(anyhow::anyhow!("Unsupported chat link type"))?,
+            }?;
+        }
+        Ok(())
+    }
+
     fn read_links(&self) -> anyhow::Result<Vec<ChatLink>> {
         let raw_links = self.read_raw_links(io::stdin().lock())?;
         Ok(self.parse_links(raw_links.as_slice())?)
@@ -136,43 +170,7 @@ impl Command {
         } else {
             &resolver.resolve_template(template).await?
         };
-
-        print(data, self.pretty)
-    }
-}
-
-#[async_trait]
-impl super::Command for Command {
-    fn name(&self) -> &str {
-        "read"
-    }
-
-    #[tracing::instrument(name = "read", skip_all)]
-    async fn execute(&self) -> anyhow::Result<()> {
-        let links = if self.chat_links.is_empty() {
-            &self.read_links()?
-        } else {
-            &self.chat_links
-        };
-
-        let resolver = Resolver::default().with_buffer_size(self.concurrency as usize);
-        if !self.skip_names {
-            resolver.cache_templates(wardrobe_templates(links)).await?;
-            resolver.cache_templates(travel_templates(links)).await?;
-        }
-
-        for link in links {
-            match link {
-                ChatLink::WardrobeTemplate(template) => {
-                    self.process(&resolver, &template.into()).await
-                }
-                ChatLink::TravelTemplate(template) => {
-                    self.process(&resolver, &template.into()).await
-                }
-                _ => Err(anyhow::anyhow!("Unsupported chat link type"))?,
-            }?;
-        }
-        Ok(())
+        output::OneOrMany::One(data).print_json(self.pretty)
     }
 }
 
@@ -194,15 +192,6 @@ fn travel_templates(chat_links: &[ChatLink]) -> Vec<&TravelTemplate> {
             _ => None,
         })
         .collect()
-}
-
-fn print<S: FashionSlot + Serialize>(data: &TemplateData<S>, pretty: bool) -> anyhow::Result<()> {
-    if pretty {
-        serde_json::to_writer_pretty(io::stdout(), data)?;
-    } else {
-        serde_json::to_writer(io::stdout(), data)?;
-    }
-    Ok(())
 }
 
 fn collect_lenient<V, T, E, I, F>(iter: I, on_error: F) -> Result<Vec<T>, E>

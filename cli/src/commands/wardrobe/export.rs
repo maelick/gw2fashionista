@@ -1,13 +1,12 @@
-use async_trait::async_trait;
 use clap::Args;
 use gw2fashionista_appearance::gw2::{equipment::Equipment, import::Importer, resolve::Resolver};
 use gw2fashionista_chatlink::ChatLinkError;
 use serde::{Deserialize, Serialize};
 use std::{fs, io};
 
-use crate::commands;
 use crate::commands::args;
 use crate::commands::wardrobe::args::WardrobeFilters;
+use crate::{commands, output};
 
 #[derive(Args, Debug)]
 pub struct Command {
@@ -19,9 +18,13 @@ pub struct Command {
     #[clap(hide_env_values = true)]
     api_key: Option<String>,
 
-    /// Output format
-    #[arg(short, long, value_enum, default_value_t = args::Format::Auto, display_order = 3)]
-    format: args::Format,
+    /// Output format. Auto is based on the output filename extension (default to CSV if missing filename or unknown extension).
+    #[arg(short, long, value_enum, default_value_t = args::DataFormat::Auto, display_order = 3)]
+    format: args::DataFormat,
+
+    /// Pretty print (JSON) output.
+    #[arg(short, long)]
+    pretty: bool,
 
     /// Filename to use as output
     #[arg(short, long, display_order = 3)]
@@ -39,14 +42,15 @@ pub struct Command {
     concurrency: Option<u8>,
 }
 
-#[async_trait]
 impl commands::Command for Command {
     fn name(&self) -> &str {
         "wardrobe-export"
     }
+}
 
+impl Command {
     #[tracing::instrument(name = "wardrobe-export", skip_all)]
-    async fn execute(&self) -> anyhow::Result<()> {
+    pub async fn execute(&self) -> anyhow::Result<()> {
         let api_key = self.api_key.as_ref().unwrap();
         let importer = Importer::with_api_key(api_key);
 
@@ -70,9 +74,7 @@ impl commands::Command for Command {
             resolved.iter().map(|e| self.export_equipment(e)).collect();
         self.output_equipments(exported?)
     }
-}
 
-impl Command {
     fn export_equipment(&self, equipment: &Equipment) -> Result<ExportedEquipment, ChatLinkError> {
         let equipment = ExportedEquipment::new(equipment)?;
         if !self.no_default_name {
@@ -84,25 +86,15 @@ impl Command {
 
     fn output_equipments(&self, equipments: Vec<ExportedEquipment>) -> anyhow::Result<()> {
         let format = match self.format {
-            args::Format::Auto => self.detect_format(),
-            _ => self.format,
+            args::DataFormat::Auto => output::detect_format(self.output.as_ref()),
+            args::DataFormat::Csv => output::Format::Csv,
+            args::DataFormat::Json => output::Format::Json,
         };
-        match format {
-            args::Format::Csv => self.output_csv(equipments)?,
-            args::Format::Json => self.output_json(equipments)?,
-            _ => todo!(),
-        };
-        Ok(())
-    }
-
-    fn detect_format(&self) -> args::Format {
-        match &self.output {
-            Some(path) => match path.extension() {
-                Some(ext) if ext == "json" => args::Format::Json,
-                _ => args::Format::Csv,
-            },
-            None => args::Format::Csv,
-        }
+        output::OneOrMany::Many(&equipments).output::<_, &ExportedEquipment>(
+            format,
+            self.open_output()?,
+            self.pretty,
+        )
     }
 
     fn open_output(&self) -> anyhow::Result<Box<dyn io::Write>> {
@@ -110,19 +102,6 @@ impl Command {
             .as_ref()
             .map(open_file)
             .unwrap_or_else(|| Ok(Box::new(io::stdout())))
-    }
-
-    fn output_csv(&self, equipments: Vec<ExportedEquipment>) -> anyhow::Result<()> {
-        let mut writer = csv::Writer::from_writer(self.open_output()?);
-        for e in equipments {
-            writer.serialize(e)?;
-        }
-        Ok(())
-    }
-
-    fn output_json(&self, equipments: Vec<ExportedEquipment>) -> anyhow::Result<()> {
-        serde_json::to_writer_pretty(self.open_output()?, &equipments)?;
-        Ok(())
     }
 }
 

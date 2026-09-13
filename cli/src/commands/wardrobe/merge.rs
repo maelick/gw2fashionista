@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use clap::Args;
 
 use gw2fashionista_chatlink::ChatLink;
@@ -23,14 +22,15 @@ pub struct Command {
     filters: WardrobeFilters,
 }
 
-#[async_trait]
 impl commands::Command for Command {
     fn name(&self) -> &str {
         "wardrobe-merge"
     }
+}
 
+impl Command {
     #[tracing::instrument(name = "wardrobe-merge", skip_all)]
-    async fn execute(&self) -> anyhow::Result<()> {
+    pub async fn execute(&self) -> anyhow::Result<()> {
         let filter = (&self.filters).into();
         let new_template = self.new_wardrobe_template.filter(&filter);
         let merged = self.base_wardrobe_template.merge(

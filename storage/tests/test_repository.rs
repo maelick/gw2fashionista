@@ -386,6 +386,20 @@ async fn test_crud_fashion_tags(pool: SqlitePool) {
 
     let fetched_fashion2 = repo.get_fashion_by_id(&fashion2.id.unwrap()).await.unwrap();
     assert_eq!(&fetched_fashion2, fashion2);
+
+    // We re-add tag2 to fashion2 and remove all tags from fashion2
+    repo.ensure_fashion_tags(std::iter::once(&fashion2.id.unwrap()), vec!["tag2", "tag3"])
+        .await
+        .unwrap();
+    repo.remove_all_fashion_tags(std::iter::once(&fashion2.id.unwrap()))
+        .await
+        .unwrap();
+
+    // We ensure only fashion2 tags have changed
+    let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
+    assert_eq!(tags, vec!["tag2"]);
+    let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
+    assert!(tags.is_empty());
 }
 
 #[sqlx::test]

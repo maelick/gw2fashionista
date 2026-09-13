@@ -1,7 +1,7 @@
 use bon::Builder;
 use chrono::{DateTime, Utc};
 
-#[derive(Debug, Clone, Eq, PartialEq, Builder)]
+#[derive(Debug, Clone, Eq, PartialEq, Builder, serde::Deserialize, serde::Serialize)]
 pub struct Tag {
     #[builder(into)]
     pub id: Option<uuid::Uuid>,

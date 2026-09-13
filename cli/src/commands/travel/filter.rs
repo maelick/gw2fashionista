@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use clap::Args;
 
 use crate::commands;
@@ -15,14 +14,15 @@ pub struct Command {
     filters: TravelFilters,
 }
 
-#[async_trait]
 impl commands::Command for Command {
     fn name(&self) -> &str {
         "travel-filter"
     }
+}
 
+impl Command {
     #[tracing::instrument(name = "travel-filter", skip_all)]
-    async fn execute(&self) -> anyhow::Result<()> {
+    pub async fn execute(&self) -> anyhow::Result<()> {
         let filter = (&self.filters).into();
         let filtered = ChatLink::TravelTemplate(self.travel_template.filter(&filter));
         println!("{}", filtered);

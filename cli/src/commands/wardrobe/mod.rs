@@ -19,6 +19,14 @@ impl Args {
             Commands::Filter(cmd) => cmd,
         }
     }
+
+    pub async fn execute(&self) -> anyhow::Result<()> {
+        match &self.command {
+            Commands::Export(cmd) => cmd.execute().await,
+            Commands::Merge(cmd) => cmd.execute().await,
+            Commands::Filter(cmd) => cmd.execute().await,
+        }
+    }
 }
 
 #[derive(clap::Subcommand, Debug)]
