@@ -33,30 +33,6 @@ pub struct Fashion {
     pub tags: Vec<String>,
 }
 
-mod display_fromstr_option {
-    use serde::{Deserialize, Deserializer, Serialize, Serializer};
-    use std::{fmt::Display, str::FromStr};
-
-    pub fn serialize<T, S>(value: &Option<T>, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        T: Display,
-        S: Serializer,
-    {
-        value.as_ref().map(T::to_string).serialize(serializer)
-    }
-
-    pub fn deserialize<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>
-    where
-        T: FromStr,
-        T::Err: Display,
-        D: Deserializer<'de>,
-    {
-        Option::<String>::deserialize(deserializer)?
-            .map(|s| s.parse().map_err(serde::de::Error::custom))
-            .transpose()
-    }
-}
-
 impl Fashion {
     pub fn with_id(mut self, id: uuid::Uuid) -> Self {
         self.id = Some(id);
@@ -86,6 +62,30 @@ impl Fashion {
             merge_tags(&mut self.tags, &other.tags);
         }
         self
+    }
+}
+
+mod display_fromstr_option {
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+    use std::{fmt::Display, str::FromStr};
+
+    pub fn serialize<T, S>(value: &Option<T>, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        T: Display,
+        S: Serializer,
+    {
+        value.as_ref().map(T::to_string).serialize(serializer)
+    }
+
+    pub fn deserialize<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>
+    where
+        T: FromStr,
+        T::Err: Display,
+        D: Deserializer<'de>,
+    {
+        Option::<String>::deserialize(deserializer)?
+            .map(|s| s.parse().map_err(serde::de::Error::custom))
+            .transpose()
     }
 }
 
