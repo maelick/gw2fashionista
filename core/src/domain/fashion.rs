@@ -5,8 +5,10 @@ use gw2fashionista_chatlink::templates::{travel::TravelTemplate, wardrobe::Wardr
 use serde::{Deserialize, Serialize};
 
 use crate::domain::{
-    fashion::fashion_builder::{IsUnset, SetCharacter, SetName, State},
-    names::{CharacterName, CharacterNameError, FashionName, FashionNameError},
+    fashion::fashion_builder::{IsUnset, SetCharacter, SetName, SetTags, State},
+    names::{
+        CharacterName, CharacterNameError, FashionName, FashionNameError, TagName, TagNameError,
+    },
 };
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -42,7 +44,7 @@ pub struct Fashion {
 
     #[builder(default, into)]
     #[serde(default)]
-    pub tags: Vec<String>,
+    pub tags: Vec<TagName>,
 }
 
 impl<S: State> FashionBuilder<S> {
@@ -63,6 +65,14 @@ impl<S: State> FashionBuilder<S> {
     {
         let character = s.parse::<CharacterName>()?;
         Ok(self.character(character))
+    }
+
+    pub fn tags_str(self, s: &[&str]) -> Result<FashionBuilder<SetTags<S>>, TagNameError>
+    where
+        S::Tags: IsUnset,
+    {
+        let tags: Result<Vec<_>, _> = s.iter().map(|s| s.parse::<TagName>()).collect();
+        Ok(self.tags(tags?))
     }
 }
 
@@ -162,7 +172,8 @@ impl From<FashionRecord> for Fashion {
             travel_template: record.travel_template,
             created_at: record.created_at,
             updated_at: record.updated_at,
-            tags: record.tags.into(),
+            // tags: record.tags.into(),
+            tags: vec![],
         }
     }
 }
@@ -194,7 +205,8 @@ impl<'a> From<&'a Fashion> for FashionRecordRef<'a> {
             travel_template: fashion.travel_template.as_ref(),
             created_at: fashion.created_at.as_ref(),
             updated_at: fashion.updated_at.as_ref(),
-            tags: Tags(fashion.tags.join(",")),
+            // tags: Tags(fashion.tags.join(",")),
+            tags: Tags::default(),
         }
     }
 }
@@ -212,9 +224,9 @@ impl From<Tags> for Vec<String> {
     }
 }
 
-fn merge_tags(existing: &mut Vec<String>, new: &[String]) {
+fn merge_tags(existing: &mut Vec<TagName>, new: &[TagName]) {
     let existing_set: std::collections::HashSet<_> = existing.iter().collect();
-    let new_tags: Vec<String> = new
+    let new_tags: Vec<TagName> = new
         .iter()
         .filter(|t| !existing_set.contains(t))
         .cloned()

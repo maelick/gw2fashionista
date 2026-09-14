@@ -1000,6 +1000,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "bon",
+ "futures",
  "gw2fashionista-chatlink",
  "gw2fashionista-core",
  "gw2fashionista-fixtures",

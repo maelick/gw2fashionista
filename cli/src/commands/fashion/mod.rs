@@ -1,6 +1,6 @@
 use std::io;
 
-use gw2fashionista_core::domain::fashion::{Fashion, FashionRecord};
+use gw2fashionista_core::domain::{fashion::{Fashion, FashionRecord}, names::TagName};
 
 use crate::{
     commands::{
@@ -174,7 +174,7 @@ fn merge_fashion(mut fashion: Fashion, fashion_fields: &FashionFields) -> anyhow
     ensure_tags(fashion, &fashion_fields.tags)
 }
 
-fn ensure_tags(mut fashion: Fashion, tags: &[String]) -> anyhow::Result<Fashion> {
+fn ensure_tags(mut fashion: Fashion, tags: &[TagName]) -> anyhow::Result<Fashion> {
     for tag in tags {
         if !fashion.tags.contains(tag) {
             fashion.tags.push(tag.clone());
@@ -183,7 +183,7 @@ fn ensure_tags(mut fashion: Fashion, tags: &[String]) -> anyhow::Result<Fashion>
     Ok(fashion)
 }
 
-fn merge_tags(mut fashions: Vec<Fashion>, tags: &[String]) -> anyhow::Result<Vec<Fashion>> {
+fn merge_tags(mut fashions: Vec<Fashion>, tags: &[TagName]) -> anyhow::Result<Vec<Fashion>> {
     for fashion in &mut fashions {
         *fashion = ensure_tags(fashion.clone(), tags)?;
     }

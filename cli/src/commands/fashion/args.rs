@@ -4,7 +4,7 @@ use gw2fashionista_core::{
     app::FashionService,
     domain::{
         fashion::{self, Fashion},
-        names::{CharacterName, FashionName},
+        names::{CharacterName, FashionName, TagName},
     },
 };
 use gw2fashionista_storage::sqlite;
@@ -34,7 +34,7 @@ pub struct FashionFields {
 
     /// Tags
     #[arg(short, long = "tag", value_name = "TAG")]
-    pub tags: Vec<String>,
+    pub tags: Vec<TagName>,
 }
 
 impl TryFrom<&FashionFields> for Fashion {

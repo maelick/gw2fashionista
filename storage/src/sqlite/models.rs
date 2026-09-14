@@ -85,7 +85,8 @@ impl From<Tag> for tag::Tag {
     fn from(model: Tag) -> Self {
         tag::Tag::builder()
             .id(model.id)
-            .name(model.name)
+            .name_str(&model.name)
+            .unwrap()
             .maybe_created_at(model.created_at)
             .maybe_updated_at(model.updated_at)
             .build()
