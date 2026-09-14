@@ -2,7 +2,10 @@ use anyhow::anyhow;
 use gw2fashionista_chatlink::templates::{travel::TravelTemplate, wardrobe::WardrobeTemplate};
 use gw2fashionista_core::{
     app::FashionService,
-    domain::fashion::{self, Fashion},
+    domain::{
+        fashion::{self, Fashion},
+        names::{CharacterName, FashionName},
+    },
 };
 use gw2fashionista_storage::sqlite;
 use serde::Deserialize;
@@ -11,11 +14,11 @@ use serde::Deserialize;
 pub struct FashionFields {
     /// Name of the fashion template.
     #[arg(short, long)]
-    pub name: Option<String>,
+    pub name: Option<FashionName>,
 
     /// Associated character.
     #[arg(short, long, alias = "char")]
-    pub character: Option<String>,
+    pub character: Option<CharacterName>,
 
     /// Description of the fashion template.
     #[arg(short, long, value_name = "TEXT")]
@@ -95,8 +98,8 @@ impl From<Fashion> for FashionIdentifier {
     fn from(fashion: Fashion) -> Self {
         Self {
             id: fashion.id.map(uuid::fmt::Hyphenated::from),
-            name: Some(fashion.name),
-            character: fashion.character,
+            name: Some(fashion.name.to_string()),
+            character: fashion.character.as_ref().map(CharacterName::to_string),
         }
     }
 }

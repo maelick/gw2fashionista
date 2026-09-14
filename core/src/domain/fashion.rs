@@ -4,6 +4,11 @@ use chrono::{DateTime, Utc};
 use gw2fashionista_chatlink::templates::{travel::TravelTemplate, wardrobe::WardrobeTemplate};
 use serde::{Deserialize, Serialize};
 
+use crate::domain::{
+    fashion::fashion_builder::{IsUnset, SetCharacter, SetName, State},
+    names::{CharacterName, CharacterNameError, FashionName, FashionNameError},
+};
+
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum FashionIdentifier {
     Id(uuid::Uuid),
@@ -18,14 +23,12 @@ pub struct Fashion {
     #[builder(into)]
     pub id: Option<uuid::Uuid>,
 
-    #[builder(into)]
-    pub name: String,
+    pub name: FashionName,
 
     #[builder(into)]
     pub description: Option<String>,
 
-    #[builder(into)]
-    pub character: Option<String>,
+    pub character: Option<CharacterName>,
 
     #[serde(default, with = "display_fromstr_option")]
     pub wardrobe_template: Option<WardrobeTemplate>,
@@ -42,6 +45,27 @@ pub struct Fashion {
     pub tags: Vec<String>,
 }
 
+impl<S: State> FashionBuilder<S> {
+    pub fn name_str(self, s: &str) -> Result<FashionBuilder<SetName<S>>, FashionNameError>
+    where
+        S::Name: IsUnset,
+    {
+        let name = s.parse::<FashionName>()?;
+        Ok(self.name(name))
+    }
+
+    pub fn character_str(
+        self,
+        s: &str,
+    ) -> Result<FashionBuilder<SetCharacter<S>>, CharacterNameError>
+    where
+        S::Character: IsUnset,
+    {
+        let character = s.parse::<CharacterName>()?;
+        Ok(self.character(character))
+    }
+}
+
 impl Fashion {
     pub fn with_id(mut self, id: uuid::Uuid) -> Self {
         self.id = Some(id);
@@ -52,7 +76,7 @@ impl Fashion {
         if let Some(id) = &other.id {
             self.id = Some(*id);
         }
-        if !other.name.is_empty() {
+        if !other.name.as_ref().is_empty() {
             self.name = other.name.clone();
         }
         if let Some(description) = &other.description {
@@ -104,8 +128,8 @@ impl From<&Fashion> for FashionIdentifier {
             FashionIdentifier::Id(id)
         } else {
             FashionIdentifier::NameAndCharacter {
-                name: fashion.name.clone(),
-                character: fashion.character.clone(),
+                name: fashion.name.to_string(),
+                character: fashion.character.as_ref().map(CharacterName::to_string),
             }
         }
     }
@@ -114,9 +138,9 @@ impl From<&Fashion> for FashionIdentifier {
 #[derive(Deserialize, Serialize)]
 pub struct FashionRecord {
     pub id: Option<uuid::Uuid>,
-    pub name: String,
+    pub name: FashionName,
     pub description: Option<String>,
-    pub character: Option<String>,
+    pub character: Option<CharacterName>,
     #[serde(default, with = "display_fromstr_option")]
     pub wardrobe_template: Option<WardrobeTemplate>,
     #[serde(default, with = "display_fromstr_option")]
@@ -146,9 +170,9 @@ impl From<FashionRecord> for Fashion {
 #[derive(Serialize)]
 pub struct FashionRecordRef<'a> {
     pub id: Option<&'a uuid::Uuid>,
-    pub name: &'a str,
+    pub name: &'a FashionName,
     pub description: Option<&'a str>,
-    pub character: Option<&'a str>,
+    pub character: Option<&'a CharacterName>,
     #[serde(default, with = "display_fromstr_option")]
     pub wardrobe_template: Option<&'a WardrobeTemplate>,
     #[serde(default, with = "display_fromstr_option")]
@@ -165,7 +189,7 @@ impl<'a> From<&'a Fashion> for FashionRecordRef<'a> {
             id: fashion.id.as_ref(),
             name: &fashion.name,
             description: fashion.description.as_deref(),
-            character: fashion.character.as_deref(),
+            character: fashion.character.as_ref(),
             wardrobe_template: fashion.wardrobe_template.as_ref(),
             travel_template: fashion.travel_template.as_ref(),
             created_at: fashion.created_at.as_ref(),

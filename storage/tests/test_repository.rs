@@ -14,14 +14,17 @@ async fn test_create_empty_fashion(pool: SqlitePool) {
     let repo = sqlite::Repository::new(pool);
 
     // We create a new template
-    let fashion = Fashion::builder().name("empty_fashion").build();
+    let fashion = Fashion::builder()
+        .name_str("empty_fashion")
+        .unwrap()
+        .build();
     let created = &repo.insert_fashion(&fashion).await.unwrap();
 
     // Assert that timestamps are set and fields are not
     assert!(created.description.is_none());
     assert!(created.character.is_none());
-    assert!(created.wardrobe_template.clone().unwrap().is_empty());
-    assert!(created.travel_template.clone().unwrap().is_empty());
+    assert!(created.wardrobe_template.as_ref().unwrap().is_empty());
+    assert!(created.travel_template.as_ref().unwrap().is_empty());
     assert_eq!(created.created_at.unwrap(), created.updated_at.unwrap());
 
     // We ensure we can't create it again
@@ -47,9 +50,11 @@ async fn test_create_not_empty_fashion(pool: SqlitePool) {
 
     // We create a new template
     let fashion = Fashion::builder()
-        .name("peekaboo")
+        .name_str("peekaboo")
+        .unwrap()
         .description("description")
-        .character("Pikku Peekaboo")
+        .character_str("Pikku Peekaboo")
+        .unwrap()
         .wardrobe_template(
             wardrobe::PEEKABOO_TEMPLATE
                 .chat_link
@@ -71,10 +76,13 @@ async fn test_create_not_empty_fashion(pool: SqlitePool) {
     let created = &repo.insert_fashion(&fashion).await.unwrap();
 
     // Assert that timestamps and fields are set
-    assert_eq!(created.description.clone().unwrap(), "description");
-    assert_eq!(created.character.clone().unwrap(), "Pikku Peekaboo");
-    assert!(!created.wardrobe_template.clone().unwrap().is_empty());
-    assert!(!created.travel_template.clone().unwrap().is_empty());
+    assert_eq!(created.description.as_ref().unwrap(), "description");
+    assert_eq!(
+        created.character.as_ref().unwrap().to_string(),
+        "Pikku Peekaboo"
+    );
+    assert!(!created.wardrobe_template.as_ref().unwrap().is_empty());
+    assert!(!created.travel_template.as_ref().unwrap().is_empty());
     assert_eq!(created.created_at.unwrap(), created.updated_at.unwrap());
 
     // We ensure we can't create it again
@@ -99,15 +107,17 @@ async fn test_update_fashion(pool: SqlitePool) {
     let repo = sqlite::Repository::new(pool);
 
     // We create a new empty template
-    let fashion = Fashion::builder().name("peekaboo").build();
+    let fashion = Fashion::builder().name_str("peekaboo").unwrap().build();
     let created = &repo.insert_fashion(&fashion).await.unwrap();
 
     // We update it with fields
     let fashion = Fashion::builder()
         .id(created.id.unwrap())
-        .name("peekaboo")
+        .name_str("peekaboo")
+        .unwrap()
         .description("description")
-        .character("Pikku Peekaboo")
+        .character_str("Pikku Peekaboo")
+        .unwrap()
         .wardrobe_template(
             wardrobe::PEEKABOO_TEMPLATE
                 .chat_link
@@ -129,10 +139,13 @@ async fn test_update_fashion(pool: SqlitePool) {
     let updated = &repo.update_fashion(&fashion).await.unwrap();
 
     // Assert that timestamps are set and fields are not
-    assert_eq!(updated.description.clone().unwrap(), "description");
-    assert_eq!(updated.character.clone().unwrap(), "Pikku Peekaboo");
-    assert!(!updated.wardrobe_template.clone().unwrap().is_empty());
-    assert!(!updated.travel_template.clone().unwrap().is_empty());
+    assert_eq!(updated.description.as_ref().unwrap(), "description");
+    assert_eq!(
+        updated.character.as_ref().unwrap().to_string(),
+        "Pikku Peekaboo"
+    );
+    assert!(!updated.wardrobe_template.as_ref().unwrap().is_empty());
+    assert!(!updated.travel_template.as_ref().unwrap().is_empty());
     assert!(updated.updated_at.unwrap() > updated.created_at.unwrap());
 
     // We retrieve the updated template and ensure it is identical to the one returned by the update.
@@ -151,25 +164,27 @@ async fn test_update_fashion(pool: SqlitePool) {
     // We update it back to empty
     let fashion = Fashion::builder()
         .id(created.id.unwrap())
-        .name("peekaboo")
+        .name_str("peekaboo")
+        .unwrap()
         .build();
     let updated = &repo.update_fashion(&fashion).await.unwrap();
 
     // Assert that timestamps are set and fields are not
     assert!(created.description.is_none());
     assert!(created.character.is_none());
-    assert!(created.wardrobe_template.clone().unwrap().is_empty());
-    assert!(created.travel_template.clone().unwrap().is_empty());
+    assert!(created.wardrobe_template.as_ref().unwrap().is_empty());
+    assert!(created.travel_template.as_ref().unwrap().is_empty());
     assert!(updated.updated_at.unwrap() > updated.created_at.unwrap());
 
     // We create a new empty template
-    let fashion = Fashion::builder().name("peekaboo2").build();
+    let fashion = Fashion::builder().name_str("peekaboo2").unwrap().build();
     let created = &repo.insert_fashion(&fashion).await.unwrap();
 
     // We try to rename it to the first one
     let fashion = Fashion::builder()
         .id(created.id.unwrap())
-        .name("peekaboo")
+        .name_str("peekaboo")
+        .unwrap()
         .build();
     repo.update_fashion(&fashion).await.unwrap_err();
 
@@ -182,7 +197,8 @@ async fn test_update_fashion(pool: SqlitePool) {
     // We update a template that does not exist
     let fashion = Fashion::builder()
         .id(uuid::Uuid::now_v7())
-        .name("does not exist")
+        .name_str("does not exist")
+        .unwrap()
         .build();
     let err = repo.update_fashion(&fashion).await.unwrap_err();
     assert_matches!(err, repositories::Error::NotFound);
@@ -315,11 +331,11 @@ async fn test_crud_fashion_tags(pool: SqlitePool) {
 
     // We create two templates
     let fashion1 = &repo
-        .insert_fashion(&Fashion::builder().name("fashion1").build())
+        .insert_fashion(&Fashion::builder().name_str("fashion1").unwrap().build())
         .await
         .unwrap();
     let fashion2 = &repo
-        .insert_fashion(&Fashion::builder().name("fashion2").build())
+        .insert_fashion(&Fashion::builder().name_str("fashion2").unwrap().build())
         .await
         .unwrap();
 
@@ -408,11 +424,11 @@ async fn test_rename_tag(pool: SqlitePool) {
 
     // We create two templates
     let fashion1 = &repo
-        .insert_fashion(&Fashion::builder().name("fashion1").build())
+        .insert_fashion(&Fashion::builder().name_str("fashion1").unwrap().build())
         .await
         .unwrap();
     let fashion2 = &repo
-        .insert_fashion(&Fashion::builder().name("fashion2").build())
+        .insert_fashion(&Fashion::builder().name_str("fashion2").unwrap().build())
         .await
         .unwrap();
 
@@ -490,11 +506,11 @@ async fn test_replace_tags(pool: SqlitePool) {
 
     // We create two templates
     let fashion1 = &repo
-        .insert_fashion(&Fashion::builder().name("fashion1").build())
+        .insert_fashion(&Fashion::builder().name_str("fashion1").unwrap().build())
         .await
         .unwrap();
     let fashion2 = &repo
-        .insert_fashion(&Fashion::builder().name("fashion2").build())
+        .insert_fashion(&Fashion::builder().name_str("fashion2").unwrap().build())
         .await
         .unwrap();
 
@@ -592,11 +608,11 @@ async fn test_clean_tags(pool: SqlitePool) {
 
     // We create two templates
     let fashion1 = &repo
-        .insert_fashion(&Fashion::builder().name("fashion1").build())
+        .insert_fashion(&Fashion::builder().name_str("fashion1").unwrap().build())
         .await
         .unwrap();
     let fashion2 = &repo
-        .insert_fashion(&Fashion::builder().name("fashion2").build())
+        .insert_fashion(&Fashion::builder().name_str("fashion2").unwrap().build())
         .await
         .unwrap();
 

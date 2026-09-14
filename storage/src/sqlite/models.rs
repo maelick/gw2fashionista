@@ -5,7 +5,11 @@ use gw2fashionista_chatlink::{
     templates::{FashionSlot, Template},
 };
 use gw2fashionista_core::{
-    domain::{fashion, tag},
+    domain::{
+        fashion,
+        names::{CharacterName, FashionName},
+        tag,
+    },
     ports::repositories::FashionValidationError,
 };
 use sqlx::types::{
@@ -39,11 +43,17 @@ impl TryFrom<Fashion> for fashion::Fashion {
     type Error = error::Error;
 
     fn try_from(model: Fashion) -> Result<Self, Self::Error> {
+        let name: FashionName = model.name.parse().map_err(FashionValidationError::from)?;
+        let char_name: Option<CharacterName> = non_empty(model.character)
+            .as_ref()
+            .map(|s| s.parse())
+            .transpose()
+            .map_err(FashionValidationError::from)?;
         Ok(fashion::Fashion::builder()
             .id(model.id)
-            .name(model.name)
+            .name(name)
             .maybe_description(non_empty(model.description))
-            .maybe_character(non_empty(model.character))
+            .maybe_character(char_name)
             .wardrobe_template(parse_template(&model.wardrobe_template)?)
             .travel_template(parse_template(&model.travel_template)?)
             .maybe_created_at(model.created_at)
@@ -56,9 +66,13 @@ impl From<&fashion::Fashion> for Fashion {
     fn from(fashion: &fashion::Fashion) -> Self {
         Fashion {
             id: fashion.id.unwrap_or_else(uuid::Uuid::now_v7).into(),
-            name: fashion.name.clone(),
+            name: fashion.name.as_ref().to_string(),
             description: fashion.description.clone().unwrap_or_default(),
-            character: fashion.character.clone().unwrap_or_default(),
+            character: fashion
+                .character
+                .as_ref()
+                .map(CharacterName::to_string)
+                .unwrap_or_default(),
             wardrobe_template: serialize_template(fashion.wardrobe_template.as_ref()),
             travel_template: serialize_template(fashion.travel_template.as_ref()),
             created_at: fashion.created_at,
