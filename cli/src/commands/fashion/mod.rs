@@ -1,6 +1,9 @@
 use std::io;
 
-use gw2fashionista_core::domain::{fashion::{Fashion, FashionRecord}, names::TagName};
+use gw2fashionista_core::domain::{
+    fashion::{Fashion, FashionRecord},
+    names::TagName,
+};
 
 use crate::{
     commands::{
