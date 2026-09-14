@@ -9,14 +9,11 @@ pub enum Error {
     #[error("not found")]
     NotFound,
 
-    #[error("id is not a valid UUID")]
-    InvalidId(#[from] uuid::Error),
+    #[error("stored value failed validation: {0}")]
+    Validation(Box<dyn std::error::Error + Send + Sync>),
 
     #[error("database constraint violation")]
     Conflict(#[source] sqlx::Error),
-
-    #[error("stored chat link is not valid")]
-    InvalidChatLink(#[from] ChatLinkError),
 
     #[error(transparent)]
     Database(sqlx::Error),
@@ -36,12 +33,22 @@ impl From<Error> for repositories::Error<FashionError> {
     fn from(err: Error) -> Self {
         match err {
             Error::NotFound => Self::NotFound,
-            Error::InvalidId(error) => Self::Repository(FashionError::InvalidId(error)),
+            Error::Validation(error) => Self::Repository(FashionError::Validation(error)),
             Error::Conflict(error) => Self::Repository(FashionError::Conflict {
                 message: error.to_string(),
             }),
-            Error::InvalidChatLink(error) => Self::Repository(FashionError::InvalidChatLink(error)),
             Error::Database(error) => Self::Backend(Box::new(error)),
         }
+    }
+}
+
+trait ValidationError: std::error::Error + Send + Sync + 'static {}
+
+impl ValidationError for uuid::Error {}
+impl ValidationError for ChatLinkError {}
+
+impl<E: ValidationError> From<E> for Error {
+    fn from(err: E) -> Self {
+        Error::Validation(Box::new(err))
     }
 }
