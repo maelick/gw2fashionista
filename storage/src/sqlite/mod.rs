@@ -115,7 +115,7 @@ impl repositories::FashionRepository for Repository {
         let mut tx = self.begin_transaction().await?;
         let with_id = ensure_tag(&mut tx, with).await?.id.unwrap_or_default();
         for tag in tags.into_iter().map(Into::into) {
-            let tag_id = resolve_tag_id(&mut tx, &tag).await?;
+            let tag_id = resolve_tag_id(&mut tx, tag).await?;
             replace_tag(&mut tx, &tag_id, &with_id).await?;
         }
         commit(tx).await?;
@@ -140,7 +140,7 @@ impl repositories::FashionRepository for Repository {
         let fashion_ids: Vec<_> = fashion_ids.into_iter().collect();
         let mut tx = self.begin_transaction().await?;
         for tag in tags.into_iter().map(Into::into) {
-            upsert_tag(&mut tx, &tag).await?;
+            upsert_tag(&mut tx, tag).await?;
             for fashion_id in &fashion_ids {
                 add_fashion_tag(&mut tx, fashion_id, tag).await?;
             }
