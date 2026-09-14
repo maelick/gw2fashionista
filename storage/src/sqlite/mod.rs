@@ -3,7 +3,7 @@ use std::str::FromStr;
 use async_trait::async_trait;
 use gw2fashionista_core::{
     domain::{fashion::Fashion, filters::StringFilters, tag::Tag},
-    ports::repositories::{self, FashionResult},
+    ports::repositories::{self, FashionResult, FashionValidationError},
 };
 use sqlx::{
     QueryBuilder, Sqlite, SqliteConnection, SqlitePool, Transaction,
@@ -332,7 +332,7 @@ async fn resolve_tag_id(conn: &mut SqliteConnection, name: &str) -> error::Resul
     let res = sqlx::query!(r#"SELECT id FROM tag WHERE name = ?"#, name)
         .fetch_one(conn)
         .await?;
-    Ok(res.id.try_into()?)
+    Ok(res.id.try_into().map_err(FashionValidationError::from)?)
 }
 
 async fn list_tags(

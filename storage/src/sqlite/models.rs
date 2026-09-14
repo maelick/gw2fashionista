@@ -4,7 +4,10 @@ use gw2fashionista_chatlink::{
     ChatLink, ChatLinkError,
     templates::{FashionSlot, Template},
 };
-use gw2fashionista_core::domain::{fashion, tag};
+use gw2fashionista_core::{
+    domain::{fashion, tag},
+    ports::repositories::FashionValidationError,
+};
 use sqlx::types::{
     chrono::{DateTime, Utc},
     uuid,
@@ -75,7 +78,7 @@ impl From<Tag> for tag::Tag {
     }
 }
 
-fn parse_template<S: FashionSlot>(s: &str) -> error::Result<Template<S>>
+fn parse_template<S: FashionSlot>(s: &str) -> Result<Template<S>, FashionValidationError>
 where
     Template<S>: Default + TryFrom<ChatLink, Error = ChatLinkError>,
 {

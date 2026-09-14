@@ -1,6 +1,4 @@
-use gw2fashionista_chatlink::ChatLinkError;
-use gw2fashionista_core::ports::repositories::{self, FashionError};
-use sqlx::types::uuid;
+use gw2fashionista_core::ports::repositories::{self, FashionError, FashionValidationError};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -9,8 +7,8 @@ pub enum Error {
     #[error("not found")]
     NotFound,
 
-    #[error("stored value failed validation: {0}")]
-    Validation(Box<dyn std::error::Error + Send + Sync>),
+    #[error(transparent)]
+    Validation(#[from] FashionValidationError),
 
     #[error("database constraint violation")]
     Conflict(#[source] sqlx::Error),
@@ -39,16 +37,5 @@ impl From<Error> for repositories::Error<FashionError> {
             }),
             Error::Database(error) => Self::Backend(Box::new(error)),
         }
-    }
-}
-
-trait ValidationError: std::error::Error + Send + Sync + 'static {}
-
-impl ValidationError for uuid::Error {}
-impl ValidationError for ChatLinkError {}
-
-impl<E: ValidationError> From<E> for Error {
-    fn from(err: E) -> Self {
-        Error::Validation(Box::new(err))
     }
 }

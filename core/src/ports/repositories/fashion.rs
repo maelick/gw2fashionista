@@ -1,22 +1,40 @@
-use crate::domain::{fashion::Fashion, filters::StringFilters, tag::Tag};
+use crate::domain::{
+    fashion::Fashion,
+    filters::StringFilters,
+    names::{CharacterNameError, FashionNameError, TagNameError},
+    tag::Tag,
+};
 use async_trait::async_trait;
+use gw2fashionista_chatlink::ChatLinkError;
 use uuid;
 
 pub type Result<T> = std::result::Result<T, super::Error<Error>>;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("stored data failed validation: {0}")]
-    Validation(Box<dyn std::error::Error + Send + Sync>),
+    #[error(transparent)]
+    Validation(#[from] ValidationError),
 
     #[error("database constraint violation: {message}")]
     Conflict { message: String },
 }
 
-impl Error {
-    pub fn validation(err: impl std::error::Error + Send + Sync + 'static) -> Self {
-        Self::Validation(Box::new(err))
-    }
+#[derive(thiserror::Error, Debug)]
+pub enum ValidationError {
+    #[error(transparent)]
+    FashionId(#[from] uuid::Error),
+
+    #[error(transparent)]
+    FashionName(#[from] FashionNameError),
+
+    #[error(transparent)]
+    CharacterName(#[from] CharacterNameError),
+
+    #[error(transparent)]
+    ChatLink(#[from] ChatLinkError),
+
+    #[error(transparent)]
+    TagName(#[from] TagNameError),
 }
 
 #[async_trait]
