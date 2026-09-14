@@ -1,6 +1,12 @@
 use anyhow::anyhow;
 use gw2fashionista_chatlink::templates::{travel::TravelTemplate, wardrobe::WardrobeTemplate};
-use gw2fashionista_core::{app::FashionService, domain::fashion::Fashion};
+use gw2fashionista_core::{
+    app::FashionService,
+    domain::{
+        fashion::{self, Fashion},
+        names::{CharacterName, FashionName, TagName},
+    },
+};
 use gw2fashionista_storage::sqlite;
 use serde::Deserialize;
 
@@ -8,11 +14,11 @@ use serde::Deserialize;
 pub struct FashionFields {
     /// Name of the fashion template.
     #[arg(short, long)]
-    pub name: Option<String>,
+    pub name: Option<FashionName>,
 
     /// Associated character.
     #[arg(short, long, alias = "char")]
-    pub character: Option<String>,
+    pub character: Option<CharacterName>,
 
     /// Description of the fashion template.
     #[arg(short, long, value_name = "TEXT")]
@@ -28,7 +34,7 @@ pub struct FashionFields {
 
     /// Tags
     #[arg(short, long = "tag", value_name = "TAG")]
-    pub tags: Vec<String>,
+    pub tags: Vec<TagName>,
 }
 
 impl TryFrom<&FashionFields> for Fashion {
@@ -92,18 +98,21 @@ impl From<Fashion> for FashionIdentifier {
     fn from(fashion: Fashion) -> Self {
         Self {
             id: fashion.id.map(uuid::fmt::Hyphenated::from),
-            name: Some(fashion.name),
-            character: fashion.character,
+            name: Some(fashion.name.to_string()),
+            character: fashion.character.as_ref().map(CharacterName::to_string),
         }
     }
 }
 
-impl From<FashionIdentifier> for Fashion {
+impl From<FashionIdentifier> for fashion::FashionIdentifier {
     fn from(id: FashionIdentifier) -> Self {
-        Self::builder()
-            .maybe_id(id.id.map(uuid::Uuid::from))
-            .name(id.name.unwrap_or_default())
-            .maybe_character(id.character)
-            .build()
+        if let Some(uuid) = id.id {
+            Self::Id(uuid.into())
+        } else {
+            Self::NameAndCharacter {
+                name: id.name.unwrap_or_default(),
+                character: id.character,
+            }
+        }
     }
 }

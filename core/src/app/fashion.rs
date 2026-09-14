@@ -4,7 +4,11 @@ use futures::TryStreamExt;
 use futures::stream::FuturesOrdered;
 
 use crate::{
-    domain::{fashion::Fashion, filters::StringFilters, tag::Tag},
+    domain::{
+        fashion::{Fashion, FashionIdentifier},
+        filters::StringFilters,
+        tag::Tag,
+    },
     ports::repositories::{self, FashionError, FashionRepository},
 };
 
@@ -56,7 +60,7 @@ where
     }
 
     pub async fn set(&self, fashion: &Fashion) -> Result<Fashion> {
-        let id = self.resolve_id(fashion).await?;
+        let id = self.resolve_id(&fashion.into()).await?;
         let fashion = fashion.clone().with_id(id);
         let mut updated = self.fashion_repo.update_fashion(&fashion).await?;
         let id = updated.id.as_ref().ok_or(Error::MissingFashionId)?;
@@ -69,12 +73,7 @@ where
     }
 
     pub async fn patch(&self, fashion: &Fashion) -> Result<Fashion> {
-        let existing = if let Some(id) = fashion.id {
-            self.get_by_id(&id).await?
-        } else {
-            self.get_by_name(&fashion.name, fashion.character.as_deref())
-                .await?
-        };
+        let existing = self.get(&fashion.into()).await?;
         let patched = existing.patch(fashion);
 
         let mut updated = self.fashion_repo.update_fashion(&patched).await?;
@@ -85,6 +84,15 @@ where
             .await?;
         updated.tags = patched.tags;
         Ok(updated)
+    }
+
+    pub async fn get(&self, id: &FashionIdentifier) -> Result<Fashion> {
+        match id {
+            FashionIdentifier::Id(uuid) => self.get_by_id(uuid).await,
+            FashionIdentifier::NameAndCharacter { name, character } => {
+                self.get_by_name(name, character.as_deref()).await
+            }
+        }
     }
 
     pub async fn get_by_name(&self, name: &str, character: Option<&str>) -> Result<Fashion> {
@@ -110,16 +118,14 @@ where
         Ok(())
     }
 
-    pub async fn resolve_id(&self, fashion: &Fashion) -> Result<uuid::Uuid> {
-        if fashion.id.is_none() {
-            self.get_by_name(&fashion.name, fashion.character.as_deref())
+    pub async fn resolve_id(&self, id: &FashionIdentifier) -> Result<uuid::Uuid> {
+        match id {
+            FashionIdentifier::Id(uuid) => Ok(*uuid),
+            FashionIdentifier::NameAndCharacter { name, character } => self
+                .get_by_name(name, character.as_deref())
                 .await?
                 .id
-                .ok_or(Error::MissingFashionId)
-        } else {
-            fashion.id.ok_or(
-                Error::MissingFashionId, // Should never happen
-            )
+                .ok_or(Error::MissingFashionId),
         }
     }
 

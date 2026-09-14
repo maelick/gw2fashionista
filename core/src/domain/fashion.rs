@@ -4,19 +4,33 @@ use chrono::{DateTime, Utc};
 use gw2fashionista_chatlink::templates::{travel::TravelTemplate, wardrobe::WardrobeTemplate};
 use serde::{Deserialize, Serialize};
 
+use crate::domain::{
+    fashion::fashion_builder::{IsUnset, SetCharacter, SetName, SetTags, State},
+    names::{
+        CharacterName, CharacterNameError, FashionName, FashionNameError, TagName, TagNameError,
+    },
+};
+
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub enum FashionIdentifier {
+    Id(uuid::Uuid),
+    NameAndCharacter {
+        name: String,
+        character: Option<String>,
+    },
+}
+
 #[derive(Debug, Clone, Eq, PartialEq, Builder, Deserialize, Serialize)]
 pub struct Fashion {
     #[builder(into)]
     pub id: Option<uuid::Uuid>,
 
-    #[builder(into)]
-    pub name: String,
+    pub name: FashionName,
 
     #[builder(into)]
     pub description: Option<String>,
 
-    #[builder(into)]
-    pub character: Option<String>,
+    pub character: Option<CharacterName>,
 
     #[serde(default, with = "display_fromstr_option")]
     pub wardrobe_template: Option<WardrobeTemplate>,
@@ -30,7 +44,68 @@ pub struct Fashion {
 
     #[builder(default, into)]
     #[serde(default)]
-    pub tags: Vec<String>,
+    pub tags: Vec<TagName>,
+}
+
+impl<S: State> FashionBuilder<S> {
+    pub fn name_str(self, s: &str) -> Result<FashionBuilder<SetName<S>>, FashionNameError>
+    where
+        S::Name: IsUnset,
+    {
+        let name = s.parse::<FashionName>()?;
+        Ok(self.name(name))
+    }
+
+    pub fn character_str(
+        self,
+        s: &str,
+    ) -> Result<FashionBuilder<SetCharacter<S>>, CharacterNameError>
+    where
+        S::Character: IsUnset,
+    {
+        let character = s.parse::<CharacterName>()?;
+        Ok(self.character(character))
+    }
+
+    pub fn tags_str(self, s: &[&str]) -> Result<FashionBuilder<SetTags<S>>, TagNameError>
+    where
+        S::Tags: IsUnset,
+    {
+        let tags: Result<Vec<_>, _> = s.iter().map(|s| s.parse::<TagName>()).collect();
+        Ok(self.tags(tags?))
+    }
+}
+
+impl Fashion {
+    pub fn with_id(mut self, id: uuid::Uuid) -> Self {
+        self.id = Some(id);
+        self
+    }
+
+    pub fn patch(mut self, other: &Fashion) -> Self {
+        if let Some(id) = &other.id {
+            self.id = Some(*id);
+        }
+        if !other.name.as_ref().is_empty() {
+            self.name = other.name.clone();
+        }
+        if let Some(description) = &other.description {
+            self.description = Some(description.clone());
+        }
+        if let Some(character) = &other.character {
+            self.character = Some(character.clone());
+        }
+        if let Some(wardrobe_template) = &other.wardrobe_template {
+            self.wardrobe_template = Some(wardrobe_template.clone());
+        }
+        if let Some(travel_template) = &other.travel_template {
+            self.travel_template = Some(travel_template.clone());
+        }
+        if !other.tags.is_empty() {
+            merge_tags(&mut self.tags, &other.tags);
+        }
+        self
+    }
 }
 
 mod display_fromstr_option {
@@ -57,44 +132,25 @@ mod display_fromstr_option {
     }
 }
 
-impl Fashion {
-    pub fn with_id(mut self, id: uuid::Uuid) -> Self {
-        self.id = Some(id);
-        self
-    }
-
-    pub fn patch(mut self, other: &Fashion) -> Self {
-        if let Some(id) = &other.id {
-            self.id = Some(*id);
+impl From<&Fashion> for FashionIdentifier {
+    fn from(fashion: &Fashion) -> Self {
+        if let Some(id) = fashion.id {
+            FashionIdentifier::Id(id)
+        } else {
+            FashionIdentifier::NameAndCharacter {
+                name: fashion.name.to_string(),
+                character: fashion.character.as_ref().map(CharacterName::to_string),
+            }
         }
-        if !other.name.is_empty() {
-            self.name = other.name.clone();
-        }
-        if let Some(description) = &other.description {
-            self.description = Some(description.clone());
-        }
-        if let Some(character) = &other.character {
-            self.character = Some(character.clone());
-        }
-        if let Some(wardrobe_template) = &other.wardrobe_template {
-            self.wardrobe_template = Some(wardrobe_template.clone());
-        }
-        if let Some(travel_template) = &other.travel_template {
-            self.travel_template = Some(travel_template.clone());
-        }
-        if !other.tags.is_empty() {
-            merge_tags(&mut self.tags, &other.tags);
-        }
-        self
     }
 }
 
 #[derive(Deserialize, Serialize)]
 pub struct FashionRecord {
     pub id: Option<uuid::Uuid>,
-    pub name: String,
+    pub name: FashionName,
     pub description: Option<String>,
-    pub character: Option<String>,
+    pub character: Option<CharacterName>,
     #[serde(default, with = "display_fromstr_option")]
     pub wardrobe_template: Option<WardrobeTemplate>,
     #[serde(default, with = "display_fromstr_option")]
@@ -116,7 +172,8 @@ impl From<FashionRecord> for Fashion {
             travel_template: record.travel_template,
             created_at: record.created_at,
             updated_at: record.updated_at,
-            tags: record.tags.into(),
+            // tags: record.tags.into(),
+            tags: vec![],
         }
     }
 }
@@ -124,9 +181,9 @@ impl From<FashionRecord> for Fashion {
 #[derive(Serialize)]
 pub struct FashionRecordRef<'a> {
     pub id: Option<&'a uuid::Uuid>,
-    pub name: &'a str,
+    pub name: &'a FashionName,
     pub description: Option<&'a str>,
-    pub character: Option<&'a str>,
+    pub character: Option<&'a CharacterName>,
     #[serde(default, with = "display_fromstr_option")]
     pub wardrobe_template: Option<&'a WardrobeTemplate>,
     #[serde(default, with = "display_fromstr_option")]
@@ -143,12 +200,13 @@ impl<'a> From<&'a Fashion> for FashionRecordRef<'a> {
             id: fashion.id.as_ref(),
             name: &fashion.name,
             description: fashion.description.as_deref(),
-            character: fashion.character.as_deref(),
+            character: fashion.character.as_ref(),
             wardrobe_template: fashion.wardrobe_template.as_ref(),
             travel_template: fashion.travel_template.as_ref(),
             created_at: fashion.created_at.as_ref(),
             updated_at: fashion.updated_at.as_ref(),
-            tags: Tags(fashion.tags.join(",")),
+            // tags: Tags(fashion.tags.join(",")),
+            tags: Tags::default(),
         }
     }
 }
@@ -166,9 +224,9 @@ impl From<Tags> for Vec<String> {
     }
 }
 
-fn merge_tags(existing: &mut Vec<String>, new: &[String]) {
+fn merge_tags(existing: &mut Vec<TagName>, new: &[TagName]) {
     let existing_set: std::collections::HashSet<_> = existing.iter().collect();
-    let new_tags: Vec<String> = new
+    let new_tags: Vec<TagName> = new
         .iter()
         .filter(|t| !existing_set.contains(t))
         .cloned()

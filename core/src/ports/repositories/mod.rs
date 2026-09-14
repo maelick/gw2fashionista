@@ -2,6 +2,7 @@ mod fashion;
 
 pub use fashion::{
     Error as FashionError, Repository as FashionRepository, Result as FashionResult,
+    ValidationError as FashionValidationError,
 };
 
 #[derive(Debug, thiserror::Error)]

@@ -1,4 +1,9 @@
-use crate::domain::{fashion::Fashion, filters::StringFilters, tag::Tag};
+use crate::domain::{
+    fashion::Fashion,
+    filters::StringFilters,
+    names::{CharacterNameError, FashionNameError, TagName, TagNameError},
+    tag::Tag,
+};
 use async_trait::async_trait;
 use gw2fashionista_chatlink::ChatLinkError;
 use uuid;
@@ -7,14 +12,29 @@ pub type Result<T> = std::result::Result<T, super::Error<Error>>;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("id is not a valid UUID")]
-    InvalidId(#[from] uuid::Error),
+    #[error(transparent)]
+    Validation(#[from] ValidationError),
 
     #[error("database constraint violation: {message}")]
     Conflict { message: String },
+}
 
-    #[error("stored chat link is not valid")]
-    InvalidChatLink(#[from] ChatLinkError),
+#[derive(thiserror::Error, Debug)]
+pub enum ValidationError {
+    #[error(transparent)]
+    FashionId(#[from] uuid::Error),
+
+    #[error(transparent)]
+    FashionName(#[from] FashionNameError),
+
+    #[error(transparent)]
+    CharacterName(#[from] CharacterNameError),
+
+    #[error(transparent)]
+    ChatLink(#[from] ChatLinkError),
+
+    #[error(transparent)]
+    TagName(#[from] TagNameError),
 }
 
 #[async_trait]
@@ -29,11 +49,11 @@ pub trait Repository {
 
     async fn list_fashions(&self) -> Result<Vec<Fashion>>;
 
-    async fn upsert_tag(&self, name: &str) -> Result<Option<Tag>>;
+    async fn upsert_tag(&self, name: &TagName) -> Result<Option<Tag>>;
 
-    async fn ensure_tag(&self, name: &str) -> Result<Tag>;
+    async fn ensure_tag(&self, name: &TagName) -> Result<Tag>;
 
-    async fn rename_tag(&self, from: &str, to: &str) -> Result<Tag>;
+    async fn rename_tag(&self, from: &str, to: &TagName) -> Result<Tag>;
 
     async fn get_tag_by_id(&self, id: &uuid::Uuid) -> Result<Tag>;
 
@@ -43,24 +63,24 @@ pub trait Repository {
 
     async fn replace_tags(
         &self,
-        tags: impl IntoIterator<Item: Into<String>, IntoIter: Send> + Send,
-        with: &str,
+        tags: impl IntoIterator<Item: Into<&TagName>, IntoIter: Send> + Send,
+        with: &TagName,
     ) -> Result<()>;
 
     async fn clean_tags(&self) -> Result<u64>;
 
-    async fn get_fashion_tags(&self, fashion_id: &uuid::Uuid) -> Result<Vec<String>>;
+    async fn get_fashion_tags(&self, fashion_id: &uuid::Uuid) -> Result<Vec<TagName>>;
 
     async fn ensure_fashion_tags(
         &self,
         fashion_ids: impl IntoIterator<Item = &uuid::Uuid> + Send,
-        tags: impl IntoIterator<Item: Into<String>, IntoIter: Send> + Send,
+        tags: impl IntoIterator<Item: Into<&TagName>, IntoIter: Send> + Send,
     ) -> Result<()>;
 
     async fn remove_fashion_tags(
         &self,
         fashion_ids: impl IntoIterator<Item = &uuid::Uuid> + Send,
-        tags: impl IntoIterator<Item: Into<String>, IntoIter: Send> + Send,
+        tags: impl IntoIterator<Item: Into<&TagName>, IntoIter: Send> + Send,
     ) -> Result<()>;
 
     async fn remove_all_fashion_tags(

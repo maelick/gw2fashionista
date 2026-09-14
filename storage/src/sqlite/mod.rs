@@ -1,9 +1,10 @@
 use std::str::FromStr;
 
 use async_trait::async_trait;
+use futures::TryStreamExt;
 use gw2fashionista_core::{
-    domain::{fashion::Fashion, filters::StringFilters, tag::Tag},
-    ports::repositories::{self, FashionResult},
+    domain::{fashion::Fashion, filters::StringFilters, names::TagName, tag::Tag},
+    ports::repositories::{self, FashionResult, FashionValidationError},
 };
 use sqlx::{
     QueryBuilder, Sqlite, SqliteConnection, SqlitePool, Transaction,
@@ -74,19 +75,19 @@ impl repositories::FashionRepository for Repository {
         Ok(list_fashions(&mut conn).await?)
     }
 
-    async fn upsert_tag(&self, name: &str) -> FashionResult<Option<Tag>> {
+    async fn upsert_tag(&self, name: &TagName) -> FashionResult<Option<Tag>> {
         let mut conn = self.acquire_conn().await?;
         Ok(upsert_tag(&mut conn, name).await?)
     }
 
-    async fn ensure_tag(&self, name: &str) -> FashionResult<Tag> {
+    async fn ensure_tag(&self, name: &TagName) -> FashionResult<Tag> {
         let mut tx = self.begin_transaction().await?;
         let tag = ensure_tag(&mut tx, name).await?;
         commit(tx).await?;
         Ok(tag)
     }
 
-    async fn rename_tag(&self, from: &str, to: &str) -> FashionResult<Tag> {
+    async fn rename_tag(&self, from: &str, to: &TagName) -> FashionResult<Tag> {
         let mut conn = self.acquire_conn().await?;
         Ok(rename_tag(&mut conn, from, to).await?)
     }
@@ -108,13 +109,13 @@ impl repositories::FashionRepository for Repository {
 
     async fn replace_tags(
         &self,
-        tags: impl IntoIterator<Item: Into<String>, IntoIter: Send> + Send,
-        with: &str,
+        tags: impl IntoIterator<Item: Into<&TagName>, IntoIter: Send> + Send,
+        with: &TagName,
     ) -> FashionResult<()> {
         let mut tx = self.begin_transaction().await?;
-        let with_id = resolve_tag_id(&mut tx, with).await?;
+        let with_id = ensure_tag(&mut tx, with).await?.id.unwrap_or_default();
         for tag in tags.into_iter().map(Into::into) {
-            let tag_id = resolve_tag_id(&mut tx, &tag).await?;
+            let tag_id = resolve_tag_id(&mut tx, tag).await?;
             replace_tag(&mut tx, &tag_id, &with_id).await?;
         }
         commit(tx).await?;
@@ -126,7 +127,7 @@ impl repositories::FashionRepository for Repository {
         Ok(clean_tags(&mut conn).await?)
     }
 
-    async fn get_fashion_tags(&self, fashion_id: &uuid::Uuid) -> FashionResult<Vec<String>> {
+    async fn get_fashion_tags(&self, fashion_id: &uuid::Uuid) -> FashionResult<Vec<TagName>> {
         let mut conn = self.acquire_conn().await?;
         Ok(get_fashion_tags(&mut conn, fashion_id).await?)
     }
@@ -134,14 +135,14 @@ impl repositories::FashionRepository for Repository {
     async fn ensure_fashion_tags(
         &self,
         fashion_ids: impl IntoIterator<Item = &uuid::Uuid> + Send,
-        tags: impl IntoIterator<Item: Into<String>, IntoIter: Send> + Send,
+        tags: impl IntoIterator<Item: Into<&TagName>, IntoIter: Send> + Send,
     ) -> FashionResult<()> {
         let fashion_ids: Vec<_> = fashion_ids.into_iter().collect();
         let mut tx = self.begin_transaction().await?;
         for tag in tags.into_iter().map(Into::into) {
-            upsert_tag(&mut tx, &tag).await?;
+            upsert_tag(&mut tx, tag).await?;
             for fashion_id in &fashion_ids {
-                add_fashion_tag(&mut tx, fashion_id, &tag).await?;
+                add_fashion_tag(&mut tx, fashion_id, tag).await?;
             }
         }
         commit(tx).await?;
@@ -151,13 +152,13 @@ impl repositories::FashionRepository for Repository {
     async fn remove_fashion_tags(
         &self,
         fashion_ids: impl IntoIterator<Item = &uuid::Uuid> + Send,
-        tags: impl IntoIterator<Item: Into<String>, IntoIter: Send> + Send,
+        tags: impl IntoIterator<Item: Into<&TagName>, IntoIter: Send> + Send,
     ) -> FashionResult<()> {
         let fashion_ids: Vec<_> = fashion_ids.into_iter().collect();
         let mut tx = self.begin_transaction().await?;
         for tag in tags.into_iter().map(Into::into) {
             for fashion_id in &fashion_ids {
-                remove_fashion_tag(&mut tx, fashion_id, &tag).await?;
+                remove_fashion_tag(&mut tx, fashion_id, tag).await?;
             }
         }
         commit(tx).await?;
@@ -332,7 +333,7 @@ async fn resolve_tag_id(conn: &mut SqliteConnection, name: &str) -> error::Resul
     let res = sqlx::query!(r#"SELECT id FROM tag WHERE name = ?"#, name)
         .fetch_one(conn)
         .await?;
-    Ok(res.id.try_into()?)
+    Ok(res.id.try_into().map_err(FashionValidationError::from)?)
 }
 
 async fn list_tags(
@@ -389,20 +390,26 @@ fn list_tags_query(patterns: impl Iterator<Item = String>) -> QueryBuilder<Sqlit
 async fn get_fashion_tags(
     conn: &mut SqliteConnection,
     fashion_id: &uuid::Uuid,
-) -> error::Result<Vec<String>> {
+) -> error::Result<Vec<TagName>> {
     let query = sqlx::query!(
         r#"SELECT name FROM tag
         JOIN fashion_tag ON tag.id = fashion_tag.tag_id
         WHERE fashion_tag.fashion_id = ?"#,
         fashion_id.hyphenated()
     );
-    Ok(query.map(|r| r.name).fetch_all(conn).await?)
+    query
+        .map(|r| r.name)
+        .fetch(conn)
+        .map_err(error::Error::from)
+        .and_then(async |s| Ok(s.parse().map_err(FashionValidationError::from)?))
+        .try_collect()
+        .await
 }
 
 async fn add_fashion_tag(
     conn: &mut SqliteConnection,
     fashion_id: &uuid::Uuid,
-    tag: impl Into<String>,
+    tag: &str,
 ) -> error::Result<()> {
     let query = sqlx::query!(
         r#"INSERT INTO fashion_tag (
@@ -414,7 +421,7 @@ async fn add_fashion_tag(
             ON CONFLICT(fashion_id, tag_id)
             DO NOTHING"#,
         fashion_id.hyphenated(),
-        tag.into(),
+        tag,
     );
     query.execute(conn).await?;
     Ok(())
@@ -423,7 +430,7 @@ async fn add_fashion_tag(
 async fn remove_fashion_tag(
     conn: &mut SqliteConnection,
     fashion_id: &uuid::Uuid,
-    tag: impl Into<String>,
+    tag: &str,
 ) -> error::Result<()> {
     let query = sqlx::query!(
         r#"DELETE FROM fashion_tag
@@ -432,7 +439,7 @@ async fn remove_fashion_tag(
                 SELECT id FROM tag WHERE name = ?
             )"#,
         fashion_id.hyphenated(),
-        tag.into(),
+        tag,
     );
     query.execute(conn).await?;
     Ok(())
