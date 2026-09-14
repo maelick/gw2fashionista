@@ -4,6 +4,15 @@ use chrono::{DateTime, Utc};
 use gw2fashionista_chatlink::templates::{travel::TravelTemplate, wardrobe::WardrobeTemplate};
 use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub enum FashionIdentifier {
+    Id(uuid::Uuid),
+    NameAndCharacter {
+        name: String,
+        character: Option<String>,
+    },
+}
+
 #[derive(Debug, Clone, Eq, PartialEq, Builder, Deserialize, Serialize)]
 pub struct Fashion {
     #[builder(into)]
@@ -86,6 +95,19 @@ mod display_fromstr_option {
         Option::<String>::deserialize(deserializer)?
             .map(|s| s.parse().map_err(serde::de::Error::custom))
             .transpose()
+    }
+}
+
+impl From<&Fashion> for FashionIdentifier {
+    fn from(fashion: &Fashion) -> Self {
+        if let Some(id) = fashion.id {
+            FashionIdentifier::Id(id)
+        } else {
+            FashionIdentifier::NameAndCharacter {
+                name: fashion.name.clone(),
+                character: fashion.character.clone(),
+            }
+        }
     }
 }
 

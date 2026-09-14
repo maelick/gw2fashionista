@@ -1,6 +1,9 @@
 use anyhow::anyhow;
 use gw2fashionista_chatlink::templates::{travel::TravelTemplate, wardrobe::WardrobeTemplate};
-use gw2fashionista_core::{app::FashionService, domain::fashion::Fashion};
+use gw2fashionista_core::{
+    app::FashionService,
+    domain::fashion::{self, Fashion},
+};
 use gw2fashionista_storage::sqlite;
 use serde::Deserialize;
 
@@ -98,12 +101,15 @@ impl From<Fashion> for FashionIdentifier {
     }
 }
 
-impl From<FashionIdentifier> for Fashion {
+impl From<FashionIdentifier> for fashion::FashionIdentifier {
     fn from(id: FashionIdentifier) -> Self {
-        Self::builder()
-            .maybe_id(id.id.map(uuid::Uuid::from))
-            .name(id.name.unwrap_or_default())
-            .maybe_character(id.character)
-            .build()
+        if let Some(uuid) = id.id {
+            Self::Id(uuid.into())
+        } else {
+            Self::NameAndCharacter {
+                name: id.name.unwrap_or_default(),
+                character: id.character,
+            }
+        }
     }
 }
