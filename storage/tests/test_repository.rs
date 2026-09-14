@@ -584,19 +584,7 @@ async fn test_replace_tags(pool: SqlitePool) {
     let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
     assert_eq!(tags, tag_vec(&["tag1", "tag3"]));
 
-    // We replace tag3 with tag5 (does not exist)
-    let err = repo
-        .replace_tags(std::iter::once(&tag("tag3")), &tag("tag5"))
-        .await
-        .unwrap_err();
-    assert_matches!(err, repositories::Error::NotFound);
-
-    let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
-    assert_eq!(tags, tag_vec(&["tag1"]));
-    let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
-    assert_eq!(tags, tag_vec(&["tag1", "tag3"]));
-
-    // We replace tag5 (does not exist) with tag3
+    // We replace tag5 (does not exist) with tag3 => fail
     let err = repo
         .replace_tags(std::iter::once(&tag("tag5")), &tag("tag3"))
         .await
@@ -608,8 +596,26 @@ async fn test_replace_tags(pool: SqlitePool) {
     let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
     assert_eq!(tags, tag_vec(&["tag1", "tag3"]));
 
-    // We replace tag3 with tag2 (still exist)
-    repo.replace_tags(std::iter::once(&tag("tag3")), &tag("tag2"))
+    // List the tags
+    let tags = repo
+        .list_tags(StringFilters::builder().build())
+        .await
+        .unwrap();
+    let tags: Vec<_> = tags.iter().map(|t| t.name.clone()).collect();
+    assert_eq!(tags, tag_vec(&["tag1", "tag2", "tag3", "tag4"]));
+
+    // We replace tag3 with tag5 (does not exist) => tag is created
+    repo.replace_tags(std::iter::once(&tag("tag3")), &tag("tag5"))
+        .await
+        .unwrap();
+
+    let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
+    assert_eq!(tags, tag_vec(&["tag1"]));
+    let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
+    assert_eq!(tags, tag_vec(&["tag1", "tag5"]));
+
+    // We replace tag5 with tag2
+    repo.replace_tags(std::iter::once(&tag("tag5")), &tag("tag2"))
         .await
         .unwrap();
 
@@ -624,7 +630,7 @@ async fn test_replace_tags(pool: SqlitePool) {
         .await
         .unwrap();
     let tags: Vec<_> = tags.iter().map(|t| t.name.clone()).collect();
-    assert_eq!(tags, tag_vec(&["tag1", "tag2", "tag3", "tag4"]));
+    assert_eq!(tags, tag_vec(&["tag1", "tag2", "tag3", "tag4", "tag5"]));
 }
 
 #[sqlx::test]
