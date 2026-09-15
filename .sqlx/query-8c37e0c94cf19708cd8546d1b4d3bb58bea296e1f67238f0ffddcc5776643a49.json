@@ -1,0 +1,21 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT COUNT(*) count FROM fashion_tag\n        JOIN tag ON tag.id = fashion_tag.tag_id\n        WHERE tag.name = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "count",
+        "ordinal": 0,
+        "type_info": "Integer",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "8c37e0c94cf19708cd8546d1b4d3bb58bea296e1f67238f0ffddcc5776643a49"
+}
