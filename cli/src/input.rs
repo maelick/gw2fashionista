@@ -35,17 +35,18 @@ where
 }
 
 impl<T> Input<T> {
-    pub fn from_csv<R, Row>(reader: R) -> Result<Self, csv::Error>
+    pub fn from_csv<R, Row>(reader: R) -> Result<Self, anyhow::Error>
     where
         R: io::Read,
-        T: From<Row>,
+        T: TryFrom<Row>,
+        <T as TryFrom<Row>>::Error: std::error::Error + Send + Sync + 'static,
         Row: serde::de::DeserializeOwned,
     {
         let items: Result<Vec<T>, _> = csv::ReaderBuilder::new()
             .has_headers(true)
             .from_reader(reader)
             .deserialize()
-            .map(|row| Ok::<_, csv::Error>(T::from(row?)))
+            .map(|row| -> Result<T, anyhow::Error> { Ok(T::try_from(row?)?) })
             .collect();
         Ok(items?.into())
     }
@@ -103,13 +104,14 @@ pub fn read_csv_json<T, R, Row>(
 ) -> anyhow::Result<(Input<T>, Format)>
 where
     R: io::BufRead,
-    T: serde::de::DeserializeOwned + From<Row>,
+    T: serde::de::DeserializeOwned + TryFrom<Row>,
     Row: serde::de::DeserializeOwned,
+    <T as TryFrom<Row>>::Error: std::error::Error + Send + Sync + 'static,
 {
     Ok((
         match format {
             Format::Json => Input::from_json(reader)?,
-            Format::Csv => Input::from_csv(reader)?,
+            Format::Csv => Input::from_csv::<_, Row>(reader)?,
             Format::ChatLink => anyhow::bail!("Invalid fashion template"),
             Format::None => Input::None,
         },
