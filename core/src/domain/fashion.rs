@@ -1,5 +1,6 @@
 use bon::Builder;
 use chrono::{DateTime, Utc};
+use itertools::Itertools;
 
 use gw2fashionista_chatlink::templates::{travel::TravelTemplate, wardrobe::WardrobeTemplate};
 use serde::{Deserialize, Serialize};
@@ -161,9 +162,10 @@ pub struct FashionRecord {
     pub tags: Tags,
 }
 
-impl From<FashionRecord> for Fashion {
-    fn from(record: FashionRecord) -> Self {
-        Self {
+impl TryFrom<FashionRecord> for Fashion {
+    type Error = TagNameError;
+    fn try_from(record: FashionRecord) -> Result<Self, Self::Error> {
+        Ok(Self {
             id: record.id,
             name: record.name,
             description: record.description,
@@ -172,9 +174,8 @@ impl From<FashionRecord> for Fashion {
             travel_template: record.travel_template,
             created_at: record.created_at,
             updated_at: record.updated_at,
-            // tags: record.tags.into(),
-            tags: vec![],
-        }
+            tags: record.tags.try_into()?,
+        })
     }
 }
 
@@ -205,8 +206,9 @@ impl<'a> From<&'a Fashion> for FashionRecordRef<'a> {
             travel_template: fashion.travel_template.as_ref(),
             created_at: fashion.created_at.as_ref(),
             updated_at: fashion.updated_at.as_ref(),
-            // tags: Tags(fashion.tags.join(",")),
-            tags: Tags::default(),
+            tags: Tags(
+                Itertools::intersperse(fashion.tags.iter().map(|t| t.as_str()), ",").collect(),
+            ),
         }
     }
 }
@@ -214,13 +216,20 @@ impl<'a> From<&'a Fashion> for FashionRecordRef<'a> {
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
 pub struct Tags(String);
 
-impl From<Tags> for Vec<String> {
-    fn from(Tags(tags): Tags) -> Self {
-        tags.split(",")
+impl Tags {
+    pub fn iter(&self) -> impl Iterator<Item = &str> {
+        self.0
+            .split(",")
             .map(|s| s.trim())
             .filter(|s| !s.is_empty())
-            .map(|s| s.to_string())
-            .collect()
+    }
+}
+
+impl TryFrom<Tags> for Vec<TagName> {
+    type Error = TagNameError;
+
+    fn try_from(tags: Tags) -> Result<Self, Self::Error> {
+        tags.iter().map(str::parse).collect()
     }
 }
 
