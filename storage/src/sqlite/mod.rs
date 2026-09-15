@@ -107,6 +107,11 @@ impl repositories::FashionRepository for Repository {
         Ok(list_tags(&mut conn, SqliteStringFilters(filters)).await?)
     }
 
+    async fn count_tag(&self, name: &str) -> FashionResult<u64> {
+        let mut conn = self.acquire_conn().await?;
+        Ok(count_tag(&mut conn, name).await?)
+    }
+
     async fn replace_tags(
         &self,
         tags: impl IntoIterator<Item: Into<&TagName>, IntoIter: Send> + Send,
@@ -347,6 +352,20 @@ async fn list_tags(
         .into_iter()
         .map(Tag::from)
         .collect())
+}
+
+async fn count_tag(conn: &mut SqliteConnection, name: &str) -> error::Result<u64> {
+    Ok(sqlx::query!(
+        r#"SELECT COUNT(*) count FROM fashion_tag
+        JOIN tag ON tag.id = fashion_tag.tag_id
+        WHERE tag.name = ?"#,
+        name,
+    )
+    .fetch_one(conn)
+    .await?
+    .count
+    .try_into()
+    .unwrap_or_default())
 }
 
 async fn replace_tag(

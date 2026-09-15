@@ -16,6 +16,9 @@ pub struct Tag {
     pub created_at: Option<DateTime<Utc>>,
 
     pub updated_at: Option<DateTime<Utc>>,
+
+    #[builder(default)]
+    pub count: u64,
 }
 
 impl<S: State> TagBuilder<S> {
@@ -25,5 +28,12 @@ impl<S: State> TagBuilder<S> {
     {
         let name = s.parse::<TagName>()?;
         Ok(self.name(name))
+    }
+}
+
+impl Tag {
+    pub fn with_count(mut self, count: u64) -> Self {
+        self.count = count;
+        self
     }
 }
