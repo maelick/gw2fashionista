@@ -130,7 +130,11 @@ where
     }
 
     pub async fn list_tags(&self, filters: StringFilters) -> Result<Vec<Tag>> {
-        Ok(self.fashion_repo.list_tags(filters).await?)
+        let mut tags = self.fashion_repo.list_tags(filters).await?;
+        for t in &mut tags {
+            t.count = self.fashion_repo.count_tag(&t.name).await?;
+        }
+        Ok(tags)
     }
 
     pub async fn clean_tags(&self) -> Result<u64> {

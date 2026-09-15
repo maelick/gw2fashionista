@@ -61,6 +61,8 @@ pub trait Repository {
 
     async fn list_tags(&self, filters: StringFilters) -> Result<Vec<Tag>>;
 
+    async fn count_tag(&self, name: &str) -> Result<u64>;
+
     async fn replace_tags(
         &self,
         tags: impl IntoIterator<Item: Into<&TagName>, IntoIter: Send> + Send,
