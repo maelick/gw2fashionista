@@ -1,4 +1,5 @@
 use assert_cmd::assert::OutputAssertExt;
+use e2e::assert_json_snapshot;
 use gw2fashionista_fixtures::FashionTemplate;
 use gw2fashionista_fixtures::templates_as_csv;
 use gw2fashionista_fixtures::templates_as_list;
@@ -7,7 +8,7 @@ use rstest::rstest;
 use gw2fashionista_fixtures::travel;
 use gw2fashionista_fixtures::wardrobe;
 
-use e2e::{assert_all_templates, assert_snapshot, cli::spawn_cli};
+use e2e::{assert_snapshot, cli::spawn_cli};
 
 #[rstest]
 #[case(wardrobe::EMPTY_TEMPLATE)]
@@ -80,7 +81,7 @@ fn test_read_command_input_list() {
     let output = spawn_cli::<String>(&["read"], Some(input))
         .assert()
         .success();
-    assert_all_templates!(output.get_output());
+    assert_all_templates(output.get_output());
 }
 
 #[test]
@@ -100,7 +101,7 @@ fn test_read_command_input_list_invalid_lenient() {
     let output = spawn_cli::<String>(&["read", "--lenient"], Some(input))
         .assert()
         .success();
-    assert_all_templates!(output.get_output());
+    assert_all_templates(output.get_output());
 }
 
 #[test]
@@ -110,7 +111,7 @@ fn test_read_command_input_csv() {
     let output = spawn_cli::<String>(&["read"], Some(input))
         .assert()
         .success();
-    assert_all_templates!(output.get_output());
+    assert_all_templates(output.get_output());
 }
 
 #[test]
@@ -136,7 +137,7 @@ fn test_read_command_input_csv_wrong_row_lenient() {
     let output = spawn_cli::<String>(&["read", "--lenient"], Some(input))
         .assert()
         .success();
-    assert_all_templates!(output.get_output());
+    assert_all_templates(output.get_output());
 }
 
 #[test]
@@ -146,7 +147,7 @@ fn test_read_command_input_csv_custom_column() {
     let output = spawn_cli::<String>(&["read", "-c", "link"], Some(input))
         .assert()
         .success();
-    assert_all_templates!(output.get_output());
+    assert_all_templates(output.get_output());
 }
 
 #[test]
@@ -157,4 +158,15 @@ fn test_read_command_input_csv_column_missing() {
         .assert()
         .failure()
         .stdout("");
+}
+
+fn assert_all_templates(output: &std::process::Output) {
+    let stream =
+        serde_json::Deserializer::from_slice(&output.stdout).into_iter::<serde_json::Value>();
+    let json: Vec<_> = stream.collect::<Result<_, _>>().unwrap();
+    assert_eq!(
+        json.len(),
+        travel::ALL_TEMPLATES.len() + wardrobe::ALL_TEMPLATES.len()
+    );
+    assert_json_snapshot!("read_input_list", json)
 }

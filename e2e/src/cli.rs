@@ -26,20 +26,6 @@ macro_rules! assert_snapshot {
 }
 
 #[macro_export]
-macro_rules! assert_all_templates {
-    ($output:expr) => {{
-        let stream =
-            serde_json::Deserializer::from_slice(&$output.stdout).into_iter::<serde_json::Value>();
-        let json: Vec<_> = stream.collect::<Result<_, _>>().unwrap();
-        assert_eq!(
-            json.len(),
-            travel::ALL_TEMPLATES.len() + wardrobe::ALL_TEMPLATES.len()
-        );
-        $crate::assert_json_snapshot!("read_input_list", json)
-    }};
-}
-
-#[macro_export]
 macro_rules! assert_json_snapshot {
     ($snapshot_name:expr, $json:expr) => {{
         let snapshot_name: &str = $snapshot_name;
