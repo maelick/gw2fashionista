@@ -168,5 +168,5 @@ fn assert_all_templates(output: &std::process::Output) {
         json.len(),
         travel::ALL_TEMPLATES.len() + wardrobe::ALL_TEMPLATES.len()
     );
-    assert_json_snapshot!("read_input_list", json)
+    assert_json_snapshot!("all_templates", json, "read")
 }
