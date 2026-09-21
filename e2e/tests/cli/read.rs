@@ -26,7 +26,7 @@ fn test_read_command(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link], None)
         .assert()
         .success();
-    assert_snapshot!(output.get_output(), &template.snapshot_name("read"));
+    assert_snapshot!(output.get_output(), &template.name, "read");
 }
 
 #[rstest]
@@ -45,7 +45,7 @@ fn test_read_command_pretty(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link, "--pretty"], None)
         .assert()
         .success();
-    assert_snapshot!(output.get_output(), &template.snapshot_name("read"));
+    assert_snapshot!(output.get_output(), &template.name, "read");
 }
 
 #[rstest]
@@ -66,7 +66,8 @@ fn test_read_command_skip_names(#[case] template: FashionTemplate) {
         .success();
     assert_snapshot!(
         output.get_output(),
-        &template.snapshot_name("read_skip_names")
+        &template.snapshot_name("skip_names"),
+        "read"
     );
 }
 
