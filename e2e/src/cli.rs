@@ -1,9 +1,4 @@
-use std::process::Output;
-
 use assert_cmd::Command;
-use serde_json::Deserializer;
-
-use gw2fashionista_fixtures::wardrobe::ALL_TEMPLATES;
 
 use crate::api_key;
 
@@ -22,14 +17,38 @@ where
     cmd.output().expect("Failed to run command")
 }
 
-pub fn assert_snapshot(output: &Output, snapshot_name: &str) {
-    let json: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
-    insta::assert_json_snapshot!(snapshot_name, json);
+#[macro_export]
+macro_rules! assert_snapshot {
+    ($output:expr, $snapshot_name:expr) => {{
+        let json: serde_json::Value = serde_json::from_slice(&$output.stdout).unwrap();
+        $crate::assert_json_snapshot!($snapshot_name, json)
+    }};
 }
 
-pub fn assert_all_templates(output: &Output) {
-    let stream = Deserializer::from_slice(&output.stdout).into_iter::<serde_json::Value>();
-    let json: Vec<_> = stream.collect::<Result<_, _>>().unwrap();
-    assert_eq!(json.len(), ALL_TEMPLATES.len());
-    insta::assert_json_snapshot!("read_input_list", json);
+#[macro_export]
+macro_rules! assert_all_templates {
+    ($output:expr) => {{
+        let stream =
+            serde_json::Deserializer::from_slice(&$output.stdout).into_iter::<serde_json::Value>();
+        let json: Vec<_> = stream.collect::<Result<_, _>>().unwrap();
+        assert_eq!(
+            json.len(),
+            travel::ALL_TEMPLATES.len() + wardrobe::ALL_TEMPLATES.len()
+        );
+        $crate::assert_json_snapshot!("read_input_list", json)
+    }};
+}
+
+#[macro_export]
+macro_rules! assert_json_snapshot {
+    ($snapshot_name:expr, $json:expr) => {{
+        let snapshot_name: &str = $snapshot_name;
+        $crate::cli::insta_settings().bind(|| insta::assert_json_snapshot!(snapshot_name, $json));
+    }};
+}
+
+pub fn insta_settings() -> insta::Settings {
+    let mut settings = insta::Settings::clone_current();
+    settings.set_prepend_module_to_snapshot(false);
+    settings
 }

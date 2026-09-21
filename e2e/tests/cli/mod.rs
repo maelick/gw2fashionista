@@ -1,4 +1,4 @@
-use std::{process::Output, sync::LazyLock};
+use std::sync::LazyLock;
 
 use assert_cmd::assert::OutputAssertExt;
 use gw2fashionista_fixtures::FashionTemplate;
@@ -10,8 +10,7 @@ use rstest::rstest;
 use gw2fashionista_fixtures::travel;
 use gw2fashionista_fixtures::wardrobe;
 
-use e2e::{cli::spawn_cli, fail_if_no_api_key, read_csv};
-use serde_json::Deserializer;
+use e2e::{assert_all_templates, assert_snapshot, cli::spawn_cli, fail_if_no_api_key, read_csv};
 
 static NUMBER_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[0-9]$").unwrap());
 
@@ -31,7 +30,7 @@ fn test_read_command(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link], None)
         .assert()
         .success();
-    assert_snapshot(output.get_output(), &template.snapshot_name("read"));
+    assert_snapshot!(output.get_output(), &template.snapshot_name("read"));
 }
 
 #[rstest]
@@ -50,7 +49,7 @@ fn test_read_command_pretty(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link, "--pretty"], None)
         .assert()
         .success();
-    assert_snapshot(output.get_output(), &template.snapshot_name("read"));
+    assert_snapshot!(output.get_output(), &template.snapshot_name("read"));
 }
 
 #[rstest]
@@ -69,9 +68,9 @@ fn test_read_command_skip_names(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link, "--skip-names"], None)
         .assert()
         .success();
-    assert_snapshot(
+    assert_snapshot!(
         output.get_output(),
-        &template.snapshot_name("read_skip_names"),
+        &template.snapshot_name("read_skip_names")
     );
 }
 
@@ -86,7 +85,7 @@ fn test_read_command_input_list() {
     let output = spawn_cli::<String>(&["read"], Some(input))
         .assert()
         .success();
-    assert_all_templates(output.get_output());
+    assert_all_templates!(output.get_output());
 }
 
 #[test]
@@ -106,7 +105,7 @@ fn test_read_command_input_list_invalid_lenient() {
     let output = spawn_cli::<String>(&["read", "--lenient"], Some(input))
         .assert()
         .success();
-    assert_all_templates(output.get_output());
+    assert_all_templates!(output.get_output());
 }
 
 #[test]
@@ -116,7 +115,7 @@ fn test_read_command_input_csv() {
     let output = spawn_cli::<String>(&["read"], Some(input))
         .assert()
         .success();
-    assert_all_templates(output.get_output());
+    assert_all_templates!(output.get_output());
 }
 
 #[test]
@@ -142,7 +141,7 @@ fn test_read_command_input_csv_wrong_row_lenient() {
     let output = spawn_cli::<String>(&["read", "--lenient"], Some(input))
         .assert()
         .success();
-    assert_all_templates(output.get_output());
+    assert_all_templates!(output.get_output());
 }
 
 #[test]
@@ -152,7 +151,7 @@ fn test_read_command_input_csv_custom_column() {
     let output = spawn_cli::<String>(&["read", "-c", "link"], Some(input))
         .assert()
         .success();
-    assert_all_templates(output.get_output());
+    assert_all_templates!(output.get_output());
 }
 
 #[test]
@@ -195,19 +194,4 @@ fn test_export_command_csv() {
             "fourth field should be a chat link"
         );
     }
-}
-
-fn assert_snapshot(output: &Output, snapshot_name: &str) {
-    let json: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
-    insta::assert_json_snapshot!(snapshot_name, json);
-}
-
-fn assert_all_templates(output: &Output) {
-    let stream = Deserializer::from_slice(&output.stdout).into_iter::<serde_json::Value>();
-    let json: Vec<_> = stream.collect::<Result<_, _>>().unwrap();
-    assert_eq!(
-        json.len(),
-        travel::ALL_TEMPLATES.len() + wardrobe::ALL_TEMPLATES.len()
-    );
-    insta::assert_json_snapshot!("read_input_list", json);
 }
