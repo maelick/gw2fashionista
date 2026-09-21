@@ -16,37 +16,3 @@ where
     }
     cmd.output().expect("Failed to run command")
 }
-
-#[macro_export]
-macro_rules! assert_snapshot {
-    ($output:expr, $json:expr) => {
-        $crate::assert_snapshot!($output, $json, None)
-    };
-    ($output:expr, $snapshot_name:expr, $subdir:expr) => {{
-        let json: serde_json::Value = serde_json::from_slice(&$output.stdout).unwrap();
-        $crate::assert_json_snapshot!($snapshot_name, json, $subdir)
-    }};
-}
-
-#[macro_export]
-macro_rules! assert_json_snapshot {
-    ($snapshot_name:expr, $json:expr) => {
-        $crate::assert_json_snapshot!($snapshot_name, $json, None)
-    };
-    ($snapshot_name:expr, $json:expr, $subdir:expr) => {{
-        let snapshot_name: &str = $snapshot_name;
-        $crate::cli::insta_settings($subdir)
-            .bind(|| insta::assert_json_snapshot!(snapshot_name, $json));
-    }};
-}
-
-pub fn insta_settings<'a>(subdir: impl Into<Option<&'a str>>) -> insta::Settings {
-    let subdir: Option<&str> = subdir.into();
-    let mut settings = insta::Settings::clone_current();
-    settings.set_prepend_module_to_snapshot(false);
-    let subdir = subdir.unwrap_or_default();
-    if !subdir.is_empty() {
-        settings.set_snapshot_path(format!("snapshots/{subdir}"));
-    }
-    settings
-}
