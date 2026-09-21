@@ -40,7 +40,8 @@ macro_rules! assert_json_snapshot {
     }};
 }
 
-pub fn insta_settings(subdir: Option<&str>) -> insta::Settings {
+pub fn insta_settings<'a>(subdir: impl Into<Option<&'a str>>) -> insta::Settings {
+    let subdir: Option<&str> = subdir.into();
     let mut settings = insta::Settings::clone_current();
     settings.set_prepend_module_to_snapshot(false);
     let subdir = subdir.unwrap_or_default();
