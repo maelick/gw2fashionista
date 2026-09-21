@@ -26,7 +26,11 @@ format:
 
 # Run all tests in the workspace
 test-all:
-    cargo test
+    cargo test --all-features
+
+# Run all tests in the workspace
+test-e2e:
+    cargo test -p e2e --all-features
 
 # Run a specific test on a single thread with info logs and no captured output
 test-single test_name:
