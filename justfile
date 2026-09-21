@@ -55,8 +55,12 @@ db-recreate: db-drop db-migrate
 sqlx-prepare:
     cargo sqlx prepare --workspace -- --all-targets
 
-# Output the list of crates directories included in the workspace
+# Output the list of crate names included in the workspace
 ls-crates:
+    @echo {{ crates }}
+
+# Output the list of crate directories included in the workspace
+ls-crates-dir:
     @echo {{ crates_dir }}
 
 # Run cloc on all the crates of the workspace
