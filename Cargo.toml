@@ -10,3 +10,8 @@ tag-message = "Release {{crate_name}} {{version}}"
 [patch.crates-io]
 ## Uncomment to run with local copy of gw2lib
 # gw2lib = { path = "./gw2lib/http" }
+
+[profile.dev.package]
+# Compile insta + similar in release mode for faster test runs
+insta.opt-level = 3
+similar.opt-level = 3
