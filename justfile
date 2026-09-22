@@ -26,7 +26,11 @@ format:
 
 # Run all tests in the workspace
 test-all:
-    cargo test
+    cargo test --all-features
+
+# Run all tests in the workspace
+test-e2e:
+    cargo test -p e2e --all-features
 
 # Run a specific test on a single thread with info logs and no captured output
 test-single test_name:
@@ -51,8 +55,12 @@ db-recreate: db-drop db-migrate
 sqlx-prepare:
     cargo sqlx prepare --workspace -- --all-targets
 
-# Output the list of crates directories included in the workspace
+# Output the list of crate names included in the workspace
 ls-crates:
+    @echo {{ crates }}
+
+# Output the list of crate directories included in the workspace
+ls-crates-dir:
     @echo {{ crates_dir }}
 
 # Run cloc on all the crates of the workspace

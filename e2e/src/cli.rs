@@ -1,9 +1,4 @@
-use std::process::Output;
-
 use assert_cmd::Command;
-use serde_json::Deserializer;
-
-use gw2fashionista_fixtures::wardrobe::ALL_TEMPLATES;
 
 use crate::api_key;
 
@@ -20,16 +15,4 @@ where
         cmd.env("GW2_API_KEY", api_key);
     }
     cmd.output().expect("Failed to run command")
-}
-
-pub fn assert_snapshot(output: &Output, snapshot_name: &str) {
-    let json: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
-    insta::assert_json_snapshot!(snapshot_name, json);
-}
-
-pub fn assert_all_templates(output: &Output) {
-    let stream = Deserializer::from_slice(&output.stdout).into_iter::<serde_json::Value>();
-    let json: Vec<_> = stream.collect::<Result<_, _>>().unwrap();
-    assert_eq!(json.len(), ALL_TEMPLATES.len());
-    insta::assert_json_snapshot!("read_input_list", json);
 }

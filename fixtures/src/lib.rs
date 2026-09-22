@@ -20,6 +20,10 @@ impl FashionTemplate {
             format!("{}_{}", prefix, self.name)
         }
     }
+
+    pub fn wrap_chat_link(&self) -> String {
+        format!("[&{}]", self.chat_link)
+    }
 }
 
 pub fn templates_as_csv(templates: &[FashionTemplate]) -> Vec<String> {

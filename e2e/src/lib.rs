@@ -1,4 +1,5 @@
 pub mod cli;
+pub mod snapshot;
 
 pub fn fail_if_no_api_key() {
     if api_key().is_none() {

@@ -63,12 +63,11 @@ fn test_parse_invalid_length() {
 #[test]
 #[test_log::test]
 fn test_parse_empty() {
-    let raw = EMPTY_TEMPLATE.chat_link;
     let expected_slots = TravelSlot::variants()
         .map(|slot| (slot, empty_skin()))
         .collect();
     let expected_template = TravelTemplate::new(expected_slots);
-    let actual = &raw.parse::<TravelTemplate>().unwrap();
+    let actual = &EMPTY_TEMPLATE.chat_link.parse::<TravelTemplate>().unwrap();
 
     assert_eq!(actual, &expected_template);
     for (slot, appearance) in actual {
@@ -78,18 +77,19 @@ fn test_parse_empty() {
         );
     }
 
-    let raw_with_brackets = format!("[&{}]", raw);
-    let result_with_brackets = &raw_with_brackets.parse().unwrap();
+    let result_with_brackets = &EMPTY_TEMPLATE.wrap_chat_link().parse().unwrap();
 
     assert_matches!(result_with_brackets, ChatLink::TravelTemplate(actual) if actual == &expected_template);
-    assert_eq!(result_with_brackets.to_string(), raw_with_brackets);
+    assert_eq!(
+        result_with_brackets.to_string(),
+        EMPTY_TEMPLATE.wrap_chat_link()
+    );
 }
 
 #[test]
 #[test_log::test]
 fn test_parse_peekaboo() {
-    let raw = format!("[&{}]", PEEKABOO_TEMPLATE.chat_link);
-    let result = &raw.parse().unwrap();
+    let result = &PEEKABOO_TEMPLATE.chat_link.parse().unwrap();
 
     let ChatLink::TravelTemplate(actual) = result else {
         panic!("Expected TravelTemplate, got {result:?}");
@@ -131,14 +131,13 @@ fn test_parse_peekaboo() {
         }
     }
 
-    assert_eq!(result.to_string(), raw);
+    assert_eq!(result.to_string(), PEEKABOO_TEMPLATE.wrap_chat_link());
 }
 
 #[test]
 #[test_log::test]
 fn test_parse_zizi() {
-    let raw = format!("[&{}]", ZIZI_TEMPLATE.chat_link);
-    let result = &raw.parse().unwrap();
+    let result = &ZIZI_TEMPLATE.chat_link.parse().unwrap();
 
     let ChatLink::TravelTemplate(actual) = result else {
         panic!("Expected TravelTemplate, got {result:?}");
@@ -180,7 +179,7 @@ fn test_parse_zizi() {
         }
     }
 
-    assert_eq!(result.to_string(), raw);
+    assert_eq!(result.to_string(), ZIZI_TEMPLATE.wrap_chat_link());
 }
 
 fn empty_skin() -> Appearance {

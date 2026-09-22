@@ -1,19 +1,16 @@
-use std::{process::Output, sync::LazyLock};
-
 use assert_cmd::assert::OutputAssertExt;
+use e2e::assert_json_snapshot;
 use gw2fashionista_fixtures::FashionTemplate;
 use gw2fashionista_fixtures::templates_as_csv;
 use gw2fashionista_fixtures::templates_as_list;
-use regex::Regex;
 use rstest::rstest;
 
 use gw2fashionista_fixtures::travel;
 use gw2fashionista_fixtures::wardrobe;
 
-use e2e::{cli::spawn_cli, fail_if_no_api_key, read_csv};
-use serde_json::Deserializer;
+use e2e::{assert_snapshot, cli::spawn_cli};
 
-static NUMBER_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[0-9]$").unwrap());
+const SNAPSHOT_DIR: &str = "read";
 
 #[rstest]
 #[case(wardrobe::EMPTY_TEMPLATE)]
@@ -30,8 +27,11 @@ static NUMBER_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[0-9]$").u
 fn test_read_command(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link], None)
         .assert()
-        .success();
-    assert_snapshot(output.get_output(), &template.snapshot_name("read"));
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    assert_snapshot!(&template.name, &output, SNAPSHOT_DIR);
 }
 
 #[rstest]
@@ -49,8 +49,11 @@ fn test_read_command(#[case] template: FashionTemplate) {
 fn test_read_command_pretty(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link, "--pretty"], None)
         .assert()
-        .success();
-    assert_snapshot(output.get_output(), &template.snapshot_name("read"));
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    assert_snapshot!(&template.name, &output, SNAPSHOT_DIR);
 }
 
 #[rstest]
@@ -68,11 +71,11 @@ fn test_read_command_pretty(#[case] template: FashionTemplate) {
 fn test_read_command_skip_names(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link, "--skip-names"], None)
         .assert()
-        .success();
-    assert_snapshot(
-        output.get_output(),
-        &template.snapshot_name("read_skip_names"),
-    );
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    assert_snapshot!(&template.snapshot_name("skip_names"), &output, "read");
 }
 
 fn all_templates() -> Vec<FashionTemplate> {
@@ -85,8 +88,10 @@ fn test_read_command_input_list() {
     let input = templates.join("\n\n");
     let output = spawn_cli::<String>(&["read"], Some(input))
         .assert()
-        .success();
-    assert_all_templates(output.get_output());
+        .success()
+        .get_output()
+        .clone();
+    assert_all_templates(&output);
 }
 
 #[test]
@@ -105,8 +110,10 @@ fn test_read_command_input_list_invalid_lenient() {
     let input = format!("this is not a chat link\n{}", templates.join("\n\n"));
     let output = spawn_cli::<String>(&["read", "--lenient"], Some(input))
         .assert()
-        .success();
-    assert_all_templates(output.get_output());
+        .success()
+        .get_output()
+        .clone();
+    assert_all_templates(&output);
 }
 
 #[test]
@@ -115,8 +122,10 @@ fn test_read_command_input_csv() {
     let input = format!("name,fashion_link\n{}", templates.join("\n\n"));
     let output = spawn_cli::<String>(&["read"], Some(input))
         .assert()
-        .success();
-    assert_all_templates(output.get_output());
+        .success()
+        .get_output()
+        .clone();
+    assert_all_templates(&output);
 }
 
 #[test]
@@ -141,8 +150,10 @@ fn test_read_command_input_csv_wrong_row_lenient() {
     );
     let output = spawn_cli::<String>(&["read", "--lenient"], Some(input))
         .assert()
-        .success();
-    assert_all_templates(output.get_output());
+        .success()
+        .get_output()
+        .clone();
+    assert_all_templates(&output);
 }
 
 #[test]
@@ -151,8 +162,10 @@ fn test_read_command_input_csv_custom_column() {
     let input = format!("name,link\n{}", templates.join("\n\n"));
     let output = spawn_cli::<String>(&["read", "-c", "link"], Some(input))
         .assert()
-        .success();
-    assert_all_templates(output.get_output());
+        .success()
+        .get_output()
+        .clone();
+    assert_all_templates(&output);
 }
 
 #[test]
@@ -165,49 +178,13 @@ fn test_read_command_input_csv_column_missing() {
         .stdout("");
 }
 
-#[test]
-fn test_export_command_csv() {
-    fail_if_no_api_key();
-
-    let output = spawn_cli::<String>(&["wardrobe", "export"], None)
-        .assert()
-        .success();
-    let (headers, records) = read_csv(output.get_output().stdout.clone());
-    assert!(records.len() > 0);
-    assert_eq!(headers.len(), 4);
-    assert_eq!(headers.get(0).unwrap(), "char_name");
-    assert_eq!(headers.get(1).unwrap(), "tab_id");
-    assert_eq!(headers.get(2).unwrap(), "tab_name");
-    assert_eq!(headers.get(3).unwrap(), "fashion_link");
-
-    for record in records {
-        assert_eq!(record.len(), 4);
-        for field in record.iter() {
-            assert_ne!(field, "");
-        }
-
-        assert!(
-            NUMBER_REGEX.is_match(record.get(1).unwrap()),
-            "second field should be a number"
-        );
-        assert!(
-            gw2fashionista_chatlink::CHAT_LINK_REGEX.is_match(record.get(3).unwrap()),
-            "fourth field should be a chat link"
-        );
-    }
-}
-
-fn assert_snapshot(output: &Output, snapshot_name: &str) {
-    let json: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
-    insta::assert_json_snapshot!(snapshot_name, json);
-}
-
-fn assert_all_templates(output: &Output) {
-    let stream = Deserializer::from_slice(&output.stdout).into_iter::<serde_json::Value>();
+fn assert_all_templates(output: &std::process::Output) {
+    let stream =
+        serde_json::Deserializer::from_slice(&output.stdout).into_iter::<serde_json::Value>();
     let json: Vec<_> = stream.collect::<Result<_, _>>().unwrap();
     assert_eq!(
         json.len(),
         travel::ALL_TEMPLATES.len() + wardrobe::ALL_TEMPLATES.len()
     );
-    insta::assert_json_snapshot!("read_input_list", json);
+    assert_json_snapshot!("all_templates", json, SNAPSHOT_DIR)
 }

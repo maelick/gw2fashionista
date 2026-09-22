@@ -79,12 +79,14 @@ fn test_parse_invalid_length() {
 #[test]
 #[test_log::test]
 fn test_parse_empty() {
-    let raw = EMPTY_TEMPLATE.chat_link;
     let expected_slots = WardrobeSlot::variants()
         .map(|slot| (slot, empty_skin(slot)))
         .collect();
     let expected_template = WardrobeTemplate::new(expected_slots);
-    let actual = &raw.parse::<WardrobeTemplate>().unwrap();
+    let actual = &EMPTY_TEMPLATE
+        .chat_link
+        .parse::<WardrobeTemplate>()
+        .unwrap();
 
     assert_eq!(actual, &expected_template);
     for (slot, appearance) in actual {
@@ -94,19 +96,20 @@ fn test_parse_empty() {
         );
     }
 
-    let raw_with_brackets = format!("[&{}]", raw);
-    let result_with_brackets = &raw_with_brackets.parse::<ChatLink>().unwrap();
+    let result_with_brackets = &EMPTY_TEMPLATE.wrap_chat_link().parse::<ChatLink>().unwrap();
 
     assert_matches!(result_with_brackets, ChatLink::WardrobeTemplate(actual) if actual == &expected_template);
 
-    assert_eq!(result_with_brackets.to_string(), raw_with_brackets);
+    assert_eq!(
+        result_with_brackets.to_string(),
+        EMPTY_TEMPLATE.wrap_chat_link()
+    );
 }
 
 #[test]
 #[test_log::test]
 fn test_parse_zizi() {
-    let raw = format!("[&{}]", ZIZI_TEMPLATE.chat_link);
-    let result = &raw.parse::<ChatLink>().unwrap();
+    let result = &ZIZI_TEMPLATE.chat_link.parse::<ChatLink>().unwrap();
 
     let ChatLink::WardrobeTemplate(actual) = result else {
         panic!("Expected WardrobeTemplate, got {result:?}");
@@ -204,14 +207,13 @@ fn test_parse_zizi() {
         }
     }
 
-    assert_eq!(result.to_string(), raw);
+    assert_eq!(result.to_string(), ZIZI_TEMPLATE.wrap_chat_link());
 }
 
 #[test]
 #[test_log::test]
 fn test_parse_zizi_armor_only() {
-    let raw = format!("[&{}]", ZIZI_ARMOR_TEMPLATE.chat_link);
-    let result = &raw.parse::<ChatLink>().unwrap();
+    let result = &ZIZI_ARMOR_TEMPLATE.chat_link.parse::<ChatLink>().unwrap();
 
     let ChatLink::WardrobeTemplate(actual) = result else {
         panic!("Expected WardrobeTemplate, got {result:?}");
@@ -296,7 +298,7 @@ fn test_parse_zizi_armor_only() {
         }
     }
 
-    assert_eq!(result.to_string(), raw);
+    assert_eq!(result.to_string(), ZIZI_ARMOR_TEMPLATE.wrap_chat_link());
 }
 
 fn empty_skin(slot: WardrobeSlot) -> Appearance {

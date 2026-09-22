@@ -1,0 +1,17 @@
+---
+source: e2e/tests/cli/fashion.rs
+expression: json
+---
+{
+  "character": null,
+  "created_at": "[datetime]",
+  "description": "This is a description",
+  "id": "[uuid]",
+  "name": "zizi",
+  "tags": [
+    "tag1,tag2"
+  ],
+  "travel_template": "[&EJkAGAUYBREGEQYFAH4AgwAYBYECbgK7ARgFGAUYBUoBEQYYBRgFGAXzARgFEQYYBRgFJAMRBhgFfgB+AJMBEQYYBagCDQbnAhgFEQYYBdkByAIRBhgFqAJ+AHACGAURBhEGGAWdAREGGAUYBREG+AERBhgFGAURBv8P]",
+  "updated_at": "[datetime]",
+  "wardrobe_template": "[&D1sDPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAHwAAQABAAEAAQDjE6APPBI8Ej0SAAD+fg==]"
+}
