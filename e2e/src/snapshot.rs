@@ -16,8 +16,8 @@ macro_rules! assert_json_snapshot {
     };
     ($snapshot_name:expr, $json:expr, $subdir:expr) => {{
         let snapshot_name: &str = $snapshot_name;
-        $crate::snapshot::settings($subdir)
-            .bind(|| insta::assert_json_snapshot!(snapshot_name, $json));
+        let _guard = $crate::snapshot::settings($subdir).bind_to_scope();
+        insta::assert_json_snapshot!(snapshot_name, $json);
     }};
 }
 
