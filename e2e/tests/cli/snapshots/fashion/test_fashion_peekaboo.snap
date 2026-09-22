@@ -1,0 +1,17 @@
+---
+source: e2e/tests/cli/fashion.rs
+expression: json
+---
+{
+  "character": null,
+  "created_at": "[datetime]",
+  "description": "Another description",
+  "id": "[uuid]",
+  "name": "peekaboo",
+  "tags": [
+    "tag1,tag2"
+  ],
+  "travel_template": "[&EJAABgDiBOIEHgUFAB4F4gTiBOIEbgIeBeIEHgXiBEoBBgAeBUgF4gTzAeIEHgVIBR4FJAPiBOIEHgVIBZMBBgAeBeIESAXnAkgFHgXiBOIEyAIGAB4F4gRIBXAC4gQGAAYAXwHDAR4F4gQeBeIE+AEeBeIESAUeBf8P]",
+  "updated_at": "[datetime]",
+  "wardrobe_template": "[&D7UfzTMeBQYA4gQGAJ4AHgUGAB4FAQCsAAYABgAeBQEANSgBAAYAHgUBAMkDHgUGAAEAAQDVAAYAHgUeBQEAoRYeBQYAAQABADIAAQABAAEAAQBoEqAPFCovKj8SAAD/fg==]"
+}
