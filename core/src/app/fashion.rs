@@ -86,6 +86,12 @@ where
         Ok(updated)
     }
 
+    pub async fn delete(&self, id: &FashionIdentifier) -> Result<()> {
+        let id = self.resolve_id(&id.clone().into()).await?;
+        self.fashion_repo.remove_fashion(&id).await?;
+        Ok(())
+    }
+
     pub async fn get(&self, id: &FashionIdentifier) -> Result<Fashion> {
         match id {
             FashionIdentifier::Id(uuid) => self.get_by_id(uuid).await,
