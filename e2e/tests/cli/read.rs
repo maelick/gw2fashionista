@@ -10,6 +10,8 @@ use gw2fashionista_fixtures::wardrobe;
 
 use e2e::{assert_snapshot, cli::spawn_cli};
 
+const SNAPSHOT_DIR: &str = "read";
+
 #[rstest]
 #[case(wardrobe::EMPTY_TEMPLATE)]
 #[case(wardrobe::PEEKABOO_TEMPLATE)]
@@ -26,7 +28,7 @@ fn test_read_command(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link], None)
         .assert()
         .success();
-    assert_snapshot!(&template.name, &output.get_output().stdout, "read");
+    assert_snapshot!(&template.name, &output.get_output().stdout, SNAPSHOT_DIR);
 }
 
 #[rstest]
@@ -45,7 +47,7 @@ fn test_read_command_pretty(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link, "--pretty"], None)
         .assert()
         .success();
-    assert_snapshot!(&template.name, &output.get_output().stdout, "read");
+    assert_snapshot!(&template.name, &output.get_output().stdout, SNAPSHOT_DIR);
 }
 
 #[rstest]
@@ -169,5 +171,5 @@ fn assert_all_templates(output: &std::process::Output) {
         json.len(),
         travel::ALL_TEMPLATES.len() + wardrobe::ALL_TEMPLATES.len()
     );
-    assert_json_snapshot!("all_templates", json, "read")
+    assert_json_snapshot!("all_templates", json, SNAPSHOT_DIR)
 }
