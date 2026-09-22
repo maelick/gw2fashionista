@@ -56,6 +56,11 @@ impl repositories::FashionRepository for Repository {
         Ok(update_fashion(&mut conn, fashion).await?)
     }
 
+    async fn remove_fashion(&self, id: &uuid::Uuid) -> FashionResult<()> {
+        let mut conn = self.acquire_conn().await?;
+        Ok(delete_fashion(&mut conn, id).await?)
+    }
+
     async fn get_fashion_by_id(&self, id: &uuid::Uuid) -> FashionResult<Fashion> {
         let mut conn = self.acquire_conn().await?;
         Ok(get_fashion_by_id(&mut conn, id).await?)
@@ -239,6 +244,12 @@ async fn update_fashion(conn: &mut SqliteConnection, fashion: &Fashion) -> error
         .fetch_one(conn)
         .await?
         .try_into()
+}
+
+async fn delete_fashion(conn: &mut SqliteConnection, id: &uuid::Uuid) -> error::Result<()> {
+    let query = sqlx::query!(r#"DELETE FROM fashion WHERE id = ?"#, id.hyphenated(),);
+    query.execute(conn).await?;
+    Ok(())
 }
 
 async fn get_fashion_by_id(conn: &mut SqliteConnection, id: &uuid::Uuid) -> error::Result<Fashion> {

@@ -17,6 +17,7 @@ use crate::{
 
 mod args;
 mod create;
+mod delete;
 mod get;
 mod list;
 mod patch;
@@ -44,6 +45,7 @@ impl Args {
             Commands::Get(cmd) => cmd,
             Commands::Set(cmd) => cmd,
             Commands::Patch(cmd) => cmd,
+            Commands::Delete(cmd) => cmd,
             Commands::List(cmd) => cmd,
             Commands::Wardrobe(args) => args.command(),
             Commands::Travel(args) => args.command(),
@@ -58,6 +60,7 @@ impl Args {
             Commands::Get(cmd) => cmd.execute(env).await,
             Commands::Set(cmd) => cmd.execute(env).await,
             Commands::Patch(cmd) => cmd.execute(env).await,
+            Commands::Delete(cmd) => cmd.execute(env).await,
             Commands::List(cmd) => cmd.execute(env).await,
             Commands::Wardrobe(args) => args.execute(env).await,
             Commands::Travel(args) => args.execute(env).await,
@@ -77,6 +80,8 @@ pub enum Commands {
     Set(set::Command),
     /// Patch an existing fashion, overriding only provided fields.
     Patch(patch::Command),
+    /// Delete an existing fashion template.
+    Delete(delete::Command),
     /// List existing fashion templates.
     #[command(visible_alias = "ls")]
     List(list::Command),

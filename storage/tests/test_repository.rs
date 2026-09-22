@@ -207,6 +207,27 @@ async fn test_update_fashion(pool: SqlitePool) {
 }
 
 #[sqlx::test]
+async fn test_delete_fashion(pool: SqlitePool) {
+    let repo = sqlite::Repository::new(pool);
+
+    // We create a new template
+    let fashion = Fashion::builder()
+        .name_str("empty_fashion")
+        .unwrap()
+        .build();
+    let created = &repo.insert_fashion(&fashion).await.unwrap();
+
+    let listed_fashions = repo.list_fashions().await.unwrap();
+    assert_eq!(listed_fashions.len(), 1);
+
+    // We delete it and assert it doesn't exist anymore
+    repo.remove_fashion(&created.id.unwrap()).await.unwrap();
+
+    let listed_fashions = repo.list_fashions().await.unwrap();
+    assert!(listed_fashions.is_empty());
+}
+
+#[sqlx::test]
 async fn test_create_tag(pool: SqlitePool) {
     let repo = sqlite::Repository::new(pool);
 

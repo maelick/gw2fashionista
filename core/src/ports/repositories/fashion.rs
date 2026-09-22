@@ -43,6 +43,8 @@ pub trait Repository {
 
     async fn update_fashion(&self, fashion: &Fashion) -> Result<Fashion>;
 
+    async fn remove_fashion(&self, id: &uuid::Uuid) -> Result<()>;
+
     async fn get_fashion_by_id(&self, id: &uuid::Uuid) -> Result<Fashion>;
 
     async fn get_fashion_by_name(&self, name: &str, character: Option<&str>) -> Result<Fashion>;
