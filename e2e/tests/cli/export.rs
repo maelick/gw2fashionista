@@ -13,8 +13,11 @@ fn test_export_command_csv() {
 
     let output = spawn_cli::<String>(&["wardrobe", "export"], None)
         .assert()
-        .success();
-    let (headers, records) = read_csv(output.get_output().stdout.clone());
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let (headers, records) = read_csv(output);
     assert!(records.len() > 0);
     assert_eq!(headers.len(), 4);
     assert_eq!(headers.get(0).unwrap(), "char_name");

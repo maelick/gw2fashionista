@@ -27,8 +27,11 @@ const SNAPSHOT_DIR: &str = "read";
 fn test_read_command(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link], None)
         .assert()
-        .success();
-    assert_snapshot!(&template.name, &output.get_output().stdout, SNAPSHOT_DIR);
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    assert_snapshot!(&template.name, &output, SNAPSHOT_DIR);
 }
 
 #[rstest]
@@ -46,8 +49,11 @@ fn test_read_command(#[case] template: FashionTemplate) {
 fn test_read_command_pretty(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link, "--pretty"], None)
         .assert()
-        .success();
-    assert_snapshot!(&template.name, &output.get_output().stdout, SNAPSHOT_DIR);
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    assert_snapshot!(&template.name, &output, SNAPSHOT_DIR);
 }
 
 #[rstest]
@@ -65,12 +71,11 @@ fn test_read_command_pretty(#[case] template: FashionTemplate) {
 fn test_read_command_skip_names(#[case] template: FashionTemplate) {
     let output = spawn_cli::<String>(&["read", template.chat_link, "--skip-names"], None)
         .assert()
-        .success();
-    assert_snapshot!(
-        &template.snapshot_name("skip_names"),
-        &output.get_output().stdout,
-        "read"
-    );
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    assert_snapshot!(&template.snapshot_name("skip_names"), &output, "read");
 }
 
 fn all_templates() -> Vec<FashionTemplate> {
@@ -83,8 +88,10 @@ fn test_read_command_input_list() {
     let input = templates.join("\n\n");
     let output = spawn_cli::<String>(&["read"], Some(input))
         .assert()
-        .success();
-    assert_all_templates(output.get_output());
+        .success()
+        .get_output()
+        .clone();
+    assert_all_templates(&output);
 }
 
 #[test]
@@ -103,8 +110,10 @@ fn test_read_command_input_list_invalid_lenient() {
     let input = format!("this is not a chat link\n{}", templates.join("\n\n"));
     let output = spawn_cli::<String>(&["read", "--lenient"], Some(input))
         .assert()
-        .success();
-    assert_all_templates(output.get_output());
+        .success()
+        .get_output()
+        .clone();
+    assert_all_templates(&output);
 }
 
 #[test]
@@ -113,8 +122,10 @@ fn test_read_command_input_csv() {
     let input = format!("name,fashion_link\n{}", templates.join("\n\n"));
     let output = spawn_cli::<String>(&["read"], Some(input))
         .assert()
-        .success();
-    assert_all_templates(output.get_output());
+        .success()
+        .get_output()
+        .clone();
+    assert_all_templates(&output);
 }
 
 #[test]
@@ -139,8 +150,10 @@ fn test_read_command_input_csv_wrong_row_lenient() {
     );
     let output = spawn_cli::<String>(&["read", "--lenient"], Some(input))
         .assert()
-        .success();
-    assert_all_templates(output.get_output());
+        .success()
+        .get_output()
+        .clone();
+    assert_all_templates(&output);
 }
 
 #[test]
@@ -149,8 +162,10 @@ fn test_read_command_input_csv_custom_column() {
     let input = format!("name,link\n{}", templates.join("\n\n"));
     let output = spawn_cli::<String>(&["read", "-c", "link"], Some(input))
         .assert()
-        .success();
-    assert_all_templates(output.get_output());
+        .success()
+        .get_output()
+        .clone();
+    assert_all_templates(&output);
 }
 
 #[test]
