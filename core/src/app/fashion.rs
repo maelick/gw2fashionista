@@ -87,7 +87,7 @@ where
     }
 
     pub async fn delete(&self, id: &FashionIdentifier) -> Result<()> {
-        let id = self.resolve_id(&id.clone().into()).await?;
+        let id = self.resolve_id(&id.clone()).await?;
         self.fashion_repo.remove_fashion(&id).await?;
         Ok(())
     }
