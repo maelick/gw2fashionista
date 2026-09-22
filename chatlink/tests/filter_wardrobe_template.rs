@@ -22,6 +22,6 @@ fn test_filter_zizi() {
     let filtered_link = &ChatLink::WardrobeTemplate(filtered);
     assert_eq!(
         filtered_link.to_string(),
-        format!("[&{}]", ZIZI_ARMOR_TEMPLATE.chat_link)
+        ZIZI_ARMOR_TEMPLATE.wrap_chat_link(),
     );
 }

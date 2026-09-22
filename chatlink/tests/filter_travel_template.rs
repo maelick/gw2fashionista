@@ -20,6 +20,6 @@ fn test_filter_kaboom() {
     let filtered_link = &ChatLink::TravelTemplate(filtered);
     assert_eq!(
         filtered_link.to_string(),
-        format!("[&{}]", KABOOM_MOUNTS_TEMPLATE.chat_link)
+        KABOOM_MOUNTS_TEMPLATE.wrap_chat_link(),
     );
 }
