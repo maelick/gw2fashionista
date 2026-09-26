@@ -68,7 +68,7 @@ impl Command {
 
     async fn create_one_and_print(
         &self,
-        service: &FashionService<sqlite::Repository>,
+        service: &FashionService<sqlite::Store>,
         fashion: Fashion,
         format: output::Format,
     ) -> anyhow::Result<()> {
@@ -78,7 +78,7 @@ impl Command {
 
     async fn create_many_and_print(
         &self,
-        service: &FashionService<sqlite::Repository>,
+        service: &FashionService<sqlite::Store>,
         fashions: Vec<Fashion>,
         format: output::Format,
     ) -> anyhow::Result<()> {
@@ -94,7 +94,7 @@ impl Command {
 }
 
 async fn create_many(
-    service: &FashionService<sqlite::Repository>,
+    service: &FashionService<sqlite::Store>,
     fashions: Vec<Fashion>,
 ) -> (Vec<Fashion>, Vec<FashionError>) {
     partition_result(FuturesOrdered::from_iter(
@@ -106,7 +106,7 @@ async fn create_many(
 }
 
 async fn create_one(
-    service: &FashionService<sqlite::Repository>,
+    service: &FashionService<sqlite::Store>,
     fashion: Fashion,
 ) -> Result<Fashion, FashionError> {
     let res = service.create(&fashion).await;

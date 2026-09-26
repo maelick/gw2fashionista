@@ -11,7 +11,7 @@ use sqlx::{SqlitePool, types::uuid};
 
 #[sqlx::test]
 async fn test_create_empty_fashion(pool: SqlitePool) {
-    let repo = sqlite::Repository::new(pool);
+    let repo = sqlite::Store::new(pool);
 
     // We create a new template
     let fashion = Fashion::builder()
@@ -46,7 +46,7 @@ async fn test_create_empty_fashion(pool: SqlitePool) {
 
 #[sqlx::test]
 async fn test_create_not_empty_fashion(pool: SqlitePool) {
-    let repo = sqlite::Repository::new(pool);
+    let repo = sqlite::Store::new(pool);
 
     // We create a new template
     let fashion = Fashion::builder()
@@ -105,7 +105,7 @@ async fn test_create_not_empty_fashion(pool: SqlitePool) {
 
 #[sqlx::test]
 async fn test_update_fashion(pool: SqlitePool) {
-    let repo = sqlite::Repository::new(pool);
+    let repo = sqlite::Store::new(pool);
 
     // We create a new empty template
     let fashion = Fashion::builder().name_str("peekaboo").unwrap().build();
@@ -208,7 +208,7 @@ async fn test_update_fashion(pool: SqlitePool) {
 
 #[sqlx::test]
 async fn test_delete_fashion(pool: SqlitePool) {
-    let repo = sqlite::Repository::new(pool);
+    let repo = sqlite::Store::new(pool);
 
     // We create a new template
     let fashion = Fashion::builder()
@@ -229,7 +229,7 @@ async fn test_delete_fashion(pool: SqlitePool) {
 
 #[sqlx::test]
 async fn test_create_tag(pool: SqlitePool) {
-    let repo = sqlite::Repository::new(pool);
+    let repo = sqlite::Store::new(pool);
 
     // We create a new tag
     let created = &repo.ensure_tag(&tag("peekaboo")).await.unwrap();
@@ -254,7 +254,7 @@ async fn test_create_tag(pool: SqlitePool) {
 
 #[sqlx::test]
 async fn test_list_tags(pool: SqlitePool) {
-    let repo = sqlite::Repository::new(pool);
+    let repo = sqlite::Store::new(pool);
 
     // We create tags
     let tag1 = &repo.ensure_tag(&tag("peekaboo")).await.unwrap();
@@ -350,7 +350,7 @@ async fn test_list_tags(pool: SqlitePool) {
 
 #[sqlx::test]
 async fn test_crud_fashion_tags(pool: SqlitePool) {
-    let repo = sqlite::Repository::new(pool);
+    let repo = sqlite::Store::new(pool);
 
     // We create two templates
     let fashion1 = &repo
@@ -452,7 +452,7 @@ async fn test_crud_fashion_tags(pool: SqlitePool) {
 
 #[sqlx::test]
 async fn test_rename_tag(pool: SqlitePool) {
-    let repo = sqlite::Repository::new(pool);
+    let repo = sqlite::Store::new(pool);
 
     // We create two templates
     let fashion1 = &repo
@@ -542,7 +542,7 @@ async fn test_rename_tag(pool: SqlitePool) {
 
 #[sqlx::test]
 async fn test_replace_tags(pool: SqlitePool) {
-    let repo = sqlite::Repository::new(pool);
+    let repo = sqlite::Store::new(pool);
 
     // We create two templates
     let fashion1 = &repo
@@ -656,7 +656,7 @@ async fn test_replace_tags(pool: SqlitePool) {
 
 #[sqlx::test]
 async fn test_clean_tags(pool: SqlitePool) {
-    let repo = sqlite::Repository::new(pool);
+    let repo = sqlite::Store::new(pool);
 
     // We create two templates
     let fashion1 = &repo

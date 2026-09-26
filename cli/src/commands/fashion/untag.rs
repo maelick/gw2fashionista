@@ -42,7 +42,7 @@ impl Command {
 
     pub async fn get_ids(
         &self,
-        service: &FashionService<sqlite::Repository>,
+        service: &FashionService<sqlite::Store>,
     ) -> anyhow::Result<Vec<uuid::Uuid>> {
         let ids = self
             .read_identifiers()
