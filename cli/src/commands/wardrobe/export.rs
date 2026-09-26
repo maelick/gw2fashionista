@@ -1,22 +1,19 @@
 use clap::Args;
 use gw2fashionista_appearance::gw2::{equipment::Equipment, import::Importer, resolve::Resolver};
 use gw2fashionista_chatlink::ChatLinkError;
+use gw2fashionista_core::ports::repositories::SecretRepository;
 use serde::{Deserialize, Serialize};
 use std::{fs, io};
 
 use crate::commands::args;
 use crate::commands::wardrobe::args::WardrobeFilters;
+use crate::environment::Environment;
 use crate::{commands, output};
 
 #[derive(Args, Debug)]
 pub struct Command {
     // List of characters (if empty, uses all characters)
     characters: Vec<String>,
-
-    /// GW2 API key
-    #[arg(long, display_order = 2, env = "GW2_API_KEY", required = true)]
-    #[clap(hide_env_values = true)]
-    api_key: Option<String>,
 
     /// Output format. Auto is based on the output filename extension (default to CSV if missing filename or unknown extension).
     #[arg(short, long, value_enum, default_value_t = args::DataFormat::Auto, display_order = 3)]
@@ -50,9 +47,9 @@ impl commands::Command for Command {
 
 impl Command {
     #[tracing::instrument(name = "wardrobe-export", skip_all)]
-    pub async fn execute(&self) -> anyhow::Result<()> {
-        let api_key = self.api_key.as_ref().unwrap();
-        let importer = Importer::with_api_key(api_key);
+    pub async fn execute(&self, mut env: Environment) -> anyhow::Result<()> {
+        let api_key = env.secret_repo().await?.gw2_api_key().await?;
+        let importer = Importer::with_api_key(&api_key);
 
         let characters = if self.characters.is_empty() {
             importer.characters().await?

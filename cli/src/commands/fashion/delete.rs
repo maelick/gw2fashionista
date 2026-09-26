@@ -6,9 +6,6 @@ use crate::{
 #[derive(clap::Args, Debug)]
 #[command(mut_group("identifier", |g| g.required(true)))]
 pub struct Command {
-    #[arg(from_global)]
-    clipboard: bool,
-
     #[command(flatten)]
     id: FashionIdentifier,
 }

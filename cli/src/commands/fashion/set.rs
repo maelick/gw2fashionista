@@ -17,9 +17,6 @@ use crate::{
 
 #[derive(clap::Args, Debug)]
 pub struct Command {
-    #[arg(from_global)]
-    clipboard: bool,
-
     /// Id of the fashion template.
     #[arg(long, value_name = "UUID")]
     id: Option<String>,
@@ -75,7 +72,7 @@ impl Command {
 
     async fn set_one_and_print(
         &self,
-        service: &FashionService<sqlite::Repository>,
+        service: &FashionService<sqlite::Store>,
         fashion: Fashion,
         format: output::Format,
     ) -> anyhow::Result<()> {
@@ -85,7 +82,7 @@ impl Command {
 
     async fn set_many_and_print(
         &self,
-        service: &FashionService<sqlite::Repository>,
+        service: &FashionService<sqlite::Store>,
         fashions: Vec<Fashion>,
         format: output::Format,
     ) -> anyhow::Result<()> {
@@ -97,7 +94,7 @@ impl Command {
 }
 
 async fn set_many(
-    service: &FashionService<sqlite::Repository>,
+    service: &FashionService<sqlite::Store>,
     fashions: Vec<Fashion>,
 ) -> (Vec<Fashion>, Vec<FashionError>) {
     partition_result(FuturesOrdered::from_iter(
@@ -109,7 +106,7 @@ async fn set_many(
 }
 
 async fn set_one(
-    service: &FashionService<sqlite::Repository>,
+    service: &FashionService<sqlite::Store>,
     fashion: Fashion,
 ) -> Result<Fashion, FashionError> {
     let res = service.set(&fashion).await;

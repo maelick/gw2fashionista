@@ -19,7 +19,7 @@ mod models;
 static MIGRATOR: sqlx::migrate::Migrator = sqlx::migrate!();
 
 #[derive(Debug, Clone)]
-pub struct Repository {
+pub struct Store {
     pool: SqlitePool,
 }
 
@@ -30,7 +30,7 @@ pub async fn init(url: &str) -> sqlx::Result<SqlitePool> {
     Ok(pool)
 }
 
-impl Repository {
+impl Store {
     pub fn new(pool: SqlitePool) -> Self {
         Self { pool }
     }
@@ -45,7 +45,7 @@ impl Repository {
 }
 
 #[async_trait]
-impl repositories::FashionRepository for Repository {
+impl repositories::FashionRepository for Store {
     async fn insert_fashion(&self, fashion: &Fashion) -> FashionResult<Fashion> {
         let mut conn = self.acquire_conn().await?;
         Ok(insert_fashion(&mut conn, fashion).await?)

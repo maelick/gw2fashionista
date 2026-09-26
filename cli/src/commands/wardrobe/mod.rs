@@ -1,4 +1,4 @@
-use crate::commands::Command;
+use crate::{commands::Command, environment::Environment};
 
 pub mod args;
 pub mod export;
@@ -20,9 +20,9 @@ impl Args {
         }
     }
 
-    pub async fn execute(&self) -> anyhow::Result<()> {
+    pub async fn execute(&self, env: Environment) -> anyhow::Result<()> {
         match &self.command {
-            Commands::Export(cmd) => cmd.execute().await,
+            Commands::Export(cmd) => cmd.execute(env).await,
             Commands::Merge(cmd) => cmd.execute().await,
             Commands::Filter(cmd) => cmd.execute().await,
         }

@@ -31,11 +31,6 @@ mod wardrobe;
 pub struct Args {
     #[command(subcommand)]
     command: Commands,
-
-    /// Read or write data from clipboard.
-    /// If any other data is also provided on stdin or as arguments, it overrides the data from the clipboard.
-    #[arg(long, global = true)]
-    clipboard: bool,
 }
 
 impl Args {

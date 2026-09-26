@@ -31,7 +31,7 @@ impl Commands {
     pub async fn execute(&self, env: Environment) -> anyhow::Result<()> {
         match self {
             Commands::Read(cmd) => cmd.execute().await,
-            Commands::Wardrobe(args) => args.execute().await,
+            Commands::Wardrobe(args) => args.execute(env).await,
             Commands::Travel(args) => args.execute().await,
             Commands::Fashion(args) => args.execute(env).await,
         }

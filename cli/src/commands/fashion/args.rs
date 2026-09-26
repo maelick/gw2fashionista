@@ -79,7 +79,7 @@ impl FashionIdentifier {
 
     pub async fn get_fashion(
         &self,
-        service: &FashionService<sqlite::Repository>,
+        service: &FashionService<sqlite::Store>,
     ) -> anyhow::Result<Fashion> {
         Ok(match self.id {
             Some(id) => service.get_by_id(&id.into()).await?,
