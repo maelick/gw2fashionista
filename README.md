@@ -1,18 +1,18 @@
 # GW2 Fashionista [![CI](https://github.com/maelick/gw2fashionista/actions/workflows/ci.yaml/badge.svg)](https://github.com/maelick/gw2fashionista/actions/workflows/ci.yaml)
 
-CLI tool to manage GW2 fashion templates.
+Command Line Interface (CLI) tool to manage GW2 fashion templates.
 Currently, it can:
 * parse, filter, and merge wardrobe and travel template chat links.
 * export equipment tabs as wardrobe templates using the GW2 API.
+  (Requires an API key with the `account`, `builds`, and `characters` permissions.)
+* store and manage fashion templates and annotate them with a name, character name, description, and tags.
+
+See [CLI.md](./docs/CLI.md) for more information and examples on how to use the CLI.
 
 ## Running the CLI
 
 The CLI can be run by
-* downloading the released binary and
-  * on Linux:
-    * renaming it `gw2fashionista`
-    * making it executable: `chmod +x gw2fashionista`
-  * on Windows: renaming it `gw2fashionista.exe`
+* downloading and executing the released binary
 * downloading the sources and
   * using `cargo run`
   * building the binary: `cargo build --release`
@@ -34,44 +34,14 @@ export GW2_API_KEY='<your-api-key-here>'
   one slots that are set in the second one.
   The second template can be filtered using the same filters as for the `filter` command,
   and the command also allows merging only dyes or skins, if desired.
-
-## Examples
-
-The following examples are written for Linux and/or bash terminals.
-
-```bash
-# Export all character fashion to fashion.csv
-GW2_API_KEY='<your-api-key-here>' ./gw2fashionista wardrobe export -o fashion.csv
-
-# Output exported fashion
-./gw2fashionista read < fashion.csv
-
-fashion1='[&<base64-encoded-template>]'
-fashion2='[&<base64-encoded-template]]'
-
-# Pretty print individual fashion templates
-./gw2fashionista read "$fashion1" | jq
-
-# Strip weapons from fashion2
-fashion2_noweapons=$(./gw2fashionista wardrobe filter "$fashion2" --exclude weapons)
-echo $fashion2_noweapons | ./gw2fashionista read | jq
-
-# Combines fashion1 weapons with fashion2
-./gw2fashionista wardrobe merge "$fashion1" "$fashion2_noweapons" | ./gw2fashionista read | jq
-
-# Showcase the different filtering options and how it affects the backpack:
-
-# fashion2 backpack
-./gw2fashionista wardrobe merge "$fashion1" "$fashion2_noweapons" | ./gw2fashionista read | jq .backpack
-# fashion1 backpack
-./gw2fashionista wardrobe merge "$fashion1" "$fashion2_noweapons" --exclude backpack | ./gw2fashionista read | jq .backpack
-# fashion1 backpack skin and fashion2 dyes
-./gw2fashionista wardrobe merge "$fashion1" "$fashion2_noweapons" --no-skins | ./gw2fashionista read | jq .backpack
-# fashion2 backpack skin and fashion1 dyes
-./gw2fashionista wardrobe merge "$fashion1" "$fashion2_noweapons" --no-dyes | ./gw2fashionista read | jq .backpack
-```
+* `fashion create|get|set|patch|delete|list|untag`: manage stored fashion templates
+* `fashion tag list|clean`: manage tags
+* `fashion wardrobe|travel get|set`: get or set the chat link of the wardrobe or travel template of a stored fashion template
 
 ## Development
+
+This project uses [just](https://github.com/casey/just) to easily build, lint, and run this project.
+See the [justfile](./justfile) or run `just` in the root of the repository for the list of available targets.
 
 ### Running the tests
 
@@ -93,12 +63,14 @@ These macros need to validate each query against a real schema at compile time, 
   in the workspace-root `.sqlx` directory instead of connecting to a database
   This is what CI uses, and what you'll want if you don't have a database set up locally.
 
-If you add or change a query in the `storage` crate, regenerate the cache (requires
-`sqlx-cli` and a real database, i.e. online mode) and commit the result:
+If a query in the `storage` crate is added or changed, the cache (requires
+`sqlx-cli` and a real database, i.e. online mode) needs to be regenerated and the result committed:
 
 ```bash
 sqlx database drop
 sqlx database create
 sqlx migrate run --source storage/migrations
 cargo sqlx prepare --workspace -- --all-targets
+git add .sqlx
+git commit -m "chore: prepare sqlx queries"
 ```
