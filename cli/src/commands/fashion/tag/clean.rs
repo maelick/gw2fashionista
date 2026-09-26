@@ -1,10 +1,7 @@
 use crate::{commands, environment::Environment};
 
 #[derive(clap::Args, Debug)]
-pub struct Command {
-    #[arg(from_global)]
-    clipboard: bool,
-}
+pub struct Command {}
 
 impl commands::Command for Command {
     fn name(&self) -> &str {

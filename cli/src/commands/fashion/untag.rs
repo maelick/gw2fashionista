@@ -17,9 +17,6 @@ pub struct Command {
     #[arg(value_name = "TAG")]
     tags: Vec<String>,
 
-    #[arg(from_global)]
-    clipboard: bool,
-
     #[command(flatten)]
     id: Option<FashionIdentifier>,
 

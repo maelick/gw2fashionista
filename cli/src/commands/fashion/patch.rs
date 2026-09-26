@@ -17,9 +17,6 @@ use crate::{
 
 #[derive(clap::Args, Debug)]
 pub struct Command {
-    #[arg(from_global)]
-    clipboard: bool,
-
     /// Id of the fashion template.
     #[arg(long, value_name = "UUID")]
     id: Option<String>,
