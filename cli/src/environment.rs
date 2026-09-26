@@ -2,7 +2,7 @@ use std::{path::PathBuf, sync::Arc};
 
 use bon::Builder;
 use gw2fashionista_core::{app::FashionService, config};
-use gw2fashionista_storage::sqlite;
+use gw2fashionista_storage::{env, sqlite};
 use sqlx::SqlitePool;
 
 #[derive(Debug, Clone, Builder)]
@@ -13,6 +13,8 @@ pub struct Environment {
     sql_pool: Option<SqlitePool>,
 
     fashion_repo: Option<Arc<sqlite::Repository>>,
+
+    secret_repo: Option<Arc<env::Store>>,
 
     #[builder(default)]
     dirs: config::Config,
@@ -50,5 +52,12 @@ impl Environment {
     pub async fn fashion_service(&mut self) -> anyhow::Result<FashionService<sqlite::Repository>> {
         let repo = self.fashion_repo().await?;
         Ok(FashionService::new(repo))
+    }
+
+    pub async fn secret_repo(&mut self) -> anyhow::Result<Arc<env::Store>> {
+        if self.secret_repo.is_none() {
+            self.secret_repo = Some(Arc::new(env::Store::builder().build()));
+        }
+        Ok(self.secret_repo.clone().unwrap())
     }
 }
