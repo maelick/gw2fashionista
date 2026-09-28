@@ -945,7 +945,7 @@ dependencies = [
 
 [[package]]
 name = "gw2fashionista-cli"
-version = "0.4.0-beta.1"
+version = "0.4.0-beta.2"
 dependencies = [
  "anyhow",
  "bon",
