@@ -210,6 +210,7 @@ fn test_fashion_chat_links(db_path: TempPath) {
 
 #[rstest]
 fn test_fashion_tags(db_path: TempPath) {
+    // Creae two templates, the second one with a tag
     fashion_cmd(&db_path, &["create", "-n", "fashion1"], None).success();
     fashion_cmd(&db_path, &["create", "-n", "fashion2", "-t", "tag1"], None).success();
     assert_eq!(
@@ -221,7 +222,10 @@ fn test_fashion_tags(db_path: TempPath) {
         ["fashion2"]
     );
     list_fashion_cmd(&db_path, &["tag2"]).success().stdout("[]");
+    list_fashion_cmd(&db_path, &["tag3"]).success().stdout("[]");
+    list_fashion_cmd(&db_path, &["tag4"]).success().stdout("[]");
 
+    // Add the same tag to the first template, and a second tag to the second template
     fashion_cmd(&db_path, &["patch", "-n", "fashion1", "-t", "tag1"], None).success();
     fashion_cmd(&db_path, &["patch", "-n", "fashion2", "-t", "tag2"], None).success();
     assert_eq!(
@@ -236,11 +240,62 @@ fn test_fashion_tags(db_path: TempPath) {
         names(list_fashion_cmd(&db_path, &["tag2"]).success()),
         ["fashion2"]
     );
+    list_fashion_cmd(&db_path, &["tag3"]).success().stdout("[]");
+    list_fashion_cmd(&db_path, &["tag4"]).success().stdout("[]");
 
+    // Rename the second tag to a new tag
+    fashion_cmd(&db_path, &["tag", "rename", "tag2", "tag3"], None).success();
+    assert_eq!(
+        names(fashion_cmd(&db_path, &["tag", "list", "-f", "json"], None).success()),
+        ["tag1", "tag3"]
+    );
+    assert_eq!(
+        names(list_fashion_cmd(&db_path, &["tag1"]).success()),
+        ["fashion1", "fashion2"]
+    );
+    list_fashion_cmd(&db_path, &["tag2"]).success().stdout("[]");
+    assert_eq!(
+        names(list_fashion_cmd(&db_path, &["tag3"]).success()),
+        ["fashion2"]
+    );
+    list_fashion_cmd(&db_path, &["tag4"]).success().stdout("[]");
+
+    // Replace the renamed tag with a new tag
+    fashion_cmd(&db_path, &["tag", "replace", "tag3", "tag4"], None).success();
+    assert_eq!(
+        names(fashion_cmd(&db_path, &["tag", "list", "-f", "json"], None).success()),
+        ["tag1", "tag3", "tag4"]
+    );
+    assert_eq!(
+        names(list_fashion_cmd(&db_path, &["tag1"]).success()),
+        ["fashion1", "fashion2"]
+    );
+    list_fashion_cmd(&db_path, &["tag2"]).success().stdout("[]");
+    list_fashion_cmd(&db_path, &["tag3"]).success().stdout("[]");
+    assert_eq!(
+        names(list_fashion_cmd(&db_path, &["tag4"]).success()),
+        ["fashion2"]
+    );
+
+    // Delete the renamed tag
+    fashion_cmd(&db_path, &["tag", "delete", "tag4"], None).success();
+    assert_eq!(
+        names(fashion_cmd(&db_path, &["tag", "list", "-f", "json"], None).success()),
+        ["tag1", "tag3"]
+    );
+    assert_eq!(
+        names(list_fashion_cmd(&db_path, &["tag1"]).success()),
+        ["fashion1", "fashion2"]
+    );
+    list_fashion_cmd(&db_path, &["tag2"]).success().stdout("[]");
+    list_fashion_cmd(&db_path, &["tag3"]).success().stdout("[]");
+    list_fashion_cmd(&db_path, &["tag4"]).success().stdout("[]");
+
+    // Replace all tags on the second template with the original (recreated)
     fashion_cmd(&db_path, &["set", "-n", "fashion2", "-t", "tag2"], None).success();
     assert_eq!(
         names(fashion_cmd(&db_path, &["tag", "list", "-f", "json"], None).success()),
-        ["tag1", "tag2"]
+        ["tag1", "tag2", "tag3"]
     );
     assert_eq!(
         names(list_fashion_cmd(&db_path, &["tag1"]).success()),
@@ -250,18 +305,24 @@ fn test_fashion_tags(db_path: TempPath) {
         names(list_fashion_cmd(&db_path, &["tag2"]).success()),
         ["fashion2"]
     );
+    list_fashion_cmd(&db_path, &["tag3"]).success().stdout("[]");
+    list_fashion_cmd(&db_path, &["tag4"]).success().stdout("[]");
 
+    // Untag the second template
     fashion_cmd(&db_path, &["untag", "-n", "fashion2"], None).success();
     assert_eq!(
         names(fashion_cmd(&db_path, &["tag", "list", "-f", "json"], None).success()),
-        ["tag1", "tag2"]
+        ["tag1", "tag2", "tag3"]
     );
     assert_eq!(
         names(list_fashion_cmd(&db_path, &["tag1"]).success()),
         ["fashion1"]
     );
     list_fashion_cmd(&db_path, &["tag2"]).success().stdout("[]");
+    list_fashion_cmd(&db_path, &["tag3"]).success().stdout("[]");
+    list_fashion_cmd(&db_path, &["tag4"]).success().stdout("[]");
 
+    // Clean unused tags
     fashion_cmd(&db_path, &["tag", "clean"], None).success();
     assert_eq!(
         names(fashion_cmd(&db_path, &["tag", "list", "-f", "json"], None).success()),
@@ -272,6 +333,8 @@ fn test_fashion_tags(db_path: TempPath) {
         ["fashion1"]
     );
     list_fashion_cmd(&db_path, &["tag2"]).success().stdout("[]");
+    list_fashion_cmd(&db_path, &["tag3"]).success().stdout("[]");
+    list_fashion_cmd(&db_path, &["tag4"]).success().stdout("[]");
 }
 
 fn list_fashion_cmd(db_path: &TempPath, tags: &[&str]) -> Assert {

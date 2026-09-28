@@ -132,6 +132,21 @@ impl repositories::FashionRepository for Store {
         Ok(())
     }
 
+    async fn remove_tags(
+        &self,
+        tags: impl IntoIterator<Item: Into<&TagName>, IntoIter: Send> + Send,
+    ) -> FashionResult<u64> {
+        let mut tx = self.begin_transaction().await?;
+        let mut num_removed = 0;
+        for tag in tags.into_iter().map(Into::into) {
+            if remove_tag(&mut tx, tag).await? {
+                num_removed += 1;
+            }
+        }
+        commit(tx).await?;
+        Ok(num_removed)
+    }
+
     async fn clean_tags(&self) -> FashionResult<u64> {
         let mut conn = self.acquire_conn().await?;
         Ok(clean_tags(&mut conn).await?)
@@ -276,7 +291,7 @@ async fn get_fashion_by_name(
 }
 
 async fn list_fashions(conn: &mut SqliteConnection) -> error::Result<Vec<Fashion>> {
-    sqlx::query_as::<'_, _, models::Fashion>("SELECT * FROM fashion")
+    sqlx::query_as::<'_, _, models::Fashion>("SELECT * FROM fashion ORDER BY name, character")
         .fetch_all(conn)
         .await?
         .into_iter()
@@ -396,6 +411,17 @@ async fn replace_tag(
     Ok(())
 }
 
+async fn remove_tag(conn: &mut SqliteConnection, name: &str) -> error::Result<bool> {
+    let res = sqlx::query!(
+        r#"DELETE FROM tag
+        WHERE name = ?"#,
+        name,
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected() != 0)
+}
+
 async fn clean_tags(conn: &mut SqliteConnection) -> error::Result<u64> {
     let res = sqlx::query!(
         r#"DELETE FROM tag
@@ -414,6 +440,7 @@ fn list_tags_query(patterns: impl Iterator<Item = String>) -> QueryBuilder<Sqlit
         query.push(" AND name LIKE ");
         query.push_bind(p);
     }
+    query.push(" ORDER BY name");
     query
 }
 

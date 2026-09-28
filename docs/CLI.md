@@ -52,6 +52,9 @@ The commands that work with an existing template can identify it using either it
 #### Managing tags
 
 * `fashion tag list`: list all available tags and display how many templates use them
+* `fashion tag renane`: rename a tag (the new tag name must not be used by another tag yet)
+* `fashion tag replace`: replace a tag with another one (does not delete the original tag)
+* `fashion tag delete`: delete a tag
 * `fashion tag clean`: remove unused tags from the database
 
 #### Retrieving or updating a wardrobe or travel template
