@@ -145,6 +145,25 @@ where
         Ok(tags)
     }
 
+    pub async fn rename_tag(&self, from: &str, to: &TagName) -> Result<Tag> {
+        Ok(self.fashion_repo.rename_tag(from, to).await?)
+    }
+
+    pub async fn replace_tags(
+        &self,
+        tags: impl IntoIterator<Item: Into<&TagName>, IntoIter: Send> + Send,
+        with: &TagName,
+    ) -> Result<()> {
+        Ok(self.fashion_repo.replace_tags(tags, with).await?)
+    }
+
+    pub async fn delete_tags(
+        &self,
+        tags: impl IntoIterator<Item: Into<&TagName>, IntoIter: Send> + Send,
+    ) -> Result<u64> {
+        Ok(self.fashion_repo.remove_tags(tags).await?)
+    }
+
     pub async fn clean_tags(&self) -> Result<u64> {
         Ok(self.fashion_repo.clean_tags().await?)
     }
