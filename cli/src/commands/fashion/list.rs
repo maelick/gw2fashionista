@@ -1,6 +1,6 @@
 use std::io::{self, IsTerminal};
 
-use gw2fashionista_core::domain::fashion::FashionRecordRef;
+use gw2fashionista_core::domain::{fashion::FashionRecordRef, names::TagName};
 
 use crate::{
     commands::{self, args::DataFormat},
@@ -12,7 +12,7 @@ use crate::{
 pub struct Command {
     /// Tags to list fashion templates for.
     #[arg(value_name = "TAG")]
-    tags: Vec<String>,
+    tags: Vec<TagName>,
 
     /// Output format. Auto is based on whether stdout is a TTY (CSV for TTY, JSON if not).
     #[arg(short, long, value_enum, default_value_t = DataFormat::Auto)]
@@ -33,7 +33,7 @@ impl Command {
     #[tracing::instrument(name = "fashion-list", skip_all)]
     pub async fn execute(&self, mut env: Environment) -> anyhow::Result<()> {
         let service = env.fashion_service().await?;
-        let fashions = service.list().await?;
+        let fashions = service.list(&self.tags).await?;
         let format = match self.format {
             DataFormat::Auto => {
                 if io::stdout().is_terminal() {

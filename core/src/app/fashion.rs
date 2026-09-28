@@ -1,4 +1,4 @@
-use std::{iter, sync::Arc};
+use std::{future, iter, sync::Arc};
 
 use futures::TryStreamExt;
 use futures::stream::FuturesOrdered;
@@ -7,6 +7,7 @@ use crate::{
     domain::{
         fashion::{Fashion, FashionIdentifier},
         filters::StringFilters,
+        names::TagName,
         tag::Tag,
     },
     ports::repositories::{self, FashionError, FashionRepository},
@@ -47,7 +48,7 @@ where
         Ok(created)
     }
 
-    pub async fn list(&self) -> Result<Vec<Fashion>> {
+    pub async fn list(&self, tags: &[TagName]) -> Result<Vec<Fashion>> {
         FuturesOrdered::from_iter(
             self.fashion_repo
                 .list_fashions()
@@ -55,6 +56,7 @@ where
                 .into_iter()
                 .map(async |f| self.retrieve_fashion_tags(f).await),
         )
+        .try_filter(|f| future::ready(f.has_tags(tags)))
         .try_collect()
         .await
     }

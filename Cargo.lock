@@ -611,6 +611,7 @@ dependencies = [
  "insta",
  "regex",
  "rstest",
+ "serde",
  "serde_json",
  "tempfile",
 ]
