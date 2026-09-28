@@ -132,6 +132,21 @@ impl repositories::FashionRepository for Store {
         Ok(())
     }
 
+    async fn remove_tags(
+        &self,
+        tags: impl IntoIterator<Item: Into<&TagName>, IntoIter: Send> + Send,
+    ) -> FashionResult<u64> {
+        let mut tx = self.begin_transaction().await?;
+        let mut num_removed = 0;
+        for tag in tags.into_iter().map(Into::into) {
+            if remove_tag(&mut tx, tag).await? {
+                num_removed += 1;
+            }
+        }
+        commit(tx).await?;
+        Ok(num_removed)
+    }
+
     async fn clean_tags(&self) -> FashionResult<u64> {
         let mut conn = self.acquire_conn().await?;
         Ok(clean_tags(&mut conn).await?)
@@ -394,6 +409,17 @@ async fn replace_tag(
     .execute(conn)
     .await?;
     Ok(())
+}
+
+async fn remove_tag(conn: &mut SqliteConnection, name: &str) -> error::Result<bool> {
+    let res = sqlx::query!(
+        r#"DELETE FROM tag
+        WHERE name = ?"#,
+        name,
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected() != 0)
 }
 
 async fn clean_tags(conn: &mut SqliteConnection) -> error::Result<u64> {

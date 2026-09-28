@@ -707,6 +707,60 @@ async fn test_clean_tags(pool: SqlitePool) {
     assert_eq!(tags, tag_vec(&["tag2", "tag3"]));
 }
 
+#[sqlx::test]
+async fn test_remove_tag(pool: SqlitePool) {
+    let repo = sqlite::Store::new(pool);
+
+    // We create two templates
+    let fashion1 = &repo
+        .insert_fashion(&Fashion::builder().name_str("fashion1").unwrap().build())
+        .await
+        .unwrap();
+    let fashion2 = &repo
+        .insert_fashion(&Fashion::builder().name_str("fashion2").unwrap().build())
+        .await
+        .unwrap();
+
+    // We add tags to the templates
+    repo.ensure_fashion_tags(
+        std::iter::once(&fashion1.id.unwrap()),
+        &tag_vec(&["tag1", "tag2"]),
+    )
+    .await
+    .unwrap();
+    repo.ensure_fashion_tags(
+        std::iter::once(&fashion2.id.unwrap()),
+        &tag_vec(&["tag2", "tag3"]),
+    )
+    .await
+    .unwrap();
+
+    // We assert there are 3 tags
+    let tags = repo
+        .list_tags(StringFilters::builder().build())
+        .await
+        .unwrap();
+    let tags: Vec<_> = tags.iter().map(|t| t.name.clone()).collect();
+    assert_eq!(tags, tag_vec(&["tag1", "tag2", "tag3"]));
+
+    // We delete tag 3 and assert the tags
+    repo.remove_tags(std::iter::once(&tag("tag3")))
+        .await
+        .unwrap();
+    let tags = repo
+        .list_tags(StringFilters::builder().build())
+        .await
+        .unwrap();
+    let tags: Vec<_> = tags.iter().map(|t| t.name.clone()).collect();
+    assert_eq!(tags, tag_vec(&["tag1", "tag2"]));
+
+    // We ensure tagged templates are correct
+    let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
+    assert_eq!(tags, tag_vec(&["tag1", "tag2"]));
+    let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
+    assert_eq!(tags, tag_vec(&["tag2"]));
+}
+
 fn tag(s: &str) -> TagName {
     s.parse().unwrap()
 }
