@@ -257,9 +257,9 @@ async fn test_list_tags(pool: SqlitePool) {
     let repo = sqlite::Store::new(pool);
 
     // We create tags
-    let tag1 = &repo.ensure_tag(&tag("peekaboo")).await.unwrap();
+    let tag1 = &repo.ensure_tag(&tag("aboo")).await.unwrap();
     let tag2 = &repo.ensure_tag(&tag("peekabo")).await.unwrap();
-    let tag3 = &repo.ensure_tag(&tag("aboo")).await.unwrap();
+    let tag3 = &repo.ensure_tag(&tag("peekaboo")).await.unwrap();
     let tag4 = &repo.ensure_tag(&tag("peekboo")).await.unwrap();
 
     // Assert empty filter returns all
@@ -297,7 +297,7 @@ async fn test_list_tags(pool: SqlitePool) {
         .unwrap();
     assert_eq!(
         retrieved_tags,
-        vec![tag2.clone(), tag1.clone(), tag4.clone()]
+        vec![tag2.clone(), tag3.clone(), tag4.clone()]
     );
 
     // Assert match for suffix
@@ -317,7 +317,7 @@ async fn test_list_tags(pool: SqlitePool) {
         .unwrap();
     assert_eq!(
         retrieved_tags,
-        vec![tag1.clone(), tag2.clone(), tag4.clone()]
+        vec![tag2.clone(), tag3.clone(), tag4.clone()]
     );
 
     // Assert match for multiple substrings
@@ -325,14 +325,14 @@ async fn test_list_tags(pool: SqlitePool) {
         .list_tags(StringFilters::builder().substrings(["eek", "ka"]).build())
         .await
         .unwrap();
-    assert_eq!(retrieved_tags, vec![tag1.clone(), tag2.clone()]);
+    assert_eq!(retrieved_tags, vec![tag2.clone(), tag3.clone()]);
 
     // Assert match for prefix + substring
     let retrieved_tags = repo
         .list_tags(StringFilters::builder().prefix("peek").suffix("oo").build())
         .await
         .unwrap();
-    assert_eq!(retrieved_tags, vec![tag1.clone(), tag4.clone()]);
+    assert_eq!(retrieved_tags, vec![tag3.clone(), tag4.clone()]);
 
     // Assert match for all
     let retrieved_tags = repo
@@ -345,7 +345,7 @@ async fn test_list_tags(pool: SqlitePool) {
         )
         .await
         .unwrap();
-    assert_eq!(retrieved_tags, vec![tag1.clone()]);
+    assert_eq!(retrieved_tags, vec![tag3.clone()]);
 }
 
 #[sqlx::test]
