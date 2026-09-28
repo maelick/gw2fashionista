@@ -108,7 +108,7 @@ impl Fashion {
         self
     }
 
-    pub fn has_tags(&self, tags: &Vec<TagName>) -> bool {
+    pub fn has_tags(&self, tags: &[TagName]) -> bool {
         tags.iter().all(|t| self.tags.contains(t))
     }
 }

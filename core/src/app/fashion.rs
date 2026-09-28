@@ -48,7 +48,7 @@ where
         Ok(created)
     }
 
-    pub async fn list(&self, tags: &Vec<TagName>) -> Result<Vec<Fashion>> {
+    pub async fn list(&self, tags: &[TagName]) -> Result<Vec<Fashion>> {
         FuturesOrdered::from_iter(
             self.fashion_repo
                 .list_fashions()
