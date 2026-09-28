@@ -291,7 +291,7 @@ async fn get_fashion_by_name(
 }
 
 async fn list_fashions(conn: &mut SqliteConnection) -> error::Result<Vec<Fashion>> {
-    sqlx::query_as::<'_, _, models::Fashion>("SELECT * FROM fashion")
+    sqlx::query_as::<'_, _, models::Fashion>("SELECT * FROM fashion ORDER BY name, character")
         .fetch_all(conn)
         .await?
         .into_iter()
@@ -440,6 +440,7 @@ fn list_tags_query(patterns: impl Iterator<Item = String>) -> QueryBuilder<Sqlit
         query.push(" AND name LIKE ");
         query.push_bind(p);
     }
+    query.push(" ORDER BY name");
     query
 }
 
