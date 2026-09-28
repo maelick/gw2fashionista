@@ -107,6 +107,10 @@ impl Fashion {
         }
         self
     }
+
+    pub fn has_tags(&self, tags: &Vec<TagName>) -> bool {
+        tags.iter().all(|t| self.tags.contains(t))
+    }
 }
 
 mod display_fromstr_option {
