@@ -211,31 +211,67 @@ fn test_fashion_chat_links(db_path: TempPath) {
 #[rstest]
 fn test_fashion_tags(db_path: TempPath) {
     fashion_cmd(&db_path, &["create", "-n", "fashion1"], None).success();
-    fashion_cmd(&db_path, &["create", "-n", "fashion2", "-t", "t1"], None).success();
-    fashion_cmd(&db_path, &["tag", "list"], None).success();
-    fashion_cmd(&db_path, &["list", "t1"], None).success();
-    fashion_cmd(&db_path, &["list", "t2"], None).success();
+    fashion_cmd(&db_path, &["create", "-n", "fashion2", "-t", "tag1"], None).success();
+    assert_eq!(
+        names(fashion_cmd(&db_path, &["tag", "list", "-f", "json"], None).success()),
+        ["tag1"]
+    );
+    assert_eq!(
+        names(list_fashion_cmd(&db_path, &["tag1"]).success()),
+        ["fashion2"]
+    );
+    list_fashion_cmd(&db_path, &["tag2"]).success().stdout("[]");
 
-    fashion_cmd(&db_path, &["patch", "-n", "fashion1", "-t", "t1"], None).success();
-    fashion_cmd(&db_path, &["patch", "-n", "fashion2", "-t", "t2"], None).success();
-    fashion_cmd(&db_path, &["tag", "list"], None).success();
-    fashion_cmd(&db_path, &["list", "t1"], None).success();
-    fashion_cmd(&db_path, &["list", "t2"], None).success();
+    fashion_cmd(&db_path, &["patch", "-n", "fashion1", "-t", "tag1"], None).success();
+    fashion_cmd(&db_path, &["patch", "-n", "fashion2", "-t", "tag2"], None).success();
+    assert_eq!(
+        names(fashion_cmd(&db_path, &["tag", "list", "-f", "json"], None).success()),
+        ["tag1", "tag2"]
+    );
+    assert_eq!(
+        names(list_fashion_cmd(&db_path, &["tag1"]).success()),
+        ["fashion1", "fashion2"]
+    );
+    assert_eq!(
+        names(list_fashion_cmd(&db_path, &["tag2"]).success()),
+        ["fashion2"]
+    );
 
-    fashion_cmd(&db_path, &["set", "-n", "fashion2", "-t", "t2"], None).success();
-    fashion_cmd(&db_path, &["tag", "list"], None).success();
-    fashion_cmd(&db_path, &["list", "t1"], None).success();
-    fashion_cmd(&db_path, &["list", "t2"], None).success();
+    fashion_cmd(&db_path, &["set", "-n", "fashion2", "-t", "tag2"], None).success();
+    assert_eq!(
+        names(fashion_cmd(&db_path, &["tag", "list", "-f", "json"], None).success()),
+        ["tag1", "tag2"]
+    );
+    assert_eq!(
+        names(list_fashion_cmd(&db_path, &["tag1"]).success()),
+        ["fashion1"]
+    );
+    assert_eq!(
+        names(list_fashion_cmd(&db_path, &["tag2"]).success()),
+        ["fashion2"]
+    );
 
     fashion_cmd(&db_path, &["untag", "-n", "fashion2"], None).success();
-    fashion_cmd(&db_path, &["tag", "list"], None).success();
-    fashion_cmd(&db_path, &["list", "t1"], None).success();
-    fashion_cmd(&db_path, &["list", "t2"], None).success();
+    assert_eq!(
+        names(fashion_cmd(&db_path, &["tag", "list", "-f", "json"], None).success()),
+        ["tag1", "tag2"]
+    );
+    assert_eq!(
+        names(list_fashion_cmd(&db_path, &["tag1"]).success()),
+        ["fashion1"]
+    );
+    list_fashion_cmd(&db_path, &["tag2"]).success().stdout("[]");
 
     fashion_cmd(&db_path, &["tag", "clean"], None).success();
-    fashion_cmd(&db_path, &["tag", "list"], None).success();
-    fashion_cmd(&db_path, &["list", "t1"], None).success();
-    fashion_cmd(&db_path, &["list", "t2"], None).success();
+    assert_eq!(
+        names(fashion_cmd(&db_path, &["tag", "list", "-f", "json"], None).success()),
+        ["tag1"]
+    );
+    assert_eq!(
+        names(list_fashion_cmd(&db_path, &["tag1"]).success()),
+        ["fashion1"]
+    );
+    list_fashion_cmd(&db_path, &["tag2"]).success().stdout("[]");
 }
 
 fn list_fashion_cmd(db_path: &TempPath, tags: &[&str]) -> Assert {
@@ -262,4 +298,14 @@ fn redact_fashion_list() -> insta::Settings {
     settings.add_redaction("[].created_at", "[datetime]");
     settings.add_redaction("[].updated_at", "[datetime]");
     settings
+}
+
+#[derive(serde::Deserialize)]
+struct Named {
+    name: String,
+}
+
+fn names(assert: Assert) -> Vec<String> {
+    let items: Vec<Named> = serde_json::from_slice(&assert.get_output().stdout).unwrap();
+    items.into_iter().map(|item| item.name).collect()
 }
