@@ -1,8 +1,6 @@
 use assert_cmd::assert::OutputAssertExt;
 use e2e::assert_json_snapshot;
-use gw2fashionista_chatlink::fixtures::{
-    ChatLinkFixture, templates_as_csv, templates_as_list, travel, wardrobe,
-};
+use gw2fashionista_chatlink::fixtures::{ChatLinkFixture, travel, wardrobe};
 use rstest::rstest;
 
 use e2e::{assert_snapshot, cli::spawn_cli};
@@ -72,7 +70,7 @@ fn test_read_command_skip_names(#[case] template: ChatLinkFixture) {
         .get_output()
         .stdout
         .clone();
-    assert_snapshot!(&template.snapshot_name("skip_names"), &output, "read");
+    assert_snapshot!(&format!("skip_names_{}", template.name), &output, "read");
 }
 
 fn all_templates() -> Vec<ChatLinkFixture> {
@@ -184,4 +182,15 @@ fn assert_all_templates(output: &std::process::Output) {
         travel::ALL_TEMPLATES.len() + wardrobe::ALL_TEMPLATES.len()
     );
     assert_json_snapshot!("all_templates", json, SNAPSHOT_DIR)
+}
+
+fn templates_as_csv(templates: &[ChatLinkFixture]) -> Vec<String> {
+    templates
+        .iter()
+        .map(|t| format!("{},{}", t.name, t.link))
+        .collect()
+}
+
+fn templates_as_list(templates: &[ChatLinkFixture]) -> Vec<String> {
+    templates.iter().map(|t| t.link.to_string()).collect()
 }
