@@ -11,10 +11,7 @@ use std::assert_matches;
 #[test_log::test]
 async fn test_resolve_empty() {
     let resolver = Resolver::default();
-    let template = &EMPTY_TEMPLATE
-        .link
-        .parse::<WardrobeTemplate>()
-        .unwrap();
+    let template = &EMPTY_TEMPLATE.link.parse::<WardrobeTemplate>().unwrap();
 
     resolver.cache_template(template).await.unwrap();
 
