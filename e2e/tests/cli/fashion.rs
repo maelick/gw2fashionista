@@ -53,9 +53,9 @@ fn test_fashion(db_path: TempPath) {
             "-d",
             "This is a description",
             "--wardrobe",
-            wardrobe::ZIZI_TEMPLATE.chat_link,
+            wardrobe::ZIZI_TEMPLATE.link,
             "--travel",
-            travel::ZIZI_TEMPLATE.chat_link,
+            travel::ZIZI_TEMPLATE.link,
             "-t",
             "tag1,tag2",
         ],
@@ -89,9 +89,9 @@ fn test_fashion(db_path: TempPath) {
             "-d",
             "Another description",
             "--wardrobe",
-            wardrobe::PEEKABOO_TEMPLATE.chat_link,
+            wardrobe::PEEKABOO_TEMPLATE.link,
             "--travel",
-            travel::PEEKABOO_TEMPLATE.chat_link,
+            travel::PEEKABOO_TEMPLATE.link,
             "-t",
             "tag1,tag2",
         ],
@@ -135,9 +135,9 @@ fn test_fashion(db_path: TempPath) {
             "-d",
             "Another description",
             "--wardrobe",
-            wardrobe::PEEKABOO_TEMPLATE.chat_link,
+            wardrobe::PEEKABOO_TEMPLATE.link,
             "--travel",
-            travel::PEEKABOO_TEMPLATE.chat_link,
+            travel::PEEKABOO_TEMPLATE.link,
             "-t",
             "tag1,tag2",
         ],
@@ -180,30 +180,30 @@ fn test_fashion_chat_links(db_path: TempPath) {
     // Wardrobe
     fashion_cmd(&db_path, &["wardrobe", "get", "-n", "test_fashion"], None)
         .success()
-        .stdout(wardrobe::EMPTY_TEMPLATE.wrap_chat_link() + "\n");
+        .stdout(wardrobe::EMPTY_TEMPLATE.wrap() + "\n");
     fashion_cmd(
         &db_path,
         &["wardrobe", "set", "-n", "test_fashion"],
-        Some(wardrobe::PEEKABOO_TEMPLATE.wrap_chat_link()),
+        Some(wardrobe::PEEKABOO_TEMPLATE.wrap()),
     )
     .success();
     fashion_cmd(&db_path, &["wardrobe", "get", "-n", "test_fashion"], None)
         .success()
-        .stdout(wardrobe::PEEKABOO_TEMPLATE.wrap_chat_link() + "\n");
+        .stdout(wardrobe::PEEKABOO_TEMPLATE.wrap() + "\n");
 
     // Travel
     fashion_cmd(&db_path, &["travel", "get", "-n", "test_fashion"], None)
         .success()
-        .stdout(travel::EMPTY_TEMPLATE.wrap_chat_link() + "\n");
+        .stdout(travel::EMPTY_TEMPLATE.wrap() + "\n");
     fashion_cmd(
         &db_path,
         &["travel", "set", "-n", "test_fashion"],
-        Some(travel::PEEKABOO_TEMPLATE.wrap_chat_link()),
+        Some(travel::PEEKABOO_TEMPLATE.wrap()),
     )
     .success();
     fashion_cmd(&db_path, &["travel", "get", "-n", "test_fashion"], None)
         .success()
-        .stdout(travel::PEEKABOO_TEMPLATE.wrap_chat_link() + "\n");
+        .stdout(travel::PEEKABOO_TEMPLATE.wrap() + "\n");
 }
 
 #[rstest]

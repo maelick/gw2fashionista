@@ -12,7 +12,7 @@ use std::assert_matches;
 async fn test_resolve_empty() {
     let resolver = Resolver::default();
     let template = &EMPTY_TEMPLATE
-        .chat_link
+        .link
         .parse::<WardrobeTemplate>()
         .unwrap();
 
@@ -26,7 +26,7 @@ async fn test_resolve_empty() {
 #[test_log::test]
 async fn test_resolve_zizi_armor() {
     let resolver = Resolver::default();
-    let template = &ZIZI_ARMOR_TEMPLATE.chat_link.parse().unwrap();
+    let template = &ZIZI_ARMOR_TEMPLATE.link.parse().unwrap();
 
     resolver.cache_template(template).await.unwrap();
 
@@ -48,7 +48,7 @@ async fn test_resolve_zizi_armor() {
 #[test_log::test]
 async fn test_resolve_zizi() {
     let resolver = Resolver::default();
-    let template = &ZIZI_TEMPLATE.chat_link.parse().unwrap();
+    let template = &ZIZI_TEMPLATE.link.parse().unwrap();
 
     resolver.cache_template(template).await.unwrap();
 

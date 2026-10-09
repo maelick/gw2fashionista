@@ -8,7 +8,7 @@ use gw2fashionista_chatlink::templates::travel::TravelTemplate;
 #[test_log::test]
 async fn test_resolve_empty() {
     let resolver = Resolver::default();
-    let template = &EMPTY_TEMPLATE.chat_link.parse::<TravelTemplate>().unwrap();
+    let template = &EMPTY_TEMPLATE.link.parse::<TravelTemplate>().unwrap();
 
     resolver.cache_template(&template).await.unwrap();
 
@@ -20,7 +20,7 @@ async fn test_resolve_empty() {
 #[test_log::test]
 async fn test_resolve_peekaboo() {
     let resolver = Resolver::default();
-    let template = &PEEKABOO_TEMPLATE.chat_link.parse().unwrap();
+    let template = &PEEKABOO_TEMPLATE.link.parse().unwrap();
 
     resolver.cache_template(&template).await.unwrap();
 
@@ -136,7 +136,7 @@ async fn test_resolve_peekaboo() {
 #[test_log::test]
 async fn test_resolve_zizi() {
     let resolver = Resolver::default();
-    let template = &ZIZI_TEMPLATE.chat_link.parse().unwrap();
+    let template = &ZIZI_TEMPLATE.link.parse().unwrap();
 
     resolver.cache_template(&template).await.unwrap();
 

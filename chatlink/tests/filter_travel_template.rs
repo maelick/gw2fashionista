@@ -10,7 +10,7 @@ use gw2fashionista_chatlink::{
 #[test]
 #[test_log::test]
 fn test_filter_kaboom() {
-    let template = &KABOOM_TEMPLATE.chat_link.parse::<TravelTemplate>().unwrap();
+    let template = &KABOOM_TEMPLATE.link.parse::<TravelTemplate>().unwrap();
 
     let mut filter = SlotFilter::<TravelSlot>::all();
     filter.retain_all(TravelCategory::Mounts.slots());
@@ -18,8 +18,5 @@ fn test_filter_kaboom() {
     let filtered = template.filter(&filter);
 
     let filtered_link = &ChatLink::TravelTemplate(filtered);
-    assert_eq!(
-        filtered_link.to_string(),
-        KABOOM_MOUNTS_TEMPLATE.wrap_chat_link(),
-    );
+    assert_eq!(filtered_link.to_string(), KABOOM_MOUNTS_TEMPLATE.wrap(),);
 }

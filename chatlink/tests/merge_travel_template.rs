@@ -4,13 +4,10 @@ use gw2fashionista_chatlink::templates::{FashionSlot, FashionSlotKind, travel::T
 #[test]
 #[test_log::test]
 fn test_merge_peekaboo_with_kaboom_mounts() {
-    let base_template = &PEEKABOO_TEMPLATE
-        .chat_link
-        .parse::<TravelTemplate>()
-        .unwrap();
+    let base_template = &PEEKABOO_TEMPLATE.link.parse::<TravelTemplate>().unwrap();
 
     let mount_template = &KABOOM_MOUNTS_TEMPLATE
-        .chat_link
+        .link
         .parse::<TravelTemplate>()
         .unwrap();
 
@@ -28,13 +25,10 @@ fn test_merge_peekaboo_with_kaboom_mounts() {
 #[test]
 #[test_log::test]
 fn test_merge_peekaboo_with_kaboom_mounts_skins_only() {
-    let base_template = &PEEKABOO_TEMPLATE
-        .chat_link
-        .parse::<TravelTemplate>()
-        .unwrap();
+    let base_template = &PEEKABOO_TEMPLATE.link.parse::<TravelTemplate>().unwrap();
 
     let mount_template = &KABOOM_MOUNTS_TEMPLATE
-        .chat_link
+        .link
         .parse::<TravelTemplate>()
         .unwrap();
 
@@ -57,13 +51,10 @@ fn test_merge_peekaboo_with_kaboom_mounts_skins_only() {
 #[test]
 #[test_log::test]
 fn test_merge_peekaboo_with_kaboom_mounts_dyes_only() {
-    let base_template = &PEEKABOO_TEMPLATE
-        .chat_link
-        .parse::<TravelTemplate>()
-        .unwrap();
+    let base_template = &PEEKABOO_TEMPLATE.link.parse::<TravelTemplate>().unwrap();
 
     let mount_template = &KABOOM_MOUNTS_TEMPLATE
-        .chat_link
+        .link
         .parse::<TravelTemplate>()
         .unwrap();
 

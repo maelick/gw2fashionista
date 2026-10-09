@@ -1,16 +1,23 @@
+use crate::ChatLinkType;
+
 pub mod travel;
 pub mod wardrobe;
 
-#[derive(Clone)]
-/// Represents a travel or wardrobe template test case
-pub struct FashionTemplate {
+#[derive(Clone, Copy, Debug)]
+/// Represents a chat link test fixture
+pub struct ChatLinkFixture {
     pub name: &'static str,
-    pub chat_link: &'static str,
+    pub link_type: ChatLinkType,
+    pub link: &'static str,
 }
 
-impl FashionTemplate {
-    const fn new(name: &'static str, chat_link: &'static str) -> Self {
-        FashionTemplate { name, chat_link }
+impl ChatLinkFixture {
+    const fn new(name: &'static str, link_type: ChatLinkType, link: &'static str) -> Self {
+        ChatLinkFixture {
+            name,
+            link_type,
+            link,
+        }
     }
 
     pub fn snapshot_name(&self, prefix: &str) -> String {
@@ -21,18 +28,18 @@ impl FashionTemplate {
         }
     }
 
-    pub fn wrap_chat_link(&self) -> String {
-        format!("[&{}]", self.chat_link)
+    pub fn wrap(&self) -> String {
+        format!("[&{}]", self.link)
     }
 }
 
-pub fn templates_as_csv(templates: &[FashionTemplate]) -> Vec<String> {
+pub fn templates_as_csv(templates: &[ChatLinkFixture]) -> Vec<String> {
     templates
         .iter()
-        .map(|t| format!("{},{}", t.name, t.chat_link))
+        .map(|t| format!("{},{}", t.name, t.link))
         .collect()
 }
 
-pub fn templates_as_list(templates: &[FashionTemplate]) -> Vec<String> {
-    templates.iter().map(|t| t.chat_link.to_string()).collect()
+pub fn templates_as_list(templates: &[ChatLinkFixture]) -> Vec<String> {
+    templates.iter().map(|t| t.link.to_string()).collect()
 }
