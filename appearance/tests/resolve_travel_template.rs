@@ -1,9 +1,8 @@
 use gw2fashionista_appearance::gw2::resolve::Resolver;
 use gw2fashionista_appearance::models::skin::Skin;
+use gw2fashionista_chatlink::fixtures::travel::{EMPTY_TEMPLATE, PEEKABOO_TEMPLATE, ZIZI_TEMPLATE};
 use gw2fashionista_chatlink::templates::travel::TravelSlot;
 use gw2fashionista_chatlink::templates::travel::TravelTemplate;
-
-use gw2fashionista_fixtures::travel::{EMPTY_TEMPLATE, PEEKABOO_TEMPLATE, ZIZI_TEMPLATE};
 
 #[tokio::test(flavor = "multi_thread")]
 #[test_log::test]

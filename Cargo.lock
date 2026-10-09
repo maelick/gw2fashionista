@@ -607,7 +607,6 @@ dependencies = [
  "csv",
  "gw2fashionista-chatlink",
  "gw2fashionista-cli",
- "gw2fashionista-fixtures",
  "insta",
  "regex",
  "rstest",
@@ -909,7 +908,6 @@ dependencies = [
  "dashmap 6.2.1",
  "futures",
  "gw2fashionista-chatlink",
- "gw2fashionista-fixtures",
  "gw2lib",
  "hyper",
  "hyper-rustls",
@@ -931,7 +929,7 @@ version = "0.1.0"
 dependencies = [
  "base64 0.22.1",
  "byteorder",
- "gw2fashionista-fixtures",
+ "gw2fashionista-chatlink",
  "linearize",
  "num_enum",
  "regex",
@@ -980,7 +978,6 @@ dependencies = [
  "futures",
  "gw2fashionista-appearance",
  "gw2fashionista-chatlink",
- "gw2fashionista-fixtures",
  "itertools",
  "mockall",
  "nutype",
@@ -994,10 +991,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "gw2fashionista-fixtures"
-version = "0.1.0"
-
-[[package]]
 name = "gw2fashionista-storage"
 version = "0.1.0"
 dependencies = [
@@ -1006,7 +999,6 @@ dependencies = [
  "futures",
  "gw2fashionista-chatlink",
  "gw2fashionista-core",
- "gw2fashionista-fixtures",
  "sqlx",
  "thiserror 2.0.19",
  "tokio",

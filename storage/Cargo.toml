@@ -9,10 +9,9 @@ bon = "3.10.0"
 futures = "0.3.32"
 gw2fashionista-chatlink = { version = "0.1.0", path = "../chatlink" }
 gw2fashionista-core = { version = "0.2.1", path = "../core" }
-gw2fashionista-fixtures = { version = "0.1.0", path = "../fixtures" }
 sqlx = { version = "0.9.0", features = ["chrono", "migrate", "runtime-tokio", "sqlite", "uuid"] }
 thiserror = "2.0.19"
 
-
 [dev-dependencies]
 tokio = { version = "1.52.3", features = ["test-util", "rt-multi-thread"] }
+gw2fashionista-chatlink = { path = "../chatlink", features = ["test-fixtures"] }

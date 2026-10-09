@@ -1,3 +1,4 @@
+use gw2fashionista_chatlink::fixtures::travel::{EMPTY_TEMPLATE, PEEKABOO_TEMPLATE, ZIZI_TEMPLATE};
 use gw2fashionista_chatlink::{
     ChatLink, ChatLinkError,
     skins::{Appearance, Dyes, SkinId},
@@ -5,8 +6,6 @@ use gw2fashionista_chatlink::{
 };
 use linearize::LinearizeExt;
 use std::assert_matches;
-
-use gw2fashionista_fixtures::travel::{EMPTY_TEMPLATE, PEEKABOO_TEMPLATE, ZIZI_TEMPLATE};
 
 #[test]
 #[test_log::test]

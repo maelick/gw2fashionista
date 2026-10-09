@@ -1,10 +1,11 @@
 use gw2fashionista_appearance::gw2::resolve::Resolver;
 use gw2fashionista_appearance::models::skin::Skin;
 use gw2fashionista_appearance::models::template::WardrobeTemplateData;
+use gw2fashionista_chatlink::fixtures::wardrobe::{
+    EMPTY_TEMPLATE, ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE,
+};
 use gw2fashionista_chatlink::templates::wardrobe::{WardrobeSlot, WardrobeTemplate};
 use std::assert_matches;
-
-use gw2fashionista_fixtures::wardrobe::{EMPTY_TEMPLATE, ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE};
 
 #[tokio::test(flavor = "multi_thread")]
 #[test_log::test]

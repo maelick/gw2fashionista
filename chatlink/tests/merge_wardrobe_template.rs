@@ -1,5 +1,5 @@
+use gw2fashionista_chatlink::fixtures::wardrobe::{PEEKABOO_TEMPLATE, ZIZI_ARMOR_TEMPLATE};
 use gw2fashionista_chatlink::templates::wardrobe::{WardrobeSlot, WardrobeTemplate};
-use gw2fashionista_fixtures::wardrobe::{PEEKABOO_TEMPLATE, ZIZI_ARMOR_TEMPLATE};
 
 #[test]
 #[test_log::test]

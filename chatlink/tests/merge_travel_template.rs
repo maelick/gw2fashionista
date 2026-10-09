@@ -1,5 +1,5 @@
+use gw2fashionista_chatlink::fixtures::travel::{KABOOM_MOUNTS_TEMPLATE, PEEKABOO_TEMPLATE};
 use gw2fashionista_chatlink::templates::{FashionSlot, FashionSlotKind, travel::TravelTemplate};
-use gw2fashionista_fixtures::travel::{KABOOM_MOUNTS_TEMPLATE, PEEKABOO_TEMPLATE};
 
 #[test]
 #[test_log::test]

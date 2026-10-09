@@ -1,3 +1,4 @@
+use gw2fashionista_chatlink::fixtures::wardrobe::{ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE};
 use gw2fashionista_chatlink::{
     ChatLink,
     templates::{
@@ -5,7 +6,6 @@ use gw2fashionista_chatlink::{
         wardrobe::{EquipmentCategory, WardrobeSlot, WardrobeTemplate},
     },
 };
-use gw2fashionista_fixtures::wardrobe::{ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE};
 
 #[test]
 #[test_log::test]

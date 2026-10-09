@@ -2,6 +2,8 @@ mod chatlink;
 mod error;
 pub mod skins;
 pub mod templates;
+#[cfg(any(test, feature = "test-fixtures"))]
+pub mod fixtures;
 
 use std::sync::LazyLock;
 

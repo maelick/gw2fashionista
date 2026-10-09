@@ -1,12 +1,9 @@
 use assert_cmd::assert::OutputAssertExt;
 use e2e::assert_json_snapshot;
-use gw2fashionista_fixtures::FashionTemplate;
-use gw2fashionista_fixtures::templates_as_csv;
-use gw2fashionista_fixtures::templates_as_list;
+use gw2fashionista_chatlink::fixtures::{
+    FashionTemplate, templates_as_csv, templates_as_list, travel, wardrobe,
+};
 use rstest::rstest;
-
-use gw2fashionista_fixtures::travel;
-use gw2fashionista_fixtures::wardrobe;
 
 use e2e::{assert_snapshot, cli::spawn_cli};
 

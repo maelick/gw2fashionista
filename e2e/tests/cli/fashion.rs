@@ -1,14 +1,12 @@
 use assert_cmd::assert::Assert;
 use assert_cmd::assert::OutputAssertExt;
 use e2e::assert_snapshot;
+use gw2fashionista_chatlink::fixtures::{travel, wardrobe};
 use rstest::fixture;
 use rstest::rstest;
-
-use gw2fashionista_fixtures::travel;
-use gw2fashionista_fixtures::wardrobe;
+use tempfile::TempPath;
 
 use e2e::cli::spawn_cli;
-use tempfile::TempPath;
 
 const SNAPSHOT_DIR: &str = "fashion";
 

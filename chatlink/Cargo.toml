@@ -19,5 +19,8 @@ version = "0.1.44"
 optional = true
 
 [dev-dependencies]
-gw2fashionista-fixtures = { version = "0.1.0", path = "../fixtures" }
 test-log = { version = "0.2.21", default-features = false, features = ["trace"] }
+gw2fashionista-chatlink = { path = ".", features = ["test-fixtures"] }
+
+[features]
+test-fixtures = []
