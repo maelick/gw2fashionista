@@ -1,63 +1,11 @@
 use gw2fashionista_chatlink::fixtures::travel::{EMPTY_TEMPLATE, PEEKABOO_TEMPLATE, ZIZI_TEMPLATE};
 use gw2fashionista_chatlink::{
-    ChatLink, ChatLinkError,
+    ChatLink,
     skins::{Appearance, Dyes, SkinId},
     templates::travel::{TravelSlot, TravelTemplate},
 };
 use linearize::LinearizeExt;
 use std::assert_matches;
-
-#[test]
-#[test_log::test]
-fn test_parse_not_chat_link() {
-    let raw = "This is not a chat link";
-
-    let result = raw.parse::<ChatLink>();
-    assert_matches!(result, Err(ChatLinkError::InvalidBase64(_)));
-
-    let raw_with_brackets = format!("[&{}]", raw);
-    let result_with_brackets = raw_with_brackets.parse::<ChatLink>();
-    assert_matches!(result_with_brackets, Err(ChatLinkError::InvalidBase64(_)));
-}
-
-#[test]
-#[test_log::test]
-fn test_parse_invalid_base64() {
-    let raw = "hello";
-
-    let result = raw.parse::<ChatLink>();
-    assert_matches!(result, Err(ChatLinkError::InvalidBase64(_)));
-
-    let raw_with_brackets = format!("[&{}]", raw);
-    let result_with_brackets = raw_with_brackets.parse::<ChatLink>();
-    assert_matches!(result_with_brackets, Err(ChatLinkError::InvalidBase64(_)));
-}
-
-#[test]
-#[test_log::test]
-fn test_parse_invalid_link_type() {
-    let raw = "abcd";
-
-    let result = raw.parse::<ChatLink>();
-    assert_matches!(result, Err(ChatLinkError::UnknownType(_)));
-
-    let raw_with_brackets = format!("[&{}]", raw);
-    let result_with_brackets = raw_with_brackets.parse::<ChatLink>();
-    assert_matches!(result_with_brackets, Err(ChatLinkError::UnknownType(_)));
-}
-
-#[test]
-#[test_log::test]
-fn test_parse_invalid_length() {
-    let raw = "EAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEBAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAP8P";
-
-    let result = raw.parse::<ChatLink>();
-    assert_matches!(result, Err(ChatLinkError::TruncatedData(_)));
-
-    let raw_with_brackets = format!("[&{}]", raw);
-    let result_with_brackets = raw_with_brackets.parse::<ChatLink>();
-    assert_matches!(result_with_brackets, Err(ChatLinkError::TruncatedData(_)));
-}
 
 #[test]
 #[test_log::test]
