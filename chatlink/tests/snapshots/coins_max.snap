@@ -1,0 +1,8 @@
+---
+source: chatlink/tests/parse.rs
+expression: "&result"
+---
+Coin:
+  copper: 95
+  silver: 72
+  gold: 429496

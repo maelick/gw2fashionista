@@ -1,0 +1,8 @@
+---
+source: chatlink/tests/parse.rs
+expression: "&result"
+---
+Coin:
+  copper: 1
+  silver: 0
+  gold: 0
