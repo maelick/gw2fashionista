@@ -67,7 +67,14 @@ impl Command {
                 ChatLink::TravelTemplate(template) => {
                     self.process(&resolver, &template.into()).await
                 }
-                _ => Err(anyhow::anyhow!("Unsupported chat link type"))?,
+                ChatLink::Coin(coins) => output::OneOrMany::One(coins).print_json(self.pretty),
+                ChatLink::Unparsed {
+                    link_type,
+                    bytes: _,
+                } => Err(anyhow::anyhow!(
+                    "Unsupported chat link type: {:?}",
+                    link_type
+                ))?,
             }?;
         }
         Ok(())
