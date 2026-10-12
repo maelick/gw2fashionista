@@ -86,11 +86,7 @@ fn test_parse_zizi() {
                             "Expected skin_id set for {skin:?}"
                         );
                         assert!(!visible, "Expected skin to not be visible for {skin:?}");
-                        assert_eq!(
-                            dyes,
-                            &Dyes::default(),
-                            "Expected unset dyes for {skin:?}"
-                        );
+                        assert_eq!(dyes, &Dyes::default(), "Expected unset dyes for {skin:?}");
                     }
                     WardrobeSlot::Backpack => {
                         assert_ne!(
@@ -99,11 +95,7 @@ fn test_parse_zizi() {
                             "Expected skin_id set for {skin:?}"
                         );
                         assert!(visible, "Expected skin to be visible for {skin:?}");
-                        assert_eq!(
-                            dyes,
-                            &Dyes::default(),
-                            "Expected unset dyes for {skin:?}"
-                        );
+                        assert_eq!(dyes, &Dyes::default(), "Expected unset dyes for {skin:?}");
                     }
                     WardrobeSlot::Chest
                     | WardrobeSlot::Shoes
@@ -169,11 +161,7 @@ fn test_parse_zizi_armor_only() {
                         "Expected unset skin_id for {skin:?}"
                     );
                     assert!(visible, "Expected skin to be visible for {skin:?}");
-                    assert_eq!(
-                        dyes,
-                        &Dyes::default(),
-                        "Expected unset dyes for {skin:?}"
-                    );
+                    assert_eq!(dyes, &Dyes::default(), "Expected unset dyes for {skin:?}");
                     assert!(
                         appearance.is_empty(),
                         "Expect empty slot {slot:?} but got {appearance:?}"
@@ -186,11 +174,7 @@ fn test_parse_zizi_armor_only() {
                         "Expected skin_id set for {skin:?}"
                     );
                     assert!(visible, "Expected skin to be visible for {skin:?}");
-                    assert_eq!(
-                        dyes,
-                        &Dyes::default(),
-                        "Expected unset dyes for {skin:?}"
-                    );
+                    assert_eq!(dyes, &Dyes::default(), "Expected unset dyes for {skin:?}");
                     assert!(!appearance.is_empty(), "Expect not empty slot {slot:?}");
                 }
                 WardrobeSlot::Chest
