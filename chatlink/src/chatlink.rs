@@ -8,6 +8,7 @@ use byteorder::WriteBytesExt;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 use serde::Serialize;
 
+use crate::coins::Coins;
 use crate::error::ChatLinkError;
 use crate::templates::travel::TravelTemplate;
 use crate::templates::wardrobe::WardrobeTemplate;
@@ -37,6 +38,7 @@ pub enum ChatLinkType {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub enum ChatLink {
+    Coin(Coins),
     WardrobeTemplate(WardrobeTemplate),
     TravelTemplate(TravelTemplate),
     Unparsed {
@@ -48,6 +50,7 @@ pub enum ChatLink {
 impl ChatLink {
     pub fn link_type(&self) -> ChatLinkType {
         match self {
+            ChatLink::Coin(_) => ChatLinkType::Coin,
             ChatLink::WardrobeTemplate(_) => ChatLinkType::WardrobeTemplate,
             ChatLink::TravelTemplate(_) => ChatLinkType::TravelTemplate,
             ChatLink::Unparsed {
@@ -64,6 +67,7 @@ impl ChatLink {
 
     fn encode_payload<W: io::Write + ?Sized>(&self, w: &mut W) -> io::Result<()> {
         match self {
+            Self::Coin(c) => c.encode(w),
             Self::WardrobeTemplate(t) => t.encode(w),
             Self::TravelTemplate(t) => t.encode(w),
             Self::Unparsed { bytes, .. } => w.write_all(bytes),
@@ -136,6 +140,10 @@ impl FromStr for ChatLink {
         let (link_type, payload) = decode_header(&decoded)?;
 
         Ok(match link_type {
+            ChatLinkType::Coin => {
+                let coins = Coins::try_from(payload)?;
+                Self::Coin(coins)
+            }
             ChatLinkType::WardrobeTemplate => {
                 let template = WardrobeTemplate::try_from(payload)?;
                 Self::WardrobeTemplate(template)

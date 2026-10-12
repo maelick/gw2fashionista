@@ -1,5 +1,6 @@
 use crate::ChatLinkType;
 
+pub mod coins;
 pub mod travel;
 pub mod wardrobe;
 

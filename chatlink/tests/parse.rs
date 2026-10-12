@@ -1,4 +1,4 @@
-use gw2fashionista_chatlink::fixtures::{ChatLinkFixture, travel, wardrobe};
+use gw2fashionista_chatlink::fixtures::{ChatLinkFixture, coins, travel, wardrobe};
 use gw2fashionista_chatlink::{ChatLink, ChatLinkError};
 use rstest::rstest;
 use std::assert_matches;
@@ -69,6 +69,10 @@ fn test_parse_invalid_length() {
 }
 
 #[rstest]
+#[case(coins::ZERO)]
+#[case(coins::ONE)]
+#[case(coins::ONE_TWO_THREE)]
+#[case(coins::MAX)]
 #[case(wardrobe::EMPTY_TEMPLATE)]
 #[case(wardrobe::PEEKABOO_TEMPLATE)]
 #[case(wardrobe::ZIZI_TEMPLATE)]

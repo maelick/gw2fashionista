@@ -1,0 +1,9 @@
+---
+source: e2e/tests/cli/read.rs
+expression: json
+---
+{
+  "copper": 1,
+  "gold": 0,
+  "silver": 0
+}

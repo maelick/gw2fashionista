@@ -1,6 +1,6 @@
 use assert_cmd::assert::OutputAssertExt;
 use e2e::assert_json_snapshot;
-use gw2fashionista_chatlink::fixtures::{ChatLinkFixture, travel, wardrobe};
+use gw2fashionista_chatlink::fixtures::{ChatLinkFixture, coins, travel, wardrobe};
 use rstest::rstest;
 
 use e2e::{assert_snapshot, cli::spawn_cli};
@@ -8,6 +8,10 @@ use e2e::{assert_snapshot, cli::spawn_cli};
 const SNAPSHOT_DIR: &str = "read";
 
 #[rstest]
+#[case(coins::ZERO)]
+#[case(coins::ONE)]
+#[case(coins::ONE_TWO_THREE)]
+#[case(coins::MAX)]
 #[case(wardrobe::EMPTY_TEMPLATE)]
 #[case(wardrobe::PEEKABOO_TEMPLATE)]
 #[case(wardrobe::ZIZI_TEMPLATE)]
@@ -30,6 +34,10 @@ fn test_read_command(#[case] template: ChatLinkFixture) {
 }
 
 #[rstest]
+#[case(coins::ZERO)]
+#[case(coins::ONE)]
+#[case(coins::ONE_TWO_THREE)]
+#[case(coins::MAX)]
 #[case(wardrobe::EMPTY_TEMPLATE)]
 #[case(wardrobe::PEEKABOO_TEMPLATE)]
 #[case(wardrobe::ZIZI_TEMPLATE)]
