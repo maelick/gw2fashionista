@@ -51,15 +51,7 @@ pub trait Repository {
 
     async fn list_fashions(&self) -> Result<Vec<Fashion>>;
 
-    async fn upsert_tag(&self, name: &TagName) -> Result<Option<Tag>>;
-
-    async fn ensure_tag(&self, name: &TagName) -> Result<Tag>;
-
     async fn rename_tag(&self, from: &str, to: &TagName) -> Result<Tag>;
-
-    async fn get_tag_by_id(&self, id: &uuid::Uuid) -> Result<Tag>;
-
-    async fn get_tag_by_name(&self, name: &str) -> Result<Tag>;
 
     async fn list_tags(&self, filters: StringFilters) -> Result<Vec<Tag>>;
 
@@ -81,12 +73,6 @@ pub trait Repository {
     async fn get_fashion_tags(&self, fashion_id: &uuid::Uuid) -> Result<Vec<TagName>>;
 
     async fn ensure_fashion_tags(
-        &self,
-        fashion_ids: impl IntoIterator<Item = &uuid::Uuid> + Send,
-        tags: impl IntoIterator<Item: Into<&TagName>, IntoIter: Send> + Send,
-    ) -> Result<()>;
-
-    async fn remove_fashion_tags(
         &self,
         fashion_ids: impl IntoIterator<Item = &uuid::Uuid> + Send,
         tags: impl IntoIterator<Item: Into<&TagName>, IntoIter: Send> + Send,

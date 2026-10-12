@@ -80,31 +80,9 @@ impl repositories::FashionRepository for Store {
         Ok(list_fashions(&mut conn).await?)
     }
 
-    async fn upsert_tag(&self, name: &TagName) -> FashionResult<Option<Tag>> {
-        let mut conn = self.acquire_conn().await?;
-        Ok(upsert_tag(&mut conn, name).await?)
-    }
-
-    async fn ensure_tag(&self, name: &TagName) -> FashionResult<Tag> {
-        let mut tx = self.begin_transaction().await?;
-        let tag = ensure_tag(&mut tx, name).await?;
-        commit(tx).await?;
-        Ok(tag)
-    }
-
     async fn rename_tag(&self, from: &str, to: &TagName) -> FashionResult<Tag> {
         let mut conn = self.acquire_conn().await?;
         Ok(rename_tag(&mut conn, from, to).await?)
-    }
-
-    async fn get_tag_by_id(&self, id: &uuid::Uuid) -> FashionResult<Tag> {
-        let mut conn = self.acquire_conn().await?;
-        Ok(get_tag_by_id(&mut conn, id).await?)
-    }
-
-    async fn get_tag_by_name(&self, name: &str) -> FashionResult<Tag> {
-        let mut conn = self.acquire_conn().await?;
-        Ok(get_tag_by_name(&mut conn, name).await?)
     }
 
     async fn list_tags(&self, filters: StringFilters) -> FashionResult<Vec<Tag>> {
@@ -174,22 +152,6 @@ impl repositories::FashionRepository for Store {
         Ok(())
     }
 
-    async fn remove_fashion_tags(
-        &self,
-        fashion_ids: impl IntoIterator<Item = &uuid::Uuid> + Send,
-        tags: impl IntoIterator<Item: Into<&TagName>, IntoIter: Send> + Send,
-    ) -> FashionResult<()> {
-        let fashion_ids: Vec<_> = fashion_ids.into_iter().collect();
-        let mut tx = self.begin_transaction().await?;
-        for tag in tags.into_iter().map(Into::into) {
-            for fashion_id in &fashion_ids {
-                remove_fashion_tag(&mut tx, fashion_id, tag).await?;
-            }
-        }
-        commit(tx).await?;
-        Ok(())
-    }
-
     async fn remove_all_fashion_tags(
         &self,
         fashion_ids: impl IntoIterator<Item = &uuid::Uuid> + Send,
@@ -201,6 +163,20 @@ impl repositories::FashionRepository for Store {
         }
         commit(tx).await?;
         Ok(())
+    }
+}
+
+impl Store {
+    pub async fn ensure_tag(&self, name: &TagName) -> FashionResult<Tag> {
+        let mut tx = self.begin_transaction().await?;
+        let tag = ensure_tag(&mut tx, name).await?;
+        commit(tx).await?;
+        Ok(tag)
+    }
+
+    pub async fn get_tag_by_name(&self, name: &str) -> FashionResult<Tag> {
+        let mut conn = self.acquire_conn().await?;
+        Ok(get_tag_by_name(&mut conn, name).await?)
     }
 }
 
@@ -340,16 +316,6 @@ async fn rename_tag(conn: &mut SqliteConnection, from: &str, to: &str) -> error:
     .into())
 }
 
-async fn get_tag_by_id(conn: &mut SqliteConnection, id: &uuid::Uuid) -> error::Result<Tag> {
-    Ok(
-        sqlx::query_as::<'_, _, models::Tag>(r#"SELECT * FROM tag WHERE id = ?"#)
-            .bind(id.hyphenated())
-            .fetch_one(conn)
-            .await?
-            .into(),
-    )
-}
-
 async fn get_tag_by_name(conn: &mut SqliteConnection, name: &str) -> error::Result<Tag> {
     Ok(
         sqlx::query_as::<'_, _, models::Tag>(r#"SELECT * FROM tag WHERE name = ?"#)
@@ -477,24 +443,6 @@ async fn add_fashion_tag(
             FROM tag WHERE name = ?
             ON CONFLICT(fashion_id, tag_id)
             DO NOTHING"#,
-        fashion_id.hyphenated(),
-        tag,
-    );
-    query.execute(conn).await?;
-    Ok(())
-}
-
-async fn remove_fashion_tag(
-    conn: &mut SqliteConnection,
-    fashion_id: &uuid::Uuid,
-    tag: &str,
-) -> error::Result<()> {
-    let query = sqlx::query!(
-        r#"DELETE FROM fashion_tag
-            WHERE fashion_id = ?
-            AND tag_id IN (
-                SELECT id FROM tag WHERE name = ?
-            )"#,
         fashion_id.hyphenated(),
         tag,
     );

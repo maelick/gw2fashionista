@@ -242,11 +242,8 @@ async fn test_create_tag(pool: SqlitePool) {
     assert_eq!(created, &updated);
 
     // We retrieve the created tag and ensure it is identical to the one returned by insertion.
-    let retrieved = repo.get_tag_by_id(&created.id.unwrap()).await.unwrap();
+    let retrieved = repo.get_tag_by_name("peekaboo").await.unwrap();
     assert_eq!(created, &retrieved);
-
-    let retrieved_by_name = repo.get_tag_by_name("peekaboo").await.unwrap();
-    assert_eq!(created, &retrieved_by_name);
 
     let retrieved_tags = repo.list_tags(StringFilters::default()).await.unwrap();
     assert_eq!(retrieved_tags, vec![created.clone()]);
@@ -403,28 +400,6 @@ async fn test_crud_fashion_tags(pool: SqlitePool) {
     let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
     assert_eq!(tags, tag_vec(&["tag2", "tag3"]));
 
-    // We remove tag1 from fashion1
-    repo.remove_fashion_tags(std::iter::once(&fashion1.id.unwrap()), &tag_vec(&["tag1"]))
-        .await
-        .unwrap();
-
-    // We ensure only fashion1 tags have changed
-    let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
-    assert_eq!(tags, tag_vec(&["tag2"]));
-    let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
-    assert_eq!(tags, tag_vec(&["tag2", "tag3"]));
-
-    // We remove tag2 from fashion2
-    repo.remove_fashion_tags(std::iter::once(&fashion2.id.unwrap()), &tag_vec(&["tag2"]))
-        .await
-        .unwrap();
-
-    // We ensure only fashion2 tags have changed
-    let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
-    assert_eq!(tags, tag_vec(&["tag2"]));
-    let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
-    assert_eq!(tags, tag_vec(&["tag3"]));
-
     // We ensure the templates themselves are unchanged
     let fetched_fashion1 = repo.get_fashion_by_id(&fashion1.id.unwrap()).await.unwrap();
     assert_eq!(&fetched_fashion1, fashion1);
@@ -432,20 +407,14 @@ async fn test_crud_fashion_tags(pool: SqlitePool) {
     let fetched_fashion2 = repo.get_fashion_by_id(&fashion2.id.unwrap()).await.unwrap();
     assert_eq!(&fetched_fashion2, fashion2);
 
-    // We re-add tag2 to fashion2 and remove all tags from fashion2
-    repo.ensure_fashion_tags(
-        std::iter::once(&fashion2.id.unwrap()),
-        &tag_vec(&["tag2", "tag3"]),
-    )
-    .await
-    .unwrap();
+    // We remove all tags from fashion2
     repo.remove_all_fashion_tags(std::iter::once(&fashion2.id.unwrap()))
         .await
         .unwrap();
 
     // We ensure only fashion2 tags have changed
     let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
-    assert_eq!(tags, tag_vec(&["tag2"]));
+    assert_eq!(tags, tag_vec(&["tag1", "tag2"]));
     let tags = repo.get_fashion_tags(&fashion2.id.unwrap()).await.unwrap();
     assert!(tags.is_empty());
 }
@@ -567,7 +536,7 @@ async fn test_replace_tags(pool: SqlitePool) {
     )
     .await
     .unwrap();
-    repo.upsert_tag(&tag("tag4")).await.unwrap();
+    repo.ensure_tag(&tag("tag4")).await.unwrap();
 
     // We ensure the templates have the right tags
     let tags = repo.get_fashion_tags(&fashion1.id.unwrap()).await.unwrap();
@@ -681,7 +650,7 @@ async fn test_clean_tags(pool: SqlitePool) {
     )
     .await
     .unwrap();
-    repo.upsert_tag(&tag("tag4")).await.unwrap();
+    repo.ensure_tag(&tag("tag4")).await.unwrap();
 
     // We assert there are 4 tags
     let tags = repo
