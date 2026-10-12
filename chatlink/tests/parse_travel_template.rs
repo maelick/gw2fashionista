@@ -1,64 +1,9 @@
+use gw2fashionista_chatlink::fixtures::travel::{EMPTY_TEMPLATE, PEEKABOO_TEMPLATE, ZIZI_TEMPLATE};
 use gw2fashionista_chatlink::{
-    ChatLink, ChatLinkError,
     skins::{Appearance, Dyes, SkinId},
     templates::travel::{TravelSlot, TravelTemplate},
 };
 use linearize::LinearizeExt;
-use std::assert_matches;
-
-use gw2fashionista_fixtures::travel::{EMPTY_TEMPLATE, PEEKABOO_TEMPLATE, ZIZI_TEMPLATE};
-
-#[test]
-#[test_log::test]
-fn test_parse_not_chat_link() {
-    let raw = "This is not a chat link";
-
-    let result = raw.parse::<ChatLink>();
-    assert_matches!(result, Err(ChatLinkError::InvalidBase64(_)));
-
-    let raw_with_brackets = format!("[&{}]", raw);
-    let result_with_brackets = raw_with_brackets.parse::<ChatLink>();
-    assert_matches!(result_with_brackets, Err(ChatLinkError::InvalidBase64(_)));
-}
-
-#[test]
-#[test_log::test]
-fn test_parse_invalid_base64() {
-    let raw = "hello";
-
-    let result = raw.parse::<ChatLink>();
-    assert_matches!(result, Err(ChatLinkError::InvalidBase64(_)));
-
-    let raw_with_brackets = format!("[&{}]", raw);
-    let result_with_brackets = raw_with_brackets.parse::<ChatLink>();
-    assert_matches!(result_with_brackets, Err(ChatLinkError::InvalidBase64(_)));
-}
-
-#[test]
-#[test_log::test]
-fn test_parse_invalid_link_type() {
-    let raw = "abcd";
-
-    let result = raw.parse::<ChatLink>();
-    assert_matches!(result, Err(ChatLinkError::UnknownType(_)));
-
-    let raw_with_brackets = format!("[&{}]", raw);
-    let result_with_brackets = raw_with_brackets.parse::<ChatLink>();
-    assert_matches!(result_with_brackets, Err(ChatLinkError::UnknownType(_)));
-}
-
-#[test]
-#[test_log::test]
-fn test_parse_invalid_length() {
-    let raw = "EAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEBAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAP8P";
-
-    let result = raw.parse::<ChatLink>();
-    assert_matches!(result, Err(ChatLinkError::TruncatedData(_)));
-
-    let raw_with_brackets = format!("[&{}]", raw);
-    let result_with_brackets = raw_with_brackets.parse::<ChatLink>();
-    assert_matches!(result_with_brackets, Err(ChatLinkError::TruncatedData(_)));
-}
 
 #[test]
 #[test_log::test]
@@ -67,7 +12,7 @@ fn test_parse_empty() {
         .map(|slot| (slot, empty_skin()))
         .collect();
     let expected_template = TravelTemplate::new(expected_slots);
-    let actual = &EMPTY_TEMPLATE.chat_link.parse::<TravelTemplate>().unwrap();
+    let actual = &EMPTY_TEMPLATE.link.parse::<TravelTemplate>().unwrap();
 
     assert_eq!(actual, &expected_template);
     for (slot, appearance) in actual {
@@ -76,24 +21,12 @@ fn test_parse_empty() {
             "Expect empty slot {slot:?} but got {appearance:?}"
         );
     }
-
-    let result_with_brackets = &EMPTY_TEMPLATE.wrap_chat_link().parse().unwrap();
-
-    assert_matches!(result_with_brackets, ChatLink::TravelTemplate(actual) if actual == &expected_template);
-    assert_eq!(
-        result_with_brackets.to_string(),
-        EMPTY_TEMPLATE.wrap_chat_link()
-    );
 }
 
 #[test]
 #[test_log::test]
 fn test_parse_peekaboo() {
-    let result = &PEEKABOO_TEMPLATE.chat_link.parse().unwrap();
-
-    let ChatLink::TravelTemplate(actual) = result else {
-        panic!("Expected TravelTemplate, got {result:?}");
-    };
+    let actual = &PEEKABOO_TEMPLATE.link.parse::<TravelTemplate>().unwrap();
 
     for (slot, appearance) in actual {
         match appearance {
@@ -123,25 +56,19 @@ fn test_parse_peekaboo() {
                             "Expected skin_id set for {skin:?}"
                         );
                         assert!(visible, "Expected skin to be visible for {skin:?}");
-                        assert_ne!(dyes, &(1, 1, 1, 1).into(), "Expected dyes set for {skin:?}");
+                        assert_ne!(dyes, &Dyes::default(), "Expected dyes set for {skin:?}");
                     }
                 }
             }
             _ => panic!("Travel template slot {slot:?} should be dyeable"),
         }
     }
-
-    assert_eq!(result.to_string(), PEEKABOO_TEMPLATE.wrap_chat_link());
 }
 
 #[test]
 #[test_log::test]
 fn test_parse_zizi() {
-    let result = &ZIZI_TEMPLATE.chat_link.parse().unwrap();
-
-    let ChatLink::TravelTemplate(actual) = result else {
-        panic!("Expected TravelTemplate, got {result:?}");
-    };
+    let actual = &ZIZI_TEMPLATE.link.parse::<TravelTemplate>().unwrap();
 
     for (slot, appearance) in actual {
         match appearance {
@@ -171,15 +98,13 @@ fn test_parse_zizi() {
                             "Expected skin_id set for {skin:?}"
                         );
                         assert!(visible, "Expected skin to be visible for {skin:?}");
-                        assert_ne!(dyes, &(1, 1, 1, 1).into(), "Expected dyes set for {skin:?}");
+                        assert_ne!(dyes, &Dyes::default(), "Expected dyes set for {skin:?}");
                     }
                 }
             }
             _ => panic!("Travel template slot {slot:?} should be dyeable"),
         }
     }
-
-    assert_eq!(result.to_string(), ZIZI_TEMPLATE.wrap_chat_link());
 }
 
 fn empty_skin() -> Appearance {

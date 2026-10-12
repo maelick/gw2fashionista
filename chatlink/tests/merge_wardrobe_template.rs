@@ -1,16 +1,13 @@
+use gw2fashionista_chatlink::fixtures::wardrobe::{PEEKABOO_TEMPLATE, ZIZI_ARMOR_TEMPLATE};
 use gw2fashionista_chatlink::templates::wardrobe::{WardrobeSlot, WardrobeTemplate};
-use gw2fashionista_fixtures::wardrobe::{PEEKABOO_TEMPLATE, ZIZI_ARMOR_TEMPLATE};
 
 #[test]
 #[test_log::test]
 fn test_merge_peekaboo_with_zizi_armor() {
-    let base_template = &PEEKABOO_TEMPLATE
-        .chat_link
-        .parse::<WardrobeTemplate>()
-        .unwrap();
+    let base_template = &PEEKABOO_TEMPLATE.link.parse::<WardrobeTemplate>().unwrap();
 
     let armor_template = &ZIZI_ARMOR_TEMPLATE
-        .chat_link
+        .link
         .parse::<WardrobeTemplate>()
         .unwrap();
 
@@ -37,13 +34,10 @@ fn test_merge_peekaboo_with_zizi_armor() {
 #[test]
 #[test_log::test]
 fn test_merge_peekaboo_with_zizi_armor_skins_only() {
-    let base_template = &PEEKABOO_TEMPLATE
-        .chat_link
-        .parse::<WardrobeTemplate>()
-        .unwrap();
+    let base_template = &PEEKABOO_TEMPLATE.link.parse::<WardrobeTemplate>().unwrap();
 
     let armor_template = &ZIZI_ARMOR_TEMPLATE
-        .chat_link
+        .link
         .parse::<WardrobeTemplate>()
         .unwrap();
 
@@ -75,13 +69,10 @@ fn test_merge_peekaboo_with_zizi_armor_skins_only() {
 #[test]
 #[test_log::test]
 fn test_merge_peekaboo_with_zizi_armor_dyes_only() {
-    let base_template = &PEEKABOO_TEMPLATE
-        .chat_link
-        .parse::<WardrobeTemplate>()
-        .unwrap();
+    let base_template = &PEEKABOO_TEMPLATE.link.parse::<WardrobeTemplate>().unwrap();
 
     let armor_template = &ZIZI_ARMOR_TEMPLATE
-        .chat_link
+        .link
         .parse::<WardrobeTemplate>()
         .unwrap();
 

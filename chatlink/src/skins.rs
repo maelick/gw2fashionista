@@ -1,8 +1,9 @@
 use std::io::Cursor;
 
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
+use serde::Serialize;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default, Serialize)]
 pub struct SkinId(u16);
 
 impl SkinId {
@@ -43,7 +44,7 @@ impl From<u32> for SkinId {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
 pub struct DyeId(u16);
 
 impl DyeId {
@@ -84,7 +85,7 @@ impl Default for DyeId {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize)]
 pub struct Dyes(DyeId, DyeId, DyeId, DyeId);
 
 impl Dyes {
@@ -146,7 +147,7 @@ impl IntoIterator for Dyes {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum Appearance {
     NonDyeable {
         skin: SkinId,

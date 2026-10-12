@@ -50,8 +50,8 @@ pub trait FashionSlot: Eq + Hash + Copy + Linearize + Serialize + fmt::Debug + '
     fn kind(self) -> FashionSlotKind;
 }
 
-#[derive(Clone, PartialEq, Eq)]
-pub struct Template<S: FashionSlot> {
+#[derive(Clone, PartialEq, Eq, Serialize)]
+pub struct Template<S: FashionSlot + Serialize> {
     slots: StaticMap<S, Appearance>,
 }
 

@@ -6,13 +6,14 @@ use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64;
 use byteorder::WriteBytesExt;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
+use serde::Serialize;
 
 use crate::error::ChatLinkError;
 use crate::templates::travel::TravelTemplate;
 use crate::templates::wardrobe::WardrobeTemplate;
 use crate::templates::{FashionSlot, Template};
 
-#[derive(IntoPrimitive, TryFromPrimitive, Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(IntoPrimitive, TryFromPrimitive, Debug, Copy, Clone, PartialEq, Eq, Serialize)]
 #[num_enum(error_type(name = ChatLinkError, constructor = ChatLinkError::UnknownType))]
 #[repr(u8)]
 pub enum ChatLinkType {
@@ -34,7 +35,7 @@ pub enum ChatLinkType {
     TravelTemplate = 0x10,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub enum ChatLink {
     WardrobeTemplate(WardrobeTemplate),
     TravelTemplate(TravelTemplate),

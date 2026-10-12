@@ -1,6 +1,6 @@
-pub type TravelTemplate = super::FashionTemplate;
+use crate::{ChatLinkType, fixtures::ChatLinkFixture};
 
-pub const ALL_TEMPLATES: &[TravelTemplate] = &[
+pub const ALL_TEMPLATES: &[ChatLinkFixture] = &[
     EMPTY_TEMPLATE,
     DEFAULT_MOUNT_TEMPLATE,
     NO_DYES_TEMPLATE,
@@ -11,43 +11,47 @@ pub const ALL_TEMPLATES: &[TravelTemplate] = &[
 ];
 
 /// Travel template with nothing set
-pub const EMPTY_TEMPLATE: TravelTemplate = TravelTemplate::new(
+pub const EMPTY_TEMPLATE: ChatLinkFixture = new(
     "travel_empty",
     "EAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAP8P",
 );
 
 /// Travel template with default skins with shadow abyss dye
-pub const DEFAULT_MOUNT_TEMPLATE: TravelTemplate = TravelTemplate::new(
+pub const DEFAULT_MOUNT_TEMPLATE: ChatLinkFixture = new(
     "travel_default",
     "EAIASgUBAAEAAQACAAEAAQABAAEABgABAAEAAQBKBQQASgUBAAEAAQADAEoFAQABAAEAAgBKBQEAAQABAAEASgUBAAEAAQBnAAEAAQABAEoFoQBKBQEAAQABALoASgUBAAEAAQCaAUoFAQABAAEAjQFKBQEAAQABAP8P",
 );
 
 /// Travel template with some skins set (except turtle) with no dye set
-pub const NO_DYES_TEMPLATE: TravelTemplate = TravelTemplate::new(
+pub const NO_DYES_TEMPLATE: ChatLinkFixture = new(
     "travel_no_dyes",
     "EJkAygHbAV0GOwYFAD0GgQCeAoECYQC7AXsAhgS6AvYATQAwBkwCbgKnAVcAGQVHBWQGhwHcAS4GPQY7BkkBUAEEACgGoQIlARkAaQYuBl0GwgKtBlMAYwIOBowBUQDAAUAACQDDAVUATAF5AZwC+AGZAlMCbQCIAv8P",
 );
 
 /// Peekabo's travel template
-pub const PEEKABOO_TEMPLATE: TravelTemplate = TravelTemplate::new(
+pub const PEEKABOO_TEMPLATE: ChatLinkFixture = new(
     "travel_peekaboo",
     "EJAABgDiBOIEHgUFAB4F4gTiBOIEbgIeBeIEHgXiBEoBBgAeBUgF4gTzAeIEHgVIBR4FJAPiBOIEHgVIBZMBBgAeBeIESAXnAkgFHgXiBOIEyAIGAB4F4gRIBXAC4gQGAAYAXwHDAR4F4gQeBeIE+AEeBeIESAUeBf8P",
 );
 
 /// Kaboom's travel template
-pub const KABOOM_TEMPLATE: TravelTemplate = TravelTemplate::new(
+pub const KABOOM_TEMPLATE: ChatLinkFixture = new(
     "travel_kaboom",
     "EEkA2QE4BQEAAQACAAEAAQABAAEAYQBKBUoCSgJ1AnMASgVKBUoCSgKnAUoF2QFKAkoChwFKBUoCSgI4BUkBSgLZAUoFewAlAUoFSgJKBTgFzwBKAkoFSgVKAowBSgVKBdkBSgLDAYEEhgB5AVoAjQFKAgEAAQABAP8P",
 );
 
 /// Kaboom's mounts template
-pub const KABOOM_MOUNTS_TEMPLATE: TravelTemplate = TravelTemplate::new(
+pub const KABOOM_MOUNTS_TEMPLATE: ChatLinkFixture = new(
     "travel_kaboom_mounts",
     "EAAAAQABAAEAAQAAAAEAAQABAAEAYQBKBUoCSgJ1AnMASgVKBUoCSgKnAUoF2QFKAkoChwFKBUoCSgI4BUkBSgLZAUoFewAlAUoFSgJKBTgFzwBKAkoFSgVKAowBSgVKBdkBSgIAAAEAAQABAAEAjQFKAgEAAQABAP8P",
 );
 
 /// Zizï Skyhoof's travel template
-pub const ZIZI_TEMPLATE: TravelTemplate = TravelTemplate::new(
+pub const ZIZI_TEMPLATE: ChatLinkFixture = new(
     "travel_zizi",
     "EJkAGAUYBREGEQYFAH4AgwAYBYECbgK7ARgFGAUYBUoBEQYYBRgFGAXzARgFEQYYBRgFJAMRBhgFfgB+AJMBEQYYBagCDQbnAhgFEQYYBdkByAIRBhgFqAJ+AHACGAURBhEGGAWdAREGGAUYBREG+AERBhgFGAURBv8P",
 );
+
+pub const fn new(name: &'static str, chat_link: &'static str) -> ChatLinkFixture {
+    ChatLinkFixture::new(name, ChatLinkType::TravelTemplate, chat_link)
+}

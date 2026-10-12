@@ -1,19 +1,17 @@
 use gw2fashionista_appearance::gw2::resolve::Resolver;
 use gw2fashionista_appearance::models::skin::Skin;
 use gw2fashionista_appearance::models::template::WardrobeTemplateData;
+use gw2fashionista_chatlink::fixtures::wardrobe::{
+    EMPTY_TEMPLATE, ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE,
+};
 use gw2fashionista_chatlink::templates::wardrobe::{WardrobeSlot, WardrobeTemplate};
 use std::assert_matches;
-
-use gw2fashionista_fixtures::wardrobe::{EMPTY_TEMPLATE, ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE};
 
 #[tokio::test(flavor = "multi_thread")]
 #[test_log::test]
 async fn test_resolve_empty() {
     let resolver = Resolver::default();
-    let template = &EMPTY_TEMPLATE
-        .chat_link
-        .parse::<WardrobeTemplate>()
-        .unwrap();
+    let template = &EMPTY_TEMPLATE.link.parse::<WardrobeTemplate>().unwrap();
 
     resolver.cache_template(template).await.unwrap();
 
@@ -25,7 +23,7 @@ async fn test_resolve_empty() {
 #[test_log::test]
 async fn test_resolve_zizi_armor() {
     let resolver = Resolver::default();
-    let template = &ZIZI_ARMOR_TEMPLATE.chat_link.parse().unwrap();
+    let template = &ZIZI_ARMOR_TEMPLATE.link.parse().unwrap();
 
     resolver.cache_template(template).await.unwrap();
 
@@ -47,7 +45,7 @@ async fn test_resolve_zizi_armor() {
 #[test_log::test]
 async fn test_resolve_zizi() {
     let resolver = Resolver::default();
-    let template = &ZIZI_TEMPLATE.chat_link.parse().unwrap();
+    let template = &ZIZI_TEMPLATE.link.parse().unwrap();
 
     resolver.cache_template(template).await.unwrap();
 

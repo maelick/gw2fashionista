@@ -1,12 +1,7 @@
 use assert_cmd::assert::OutputAssertExt;
 use e2e::assert_json_snapshot;
-use gw2fashionista_fixtures::FashionTemplate;
-use gw2fashionista_fixtures::templates_as_csv;
-use gw2fashionista_fixtures::templates_as_list;
+use gw2fashionista_chatlink::fixtures::{ChatLinkFixture, travel, wardrobe};
 use rstest::rstest;
-
-use gw2fashionista_fixtures::travel;
-use gw2fashionista_fixtures::wardrobe;
 
 use e2e::{assert_snapshot, cli::spawn_cli};
 
@@ -24,8 +19,8 @@ const SNAPSHOT_DIR: &str = "read";
 #[case(travel::KABOOM_TEMPLATE)]
 #[case(travel::KABOOM_MOUNTS_TEMPLATE)]
 #[case(travel::ZIZI_TEMPLATE)]
-fn test_read_command(#[case] template: FashionTemplate) {
-    let output = spawn_cli::<String>(&["read", template.chat_link], None)
+fn test_read_command(#[case] template: ChatLinkFixture) {
+    let output = spawn_cli::<String>(&["read", template.link], None)
         .assert()
         .success()
         .get_output()
@@ -46,8 +41,8 @@ fn test_read_command(#[case] template: FashionTemplate) {
 #[case(travel::KABOOM_TEMPLATE)]
 #[case(travel::KABOOM_MOUNTS_TEMPLATE)]
 #[case(travel::ZIZI_TEMPLATE)]
-fn test_read_command_pretty(#[case] template: FashionTemplate) {
-    let output = spawn_cli::<String>(&["read", template.chat_link, "--pretty"], None)
+fn test_read_command_pretty(#[case] template: ChatLinkFixture) {
+    let output = spawn_cli::<String>(&["read", template.link, "--pretty"], None)
         .assert()
         .success()
         .get_output()
@@ -68,17 +63,17 @@ fn test_read_command_pretty(#[case] template: FashionTemplate) {
 #[case(travel::KABOOM_TEMPLATE)]
 #[case(travel::KABOOM_MOUNTS_TEMPLATE)]
 #[case(travel::ZIZI_TEMPLATE)]
-fn test_read_command_skip_names(#[case] template: FashionTemplate) {
-    let output = spawn_cli::<String>(&["read", template.chat_link, "--skip-names"], None)
+fn test_read_command_skip_names(#[case] template: ChatLinkFixture) {
+    let output = spawn_cli::<String>(&["read", template.link, "--skip-names"], None)
         .assert()
         .success()
         .get_output()
         .stdout
         .clone();
-    assert_snapshot!(&template.snapshot_name("skip_names"), &output, "read");
+    assert_snapshot!(&format!("skip_names_{}", template.name), &output, "read");
 }
 
-fn all_templates() -> Vec<FashionTemplate> {
+fn all_templates() -> Vec<ChatLinkFixture> {
     [wardrobe::ALL_TEMPLATES, travel::ALL_TEMPLATES].concat()
 }
 
@@ -187,4 +182,15 @@ fn assert_all_templates(output: &std::process::Output) {
         travel::ALL_TEMPLATES.len() + wardrobe::ALL_TEMPLATES.len()
     );
     assert_json_snapshot!("all_templates", json, SNAPSHOT_DIR)
+}
+
+fn templates_as_csv(templates: &[ChatLinkFixture]) -> Vec<String> {
+    templates
+        .iter()
+        .map(|t| format!("{},{}", t.name, t.link))
+        .collect()
+}
+
+fn templates_as_list(templates: &[ChatLinkFixture]) -> Vec<String> {
+    templates.iter().map(|t| t.link.to_string()).collect()
 }

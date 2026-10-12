@@ -1,11 +1,11 @@
 use std::assert_matches;
 
 use gw2fashionista_chatlink::ChatLink;
+use gw2fashionista_chatlink::fixtures::{travel, wardrobe};
 use gw2fashionista_core::{
     domain::{fashion::Fashion, filters::StringFilters, names::TagName},
     ports::repositories::{self, FashionRepository},
 };
-use gw2fashionista_fixtures::{travel, wardrobe};
 use gw2fashionista_storage::sqlite;
 use sqlx::{SqlitePool, types::uuid};
 
@@ -57,7 +57,7 @@ async fn test_create_not_empty_fashion(pool: SqlitePool) {
         .unwrap()
         .wardrobe_template(
             wardrobe::PEEKABOO_TEMPLATE
-                .chat_link
+                .link
                 .parse::<ChatLink>()
                 .unwrap()
                 .try_into()
@@ -65,7 +65,7 @@ async fn test_create_not_empty_fashion(pool: SqlitePool) {
         )
         .travel_template(
             travel::PEEKABOO_TEMPLATE
-                .chat_link
+                .link
                 .parse::<ChatLink>()
                 .unwrap()
                 .try_into()
@@ -121,7 +121,7 @@ async fn test_update_fashion(pool: SqlitePool) {
         .unwrap()
         .wardrobe_template(
             wardrobe::PEEKABOO_TEMPLATE
-                .chat_link
+                .link
                 .parse::<ChatLink>()
                 .unwrap()
                 .try_into()
@@ -129,7 +129,7 @@ async fn test_update_fashion(pool: SqlitePool) {
         )
         .travel_template(
             travel::PEEKABOO_TEMPLATE
-                .chat_link
+                .link
                 .parse::<ChatLink>()
                 .unwrap()
                 .try_into()

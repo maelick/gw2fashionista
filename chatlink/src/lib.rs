@@ -1,5 +1,7 @@
 mod chatlink;
 mod error;
+#[cfg(any(test, feature = "test-fixtures"))]
+pub mod fixtures;
 pub mod skins;
 pub mod templates;
 
