@@ -19,8 +19,10 @@ version = "0.1.44"
 optional = true
 
 [dev-dependencies]
-test-log = { version = "0.2.21", default-features = false, features = ["trace"] }
 gw2fashionista-chatlink = { path = ".", features = ["test-fixtures"] }
+insta = { version = "1.48.0", features = ["yaml"] }
+rstest = "0.26.1"
+test-log = { version = "0.2.21", default-features = false, features = ["trace"] }
 
 [features]
 test-fixtures = []
