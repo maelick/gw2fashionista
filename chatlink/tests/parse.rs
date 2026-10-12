@@ -85,6 +85,14 @@ fn test_parse_all_roundtrip(#[case] fixture: ChatLinkFixture) {
     let result: ChatLink = fixture.link.parse().unwrap();
     assert_eq!(result.link_type(), fixture.link_type);
 
+    match result {
+        ChatLink::Unparsed {
+            link_type,
+            bytes: _,
+        } => panic!("{:?} chat link for {:?} is unparsed", link_type, fixture),
+        _ => (),
+    }
+
     insta::with_settings!({ prepend_module_to_snapshot => false }, {
         insta::assert_yaml_snapshot!(fixture.name, &result);
     });
