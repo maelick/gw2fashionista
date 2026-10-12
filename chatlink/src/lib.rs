@@ -1,4 +1,5 @@
 mod chatlink;
+pub mod coins;
 mod error;
 #[cfg(any(test, feature = "test-fixtures"))]
 pub mod fixtures;
