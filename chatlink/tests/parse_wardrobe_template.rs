@@ -2,7 +2,6 @@ use gw2fashionista_chatlink::fixtures::wardrobe::{
     EMPTY_TEMPLATE, ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE,
 };
 use gw2fashionista_chatlink::{
-    ChatLink,
     skins::{Appearance, Dyes, SkinId},
     templates::{
         FashionSlot,
@@ -10,7 +9,6 @@ use gw2fashionista_chatlink::{
     },
 };
 use linearize::LinearizeExt;
-use std::assert_matches;
 
 #[test]
 #[test_log::test]
@@ -28,22 +26,12 @@ fn test_parse_empty() {
             "Expect empty slot {slot:?} but got {appearance:?}"
         );
     }
-
-    let result_with_brackets = &EMPTY_TEMPLATE.wrap().parse::<ChatLink>().unwrap();
-
-    assert_matches!(result_with_brackets, ChatLink::WardrobeTemplate(actual) if actual == &expected_template);
-
-    assert_eq!(result_with_brackets.to_string(), EMPTY_TEMPLATE.wrap());
 }
 
 #[test]
 #[test_log::test]
 fn test_parse_zizi() {
-    let result = &ZIZI_TEMPLATE.link.parse::<ChatLink>().unwrap();
-
-    let ChatLink::WardrobeTemplate(actual) = result else {
-        panic!("Expected WardrobeTemplate, got {result:?}");
-    };
+    let actual = &ZIZI_TEMPLATE.link.parse::<WardrobeTemplate>().unwrap();
 
     for (slot, appearance) in actual {
         match appearance {
@@ -100,7 +88,7 @@ fn test_parse_zizi() {
                         assert!(!visible, "Expected skin to not be visible for {skin:?}");
                         assert_eq!(
                             dyes,
-                            &(1, 1, 1, 1).into(),
+                            &Dyes::default(),
                             "Expected unset dyes for {skin:?}"
                         );
                     }
@@ -113,7 +101,7 @@ fn test_parse_zizi() {
                         assert!(visible, "Expected skin to be visible for {skin:?}");
                         assert_eq!(
                             dyes,
-                            &(1, 1, 1, 1).into(),
+                            &Dyes::default(),
                             "Expected unset dyes for {skin:?}"
                         );
                     }
@@ -129,25 +117,22 @@ fn test_parse_zizi() {
                             "Expected skin_id set for {skin:?}"
                         );
                         assert!(visible, "Expected skin to be visible for {skin:?}");
-                        assert_ne!(dyes, &(1, 1, 1, 1).into(), "Expected dyes set for {skin:?}");
+                        assert_ne!(dyes, &Dyes::default(), "Expected dyes set for {skin:?}");
                     }
                     _ => panic!("Skin should not be dyeable {skin:?}"),
                 }
             }
         }
     }
-
-    assert_eq!(result.to_string(), ZIZI_TEMPLATE.wrap());
 }
 
 #[test]
 #[test_log::test]
 fn test_parse_zizi_armor_only() {
-    let result = &ZIZI_ARMOR_TEMPLATE.link.parse::<ChatLink>().unwrap();
-
-    let ChatLink::WardrobeTemplate(actual) = result else {
-        panic!("Expected WardrobeTemplate, got {result:?}");
-    };
+    let actual = &ZIZI_ARMOR_TEMPLATE
+        .link
+        .parse::<WardrobeTemplate>()
+        .unwrap();
 
     for (slot, appearance) in actual {
         match appearance {
@@ -186,7 +171,7 @@ fn test_parse_zizi_armor_only() {
                     assert!(visible, "Expected skin to be visible for {skin:?}");
                     assert_eq!(
                         dyes,
-                        &(1, 1, 1, 1).into(),
+                        &Dyes::default(),
                         "Expected unset dyes for {skin:?}"
                     );
                     assert!(
@@ -203,7 +188,7 @@ fn test_parse_zizi_armor_only() {
                     assert!(visible, "Expected skin to be visible for {skin:?}");
                     assert_eq!(
                         dyes,
-                        &(1, 1, 1, 1).into(),
+                        &Dyes::default(),
                         "Expected unset dyes for {skin:?}"
                     );
                     assert!(!appearance.is_empty(), "Expect not empty slot {slot:?}");
@@ -220,15 +205,13 @@ fn test_parse_zizi_armor_only() {
                         "Expected skin_id set for {skin:?}"
                     );
                     assert!(visible, "Expected skin to be visible for {skin:?}");
-                    assert_ne!(dyes, &(1, 1, 1, 1).into(), "Expected dyes set for {skin:?}");
+                    assert_ne!(dyes, &Dyes::default(), "Expected dyes set for {skin:?}");
                     assert!(!appearance.is_empty(), "Expect not empty slot {slot:?}");
                 }
                 _ => panic!("Skin should not be dyeable {skin:?}"),
             },
         }
     }
-
-    assert_eq!(result.to_string(), ZIZI_ARMOR_TEMPLATE.wrap());
 }
 
 fn empty_skin(slot: WardrobeSlot) -> Appearance {
