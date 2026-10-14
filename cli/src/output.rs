@@ -19,7 +19,7 @@ where
     Many(&'a [T]),
 }
 
-impl<'a, T: Serialize + 'static> OneOrMany<'a, T> {
+impl<'a, T: Serialize> OneOrMany<'a, T> {
     pub fn print<FlatRecord: Serialize + From<&'a T>>(
         &self,
         format: Format,
@@ -88,7 +88,7 @@ fn output_json<T: Serialize, W: io::Write>(data: &T, dest: W, pretty: bool) -> a
 fn output_csv<'a, T, W, FlatRecords, FlatRecord>(data: FlatRecords, dest: W) -> anyhow::Result<()>
 where
     W: io::Write,
-    T: Serialize + 'static,
+    T: Serialize + 'a,
     FlatRecords: Iterator<Item = &'a T>,
     FlatRecord: Serialize + From<&'a T>,
 {
