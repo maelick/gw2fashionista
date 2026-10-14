@@ -4,7 +4,6 @@ mod error;
 #[cfg(any(test, feature = "test-fixtures"))]
 pub mod fixtures;
 pub mod id;
-pub mod skins;
 pub mod templates;
 
 use std::sync::LazyLock;

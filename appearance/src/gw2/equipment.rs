@@ -5,12 +5,10 @@ use gw2lib::model::{
     items::ItemId,
 };
 
-use gw2fashionista_chatlink::{
-    skins::{Appearance, DyeId, Dyes, SkinId},
-    templates::{
-        FashionSlot,
-        wardrobe::{WardrobeSlot, WardrobeTemplate},
-    },
+use gw2fashionista_chatlink::templates::{
+    FashionSlot,
+    appearance::{Appearance, DyeId, Dyes, SkinId},
+    wardrobe::{WardrobeSlot, WardrobeTemplate},
 };
 
 #[derive(Clone, Debug)]

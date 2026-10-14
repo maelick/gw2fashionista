@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use gw2fashionista_chatlink::skins;
+use gw2fashionista_chatlink::templates::appearance::{self, Appearance, DyeId};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Skin {
@@ -22,15 +22,15 @@ pub struct Dye {
     pub name: Option<String>,
 }
 
-impl From<&Skin> for skins::Appearance {
+impl From<&Skin> for Appearance {
     fn from(skin: &Skin) -> Self {
         match &skin.dyes {
-            Some(dyes) => skins::Appearance::Dyeable {
+            Some(dyes) => Appearance::Dyeable {
                 skin: skin.id.into(),
                 visible: skin.visible.unwrap_or(true),
                 dyes: dyes_from_model(dyes.clone()),
             },
-            None => skins::Appearance::NonDyeable {
+            None => Appearance::NonDyeable {
                 skin: skin.id.into(),
                 visible: skin.visible.unwrap_or(true),
             },
@@ -38,16 +38,16 @@ impl From<&Skin> for skins::Appearance {
     }
 }
 
-impl From<&skins::Appearance> for Skin {
-    fn from(appearance: &skins::Appearance) -> Self {
+impl From<&Appearance> for Skin {
+    fn from(appearance: &Appearance) -> Self {
         match appearance {
-            skins::Appearance::NonDyeable { skin, visible } => Skin {
+            Appearance::NonDyeable { skin, visible } => Skin {
                 id: (*skin).into(),
                 name: None,
                 dyes: None,
                 visible: Some(*visible),
             },
-            skins::Appearance::Dyeable {
+            Appearance::Dyeable {
                 skin,
                 visible,
                 dyes,
@@ -61,14 +61,14 @@ impl From<&skins::Appearance> for Skin {
     }
 }
 
-impl From<Dye> for skins::DyeId {
+impl From<Dye> for DyeId {
     fn from(dye: Dye) -> Self {
         dye.id.into()
     }
 }
 
-impl From<skins::DyeId> for Dye {
-    fn from(dye: skins::DyeId) -> Self {
+impl From<DyeId> for Dye {
+    fn from(dye: DyeId) -> Self {
         Dye {
             id: dye.into(),
             name: None,
@@ -76,12 +76,11 @@ impl From<skins::DyeId> for Dye {
     }
 }
 
-fn dyes_from_model((dye1, dye2, dye3, dye4): Dyes) -> skins::Dyes {
-    skins::Dyes::new(dye1.into(), dye2.into(), dye3.into(), dye4.into())
+fn dyes_from_model((dye1, dye2, dye3, dye4): Dyes) -> appearance::Dyes {
+    appearance::Dyes::new(dye1.into(), dye2.into(), dye3.into(), dye4.into())
 }
 
-fn model_from_dyes(dyes: skins::Dyes) -> Dyes {
-    let (dye1, dye2, dye3, dye4): (skins::DyeId, skins::DyeId, skins::DyeId, skins::DyeId) =
-        dyes.into();
+fn model_from_dyes(dyes: appearance::Dyes) -> Dyes {
+    let (dye1, dye2, dye3, dye4): (DyeId, DyeId, DyeId, DyeId) = dyes.into();
     (dye1.into(), dye2.into(), dye3.into(), dye4.into())
 }

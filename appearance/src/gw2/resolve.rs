@@ -23,8 +23,10 @@ use crate::gw2::missing;
 use crate::gw2::named::{Named, StaticName};
 use crate::models::skin;
 use crate::models::template::TemplateData;
-use gw2fashionista_chatlink::skins::{DyeId, SkinId};
-use gw2fashionista_chatlink::templates::{FashionSlot, FashionSlotKind, Template};
+use gw2fashionista_chatlink::templates::{
+    FashionSlot, FashionSlotKind, Template,
+    appearance::{DyeId, SkinId},
+};
 
 const DEFAULT_BUFFER_SIZE: usize = 10;
 
