@@ -20,7 +20,7 @@ use crate::templates::{FashionSlot, Template};
 pub enum ChatLinkType {
     Coin = 0x01,
     Item = 0x02,
-    NPCText = 0x03,
+    NpcText = 0x03,
     MapLink = 0x04,
     PvPGame = 0x05,
     Skill = 0x06,
@@ -37,11 +37,13 @@ pub enum ChatLinkType {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(tag = "link_type")]
 pub enum ChatLink {
     Coin(Coins),
     WardrobeTemplate(WardrobeTemplate),
     TravelTemplate(TravelTemplate),
     Unparsed {
+        #[serde(rename = "unparsed_link_type")]
         link_type: ChatLinkType,
         bytes: Vec<u8>,
     },

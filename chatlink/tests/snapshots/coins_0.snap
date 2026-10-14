@@ -2,7 +2,7 @@
 source: chatlink/tests/parse.rs
 expression: "&result"
 ---
-Coin:
-  copper: 0
-  silver: 0
-  gold: 0
+link_type: Coin
+copper: 0
+silver: 0
+gold: 0

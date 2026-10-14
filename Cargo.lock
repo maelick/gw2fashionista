@@ -913,6 +913,7 @@ dependencies = [
  "hyper-rustls",
  "linearize",
  "mockall",
+ "rstest",
  "serde",
  "strum",
  "strum_macros",

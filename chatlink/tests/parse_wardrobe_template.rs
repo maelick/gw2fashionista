@@ -1,12 +1,10 @@
 use gw2fashionista_chatlink::fixtures::wardrobe::{
     EMPTY_TEMPLATE, ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE,
 };
-use gw2fashionista_chatlink::{
-    skins::{Appearance, Dyes, SkinId},
-    templates::{
-        FashionSlot,
-        wardrobe::{WardrobeSlot, WardrobeTemplate},
-    },
+use gw2fashionista_chatlink::templates::{
+    FashionSlot,
+    appearance::{Appearance, Dyes, SkinId},
+    wardrobe::{WardrobeSlot, WardrobeTemplate},
 };
 use linearize::LinearizeExt;
 

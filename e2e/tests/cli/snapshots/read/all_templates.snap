@@ -1,9 +1,11 @@
 ---
-source: e2e/tests/cli.rs
+source: e2e/tests/cli/read.rs
 expression: json
 ---
 [
-  {},
+  {
+    "link_type": "WardrobeTemplate"
+  },
   {
     "aquabreather": {
       "id": 8117,
@@ -125,6 +127,7 @@ expression: json
       "name": "Masquerade Leggings",
       "visible": true
     },
+    "link_type": "WardrobeTemplate",
     "outfit": {
       "dyes": [
         {
@@ -341,6 +344,7 @@ expression: json
       "name": "Sneakthief Leggings",
       "visible": true
     },
+    "link_type": "WardrobeTemplate",
     "outfit": {
       "dyes": [
         {
@@ -552,6 +556,7 @@ expression: json
       "name": "Sneakthief Leggings",
       "visible": true
     },
+    "link_type": "WardrobeTemplate",
     "shoes": {
       "dyes": [
         {
@@ -599,7 +604,9 @@ expression: json
       "visible": true
     }
   },
-  {},
+  {
+    "link_type": "TravelTemplate"
+  },
   {
     "beetle": {
       "dyes": [
@@ -715,6 +722,7 @@ expression: json
       "name": "Jackal",
       "visible": true
     },
+    "link_type": "TravelTemplate",
     "raptor": {
       "dyes": [
         {
@@ -993,6 +1001,7 @@ expression: json
       "name": "Shrine Guardian",
       "visible": true
     },
+    "link_type": "TravelTemplate",
     "raptor": {
       "dyes": [
         {
@@ -1271,6 +1280,7 @@ expression: json
       "name": "Plush Vulpine Jackal",
       "visible": true
     },
+    "link_type": "TravelTemplate",
     "raptor": {
       "dyes": [
         {
@@ -1549,6 +1559,7 @@ expression: json
       "name": "Shrine Guardian",
       "visible": true
     },
+    "link_type": "TravelTemplate",
     "raptor": {
       "dyes": [
         {
@@ -1781,6 +1792,7 @@ expression: json
       "name": "Shrine Guardian",
       "visible": true
     },
+    "link_type": "TravelTemplate",
     "raptor": {
       "dyes": [
         {
@@ -2036,6 +2048,7 @@ expression: json
       "name": "Plush Vulpine Jackal",
       "visible": true
     },
+    "link_type": "TravelTemplate",
     "raptor": {
       "dyes": [
         {

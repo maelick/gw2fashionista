@@ -23,8 +23,10 @@ use crate::gw2::missing;
 use crate::gw2::named::{Named, StaticName};
 use crate::models::skin;
 use crate::models::template::TemplateData;
-use gw2fashionista_chatlink::skins::{DyeId, SkinId};
-use gw2fashionista_chatlink::templates::{FashionSlot, FashionSlotKind, Template};
+use gw2fashionista_chatlink::templates::{
+    FashionSlot, FashionSlotKind, Template,
+    appearance::{DyeId, SkinId},
+};
 
 const DEFAULT_BUFFER_SIZE: usize = 10;
 
@@ -140,7 +142,7 @@ impl Resolver {
     ) -> Result<(), Error> {
         for (kind, skins) in skins {
             self.fashion_lookup[kind]
-                .ensure(skins.into_iter().map(Into::into).collect())
+                .ensure(skins.into_iter().map(|id| u16::from(id) as u32).collect())
                 .await?
         }
         Ok(())

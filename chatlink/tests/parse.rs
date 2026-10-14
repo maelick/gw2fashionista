@@ -61,11 +61,11 @@ fn test_parse_invalid_length() {
     let raw = "DwAAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAAAAAAAAAD/fw==";
 
     let result = raw.parse::<ChatLink>();
-    assert_matches!(result, Err(ChatLinkError::TruncatedData(_)));
+    assert_matches!(result, Err(ChatLinkError::InvalidLength(_)));
 
     let raw_with_brackets = format!("[&{}]", raw);
     let result_with_brackets = raw_with_brackets.parse::<ChatLink>();
-    assert_matches!(result_with_brackets, Err(ChatLinkError::TruncatedData(_)));
+    assert_matches!(result_with_brackets, Err(ChatLinkError::InvalidLength(_)));
 }
 
 #[rstest]

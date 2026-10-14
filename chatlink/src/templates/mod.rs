@@ -10,11 +10,10 @@ use byteorder::{LittleEndian, WriteBytesExt};
 use linearize::{Linearize, LinearizeExt, StaticMap, static_map};
 use serde::Serialize;
 
-use crate::{
-    error::ChatLinkError,
-    skins::{Appearance, DyeId, SkinId},
-};
+use crate::error::ChatLinkError;
+use appearance::{Appearance, DyeId, SkinId};
 
+pub mod appearance;
 pub mod travel;
 pub mod wardrobe;
 
@@ -176,7 +175,7 @@ impl<S: FashionSlot> TryFrom<&[u8]> for Template<S> {
 
     fn try_from(bytes: &[u8]) -> Result<Self, ChatLinkError> {
         if bytes.len() != Self::payload_size() {
-            return Err(ChatLinkError::TruncatedData(bytes.to_vec()));
+            return Err(ChatLinkError::InvalidLength(bytes.to_vec()));
         }
 
         let visibility = Self::read_visibility(bytes)?;
@@ -263,7 +262,8 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::{skins::DyeId, templates::wardrobe::WardrobeTemplate};
+    use super::appearance::DyeId;
+    use super::wardrobe::WardrobeTemplate;
 
     #[test]
     fn test_empty_template() {

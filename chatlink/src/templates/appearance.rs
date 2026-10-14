@@ -1,87 +1,21 @@
 use std::io::Cursor;
 
-use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
+use byteorder::{LittleEndian, WriteBytesExt};
 use serde::Serialize;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default, Serialize)]
-pub struct SkinId(u16);
+crate::id::kind::id_kind!(SkinId = Skin: u16, width = 2, default = 0);
 
 impl SkinId {
-    pub fn new(id: u16) -> Self {
-        SkinId(id)
-    }
-
-    pub fn from_cursor(cursor: &mut Cursor<&[u8]>) -> Result<Self, std::io::Error> {
-        Ok(SkinId(cursor.read_u16::<LittleEndian>()?))
-    }
-
-    pub fn is_empty(self) -> bool {
-        matches!(self, SkinId(id) if id == 0)
+    pub fn is_empty(&self) -> bool {
+        self.value() == 0
     }
 }
 
-impl From<u16> for SkinId {
-    fn from(id: u16) -> Self {
-        Self::new(id)
-    }
-}
-
-impl From<SkinId> for u16 {
-    fn from(SkinId(id): SkinId) -> u16 {
-        id
-    }
-}
-
-impl From<SkinId> for u32 {
-    fn from(SkinId(id): SkinId) -> u32 {
-        id as u32
-    }
-}
-
-impl From<u32> for SkinId {
-    fn from(id: u32) -> Self {
-        Self::new(id as u16)
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
-pub struct DyeId(u16);
+crate::id::kind::id_kind!(DyeId = Dye: u16, width = 2, default = 1);
 
 impl DyeId {
-    pub fn new(id: u16) -> Self {
-        DyeId(id)
-    }
-
-    pub fn from_cursor(cursor: &mut Cursor<&[u8]>) -> Result<Self, std::io::Error> {
-        Ok(DyeId(cursor.read_u16::<LittleEndian>()?))
-    }
-
-    pub fn is_empty(self) -> bool {
-        matches!(self, DyeId(id) if id == 1)
-    }
-}
-
-impl From<u16> for DyeId {
-    fn from(id: u16) -> Self {
-        Self::new(id)
-    }
-}
-
-impl From<DyeId> for u16 {
-    fn from(DyeId(id): DyeId) -> u16 {
-        id
-    }
-}
-
-impl From<DyeId> for u32 {
-    fn from(DyeId(id): DyeId) -> u32 {
-        id as u32
-    }
-}
-
-impl Default for DyeId {
-    fn default() -> Self {
-        DyeId(1)
+    pub fn is_empty(&self) -> bool {
+        self.value() == 1
     }
 }
 
@@ -127,7 +61,7 @@ impl From<Dyes> for (DyeId, DyeId, DyeId, DyeId) {
 
 impl From<Dyes> for (u16, u16, u16, u16) {
     fn from(Dyes(dye1, dye2, dye3, dye4): Dyes) -> (u16, u16, u16, u16) {
-        (dye1.into(), dye2.into(), dye3.into(), dye4.into())
+        (dye1.value(), dye2.value(), dye3.value(), dye4.value())
     }
 }
 
@@ -298,7 +232,7 @@ impl Appearance {
     pub fn encode<T: std::io::Write + ?Sized>(&self, buffer: &mut T) -> Result<(), std::io::Error> {
         match self {
             Appearance::NonDyeable { skin, visible: _ } => {
-                buffer.write_u16::<LittleEndian>((*skin).into())?;
+                buffer.write_u16::<LittleEndian>(skin.value())?;
             }
             Appearance::Dyeable {
                 skin,
@@ -306,7 +240,7 @@ impl Appearance {
                 dyes,
             } => {
                 let (dye1, dye2, dye3, dye4) = (*dyes).into();
-                buffer.write_u16::<LittleEndian>((*skin).into())?;
+                buffer.write_u16::<LittleEndian>(skin.value())?;
                 buffer.write_u16::<LittleEndian>(dye1)?;
                 buffer.write_u16::<LittleEndian>(dye2)?;
                 buffer.write_u16::<LittleEndian>(dye3)?;

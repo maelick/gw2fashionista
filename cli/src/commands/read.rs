@@ -1,9 +1,11 @@
 use clap::Args;
 use gw2fashionista_appearance::gw2::resolve::Resolver;
 use gw2fashionista_appearance::models::template::TemplateData;
+use gw2fashionista_chatlink::ChatLinkType;
 use gw2fashionista_chatlink::templates::FashionSlot;
 use gw2fashionista_chatlink::templates::travel::TravelTemplate;
 use gw2fashionista_chatlink::{ChatLink, ChatLinkError, templates::wardrobe::WardrobeTemplate};
+use serde::Serialize;
 use std::{io, iter};
 
 use crate::output;
@@ -45,7 +47,7 @@ impl super::Command for Command {
 }
 
 impl Command {
-    #[tracing::instrument(name = "read", skip_all)]
+    #[tracing::instrument(level = "error", name = "read", skip_all)]
     pub async fn execute(&self) -> anyhow::Result<()> {
         let links = if self.chat_links.is_empty() {
             &self.read_links()?
@@ -62,12 +64,13 @@ impl Command {
         for link in links {
             match link {
                 ChatLink::WardrobeTemplate(template) => {
-                    self.process(&resolver, &template.into()).await
+                    self.process(&resolver, link.link_type(), &template.into())
+                        .await
                 }
                 ChatLink::TravelTemplate(template) => {
-                    self.process(&resolver, &template.into()).await
+                    self.process(&resolver, link.link_type(), &template.into())
+                        .await
                 }
-                ChatLink::Coin(coins) => output::OneOrMany::One(coins).print_json(self.pretty),
                 ChatLink::Unparsed {
                     link_type,
                     bytes: _,
@@ -75,6 +78,7 @@ impl Command {
                     "Unsupported chat link type: {:?}",
                     link_type
                 ))?,
+                _ => output::OneOrMany::One(link).print_json(self.pretty),
             }?;
         }
         Ok(())
@@ -170,6 +174,7 @@ impl Command {
     async fn process<S: FashionSlot>(
         &self,
         resolver: &Resolver,
+        link_type: ChatLinkType,
         template: &TemplateData<S>,
     ) -> anyhow::Result<()> {
         let data = if self.skip_names {
@@ -177,7 +182,7 @@ impl Command {
         } else {
             &resolver.resolve_template(template).await?
         };
-        output::OneOrMany::One(data).print_json(self.pretty)
+        output::OneOrMany::One(&Typed { link_type, data }).print_json(self.pretty)
     }
 }
 
@@ -218,4 +223,11 @@ where
             )
         })
         .collect())
+}
+
+#[derive(Serialize)]
+struct Typed<T> {
+    link_type: ChatLinkType,
+    #[serde(flatten)]
+    data: T,
 }

@@ -44,7 +44,7 @@ impl Cli {
         tracing_subscriber::registry().with(layer).init()
     }
 
-    #[tracing::instrument(name = "gw2fashionista", skip_all)]
+    #[tracing::instrument(level = "error", name = "gw2fashionista", skip_all)]
     async fn execute(&self) {
         let cmd = self.command.as_command();
         tracing::debug!(message = "Executing command", name = cmd.name(), args = ?cmd);

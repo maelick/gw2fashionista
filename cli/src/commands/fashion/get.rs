@@ -30,7 +30,7 @@ impl commands::Command for Command {
 }
 
 impl Command {
-    #[tracing::instrument(name = "fashion-get", skip_all)]
+    #[tracing::instrument(level = "error", name = "fashion-get", skip_all)]
     pub async fn execute(&self, mut env: Environment) -> anyhow::Result<()> {
         let service = env.fashion_service().await?;
         let fashion = self.id.get_fashion(&service).await?;

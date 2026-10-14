@@ -48,7 +48,7 @@ impl commands::Command for Command {
 }
 
 impl Command {
-    #[tracing::instrument(name = "fashion-set", skip_all)]
+    #[tracing::instrument(level = "error", name = "fashion-set", skip_all)]
     pub async fn execute(&self, mut env: Environment) -> anyhow::Result<()> {
         let service = env.fashion_service().await?;
         let (fashions, format) = read_templates(&self.data, &self.input, &self.stdin)?;

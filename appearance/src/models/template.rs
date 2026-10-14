@@ -4,10 +4,9 @@ use std::collections::hash_map::Iter;
 use serde::{Deserialize, Serialize};
 
 use crate::models::skin::Skin;
-use gw2fashionista_chatlink::skins::Appearance;
-use gw2fashionista_chatlink::templates::travel::TravelSlot;
-use gw2fashionista_chatlink::templates::wardrobe::WardrobeSlot;
-use gw2fashionista_chatlink::templates::{FashionSlot, Template};
+use gw2fashionista_chatlink::templates::{
+    FashionSlot, Template, appearance::Appearance, travel::TravelSlot, wardrobe::WardrobeSlot,
+};
 
 pub type WardrobeTemplateData = TemplateData<WardrobeSlot>;
 pub type TravelTemplateData = TemplateData<TravelSlot>;

@@ -52,7 +52,7 @@ impl TryFrom<&[u8]> for Coins {
 
     fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
         if bytes.len() != 4 {
-            return Err(ChatLinkError::TruncatedData(bytes.to_vec()));
+            return Err(ChatLinkError::InvalidLength(bytes.to_vec()));
         }
         let mut cursor = Cursor::new(bytes);
         let copper = cursor.read_u32::<LittleEndian>()?;

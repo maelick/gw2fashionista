@@ -1,7 +1,7 @@
 use gw2fashionista_chatlink::fixtures::travel::{EMPTY_TEMPLATE, PEEKABOO_TEMPLATE, ZIZI_TEMPLATE};
-use gw2fashionista_chatlink::{
-    skins::{Appearance, Dyes, SkinId},
-    templates::travel::{TravelSlot, TravelTemplate},
+use gw2fashionista_chatlink::templates::{
+    appearance::{Appearance, Dyes, SkinId},
+    travel::{TravelSlot, TravelTemplate},
 };
 use linearize::LinearizeExt;
 

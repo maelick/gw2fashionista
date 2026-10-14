@@ -20,7 +20,7 @@ impl commands::Command for Command {
 }
 
 impl Command {
-    #[tracing::instrument(name = "fashion-tag-rename", skip_all)]
+    #[tracing::instrument(level = "error", name = "fashion-tag-rename", skip_all)]
     pub async fn execute(&self, mut env: Environment) -> anyhow::Result<()> {
         let service = env.fashion_service().await?;
         service.rename_tag(&self.from, &self.to).await?;
