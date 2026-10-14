@@ -1,6 +1,5 @@
 use clap::Args;
 use gw2fashionista_appearance::gw2::{equipment::Equipment, import::Importer, resolve::Resolver};
-use gw2fashionista_chatlink::ChatLinkError;
 use gw2fashionista_core::ports::repositories::SecretRepository;
 use serde::{Deserialize, Serialize};
 use std::{fs, io};
@@ -67,17 +66,16 @@ impl Command {
             .resolve_equipment(equipments)
             .await?;
 
-        let exported: Result<Vec<_>, _> =
-            resolved.iter().map(|e| self.export_equipment(e)).collect();
-        self.output_equipments(exported?)
+        let exported: Vec<_> = resolved.iter().map(|e| self.export_equipment(e)).collect();
+        self.output_equipments(exported)
     }
 
-    fn export_equipment(&self, equipment: &Equipment) -> Result<ExportedEquipment, ChatLinkError> {
-        let equipment = ExportedEquipment::new(equipment)?;
+    fn export_equipment(&self, equipment: &Equipment) -> ExportedEquipment {
+        let equipment = ExportedEquipment::new(equipment);
         if !self.no_default_name {
-            Ok(equipment.with_default_name())
+            equipment.with_default_name()
         } else {
-            Ok(equipment)
+            equipment
         }
     }
 
@@ -111,13 +109,13 @@ struct ExportedEquipment {
 }
 
 impl ExportedEquipment {
-    pub fn new(equipment: &Equipment) -> Result<Self, ChatLinkError> {
-        Ok(ExportedEquipment {
+    pub fn new(equipment: &Equipment) -> Self {
+        ExportedEquipment {
             char_name: equipment.char_name.clone(),
             tab_id: equipment.tab_id,
             tab_name: equipment.tab_name.clone(),
             fashion_link: equipment.to_template().to_string(),
-        })
+        }
     }
 
     pub fn with_default_name(self) -> Self {

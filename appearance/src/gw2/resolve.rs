@@ -140,7 +140,7 @@ impl Resolver {
     ) -> Result<(), Error> {
         for (kind, skins) in skins {
             self.fashion_lookup[kind]
-                .ensure(skins.into_iter().map(Into::into).collect())
+                .ensure(skins.into_iter().map(|id| u16::from(id) as u32).collect())
                 .await?
         }
         Ok(())

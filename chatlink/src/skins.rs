@@ -32,18 +32,6 @@ impl From<SkinId> for u16 {
     }
 }
 
-impl From<SkinId> for u32 {
-    fn from(SkinId(id): SkinId) -> u32 {
-        id as u32
-    }
-}
-
-impl From<u32> for SkinId {
-    fn from(id: u32) -> Self {
-        Self::new(id as u16)
-    }
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
 pub struct DyeId(u16);
 
@@ -70,12 +58,6 @@ impl From<u16> for DyeId {
 impl From<DyeId> for u16 {
     fn from(DyeId(id): DyeId) -> u16 {
         id
-    }
-}
-
-impl From<DyeId> for u32 {
-    fn from(DyeId(id): DyeId) -> u32 {
-        id as u32
     }
 }
 

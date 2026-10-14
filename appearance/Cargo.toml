@@ -23,7 +23,9 @@ version = "0.1.44"
 optional = true
 
 [dev-dependencies]
+gw2fashionista-chatlink = { path = "../chatlink", features = ["test-fixtures"] }
 mockall = "0.15.0"
+rstest = "0.26.1"
 test-log = { version = "0.2.21", default-features = false, features = ["trace"] }
 tokio = { version = "1.52.3", features = ["test-util", "rt-multi-thread"] }
 
