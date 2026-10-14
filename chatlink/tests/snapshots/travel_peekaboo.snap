@@ -2,113 +2,113 @@
 source: chatlink/tests/parse.rs
 expression: "&result"
 ---
-TravelTemplate:
-  slots:
-    glider:
-      Dyeable:
-        skin: 144
-        visible: true
-        dyes:
-          - 6
-          - 1250
-          - 1250
-          - 1310
-    doorway:
-      Dyeable:
-        skin: 5
-        visible: true
-        dyes:
-          - 1310
-          - 1250
-          - 1250
-          - 1250
-    jackal:
-      Dyeable:
-        skin: 622
-        visible: true
-        dyes:
-          - 1310
-          - 1250
-          - 1310
-          - 1250
-    griffon:
-      Dyeable:
-        skin: 330
-        visible: true
-        dyes:
-          - 6
-          - 1310
-          - 1352
-          - 1250
-    springer:
-      Dyeable:
-        skin: 499
-        visible: true
-        dyes:
-          - 1250
-          - 1310
-          - 1352
-          - 1310
-    skimmer:
-      Dyeable:
-        skin: 804
-        visible: true
-        dyes:
-          - 1250
-          - 1250
-          - 1310
-          - 1352
-    raptor:
-      Dyeable:
-        skin: 403
-        visible: true
-        dyes:
-          - 6
-          - 1310
-          - 1250
-          - 1352
-    beetle:
-      Dyeable:
-        skin: 743
-        visible: true
-        dyes:
-          - 1352
-          - 1310
-          - 1250
-          - 1250
-    warclaw:
-      Dyeable:
-        skin: 712
-        visible: true
-        dyes:
-          - 6
-          - 1310
-          - 1250
-          - 1352
-    skyscale:
-      Dyeable:
-        skin: 624
-        visible: true
-        dyes:
-          - 1250
-          - 6
-          - 6
-          - 351
-    skiff:
-      Dyeable:
-        skin: 451
-        visible: true
-        dyes:
-          - 1310
-          - 1250
-          - 1310
-          - 1250
-    turtle:
-      Dyeable:
-        skin: 504
-        visible: true
-        dyes:
-          - 1310
-          - 1250
-          - 1352
-          - 1310
+link_type: TravelTemplate
+slots:
+  glider:
+    Dyeable:
+      skin: 144
+      visible: true
+      dyes:
+        - 6
+        - 1250
+        - 1250
+        - 1310
+  doorway:
+    Dyeable:
+      skin: 5
+      visible: true
+      dyes:
+        - 1310
+        - 1250
+        - 1250
+        - 1250
+  jackal:
+    Dyeable:
+      skin: 622
+      visible: true
+      dyes:
+        - 1310
+        - 1250
+        - 1310
+        - 1250
+  griffon:
+    Dyeable:
+      skin: 330
+      visible: true
+      dyes:
+        - 6
+        - 1310
+        - 1352
+        - 1250
+  springer:
+    Dyeable:
+      skin: 499
+      visible: true
+      dyes:
+        - 1250
+        - 1310
+        - 1352
+        - 1310
+  skimmer:
+    Dyeable:
+      skin: 804
+      visible: true
+      dyes:
+        - 1250
+        - 1250
+        - 1310
+        - 1352
+  raptor:
+    Dyeable:
+      skin: 403
+      visible: true
+      dyes:
+        - 6
+        - 1310
+        - 1250
+        - 1352
+  beetle:
+    Dyeable:
+      skin: 743
+      visible: true
+      dyes:
+        - 1352
+        - 1310
+        - 1250
+        - 1250
+  warclaw:
+    Dyeable:
+      skin: 712
+      visible: true
+      dyes:
+        - 6
+        - 1310
+        - 1250
+        - 1352
+  skyscale:
+    Dyeable:
+      skin: 624
+      visible: true
+      dyes:
+        - 1250
+        - 6
+        - 6
+        - 351
+  skiff:
+    Dyeable:
+      skin: 451
+      visible: true
+      dyes:
+        - 1310
+        - 1250
+        - 1310
+        - 1250
+  turtle:
+    Dyeable:
+      skin: 504
+      visible: true
+      dyes:
+        - 1310
+        - 1250
+        - 1352
+        - 1310

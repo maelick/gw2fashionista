@@ -1,5 +1,5 @@
 ---
-source: e2e/tests/cli.rs
+source: e2e/tests/cli/read.rs
 expression: json
 ---
 {
@@ -117,6 +117,7 @@ expression: json
     "name": "Jackal",
     "visible": true
   },
+  "link_type": "TravelTemplate",
   "raptor": {
     "dyes": [
       {

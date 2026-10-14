@@ -1,5 +1,5 @@
 ---
-source: e2e/src/cli.rs
+source: e2e/tests/cli/read.rs
 expression: json
 ---
 {
@@ -123,6 +123,7 @@ expression: json
     "name": "Masquerade Leggings",
     "visible": true
   },
+  "link_type": "WardrobeTemplate",
   "outfit": {
     "dyes": [
       {
