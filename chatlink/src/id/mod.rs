@@ -96,7 +96,7 @@ where
 
     fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
         if bytes.len() != Self::WIDTH + Self::PADDING {
-            return Err(ChatLinkError::TruncatedData(bytes.to_vec()));
+            return Err(ChatLinkError::InvalidLength(bytes.to_vec()));
         }
         Ok(Self::from_cursor(&mut Cursor::new(bytes))?)
     }
@@ -155,10 +155,10 @@ mod tests {
         super::kind::id_kind!(TestId = Test: u32, width = 3, padding = 1);
 
         let err = TestId::try_from(vec![1 as u8, 0, 0].as_slice()).unwrap_err();
-        assert_matches!(err, ChatLinkError::TruncatedData(_));
+        assert_matches!(err, ChatLinkError::InvalidLength(_));
 
         let err = TestId::try_from(vec![1 as u8, 0, 0, 0, 0].as_slice()).unwrap_err();
-        assert_matches!(err, ChatLinkError::TruncatedData(_));
+        assert_matches!(err, ChatLinkError::InvalidLength(_));
     }
 
     #[test]
