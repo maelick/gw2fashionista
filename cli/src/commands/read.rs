@@ -47,7 +47,7 @@ impl super::Command for Command {
 }
 
 impl Command {
-    #[tracing::instrument(name = "read", skip_all)]
+    #[tracing::instrument(level = "error", name = "read", skip_all)]
     pub async fn execute(&self) -> anyhow::Result<()> {
         let links = if self.chat_links.is_empty() {
             &self.read_links()?

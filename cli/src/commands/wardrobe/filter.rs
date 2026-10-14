@@ -21,7 +21,7 @@ impl commands::Command for Command {
 }
 
 impl Command {
-    #[tracing::instrument(name = "wardrobe-filter", skip_all)]
+    #[tracing::instrument(level = "error", name = "wardrobe-filter", skip_all)]
     pub async fn execute(&self) -> anyhow::Result<()> {
         let filter = (&self.filters).into();
         let filtered = ChatLink::WardrobeTemplate(self.wardrobe_template.filter(&filter));

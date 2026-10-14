@@ -15,7 +15,7 @@ impl commands::Command for Command {
 }
 
 impl Command {
-    #[tracing::instrument(name = "fashion-tag-delete", skip_all)]
+    #[tracing::instrument(level = "error", name = "fashion-tag-delete", skip_all)]
     pub async fn execute(&self, mut env: Environment) -> anyhow::Result<()> {
         let service = env.fashion_service().await?;
         let num_deleted = service.delete_tags(&self.tags).await?;
