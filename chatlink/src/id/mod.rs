@@ -11,7 +11,7 @@ use crate::ChatLinkError;
 
 pub mod kind;
 pub use kind::{
-    AchievementId, MapPointId, NpcTextId, OutfitId, RecipeId, SkillId, TraitId, WardrobeSkinId,
+    AchievementId, MapLinkId, NpcTextId, OutfitId, RecipeId, SkillId, TraitId, WardrobeSkinId,
 };
 
 pub trait IdKind {
