@@ -13,6 +13,7 @@ use crate::error::ChatLinkError;
 use crate::id::{
     AchievementId, MapLinkId, NpcTextId, OutfitId, RecipeId, SkillId, TraitId, WardrobeSkinId,
 };
+use crate::items::Item;
 use crate::templates::travel::TravelTemplate;
 use crate::templates::wardrobe::WardrobeTemplate;
 use crate::templates::{FashionSlot, Template};
@@ -43,6 +44,7 @@ pub enum ChatLinkType {
 #[serde(tag = "link_type")]
 pub enum ChatLink {
     Coin(Coins),
+    Item(Item),
     NpcText {
         id: NpcTextId,
     },
@@ -80,6 +82,7 @@ impl ChatLink {
     pub fn link_type(&self) -> ChatLinkType {
         match self {
             ChatLink::Coin(_) => ChatLinkType::Coin,
+            ChatLink::Item(_) => ChatLinkType::Item,
             ChatLink::NpcText { id: _ } => ChatLinkType::NpcText,
             ChatLink::MapLink { id: _ } => ChatLinkType::MapLink,
             ChatLink::Skill { id: _ } => ChatLinkType::Skill,
@@ -105,6 +108,7 @@ impl ChatLink {
     fn encode_payload<W: io::Write + ?Sized>(&self, w: &mut W) -> io::Result<()> {
         match self {
             ChatLink::Coin(c) => c.encode(w),
+            ChatLink::Item(item) => item.encode(w),
             ChatLink::NpcText { id } => id.encode(w),
             ChatLink::MapLink { id } => id.encode(w),
             ChatLink::Skill { id } => id.encode(w),
@@ -188,6 +192,10 @@ impl FromStr for ChatLink {
             ChatLinkType::Coin => {
                 let coins = Coins::try_from(payload)?;
                 Self::Coin(coins)
+            }
+            ChatLinkType::Item => {
+                let item = Item::try_from(payload)?;
+                Self::Item(item)
             }
             ChatLinkType::NpcText => {
                 let id = NpcTextId::try_from(payload)?;

@@ -6,6 +6,7 @@ pub(crate) use macros::*;
 
 pub mod achievements;
 pub mod coins;
+pub mod items;
 pub mod maplinks;
 pub mod npctext;
 pub mod outfits;
@@ -18,6 +19,7 @@ pub mod wardrobe_skins;
 
 pub const ALL: &[ChatLinkFixture] = fixture_slice!(
     coins,
+    items,
     npctext,
     maplinks,
     skills,
@@ -53,7 +55,7 @@ impl ChatLinkFixture {
     }
 }
 
-fixture_cases! { all_fixtures: coins, npctext, maplinks, skills, traits, recipes, wardrobe_skins, outfits, achievements, wardrobe, travel }
+fixture_cases! { all_fixtures: coins, items, npctext, maplinks, skills, traits, recipes, wardrobe_skins, outfits, achievements, wardrobe, travel }
 fixture_cases! { template_fixtures: wardrobe, travel }
 
 pub(crate) mod macros {
