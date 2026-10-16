@@ -1,11 +1,7 @@
 use crate::{ChatLinkType, fixtures::ChatLinkFixture};
 
-pub const ALL: &[ChatLinkFixture] = &[SOFT_WOOD_PLANK, ANCIENT_WOOD_PLANK, BOLT_OF_COTTON];
-
-pub const SOFT_WOOD_PLANK: ChatLinkFixture = new("Recipe: Soft Wood Plank", "CQEAAAA="); // 1
-pub const ANCIENT_WOOD_PLANK: ChatLinkFixture = new("Recipe: Ancient Wood Plank", "CQIAAAA="); // 2
-pub const BOLT_OF_COTTON: ChatLinkFixture = new("Recipe: Bolt of Cotton", "CQcAAAA="); // 7
-
-pub const fn new(name: &'static str, chat_link: &'static str) -> ChatLinkFixture {
-    ChatLinkFixture::new(name, ChatLinkType::Recipe, chat_link)
+super::fixtures! { $ recipes, ChatLinkType::Recipe;
+    SOFT_WOOD_PLANK = ("recipe_soft_wood_plank", "CQEAAAA="), // 1
+    ANCIENT_WOOD_PLANK = ("recipe_ancient_wood_plank", "CQIAAAA="), // 2
+    BOLT_OF_COTTON = ("recipe_bolt_of_cotton", "CQcAAAA="), // 7
 }

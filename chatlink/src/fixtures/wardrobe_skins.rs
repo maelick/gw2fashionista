@@ -1,9 +1,5 @@
 use crate::{ChatLinkType, fixtures::ChatLinkFixture};
 
-pub const ALL: &[ChatLinkFixture] = &[APPRENTICE_COAT];
-
-pub const APPRENTICE_COAT: ChatLinkFixture = new("Apprentice Coat", "CgQAAAA="); // 4
-
-pub const fn new(name: &'static str, chat_link: &'static str) -> ChatLinkFixture {
-    ChatLinkFixture::new(name, ChatLinkType::Wardrobe, chat_link)
+super::fixtures! { $ wardrobe_skins, ChatLinkType::Wardrobe;
+    APPRENTICE_COAT = ("wardrobe_skin_apprentice_coat", "CgQAAAA="), // 4
 }
