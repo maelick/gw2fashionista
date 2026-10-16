@@ -1,6 +1,6 @@
 use crate::{ChatLinkType, fixtures::ChatLinkFixture};
 
-pub const ALL_TEMPLATES: &[ChatLinkFixture] = &[AEGIS, FIREBALL, METEOR_SHOWER];
+pub const ALL: &[ChatLinkFixture] = &[AEGIS, FIREBALL, METEOR_SHOWER];
 
 pub const AEGIS: ChatLinkFixture = new("Aegis", "BucCAAA="); // 743
 pub const FIREBALL: ChatLinkFixture = new("Fireball", "BnMVAAA="); // 5491

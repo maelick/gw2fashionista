@@ -1,6 +1,6 @@
 use crate::{ChatLinkType, fixtures::ChatLinkFixture};
 
-pub const ALL_TEMPLATES: &[ChatLinkFixture] = &[WITCHS_OUTFIT];
+pub const ALL: &[ChatLinkFixture] = &[WITCHS_OUTFIT];
 
 pub const WITCHS_OUTFIT: ChatLinkFixture = new("Witch's Outfit", "CwQAAAA="); // 4
 

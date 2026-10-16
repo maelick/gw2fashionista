@@ -1,6 +1,6 @@
 use crate::{ChatLinkType, fixtures::ChatLinkFixture};
 
-pub const ALL_TEMPLATES: &[ChatLinkFixture] = &[
+pub const ALL: &[ChatLinkFixture] = &[
     DR_BLEENTS_ENCAMPMENT,
     DESIDER_ATUM_WAYPOINT,
     CAUDECUS_ESTATE_WAYPOINT,

@@ -1,7 +1,6 @@
 use crate::{ChatLinkType, fixtures::ChatLinkFixture};
 
-pub const ALL_TEMPLATES: &[ChatLinkFixture] =
-    &[SOFT_WOOD_PLANK, ANCIENT_WOOD_PLANK, BOLT_OF_COTTON];
+pub const ALL: &[ChatLinkFixture] = &[SOFT_WOOD_PLANK, ANCIENT_WOOD_PLANK, BOLT_OF_COTTON];
 
 pub const SOFT_WOOD_PLANK: ChatLinkFixture = new("Recipe: Soft Wood Plank", "CQEAAAA="); // 1
 pub const ANCIENT_WOOD_PLANK: ChatLinkFixture = new("Recipe: Ancient Wood Plank", "CQIAAAA="); // 2

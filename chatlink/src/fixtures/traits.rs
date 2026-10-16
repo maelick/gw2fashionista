@@ -1,6 +1,6 @@
 use crate::{ChatLinkType, fixtures::ChatLinkFixture};
 
-pub const ALL_TEMPLATES: &[ChatLinkFixture] = &[OPENING_STRIKE];
+pub const ALL: &[ChatLinkFixture] = &[OPENING_STRIKE];
 
 pub const OPENING_STRIKE: ChatLinkFixture = new("Opening Strike", "B/IDAAA="); // 1010
 

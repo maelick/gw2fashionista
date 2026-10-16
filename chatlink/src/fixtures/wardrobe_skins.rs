@@ -1,6 +1,6 @@
 use crate::{ChatLinkType, fixtures::ChatLinkFixture};
 
-pub const ALL_TEMPLATES: &[ChatLinkFixture] = &[APPRENTICE_COAT];
+pub const ALL: &[ChatLinkFixture] = &[APPRENTICE_COAT];
 
 pub const APPRENTICE_COAT: ChatLinkFixture = new("Apprentice Coat", "CgQAAAA="); // 4
 

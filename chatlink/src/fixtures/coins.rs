@@ -1,6 +1,6 @@
 use crate::{ChatLinkType, fixtures::ChatLinkFixture};
 
-pub const ALL_TEMPLATES: &[ChatLinkFixture] = &[ZERO, ONE, ONE_TWO_THREE, MAX];
+pub const ALL: &[ChatLinkFixture] = &[ZERO, ONE, ONE_TWO_THREE, MAX];
 
 /// 0 gold, 0 silver, 0 copper
 pub const ZERO: ChatLinkFixture = new("coins_0", "AQAAAAA=");

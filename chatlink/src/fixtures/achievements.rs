@@ -1,6 +1,6 @@
 use crate::{ChatLinkType, fixtures::ChatLinkFixture};
 
-pub const ALL_TEMPLATES: &[ChatLinkFixture] = &[
+pub const ALL: &[ChatLinkFixture] = &[
     BAR_BRAWL_COMBOS,
     BIRTHDAY_YEAR1,
     VOIDWALKER,

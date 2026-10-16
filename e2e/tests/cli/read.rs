@@ -82,7 +82,7 @@ fn test_read_command_skip_names(#[case] template: ChatLinkFixture) {
 }
 
 fn all_templates() -> Vec<ChatLinkFixture> {
-    [wardrobe::ALL_TEMPLATES, travel::ALL_TEMPLATES].concat()
+    [wardrobe::ALL, travel::ALL].concat()
 }
 
 #[test]
@@ -185,10 +185,7 @@ fn assert_all_templates(output: &std::process::Output) {
     let stream =
         serde_json::Deserializer::from_slice(&output.stdout).into_iter::<serde_json::Value>();
     let json: Vec<_> = stream.collect::<Result<_, _>>().unwrap();
-    assert_eq!(
-        json.len(),
-        travel::ALL_TEMPLATES.len() + wardrobe::ALL_TEMPLATES.len()
-    );
+    assert_eq!(json.len(), travel::ALL.len() + wardrobe::ALL.len());
     assert_json_snapshot!("all_templates", json, SNAPSHOT_DIR)
 }
 
