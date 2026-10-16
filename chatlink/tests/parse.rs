@@ -1,6 +1,7 @@
-use gw2fashionista_chatlink::fixtures::{ChatLinkFixture, coins, travel, wardrobe};
+use gw2fashionista_chatlink::fixtures::{ChatLinkFixture, all_fixtures};
 use gw2fashionista_chatlink::{ChatLink, ChatLinkError};
 use rstest::rstest;
+use rstest_reuse::{self, apply};
 use std::assert_matches;
 
 #[test]
@@ -68,24 +69,9 @@ fn test_parse_invalid_length() {
     assert_matches!(result_with_brackets, Err(ChatLinkError::InvalidLength(_)));
 }
 
-#[rstest]
-#[case(coins::ZERO)]
-#[case(coins::ONE)]
-#[case(coins::ONE_TWO_THREE)]
-#[case(coins::MAX)]
-#[case(wardrobe::EMPTY_TEMPLATE)]
-#[case(wardrobe::PEEKABOO_TEMPLATE)]
-#[case(wardrobe::ZIZI_TEMPLATE)]
-#[case(wardrobe::ZIZI_ARMOR_TEMPLATE)]
-#[case(travel::EMPTY_TEMPLATE)]
-#[case(travel::DEFAULT_MOUNT_TEMPLATE)]
-#[case(travel::NO_DYES_TEMPLATE)]
-#[case(travel::PEEKABOO_TEMPLATE)]
-#[case(travel::KABOOM_TEMPLATE)]
-#[case(travel::KABOOM_MOUNTS_TEMPLATE)]
-#[case(travel::ZIZI_TEMPLATE)]
+#[apply(all_fixtures)]
 #[test_log::test]
-fn test_parse_all_roundtrip(#[case] fixture: ChatLinkFixture) {
+fn test_parse_all_roundtrip(fixture: ChatLinkFixture) {
     let result: ChatLink = fixture.link.parse().unwrap();
     assert_eq!(result.link_type(), fixture.link_type);
 

@@ -10,6 +10,9 @@ use serde::Serialize;
 
 use crate::coins::Coins;
 use crate::error::ChatLinkError;
+use crate::id::{
+    AchievementId, MapLinkId, NpcTextId, OutfitId, RecipeId, SkillId, TraitId, WardrobeSkinId,
+};
 use crate::templates::travel::TravelTemplate;
 use crate::templates::wardrobe::WardrobeTemplate;
 use crate::templates::{FashionSlot, Template};
@@ -40,6 +43,30 @@ pub enum ChatLinkType {
 #[serde(tag = "link_type")]
 pub enum ChatLink {
     Coin(Coins),
+    NpcText {
+        id: NpcTextId,
+    },
+    MapLink {
+        id: MapLinkId,
+    },
+    Skill {
+        id: SkillId,
+    },
+    Trait {
+        id: TraitId,
+    },
+    Recipe {
+        id: RecipeId,
+    },
+    Wardrobe {
+        id: WardrobeSkinId,
+    },
+    Outfit {
+        id: OutfitId,
+    },
+    Achievement {
+        id: AchievementId,
+    },
     WardrobeTemplate(WardrobeTemplate),
     TravelTemplate(TravelTemplate),
     Unparsed {
@@ -53,6 +80,14 @@ impl ChatLink {
     pub fn link_type(&self) -> ChatLinkType {
         match self {
             ChatLink::Coin(_) => ChatLinkType::Coin,
+            ChatLink::NpcText { id: _ } => ChatLinkType::NpcText,
+            ChatLink::MapLink { id: _ } => ChatLinkType::MapLink,
+            ChatLink::Skill { id: _ } => ChatLinkType::Skill,
+            ChatLink::Trait { id: _ } => ChatLinkType::Trait,
+            ChatLink::Recipe { id: _ } => ChatLinkType::Recipe,
+            ChatLink::Wardrobe { id: _ } => ChatLinkType::Wardrobe,
+            ChatLink::Outfit { id: _ } => ChatLinkType::Outfit,
+            ChatLink::Achievement { id: _ } => ChatLinkType::Achievement,
             ChatLink::WardrobeTemplate(_) => ChatLinkType::WardrobeTemplate,
             ChatLink::TravelTemplate(_) => ChatLinkType::TravelTemplate,
             ChatLink::Unparsed {
@@ -69,10 +104,18 @@ impl ChatLink {
 
     fn encode_payload<W: io::Write + ?Sized>(&self, w: &mut W) -> io::Result<()> {
         match self {
-            Self::Coin(c) => c.encode(w),
-            Self::WardrobeTemplate(t) => t.encode(w),
-            Self::TravelTemplate(t) => t.encode(w),
-            Self::Unparsed { bytes, .. } => w.write_all(bytes),
+            ChatLink::Coin(c) => c.encode(w),
+            ChatLink::NpcText { id } => id.encode(w),
+            ChatLink::MapLink { id } => id.encode(w),
+            ChatLink::Skill { id } => id.encode(w),
+            ChatLink::Trait { id } => id.encode(w),
+            ChatLink::Recipe { id } => id.encode(w),
+            ChatLink::Wardrobe { id } => id.encode(w),
+            ChatLink::Outfit { id } => id.encode(w),
+            ChatLink::Achievement { id } => id.encode(w),
+            ChatLink::WardrobeTemplate(t) => t.encode(w),
+            ChatLink::TravelTemplate(t) => t.encode(w),
+            ChatLink::Unparsed { bytes, .. } => w.write_all(bytes),
         }
     }
 }
@@ -145,6 +188,38 @@ impl FromStr for ChatLink {
             ChatLinkType::Coin => {
                 let coins = Coins::try_from(payload)?;
                 Self::Coin(coins)
+            }
+            ChatLinkType::NpcText => {
+                let id = NpcTextId::try_from(payload)?;
+                Self::NpcText { id }
+            }
+            ChatLinkType::MapLink => {
+                let id = MapLinkId::try_from(payload)?;
+                Self::MapLink { id }
+            }
+            ChatLinkType::Skill => {
+                let id = SkillId::try_from(payload)?;
+                Self::Skill { id }
+            }
+            ChatLinkType::Trait => {
+                let id = TraitId::try_from(payload)?;
+                Self::Trait { id }
+            }
+            ChatLinkType::Recipe => {
+                let id = RecipeId::try_from(payload)?;
+                Self::Recipe { id }
+            }
+            ChatLinkType::Wardrobe => {
+                let id = WardrobeSkinId::try_from(payload)?;
+                Self::Wardrobe { id }
+            }
+            ChatLinkType::Outfit => {
+                let id = OutfitId::try_from(payload)?;
+                Self::Outfit { id }
+            }
+            ChatLinkType::Achievement => {
+                let id = AchievementId::try_from(payload)?;
+                Self::Achievement { id }
             }
             ChatLinkType::WardrobeTemplate => {
                 let template = WardrobeTemplate::try_from(payload)?;

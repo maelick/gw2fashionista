@@ -10,6 +10,9 @@ use serde::Serialize;
 use crate::ChatLinkError;
 
 pub mod kind;
+pub use kind::{
+    AchievementId, MapLinkId, NpcTextId, OutfitId, RecipeId, SkillId, TraitId, WardrobeSkinId,
+};
 
 pub trait IdKind {
     type Value: Copy + Eq + hash::Hash + fmt::Debug + Into<u64> + TryFrom<u64, Error: fmt::Debug>;

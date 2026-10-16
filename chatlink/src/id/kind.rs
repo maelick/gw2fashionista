@@ -32,3 +32,12 @@ macro_rules! id_kind {
     };
 }
 pub(crate) use id_kind;
+
+id_kind!(NpcTextId = NpcText: u32, width = 3, padding = 1, default = 0);
+id_kind!(MapLinkId = MapLink: u32, width = 3, padding = 1, default = 0);
+id_kind!(SkillId = Skill: u32, width = 3, padding = 1, default = 0);
+id_kind!(TraitId = Trait: u32, width = 3, padding = 1, default = 0);
+id_kind!(RecipeId = Recipe: u32, width = 3, padding = 1, default = 0);
+id_kind!(WardrobeSkinId = WardrobeSkin: u32, width = 3, padding = 1, default = 0);
+id_kind!(OutfitId = Outfit: u32, width = 3, padding = 1, default = 0);
+id_kind!(AchievementId = Achievement: u32, width = 3, padding = 1, default = 0);
