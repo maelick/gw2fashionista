@@ -1,8 +1,16 @@
 use crate::ChatLinkType;
 
+pub mod achievements;
 pub mod coins;
+pub mod maplinks;
+pub mod npctext;
+pub mod outfits;
+pub mod recipes;
+pub mod skills;
+pub mod traits;
 pub mod travel;
 pub mod wardrobe;
+pub mod wardrobe_skins;
 
 #[derive(Clone, Copy, Debug)]
 /// Represents a chat link test fixture
