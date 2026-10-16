@@ -1,77 +1,37 @@
 use assert_cmd::assert::OutputAssertExt;
 use e2e::assert_json_snapshot;
-use gw2fashionista_chatlink::fixtures::{self, ChatLinkFixture, coins, travel, wardrobe};
+use gw2fashionista_chatlink::fixtures::{self, ChatLinkFixture, all_fixtures, template_fixtures};
 use rstest::rstest;
+use rstest_reuse::{self, apply};
 
 use e2e::{assert_snapshot, cli::spawn_cli};
 
 const SNAPSHOT_DIR: &str = "read";
 
-#[rstest]
-#[case(coins::ZERO)]
-#[case(coins::ONE)]
-#[case(coins::ONE_TWO_THREE)]
-#[case(coins::MAX)]
-#[case(wardrobe::EMPTY_TEMPLATE)]
-#[case(wardrobe::PEEKABOO_TEMPLATE)]
-#[case(wardrobe::ZIZI_TEMPLATE)]
-#[case(wardrobe::ZIZI_ARMOR_TEMPLATE)]
-#[case(travel::EMPTY_TEMPLATE)]
-#[case(travel::DEFAULT_MOUNT_TEMPLATE)]
-#[case(travel::NO_DYES_TEMPLATE)]
-#[case(travel::PEEKABOO_TEMPLATE)]
-#[case(travel::KABOOM_TEMPLATE)]
-#[case(travel::KABOOM_MOUNTS_TEMPLATE)]
-#[case(travel::ZIZI_TEMPLATE)]
-fn test_read_command(#[case] template: ChatLinkFixture) {
-    let output = spawn_cli::<String>(&["read", template.link], None)
+#[apply(all_fixtures)]
+fn test_read_command(fixture: ChatLinkFixture) {
+    let output = spawn_cli::<String>(&["read", fixture.link], None)
         .assert()
         .success()
         .get_output()
         .stdout
         .clone();
-    assert_snapshot!(&template.name, &output, SNAPSHOT_DIR);
+    assert_snapshot!(&fixture.name, &output, SNAPSHOT_DIR);
 }
 
-#[rstest]
-#[case(coins::ZERO)]
-#[case(coins::ONE)]
-#[case(coins::ONE_TWO_THREE)]
-#[case(coins::MAX)]
-#[case(wardrobe::EMPTY_TEMPLATE)]
-#[case(wardrobe::PEEKABOO_TEMPLATE)]
-#[case(wardrobe::ZIZI_TEMPLATE)]
-#[case(wardrobe::ZIZI_ARMOR_TEMPLATE)]
-#[case(travel::EMPTY_TEMPLATE)]
-#[case(travel::DEFAULT_MOUNT_TEMPLATE)]
-#[case(travel::NO_DYES_TEMPLATE)]
-#[case(travel::PEEKABOO_TEMPLATE)]
-#[case(travel::KABOOM_TEMPLATE)]
-#[case(travel::KABOOM_MOUNTS_TEMPLATE)]
-#[case(travel::ZIZI_TEMPLATE)]
-fn test_read_command_pretty(#[case] template: ChatLinkFixture) {
-    let output = spawn_cli::<String>(&["read", template.link, "--pretty"], None)
+#[apply(all_fixtures)]
+fn test_read_command_pretty(fixture: ChatLinkFixture) {
+    let output = spawn_cli::<String>(&["read", fixture.link, "--pretty"], None)
         .assert()
         .success()
         .get_output()
         .stdout
         .clone();
-    assert_snapshot!(&template.name, &output, SNAPSHOT_DIR);
+    assert_snapshot!(&fixture.name, &output, SNAPSHOT_DIR);
 }
 
-#[rstest]
-#[case(wardrobe::EMPTY_TEMPLATE)]
-#[case(wardrobe::PEEKABOO_TEMPLATE)]
-#[case(wardrobe::ZIZI_TEMPLATE)]
-#[case(wardrobe::ZIZI_ARMOR_TEMPLATE)]
-#[case(travel::EMPTY_TEMPLATE)]
-#[case(travel::DEFAULT_MOUNT_TEMPLATE)]
-#[case(travel::NO_DYES_TEMPLATE)]
-#[case(travel::PEEKABOO_TEMPLATE)]
-#[case(travel::KABOOM_TEMPLATE)]
-#[case(travel::KABOOM_MOUNTS_TEMPLATE)]
-#[case(travel::ZIZI_TEMPLATE)]
-fn test_read_command_skip_names(#[case] fixture: ChatLinkFixture) {
+#[apply(template_fixtures)]
+fn test_read_command_skip_names(fixture: ChatLinkFixture) {
     let output = spawn_cli::<String>(&["read", fixture.link, "--skip-names"], None)
         .assert()
         .success()

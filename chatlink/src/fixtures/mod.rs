@@ -1,3 +1,6 @@
+pub use rstest_reuse;
+pub use rstest_reuse::template;
+
 use crate::ChatLinkType;
 pub(crate) use macros::*;
 
@@ -38,6 +41,9 @@ impl ChatLinkFixture {
     }
 }
 
+fixture_cases! { all_fixtures: coins, wardrobe, travel }
+fixture_cases! { template_fixtures: wardrobe, travel }
+
 pub(crate) mod macros {
     /// Declares the fixture consts, ALL_TEMPLATES, and a `fixture_list!` callback macro.
     macro_rules! fixtures {
@@ -56,21 +62,37 @@ pub(crate) mod macros {
     pub(crate) use fixtures;
 
     macro_rules! with_fixtures {
-        // public entry point
-        ($emit:ident: $($m:ident),* $(,)?) => {
-            with_fixtures! { @collect [] $emit; $($m)* }
+        // public entry point: `emitter(extra args): module, module, ...`
+        ($emit:ident $( ( $($args:tt)* ) )?: $($m:ident),* $(,)?) => {
+            with_fixtures! { @collect [] { $emit $($($args)*)? }; $($m)* }
         };
         // internal rules
-        (@collect [$($acc:path,)*] $emit:ident;) => { $emit! { $($acc),* } };
-        (@collect [$($acc:path,)*] $emit:ident; $m:ident $($rest:ident)*) => {
+        (@collect [$($acc:path,)*] { $emit:ident $($args:tt)* };) => {
+            $emit! { [$($acc),*] $($args)* }
+        };
+        (@collect [$($acc:path,)*] $emit:tt; $m:ident $($rest:ident)*) => {
             $m::fixture_list! { @collect [$($acc,)*] $emit; $($rest)* }
         };
     }
     pub(crate) use with_fixtures;
 
-    macro_rules! as_slice { ($($f:path),*) => { &[$($f),*] }; }
+    macro_rules! as_slice { ([$($f:path),*]) => { &[$($f),*] }; }
     pub(crate) use as_slice;
+
+    macro_rules! as_template {
+        ([$($f:path),*] $name:ident) => {
+            #[template]
+            #[export]
+            #[rstest]
+            $( #[case($f)] )*
+            pub fn $name(#[case] fixture: ChatLinkFixture) {}
+        };
+    }
+    pub(crate) use as_template;
 
     macro_rules! fixture_slice { ($($m:ident),* $(,)?) => { with_fixtures! { as_slice: $($m),* } }; }
     pub(crate) use fixture_slice;
+
+    macro_rules! fixture_cases { ($name:ident: $($m:ident),* $(,)?) => { with_fixtures! { as_template($name): $($m),* } }; }
+    pub(crate) use fixture_cases;
 }
