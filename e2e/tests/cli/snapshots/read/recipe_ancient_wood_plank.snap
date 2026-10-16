@@ -1,0 +1,8 @@
+---
+source: e2e/tests/cli/read.rs
+expression: json
+---
+{
+  "id": 2,
+  "link_type": "Recipe"
+}

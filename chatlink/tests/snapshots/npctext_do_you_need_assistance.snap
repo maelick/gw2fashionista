@@ -1,0 +1,6 @@
+---
+source: chatlink/tests/parse.rs
+expression: "&result"
+---
+link_type: NpcText
+id: 10016

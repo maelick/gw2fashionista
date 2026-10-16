@@ -1,0 +1,8 @@
+---
+source: e2e/tests/cli/read.rs
+expression: json
+---
+{
+  "id": 7139,
+  "link_type": "Achievement"
+}
