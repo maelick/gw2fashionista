@@ -1,0 +1,10 @@
+---
+source: chatlink/tests/parse.rs
+expression: "&result"
+---
+link_type: Item
+count: 1
+id: 46762
+skin: ~
+first_upgrade: 24575
+second_upgrade: ~
