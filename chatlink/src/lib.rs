@@ -6,6 +6,7 @@ pub mod fixtures;
 pub mod id;
 pub mod items;
 pub mod templates;
+pub mod wvw;
 
 use std::sync::LazyLock;
 
