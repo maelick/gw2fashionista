@@ -17,6 +17,7 @@ use crate::items::Item;
 use crate::templates::travel::TravelTemplate;
 use crate::templates::wardrobe::WardrobeTemplate;
 use crate::templates::{FashionSlot, Template};
+use crate::user::User;
 use crate::wvw::Objective;
 
 #[derive(IntoPrimitive, TryFromPrimitive, Debug, Copy, Clone, PartialEq, Eq, Serialize)]
@@ -58,6 +59,7 @@ pub enum ChatLink {
     Trait {
         id: TraitId,
     },
+    User(User),
     Recipe {
         id: RecipeId,
     },
@@ -89,6 +91,7 @@ impl ChatLink {
             ChatLink::MapLink { id: _ } => ChatLinkType::MapLink,
             ChatLink::Skill { id: _ } => ChatLinkType::Skill,
             ChatLink::Trait { id: _ } => ChatLinkType::Trait,
+            ChatLink::User(_) => ChatLinkType::User,
             ChatLink::Recipe { id: _ } => ChatLinkType::Recipe,
             ChatLink::Wardrobe { id: _ } => ChatLinkType::Wardrobe,
             ChatLink::Outfit { id: _ } => ChatLinkType::Outfit,
@@ -116,6 +119,7 @@ impl ChatLink {
             ChatLink::MapLink { id } => id.encode(w),
             ChatLink::Skill { id } => id.encode(w),
             ChatLink::Trait { id } => id.encode(w),
+            ChatLink::User(user) => user.encode(w),
             ChatLink::Recipe { id } => id.encode(w),
             ChatLink::Wardrobe { id } => id.encode(w),
             ChatLink::Outfit { id } => id.encode(w),
@@ -216,6 +220,10 @@ impl FromStr for ChatLink {
             ChatLinkType::Trait => {
                 let id = TraitId::try_from(payload)?;
                 Self::Trait { id }
+            }
+            ChatLinkType::User => {
+                let user = User::try_from(payload)?;
+                Self::User(user)
             }
             ChatLinkType::Recipe => {
                 let id = RecipeId::try_from(payload)?;
