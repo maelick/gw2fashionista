@@ -14,6 +14,7 @@ pub mod recipes;
 pub mod skills;
 pub mod traits;
 pub mod travel;
+pub mod users;
 pub mod wardrobe;
 pub mod wardrobe_skins;
 pub mod wvw;
@@ -25,6 +26,7 @@ pub const ALL: &[ChatLinkFixture] = fixture_slice!(
     maplinks,
     skills,
     traits,
+    users,
     recipes,
     wardrobe_skins,
     outfits,
@@ -64,6 +66,7 @@ fixture_cases! { all_fixtures:
     maplinks,
     skills,
     traits,
+    users,
     recipes,
     wardrobe_skins,
     outfits,

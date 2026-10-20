@@ -1,0 +1,7 @@
+---
+source: chatlink/tests/parse.rs
+expression: "&result"
+---
+link_type: User
+user_id: 04030201-0605-0807-090a-0b0c0d0e0f10
+character_name: Easter
