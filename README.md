@@ -19,8 +19,8 @@ The CLI can be run by
 
 It includes the following subcommands:
 * `help` and `help <subcommand>` to get the general help or help on a subcommand
-* `read`: read one or several GW chat links (currently only supports wardrobe & travel templates) and print their content,
-  resolving skin and dye names using the GW2 API.
+* `read`: read one or several GW chat links (currently supports all chat links except build templates and PvP games)
+  and print their content, resolving skin and dye names using the GW2 API.
 * `wardrobe export`: export from the GW2 API one or several characters' equipment tabs as fashion templates.
   It requires an API key with the `account`, `builds`, and `characters` permissions.
   The key can be provided as a CLI argument or as an environment variable.
