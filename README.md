@@ -2,7 +2,8 @@
 
 Command Line Interface (CLI) tool to manage GW2 fashion templates.
 Currently, it can:
-* parse, filter, and merge wardrobe and travel template chat links.
+* parse most GW2 chat link codes (except build templates and PvP games).
+* filter, and merge wardrobe and travel templates.
 * export equipment tabs as wardrobe templates using the GW2 API.
   (Requires an API key with the `account`, `builds`, and `characters` permissions.)
 * store and manage fashion templates and annotate them with a name, character name, description, and tags.
