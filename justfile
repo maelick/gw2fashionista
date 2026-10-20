@@ -65,4 +65,4 @@ ls-crates-dir:
 
 # Run cloc on all the crates of the workspace
 cloc:
-    cloc {{ crates_dir }} --by-file-by-lang
+    cloc {{ crates_dir }} --by-file-by-lang --exclude-lang=TOML
