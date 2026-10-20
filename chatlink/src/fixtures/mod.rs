@@ -16,6 +16,7 @@ pub mod traits;
 pub mod travel;
 pub mod wardrobe;
 pub mod wardrobe_skins;
+pub mod wvw;
 
 pub const ALL: &[ChatLinkFixture] = fixture_slice!(
     coins,
@@ -27,9 +28,10 @@ pub const ALL: &[ChatLinkFixture] = fixture_slice!(
     recipes,
     wardrobe_skins,
     outfits,
+    wvw,
     achievements,
     wardrobe,
-    travel
+    travel,
 );
 pub const ALL_TEMPLATES: &[ChatLinkFixture] = fixture_slice!(wardrobe, travel);
 
@@ -55,7 +57,21 @@ impl ChatLinkFixture {
     }
 }
 
-fixture_cases! { all_fixtures: coins, items, npctext, maplinks, skills, traits, recipes, wardrobe_skins, outfits, achievements, wardrobe, travel }
+fixture_cases! { all_fixtures:
+    coins,
+    items,
+    npctext,
+    maplinks,
+    skills,
+    traits,
+    recipes,
+    wardrobe_skins,
+    outfits,
+    wvw,
+    achievements,
+    wardrobe,
+    travel,
+}
 fixture_cases! { template_fixtures: wardrobe, travel }
 
 pub(crate) mod macros {

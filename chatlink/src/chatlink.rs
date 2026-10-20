@@ -17,6 +17,7 @@ use crate::items::Item;
 use crate::templates::travel::TravelTemplate;
 use crate::templates::wardrobe::WardrobeTemplate;
 use crate::templates::{FashionSlot, Template};
+use crate::wvw::Objective;
 
 #[derive(IntoPrimitive, TryFromPrimitive, Debug, Copy, Clone, PartialEq, Eq, Serialize)]
 #[num_enum(error_type(name = ChatLinkError, constructor = ChatLinkError::UnknownType))]
@@ -66,6 +67,7 @@ pub enum ChatLink {
     Outfit {
         id: OutfitId,
     },
+    WvWObjective(Objective),
     Achievement {
         id: AchievementId,
     },
@@ -90,6 +92,7 @@ impl ChatLink {
             ChatLink::Recipe { id: _ } => ChatLinkType::Recipe,
             ChatLink::Wardrobe { id: _ } => ChatLinkType::Wardrobe,
             ChatLink::Outfit { id: _ } => ChatLinkType::Outfit,
+            ChatLink::WvWObjective(_) => ChatLinkType::WvWObjective,
             ChatLink::Achievement { id: _ } => ChatLinkType::Achievement,
             ChatLink::WardrobeTemplate(_) => ChatLinkType::WardrobeTemplate,
             ChatLink::TravelTemplate(_) => ChatLinkType::TravelTemplate,
@@ -116,6 +119,7 @@ impl ChatLink {
             ChatLink::Recipe { id } => id.encode(w),
             ChatLink::Wardrobe { id } => id.encode(w),
             ChatLink::Outfit { id } => id.encode(w),
+            ChatLink::WvWObjective(objective) => objective.encode(w),
             ChatLink::Achievement { id } => id.encode(w),
             ChatLink::WardrobeTemplate(t) => t.encode(w),
             ChatLink::TravelTemplate(t) => t.encode(w),
@@ -224,6 +228,10 @@ impl FromStr for ChatLink {
             ChatLinkType::Outfit => {
                 let id = OutfitId::try_from(payload)?;
                 Self::Outfit { id }
+            }
+            ChatLinkType::WvWObjective => {
+                let objective = Objective::try_from(payload)?;
+                Self::WvWObjective(objective)
             }
             ChatLinkType::Achievement => {
                 let id = AchievementId::try_from(payload)?;

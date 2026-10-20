@@ -1,0 +1,7 @@
+---
+source: chatlink/tests/parse.rs
+expression: "&result"
+---
+link_type: WvWObjective
+objective_id: 6
+map_id: 38

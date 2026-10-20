@@ -1,0 +1,9 @@
+---
+source: e2e/tests/cli/read.rs
+expression: json
+---
+{
+  "link_type": "WvWObjective",
+  "map_id": 38,
+  "objective_id": 6
+}
