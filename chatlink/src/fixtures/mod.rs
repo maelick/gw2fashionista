@@ -71,7 +71,7 @@ fixture_cases! { all_fixtures:
     achievements,
     wardrobe,
     travel,
- }
+}
 fixture_cases! { template_fixtures: wardrobe, travel }
 
 pub(crate) mod macros {
