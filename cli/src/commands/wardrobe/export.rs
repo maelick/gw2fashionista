@@ -38,10 +38,6 @@ pub struct Command {
     #[arg(short, long, display_order = 3)]
     output: Option<std::path::PathBuf>,
 
-    /// When provided, do not generate names for tabs without one
-    #[arg(long, display_order = 4)]
-    no_default_name: bool,
-
     #[command(flatten)]
     filters: WardrobeFilters,
 
@@ -81,17 +77,8 @@ impl Command {
             .resolve_equipment(equipments)
             .await?;
 
-        let exported: Vec<_> = resolved.iter().map(|e| self.export_equipment(e)).collect();
+        let exported: Vec<_> = resolved.iter().map(ExportedEquipment::new).collect();
         self.output_equipments(exported)
-    }
-
-    fn export_equipment(&self, equipment: &Equipment) -> ExportedEquipment {
-        let equipment = ExportedEquipment::new(equipment);
-        if !self.no_default_name {
-            equipment.with_default_name()
-        } else {
-            equipment
-        }
     }
 
     fn output_equipments(&self, equipments: Vec<ExportedEquipment>) -> anyhow::Result<()> {
@@ -117,30 +104,24 @@ impl Command {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 struct ExportedEquipment {
-    pub char_name: String,
+    pub name: String,
+    pub character: String,
     pub tab_id: usize,
-    pub tab_name: String,
-    pub fashion_link: String,
+    pub wardrobe_template: String,
 }
 
 impl ExportedEquipment {
     pub fn new(equipment: &Equipment) -> Self {
-        ExportedEquipment {
-            char_name: equipment.char_name.clone(),
-            tab_id: equipment.tab_id,
-            tab_name: equipment.tab_name.clone(),
-            fashion_link: equipment.to_template().to_string(),
-        }
-    }
-
-    pub fn with_default_name(self) -> Self {
-        if self.tab_name.is_empty() {
-            ExportedEquipment {
-                tab_name: format!("{} {}", self.char_name, self.tab_id),
-                ..self
-            }
+        let name = if equipment.tab_name.is_empty() {
+            format!("Equipment tab {}", equipment.tab_id)
         } else {
-            self
+            format!("Equipment tab {}", equipment.tab_name)
+        };
+        ExportedEquipment {
+            name,
+            character: equipment.char_name.clone(),
+            tab_id: equipment.tab_id,
+            wardrobe_template: equipment.to_template().to_string(),
         }
     }
 }

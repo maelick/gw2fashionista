@@ -78,7 +78,7 @@ fn test_read_command_input_list_invalid_lenient() {
 #[test]
 fn test_read_command_input_csv() {
     let templates = templates_as_csv(fixtures::ALL_TEMPLATES);
-    let input = format!("name,fashion_link\n{}", templates.join("\n\n"));
+    let input = format!("name,chatlink\n{}", templates.join("\n\n"));
     let output = spawn_cli::<String>(&["read"], Some(input))
         .assert()
         .success()
@@ -91,7 +91,7 @@ fn test_read_command_input_csv() {
 fn test_read_command_input_csv_wrong_row() {
     let templates = templates_as_csv(fixtures::ALL_TEMPLATES);
     let input = format!(
-        "name,fashion_link\n{}\nwrong row,not a chat link",
+        "name,chatlink\n{}\nwrong row,not a chat link",
         templates.join("\n\n")
     );
     spawn_cli::<String>(&["read"], Some(input))
@@ -104,7 +104,7 @@ fn test_read_command_input_csv_wrong_row() {
 fn test_read_command_input_csv_wrong_row_lenient() {
     let templates = templates_as_csv(fixtures::ALL_TEMPLATES);
     let input = format!(
-        "name,fashion_link\nwrong row,not a chat link\n{}",
+        "name,chatlink\nwrong row,not a chat link\n{}",
         templates.join("\n\n")
     );
     let output = spawn_cli::<String>(&["read", "--lenient"], Some(input))
