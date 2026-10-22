@@ -21,6 +21,23 @@ pub enum Error {
     MissingFashionId,
     #[error(transparent)]
     Repository(#[from] repositories::Error<FashionError>),
+    #[error("Fashion template was skipped")]
+    Skipped,
+}
+
+impl Error {
+    pub fn is_conflict(&self) -> bool {
+        matches!(
+            self,
+            Self::Repository(repositories::Error::Repository(FashionError::Conflict {
+                message: _
+            }))
+        )
+    }
+
+    pub fn is_not_found(&self) -> bool {
+        matches!(self, Self::Repository(repositories::Error::NotFound))
+    }
 }
 
 pub struct Service<R>
