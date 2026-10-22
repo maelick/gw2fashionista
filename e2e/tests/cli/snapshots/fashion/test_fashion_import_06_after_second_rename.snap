@@ -1,0 +1,140 @@
+---
+source: e2e/tests/cli/fashion.rs
+expression: json
+---
+[
+  {
+    "character": "Character One",
+    "created_at": "[datetime]",
+    "description": "The description",
+    "id": "[uuid]",
+    "name": "Equipment tab 1",
+    "tags": [],
+    "travel_template": "[&EAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAP8P]",
+    "updated_at": "[datetime]",
+    "wardrobe_template": "[&D1sDPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAHwAAQABAAEAAQDjE6APPBI8Ej0SAAD+fg==]"
+  },
+  {
+    "character": "Character Three",
+    "created_at": "[datetime]",
+    "description": null,
+    "id": "[uuid]",
+    "name": "Equipment tab 1",
+    "tags": [],
+    "travel_template": "[&EAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAP8P]",
+    "updated_at": "[datetime]",
+    "wardrobe_template": "[&DwAAPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAAAAAQABAAEAAQAAAAAAAAAAAAAAAAD/fw==]"
+  },
+  {
+    "character": "Character Two",
+    "created_at": "[datetime]",
+    "description": "The other description",
+    "id": "[uuid]",
+    "name": "Equipment tab 1",
+    "tags": [
+      "tag"
+    ],
+    "travel_template": "[&EEkA2QE4BQEAAQACAAEAAQABAAEAYQBKBUoCSgJ1AnMASgVKBUoCSgKnAUoF2QFKAkoChwFKBUoCSgI4BUkBSgLZAUoFewAlAUoFSgJKBTgFzwBKAkoFSgVKAowBSgVKBdkBSgLDAYEEhgB5AVoAjQFKAgEAAQABAP8P]",
+    "updated_at": "[datetime]",
+    "wardrobe_template": "[&D1sDPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAHwAAQABAAEAAQDjE6APPBI8Ej0SAAD+fg==]"
+  },
+  {
+    "character": "Character One",
+    "created_at": "[datetime]",
+    "description": null,
+    "id": "[uuid]",
+    "name": "Equipment tab 1 (2)",
+    "tags": [],
+    "travel_template": "[&EAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAP8P]",
+    "updated_at": "[datetime]",
+    "wardrobe_template": "[&D1sDPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAHwAAQABAAEAAQDjE6APPBI8Ej0SAAD+fg==]"
+  },
+  {
+    "character": "Character Three",
+    "created_at": "[datetime]",
+    "description": null,
+    "id": "[uuid]",
+    "name": "Equipment tab 1 (2)",
+    "tags": [],
+    "travel_template": "[&EAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAP8P]",
+    "updated_at": "[datetime]",
+    "wardrobe_template": "[&DwAAPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAAAAAQABAAEAAQAAAAAAAAAAAAAAAAD/fw==]"
+  },
+  {
+    "character": "Character Two",
+    "created_at": "[datetime]",
+    "description": null,
+    "id": "[uuid]",
+    "name": "Equipment tab 1 (2)",
+    "tags": [],
+    "travel_template": "[&EAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAP8P]",
+    "updated_at": "[datetime]",
+    "wardrobe_template": "[&D1sDPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAHwAAQABAAEAAQDjE6APPBI8Ej0SAAD+fg==]"
+  },
+  {
+    "character": "Character One",
+    "created_at": "[datetime]",
+    "description": null,
+    "id": "[uuid]",
+    "name": "Equipment tab 1 (3)",
+    "tags": [],
+    "travel_template": "[&EAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAP8P]",
+    "updated_at": "[datetime]",
+    "wardrobe_template": "[&D1sDPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAHwAAQABAAEAAQDjE6APPBI8Ej0SAAD+fg==]"
+  },
+  {
+    "character": "Character Three",
+    "created_at": "[datetime]",
+    "description": null,
+    "id": "[uuid]",
+    "name": "Equipment tab 1 (3)",
+    "tags": [],
+    "travel_template": "[&EAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAP8P]",
+    "updated_at": "[datetime]",
+    "wardrobe_template": "[&DwAAPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAAAAAQABAAEAAQAAAAAAAAAAAAAAAAD/fw==]"
+  },
+  {
+    "character": "Character Two",
+    "created_at": "[datetime]",
+    "description": null,
+    "id": "[uuid]",
+    "name": "Equipment tab 1 (3)",
+    "tags": [],
+    "travel_template": "[&EAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAP8P]",
+    "updated_at": "[datetime]",
+    "wardrobe_template": "[&D1sDPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAHwAAQABAAEAAQDjE6APPBI8Ej0SAAD+fg==]"
+  },
+  {
+    "character": "Character One",
+    "created_at": "[datetime]",
+    "description": null,
+    "id": "[uuid]",
+    "name": "Equipment tab 2",
+    "tags": [],
+    "travel_template": "[&EAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAP8P]",
+    "updated_at": "[datetime]",
+    "wardrobe_template": "[&DwAAPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAAAAAQABAAEAAQAAAAAAAAAAAAAAAAD/fw==]"
+  },
+  {
+    "character": "Character One",
+    "created_at": "[datetime]",
+    "description": null,
+    "id": "[uuid]",
+    "name": "Equipment tab 2 (2)",
+    "tags": [],
+    "travel_template": "[&EAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAP8P]",
+    "updated_at": "[datetime]",
+    "wardrobe_template": "[&DwAAPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAAAAAQABAAEAAQAAAAAAAAAAAAAAAAD/fw==]"
+  },
+  {
+    "character": "Character One",
+    "created_at": "[datetime]",
+    "description": null,
+    "id": "[uuid]",
+    "name": "Equipment tab 2 (3)",
+    "tags": [],
+    "travel_template": "[&EAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAP8P]",
+    "updated_at": "[datetime]",
+    "wardrobe_template": "[&DwAAPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAAAAAQABAAEAAQAAAAAAAAAAAAAAAAD/fw==]"
+  }
+]

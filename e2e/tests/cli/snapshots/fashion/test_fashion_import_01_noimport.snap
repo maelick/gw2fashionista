@@ -1,0 +1,17 @@
+---
+source: e2e/tests/cli/fashion.rs
+expression: json
+---
+[
+  {
+    "character": "Character One",
+    "created_at": "[datetime]",
+    "description": "The description",
+    "id": "[uuid]",
+    "name": "Equipment tab 1",
+    "tags": [],
+    "travel_template": "[&EAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAAAAAQABAAEAAQAAAAEAAQABAAEAAAABAAEAAQABAP8P]",
+    "updated_at": "[datetime]",
+    "wardrobe_template": "[&D7UfzTMeBQYA4gQGAJ4AHgUGAB4FAQCsAAYABgAeBQEANSgBAAYAHgUBAMkDHgUGAAEAAQDVAAYAHgUeBQEAoRYeBQYAAQABADIAAQABAAEAAQBoEqAPFCovKj8SAAD/fg==]"
+  }
+]
