@@ -47,8 +47,11 @@ impl commands::Command for Command {
 impl Command {
     #[tracing::instrument(level = "error", name = "wardrobe-export", skip_all)]
     pub async fn execute(&self, mut env: Environment) -> anyhow::Result<()> {
-        let api_key = env.secret_repo().await?.gw2_api_key().await?;
-        let importer = Importer::with_api_key(&api_key);
+        let api_key = env.secret_repo().await?.gw2_api_key().await;
+        if let Err(err) = &api_key {
+            anyhow::bail!("GW2 API key: {}", err);
+        }
+        let importer = Importer::with_api_key(&api_key?);
 
         let characters = if self.characters.is_empty() {
             importer.characters().await?

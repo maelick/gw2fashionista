@@ -4,7 +4,7 @@ pub type Result<T> = std::result::Result<T, super::Error<Error>>;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("invalid value: {message}")]
+    #[error("invalid secret value: {message}")]
     Invalid { message: String },
 }
 
