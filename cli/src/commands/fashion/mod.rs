@@ -76,6 +76,7 @@ pub enum Commands {
     /// Patch an existing fashion, overriding only provided fields.
     Patch(patch::Command),
     /// Delete an existing fashion template.
+    #[command(visible_alias = "rm")]
     Delete(delete::Command),
     /// List existing fashion templates.
     #[command(visible_alias = "ls")]
