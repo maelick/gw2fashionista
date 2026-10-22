@@ -78,6 +78,21 @@ impl<S: State> FashionBuilder<S> {
 }
 
 impl Fashion {
+    pub fn identifier(&self) -> FashionIdentifier {
+        if let Some(id) = self.id {
+            FashionIdentifier::Id(id)
+        } else {
+            self.name_and_char()
+        }
+    }
+
+    pub fn name_and_char(&self) -> FashionIdentifier {
+        FashionIdentifier::NameAndCharacter {
+            name: self.name.to_string(),
+            character: self.character.as_ref().map(CharacterName::to_string),
+        }
+    }
+
     pub fn with_id(mut self, id: uuid::Uuid) -> Self {
         self.id = Some(id);
         self
@@ -139,14 +154,7 @@ mod display_fromstr_option {
 
 impl From<&Fashion> for FashionIdentifier {
     fn from(fashion: &Fashion) -> Self {
-        if let Some(id) = fashion.id {
-            FashionIdentifier::Id(id)
-        } else {
-            FashionIdentifier::NameAndCharacter {
-                name: fashion.name.to_string(),
-                character: fashion.character.as_ref().map(CharacterName::to_string),
-            }
-        }
+        fashion.identifier()
     }
 }
 
