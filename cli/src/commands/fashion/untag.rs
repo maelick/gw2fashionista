@@ -57,15 +57,14 @@ impl Command {
         service: &FashionService<sqlite::Store>,
     ) -> anyhow::Result<Vec<uuid::Uuid>> {
         let ids = self
-            .read_identifiers()
-            .await?
+            .read_identifiers()?
             .into_iter()
             .filter(|id| !id.is_empty())
             .map(async |id| service.resolve_id(&id.into()).await);
         Ok(FuturesOrdered::from_iter(ids).try_collect().await?)
     }
 
-    async fn read_identifiers(&self) -> anyhow::Result<Vec<FashionIdentifier>> {
+    fn read_identifiers(&self) -> anyhow::Result<Vec<FashionIdentifier>> {
         Ok(match &self.id {
             Some(id) => vec![id.clone()],
             None => read_identifiers(&self.format)?.0.into(),
