@@ -21,7 +21,8 @@ The `help` command can be used to get general help, and `help <subcommand>` to g
 The CLI can store "fashion templates", which contain a wardrobe and travel template annotated with a name,
 and optionally a character name, a description, and tags.
 
-The templates are stored in an SQLite database that is stored in the user's application data folder by default.
+The templates are stored in an SQLite database that is stored in the user's application data folder by default
+(e.g. `~/.local/share/gw2fashionista/gw2fashionista.sqlite` on Linux).
 A path can also be provided using the --db argument (e.g., `gw2fashionista --db <path/to/db.sqlite> fashion list`).
 
 A fashion template has:
@@ -42,6 +43,12 @@ The following commands can be used to manage fashion templates:
 * `fashion delete`: delete an existing fashion template
 * `fashion list`: list all fashion templates
 * `fashion untag`: remove all tags from a fashion template
+* `fashion import`: import a list of templates read from stdin with different modes to handle already existing templates with the same name/character:
+  * overwrite: overwrite the existing template(s) with the imported one (i.e. will remove description, tags and travel template)
+  * patch: patch the existing template(s) with the imported one (i.e. will overwrite the wardrobe template but will keep existing description, tags and travel template)
+  * skip: import non-existing fashion, print a warning for existing ones and exit with a status error
+  * fail (default): abort the command if there is at least one template which name and character name matches
+  * rename: rename any pre-existing template by adding a number at the end and retries until a non-used named is found
 
 Most of these commands work with structured data that can be formatted as JSON or CSV.
 By default, the data format is auto-detected based on whether stdin/stdout are a TTY,
@@ -90,10 +97,11 @@ By default, it also resolves skin/outfit/dye names using the GW2 API.
 
 For example, to read all exported equipment tabs (see previous section):
 ```bash
-./gw2fashionista read < wardrobe.csv
+./gw2fashionista read --column wardrobe_template < wardrobe.csv
 ```
 
-Note: this command currently only supports wardrobe and travel templates.
+Note: this command does not currently support chat links for
+build templates (not yet implemented) and PvP games (format not documented).
 
 ### Transforming wardrobe and travel templates
 
@@ -124,10 +132,11 @@ fashion2='[&<base64-encoded-template]]'
 
 The following examples are written for Linux and/or bash terminals.
 
+### Transforming wardrobe and travel template chat links
+
 ```bash
 fashion1='[&<base64-encoded-template>]'
 fashion2='[&<base64-encoded-template]]'
-./gw2fashionista wardrobe merge "$fashion1" "$fashion2_noweapons"
 
 # Strip weapons from fashion2
 fashion2_noweapons=$(./gw2fashionista wardrobe filter "$fashion2" --exclude weapons)
@@ -146,4 +155,156 @@ echo $fashion2_noweapons | ./gw2fashionista read | jq
 ./gw2fashionista wardrobe merge "$fashion1" "$fashion2_noweapons" --no-skins | ./gw2fashionista read | jq .backpack
 # fashion2 backpack skin and fashion1 dyes
 ./gw2fashionista wardrobe merge "$fashion1" "$fashion2_noweapons" --no-dyes | ./gw2fashionista read | jq .backpack
+```
+
+### Managing fashion templates
+
+#### Creating, reading, updating and deleting templates
+
+```bash
+# Listing existing fashion templates in the database (empty if new database)
+./gw2fashionista fashion list
+
+# Adding a new empty fashion with a description and two tags (empty and todo)
+./gw2fashionista fashion create -n "First Template" -d "The template's description" -t empty -t todo
+
+# Retrieving the fashion template in the database
+./gw2fashionista fashion get -n "First Template"
+
+# Updating some of the template's fields without erasing the other ones
+./gw2fashionista fashion patch -n "First Template" --wardrobe "[&<base64-encoded-template>]"
+./gw2fashionista fashion patch -n "First Template" --travel "[&<base64-encoded-template>]"
+
+# Update the template and erasing the fields not provided
+./gw2fashionista fashion set -n "First Template" --wardrobe "[&<base64-encoded-template>]"
+
+# Deleting the template
+./gw2fashionista fashion delete -n "First Template"
+```
+
+#### Associating templates with characters
+
+A fashion template can be associated with a specific character.
+The character name becomes then part of the fashion's identifier.
+
+```bash
+# Adding a new fashion for specific characters with a wardrobe and travel templates
+./gw2fashionista fashion create -n "Second Template" -c "My Character Name" --wardrobe "[&<base64-encoded-template>]" --travel "[&<base64-encoded-template>]"
+./gw2fashionista fashion create -n "Second Template" -c "My Second Character Name" --wardrobe "[&<base64-encoded-template>]" --travel "[&<base64-encoded-template>]"
+# Retrieving the created fashion templates
+./gw2fashionista fashion get -n "Second Template" -c "My Character Name"
+./gw2fashionista fashion get -n "Second Template" -c "My Second Character Name"
+# Retrieving the template without a character will fail
+./gw2fashionista fashion get -n "Second Template"
+# We can also create a template with the same name without a character
+./gw2fashionista fashion create -n "Second Template" --wardrobe "[&<base64-encoded-template>]" --travel "[&<base64-encoded-template>]"
+# Retrieving the template without a character will now work
+./gw2fashionista fashion get -n "Second Template"
+```
+
+#### Tag management
+
+```bash
+# Creating several templates with different tags
+./gw2fashionista fashion create -n template1 -t tag1 -t tag2
+./gw2fashionista fashion create -n template2 -t tag2 -t tag3 -t tag4
+./gw2fashionista fashion create -n template3 -t tag3 -t tag4 -t tag5
+./gw2fashionista fashion create -n template4 -t hello1 -t hello2 -t hello3
+
+# Adding a new tag to a template
+./gw2fashionista fashion patch -n template1 -t tag3
+
+# Replacing all tags for a template
+./gw2fashionista fashion set -n template1 -t tag2 -t tag4
+
+# Removing all tags from a template
+./gw2fashionista fashion untag -n template1
+
+# Replacing all usage of tag4, tag5 and hello1 with tag6
+./gw2fashionista fashion tag replace tag4 tag5 hello1 tag6
+
+# Renaming tag6 as tag7
+./gw2fashionista fashion tag rename tag6 tag7
+
+# See the list of tags and the number of templates using them
+./gw2fashionista fashion tag list
+
+# Cleaning up unused tags
+./gw2fashionista fashion tag clean
+
+# Deleting tags
+./gw2fashionista fashion tag delete tag7 hello3
+
+# Listing templates with one or several tag(s)
+./gw2fashionista fashion list tag1
+./gw2fashionista fashion list tag3
+./gw2fashionista fashion list tag2 tag3
+```
+
+### Piping commands
+
+Most commands can read data from the standard input rather than from the command parameters,
+making it possible to pipe several commands together for running more complex operations.
+
+```bash
+# Adding a tag to all templates with a specific tag
+./gw2fashionista fashion list tag3 | ./gw2fashionista fashion patch -t peekaboo
+
+# Replacing all tags with a single tag for all templates with a specific tag.
+# Note that when using `set`, we need to filter the resulting JSON to keep only the fashion id, name and character,
+# otherwise we would update each template with all its fields.
+./gw2fashionista fashion list tag3 | jq '[.[] | {id,name,character}]' | ./gw2fashionista fashion set -t peekaboo2
+
+# Deleting all templates with a specific tag
+./gw2fashionista fashion list tag3 | ./gw2fashionista fashion delete
+```
+
+The subcommands `fashion wardrobe|travel get|set` are specifically designed to read/write
+a chat link from/to the standard input/output so they can be modified with other commands
+such as `wardrobe|travel filter`:
+
+```bash
+./gw2fashionista fashion create -n "A non empty fashion" --wardrobe "[&<base64-encoded-template>]" --travel "[&<base64-encoded-template>]"
+./gw2fashionista fashion create -n "An empty fashion"
+
+# Apply the travel template of the first fashion to the second
+./gw2fashionista fashion travel get -n "A non empty fashion" | \
+  ./gw2fashionista fashion travel set -n "An empty fashion"
+
+# Filter and update the first template's wardrobe chat link
+./gw2fashionista fashion wardrobe get -n "A non empty fashion" | \
+  ./gw2fashionista fashion filter --exclude outfit,underwater,weapons | \
+  ./gw2fashionista fashion wardrobe get -n "A non empty fashion"
+```
+
+## Importing exported equipment tabs as fashion templates
+
+The `wardrobe export` command outputs data in a format that can be understood by `fashion import`.
+
+```bash
+# Let's pretend we have one character's fashion already saved:
+./gw2fashionista fashion create -n "Equipment tab 1" -c "My Cool Character" -d "Coolest fashion ever" --wardrobe "[&<base64-encoded-template>]" -t cool
+
+# Assuming we don't already have any template for the account's characters and/or equipment tabs,
+# we can import all characters current equipment tabs and skip the existing one like this:
+./gw2fashionista wardrobe export | ./gw2fashionista fashion import --mode skip
+
+# Trying to import it with the default mode (fail) prevents from importing anything
+./gw2fashionista wardrobe export | ./gw2fashionista fashion import
+
+# Let's modify an imported fashion:
+./gw2fashionista fashion patch -n "Equipment tab 1" -c "My Other Cool Character" -d "This one has also a travel template" --travel "[&<base64-encoded-template>]" -t cool
+
+# We can also improt and patch existing templates to avoid losing the descriptions, tags and travel templates
+./gw2fashionista wardrobe export | ./gw2fashionista fashion import --mode patch
+
+# We can rename the duplicate templates to import to avoid overwriting anything
+./gw2fashionista wardrobe export | ./gw2fashionista fashion import --mode rename
+
+# We can do this as many times as we want
+./gw2fashionista wardrobe export | ./gw2fashionista fashion import --mode rename
+./gw2fashionista wardrobe export | ./gw2fashionista fashion import --mode rename
+
+# Finally we can also decide to overwrite the existing ones and lose any of our changes
+./gw2fashionista wardrobe export | ./gw2fashionista fashion import --mode overwrite
 ```
