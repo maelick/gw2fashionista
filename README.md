@@ -35,7 +35,7 @@ export GW2_API_KEY='<your-api-key-here>'
   one slots that are set in the second one.
   The second template can be filtered using the same filters as for the `filter` command,
   and the command also allows merging only dyes or skins, if desired.
-* `fashion create|get|set|patch|delete|list|untag`: manage stored fashion templates
+* `fashion create|get|set|patch|delete|list|untag|import`: manage stored fashion templates
 * `fashion tag list|clean`: manage tags
 * `fashion wardrobe|travel get|set`: get or set the chat link of the wardrobe or travel template of a stored fashion template
 
