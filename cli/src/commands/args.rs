@@ -2,7 +2,7 @@ use std::io::{self, IsTerminal};
 
 use clap::{Args, ValueEnum};
 
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, ValueEnum, Debug)]
 pub enum DataFormat {
     /// Auto detection
     Auto,
@@ -12,7 +12,7 @@ pub enum DataFormat {
     Json,
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, ValueEnum, Debug)]
 pub enum InputMode {
     /// Auto detection based on whether stdin is a terminal
     Auto,

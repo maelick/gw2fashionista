@@ -1,3 +1,4 @@
+use clap::builder::ArgPredicate;
 use futures::{TryStreamExt, stream::FuturesOrdered};
 use gw2fashionista_core::app::FashionService;
 use gw2fashionista_storage::sqlite;
@@ -20,9 +21,20 @@ pub struct Command {
     #[command(flatten)]
     id: Option<FashionIdentifier>,
 
-    /// Input format. Auto is based on whether stdin is a TTY (CSV for TTY, JSON if not).
-    #[arg(short, long, value_enum, default_value_t = DataFormat::Auto)]
+    /// Input format. Auto is based on whether stdout is a TTY (CSV for TTY, JSON if not).
+    #[arg(short, long, value_enum,
+        default_value_t = DataFormat::Auto,
+        default_value_if("json", ArgPredicate::IsPresent, "json"),
+        default_value_if("csv", ArgPredicate::IsPresent, "csv"))]
     format: DataFormat,
+
+    /// Forces JSON input.
+    #[arg(long, conflicts_with = "format", conflicts_with = "csv")]
+    json: bool,
+
+    /// Forces CSV input.
+    #[arg(long, conflicts_with = "format", conflicts_with = "json")]
+    csv: bool,
 }
 
 impl commands::Command for Command {

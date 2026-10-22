@@ -1,4 +1,5 @@
 use clap::Args;
+use clap::builder::ArgPredicate;
 use gw2fashionista_appearance::gw2::{equipment::Equipment, import::Importer, resolve::Resolver};
 use gw2fashionista_core::ports::repositories::SecretRepository;
 use serde::{Deserialize, Serialize};
@@ -15,8 +16,19 @@ pub struct Command {
     characters: Vec<String>,
 
     /// Output format. Auto is based on the output filename extension (default to CSV if missing filename or unknown extension).
-    #[arg(short, long, value_enum, default_value_t = args::DataFormat::Auto, display_order = 3)]
+    #[arg(short, long, value_enum,
+        default_value_t = args::DataFormat::Auto,
+        default_value_if("json", ArgPredicate::IsPresent, "json"),
+        default_value_if("csv", ArgPredicate::IsPresent, "csv"))]
     format: args::DataFormat,
+
+    /// Forces JSON output.
+    #[arg(long, conflicts_with = "format", conflicts_with = "csv")]
+    json: bool,
+
+    /// Forces CSV output.
+    #[arg(long, conflicts_with = "format", conflicts_with = "json")]
+    csv: bool,
 
     /// Pretty print (JSON) output.
     #[arg(short, long)]

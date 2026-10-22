@@ -16,7 +16,7 @@ struct Cli {
     #[command(flatten)]
     verbosity: Verbosity<InfoLevel>,
 
-    /// Output all logs (from external libraries)
+    /// Output logs from external libraries
     #[arg(long, global = true)]
     pub all_logs: bool,
 

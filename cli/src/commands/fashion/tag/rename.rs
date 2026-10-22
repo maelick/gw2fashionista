@@ -4,7 +4,7 @@ use crate::{commands, environment::Environment};
 
 #[derive(clap::Args, Debug)]
 pub struct Command {
-    /// Name of the tag to use as replacement.
+    /// Name of the tag to rename.
     #[arg(required = true)]
     pub from: TagName,
 
