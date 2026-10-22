@@ -4,7 +4,7 @@ use etcetera::{AppStrategy, AppStrategyArgs, app_strategy::choose_native_strateg
 
 const TOP_LEVEL_DOMAIN: &str = "net";
 const AUTHOR: &str = "gw2fashionista";
-const APP_NAME: &str = "GW2 Fashionista";
+const APP_NAME: &str = "GW2Fashionista";
 
 #[derive(Debug, Clone)]
 pub struct Config {

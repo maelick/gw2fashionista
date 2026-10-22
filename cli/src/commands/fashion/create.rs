@@ -1,3 +1,4 @@
+use clap::builder::ArgPredicate;
 use futures::stream::FuturesOrdered;
 use gw2fashionista_core::{
     app::{FashionError, FashionService},
@@ -21,12 +22,36 @@ pub struct Command {
     data: FashionFields,
 
     /// Input format. Auto is based on whether stdin is a TTY (CSV for TTY, JSON if not).
-    #[arg(short, long, value_enum, default_value_t = DataFormat::Auto)]
+    #[arg(short, long, value_enum,
+        default_value_t = DataFormat::Auto,
+        default_value_if("json", ArgPredicate::IsPresent, "json"),
+        default_value_if("csv", ArgPredicate::IsPresent, "csv"))]
     input: DataFormat,
 
     /// Output format. Auto uses the same format as the input.
-    #[arg(short, long, value_enum, default_value_t = DataFormat::Auto)]
+    #[arg(short, long, value_enum,
+        default_value_t = DataFormat::Auto,
+        default_value_if("json", ArgPredicate::IsPresent, "json"),
+        default_value_if("csv", ArgPredicate::IsPresent, "csv"))]
     output: DataFormat,
+
+    /// Forces JSON input and output.
+    #[arg(
+        long,
+        conflicts_with = "input",
+        conflicts_with = "output",
+        conflicts_with = "csv"
+    )]
+    json: bool,
+
+    /// Forces CSV input and output.
+    #[arg(
+        long,
+        conflicts_with = "input",
+        conflicts_with = "output",
+        conflicts_with = "json"
+    )]
+    csv: bool,
 
     /// Input mode. Auto is based on whether stdin is a TTY (never for TTY, always otherwise).
     #[arg(long, value_enum, default_value_t = InputMode::Auto)]

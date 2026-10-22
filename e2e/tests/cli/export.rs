@@ -20,10 +20,10 @@ fn test_export_command_csv() {
     let (headers, records) = read_csv(output);
     assert!(records.len() > 0);
     assert_eq!(headers.len(), 4);
-    assert_eq!(headers.get(0).unwrap(), "char_name");
-    assert_eq!(headers.get(1).unwrap(), "tab_id");
-    assert_eq!(headers.get(2).unwrap(), "tab_name");
-    assert_eq!(headers.get(3).unwrap(), "fashion_link");
+    assert_eq!(headers.get(0).unwrap(), "name");
+    assert_eq!(headers.get(1).unwrap(), "character");
+    assert_eq!(headers.get(2).unwrap(), "tab_id");
+    assert_eq!(headers.get(3).unwrap(), "wardrobe_template");
 
     for record in records {
         assert_eq!(record.len(), 4);
@@ -32,8 +32,8 @@ fn test_export_command_csv() {
         }
 
         assert!(
-            NUMBER_REGEX.is_match(record.get(1).unwrap()),
-            "second field should be a number"
+            NUMBER_REGEX.is_match(record.get(2).unwrap()),
+            "third field should be a number"
         );
         assert!(
             gw2fashionista_chatlink::CHAT_LINK_REGEX.is_match(record.get(3).unwrap()),

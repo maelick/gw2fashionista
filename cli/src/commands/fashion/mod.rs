@@ -19,6 +19,7 @@ mod args;
 mod create;
 mod delete;
 mod get;
+mod import;
 mod list;
 mod patch;
 mod set;
@@ -42,6 +43,7 @@ impl Args {
             Commands::Patch(cmd) => cmd,
             Commands::Delete(cmd) => cmd,
             Commands::List(cmd) => cmd,
+            Commands::Import(cmd) => cmd,
             Commands::Wardrobe(args) => args.command(),
             Commands::Travel(args) => args.command(),
             Commands::Tag(args) => args.command(),
@@ -57,6 +59,7 @@ impl Args {
             Commands::Patch(cmd) => cmd.execute(env).await,
             Commands::Delete(cmd) => cmd.execute(env).await,
             Commands::List(cmd) => cmd.execute(env).await,
+            Commands::Import(cmd) => cmd.execute(env).await,
             Commands::Wardrobe(args) => args.execute(env).await,
             Commands::Travel(args) => args.execute(env).await,
             Commands::Tag(args) => args.execute(env).await,
@@ -76,10 +79,13 @@ pub enum Commands {
     /// Patch an existing fashion, overriding only provided fields.
     Patch(patch::Command),
     /// Delete an existing fashion template.
+    #[command(visible_alias = "rm")]
     Delete(delete::Command),
     /// List existing fashion templates.
     #[command(visible_alias = "ls")]
     List(list::Command),
+    /// Import fashion templates.
+    Import(import::Command),
     /// Get or set the wardrobe template of a fashion template.
     Wardrobe(wardrobe::Args),
     /// Get or set the travel template of a fashion template.

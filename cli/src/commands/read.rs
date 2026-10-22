@@ -32,7 +32,7 @@ pub struct Command {
     pretty: bool,
 
     /// Name of the CSV column containing the chat link to parse.
-    #[arg(short, long, default_value = "fashion_link")]
+    #[arg(short, long, default_value = "chatlink")]
     column: Option<String>,
 
     /// Determine concurrency for API calls (maximum 255)

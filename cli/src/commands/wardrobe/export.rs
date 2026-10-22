@@ -1,4 +1,5 @@
 use clap::Args;
+use clap::builder::ArgPredicate;
 use gw2fashionista_appearance::gw2::{equipment::Equipment, import::Importer, resolve::Resolver};
 use gw2fashionista_core::ports::repositories::SecretRepository;
 use serde::{Deserialize, Serialize};
@@ -15,8 +16,19 @@ pub struct Command {
     characters: Vec<String>,
 
     /// Output format. Auto is based on the output filename extension (default to CSV if missing filename or unknown extension).
-    #[arg(short, long, value_enum, default_value_t = args::DataFormat::Auto, display_order = 3)]
+    #[arg(short, long, value_enum,
+        default_value_t = args::DataFormat::Auto,
+        default_value_if("json", ArgPredicate::IsPresent, "json"),
+        default_value_if("csv", ArgPredicate::IsPresent, "csv"))]
     format: args::DataFormat,
+
+    /// Forces JSON output.
+    #[arg(long, conflicts_with = "format", conflicts_with = "csv")]
+    json: bool,
+
+    /// Forces CSV output.
+    #[arg(long, conflicts_with = "format", conflicts_with = "json")]
+    csv: bool,
 
     /// Pretty print (JSON) output.
     #[arg(short, long)]
@@ -25,10 +37,6 @@ pub struct Command {
     /// Filename to use as output
     #[arg(short, long, display_order = 3)]
     output: Option<std::path::PathBuf>,
-
-    /// When provided, do not generate names for tabs without one
-    #[arg(long, display_order = 4)]
-    no_default_name: bool,
 
     #[command(flatten)]
     filters: WardrobeFilters,
@@ -47,8 +55,11 @@ impl commands::Command for Command {
 impl Command {
     #[tracing::instrument(level = "error", name = "wardrobe-export", skip_all)]
     pub async fn execute(&self, mut env: Environment) -> anyhow::Result<()> {
-        let api_key = env.secret_repo().await?.gw2_api_key().await?;
-        let importer = Importer::with_api_key(&api_key);
+        let api_key = env.secret_repo().await?.gw2_api_key().await;
+        if let Err(err) = &api_key {
+            anyhow::bail!("GW2 API key: {}", err);
+        }
+        let importer = Importer::with_api_key(&api_key?);
 
         let characters = if self.characters.is_empty() {
             importer.characters().await?
@@ -66,17 +77,8 @@ impl Command {
             .resolve_equipment(equipments)
             .await?;
 
-        let exported: Vec<_> = resolved.iter().map(|e| self.export_equipment(e)).collect();
+        let exported: Vec<_> = resolved.iter().map(ExportedEquipment::new).collect();
         self.output_equipments(exported)
-    }
-
-    fn export_equipment(&self, equipment: &Equipment) -> ExportedEquipment {
-        let equipment = ExportedEquipment::new(equipment);
-        if !self.no_default_name {
-            equipment.with_default_name()
-        } else {
-            equipment
-        }
     }
 
     fn output_equipments(&self, equipments: Vec<ExportedEquipment>) -> anyhow::Result<()> {
@@ -102,30 +104,24 @@ impl Command {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 struct ExportedEquipment {
-    pub char_name: String,
+    pub name: String,
+    pub character: String,
     pub tab_id: usize,
-    pub tab_name: String,
-    pub fashion_link: String,
+    pub wardrobe_template: String,
 }
 
 impl ExportedEquipment {
     pub fn new(equipment: &Equipment) -> Self {
-        ExportedEquipment {
-            char_name: equipment.char_name.clone(),
-            tab_id: equipment.tab_id,
-            tab_name: equipment.tab_name.clone(),
-            fashion_link: equipment.to_template().to_string(),
-        }
-    }
-
-    pub fn with_default_name(self) -> Self {
-        if self.tab_name.is_empty() {
-            ExportedEquipment {
-                tab_name: format!("{} {}", self.char_name, self.tab_id),
-                ..self
-            }
+        let name = if equipment.tab_name.is_empty() {
+            format!("Equipment tab {}", equipment.tab_id)
         } else {
-            self
+            format!("Equipment tab {}", equipment.tab_name)
+        };
+        ExportedEquipment {
+            name,
+            character: equipment.char_name.clone(),
+            tab_id: equipment.tab_id,
+            wardrobe_template: equipment.to_template().to_string(),
         }
     }
 }
