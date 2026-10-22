@@ -1,9 +1,12 @@
 use assert_cmd::assert::Assert;
 use assert_cmd::assert::OutputAssertExt;
 use e2e::assert_snapshot;
+use gw2fashionista_chatlink::fixtures;
 use gw2fashionista_chatlink::fixtures::{travel, wardrobe};
 use rstest::fixture;
 use rstest::rstest;
+use serde::Deserialize;
+use serde::Serialize;
 use tempfile::TempPath;
 
 use e2e::cli::spawn_cli;
@@ -70,14 +73,7 @@ fn test_fashion(db_path: TempPath) {
     });
 
     // List and assert the created templates
-    let cmd = list_fashion_cmd(&db_path, &[]);
-    redact_fashion_list().bind(|| {
-        assert_snapshot!(
-            "test_fashion_list_empty_peekaboo_and_zizi",
-            &cmd.success().get_output().stdout,
-            SNAPSHOT_DIR
-        )
-    });
+    assert_fashion_list(&db_path, "test_fashion_list_empty_peekaboo_and_zizi");
 
     // Patch the first template with data
     let cmd = fashion_cmd(
@@ -152,25 +148,11 @@ fn test_fashion(db_path: TempPath) {
     });
 
     // List and assert the updated templates
-    let cmd = list_fashion_cmd(&db_path, &[]);
-    redact_fashion_list().bind(|| {
-        assert_snapshot!(
-            "test_fashion_list_peekaboo_and_zizi",
-            &cmd.success().get_output().stdout,
-            SNAPSHOT_DIR
-        )
-    });
+    assert_fashion_list(&db_path, "test_fashion_list_peekaboo_and_zizi");
 
     // Delete first template and list and asserts the templates
     fashion_cmd(&db_path, &["delete", "-n", "peekaboo"], None).success();
-    let cmd = list_fashion_cmd(&db_path, &[]);
-    redact_fashion_list().bind(|| {
-        assert_snapshot!(
-            "test_fashion_list_zizi",
-            &cmd.success().get_output().stdout,
-            SNAPSHOT_DIR
-        )
-    });
+    assert_fashion_list(&db_path, "test_fashion_list_zizi");
 }
 
 #[rstest]
@@ -333,6 +315,121 @@ fn test_fashion_tags(db_path: TempPath) {
     list_fashion_cmd(&db_path, &["tag2"]).success().stdout("[]");
     list_fashion_cmd(&db_path, &["tag3"]).success().stdout("[]");
     list_fashion_cmd(&db_path, &["tag4"]).success().stdout("[]");
+}
+
+#[rstest]
+fn test_fashion_import(db_path: TempPath) {
+    let import_data = vec![
+        ExportedEquipment {
+            name: "Equipment tab 1".to_string(),
+            character: "Character One".to_string(),
+            tab_id: 1,
+            wardrobe_template: fixtures::wardrobe::ZIZI_TEMPLATE.link.to_string(),
+        },
+        ExportedEquipment {
+            name: "Equipment tab 2".to_string(),
+            character: "Character One".to_string(),
+            tab_id: 2,
+            wardrobe_template: fixtures::wardrobe::ZIZI_ARMOR_TEMPLATE.link.to_string(),
+        },
+        ExportedEquipment {
+            name: "Equipment tab 1".to_string(),
+            character: "Character Two".to_string(),
+            tab_id: 1,
+            wardrobe_template: fixtures::wardrobe::ZIZI_TEMPLATE.link.to_string(),
+        },
+        ExportedEquipment {
+            name: "Equipment tab 1".to_string(),
+            character: "Character Three".to_string(),
+            tab_id: 1,
+            wardrobe_template: fixtures::wardrobe::ZIZI_ARMOR_TEMPLATE.link.to_string(),
+        },
+    ];
+
+    fashion_cmd(
+        &db_path,
+        &[
+            "create",
+            "-n",
+            "Equipment tab 1",
+            "-c",
+            "Character One",
+            "-d",
+            "The description",
+            "--wardrobe",
+            fixtures::wardrobe::PEEKABOO_TEMPLATE.link,
+        ],
+        None,
+    )
+    .success();
+    assert_fashion_list(&db_path, "test_fashion_import_01_noimport");
+
+    import_fashions(&db_path, "skip", &import_data).failure();
+    let fashions_with_skipped = assert_fashion_list(&db_path, "test_fashion_import_02_after_skip");
+
+    import_fashions(&db_path, "fail", &import_data).failure();
+    assert_eq!(
+        fashions_with_skipped.get_output().stdout,
+        assert_fashion_list(&db_path, "test_fashion_import_02_after_skip")
+            .get_output()
+            .stdout
+    );
+
+    fashion_cmd(
+        &db_path,
+        &[
+            "patch",
+            "-n",
+            "Equipment tab 1",
+            "-c",
+            "Character Two",
+            "-d",
+            "The other description",
+            "-t",
+            "tag",
+            "--travel",
+            fixtures::travel::KABOOM_TEMPLATE.link,
+        ],
+        None,
+    )
+    .success();
+    assert_fashion_list(&db_path, "test_fashion_import_03_after_manual_patch");
+
+    import_fashions(&db_path, "patch", &import_data).success();
+    assert_fashion_list(&db_path, "test_fashion_import_04_after_patch");
+
+    import_fashions(&db_path, "rename", &import_data).success();
+    assert_fashion_list(&db_path, "test_fashion_import_05_after_rename");
+
+    import_fashions(&db_path, "rename", &import_data).success();
+    assert_fashion_list(&db_path, "test_fashion_import_06_after_second_rename");
+
+    import_fashions(&db_path, "overwrite", &import_data).success();
+    assert_fashion_list(&db_path, "test_fashion_import_07_after_overwrite");
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+struct ExportedEquipment {
+    pub name: String,
+    pub character: String,
+    pub tab_id: usize,
+    pub wardrobe_template: String,
+}
+
+fn import_fashions(db_path: &TempPath, mode: &str, import_data: &[ExportedEquipment]) -> Assert {
+    fashion_cmd(
+        db_path,
+        &["import", "-m", mode, "--json"],
+        Some(serde_json::to_string(import_data).unwrap()),
+    )
+}
+
+fn assert_fashion_list(db_path: &TempPath, snapshot_name: &str) -> Assert {
+    let cmd = list_fashion_cmd(db_path, &[]);
+    let assert = cmd.success();
+    redact_fashion_list()
+        .bind(|| assert_snapshot!(snapshot_name, &assert.get_output().stdout, SNAPSHOT_DIR));
+    assert
 }
 
 fn list_fashion_cmd(db_path: &TempPath, tags: &[&str]) -> Assert {
