@@ -123,8 +123,8 @@ The merging can also be limited to dyes or skins.
 
 For example, to apply the armor dyes of the second chat link to the first:
 ```bash
-fashion1='[&<base64-encoded-template>]'
-fashion2='[&<base64-encoded-template]]'
+fashion1='[&D7UfOgkBAAEAAQABAJ4AHgUGAB4FAQCsAAYABgAeBQEANSgBAAYAHgUBAMkDHgUGAAEAAQDVAAYAHgUeBQEAoRYeBQYAAQABAAAAAQABAAEAAQAAAAAAAAAAAAAAAAD/fw==]'
+fashion2='[&DwAAcR8BAAEAAQABAOcCSgJKBUoFAQBjLEoFZAFKAkoFGilKBUoFSgJKAkkDSgJKBQEAAQC3MAEASgVKBQEAhQVKBUoCAQBKAksASgV1AkoFSgIAAAAAAAAAAAAAAAD/fg==]'
 ./gw2fashionista wardrobe merge "$fashion1" "$fashion2" --no-skins --only armor
 ```
 
@@ -135,8 +135,8 @@ The following examples are written for Linux and/or bash terminals.
 ### Transforming wardrobe and travel template chat links
 
 ```bash
-fashion1='[&<base64-encoded-template>]'
-fashion2='[&<base64-encoded-template]]'
+fashion1='[&D7UfOgkBAAEAAQABAJ4AHgUGAB4FAQCsAAYABgAeBQEANSgBAAYAHgUBAMkDHgUGAAEAAQDVAAYAHgUeBQEAoRYeBQYAAQABAAAAAQABAAEAAQAAAAAAECoAABQqLyr/fw==]'
+fashion2='[&D7sfcR8BAAEAAQABAOcCSgJKBUoFAQBjLEoFZAFKAkoFGilKBUoFSgJKAkkDSgJKBQEAAQC3MAEASgVKBQEAhQVKBUoCAQBKAksASgV1AkoFSgJ9EgAAnB8AAGcfAAD/fg==]'
 
 # Strip weapons from fashion2
 fashion2_noweapons=$(./gw2fashionista wardrobe filter "$fashion2" --exclude weapons)
@@ -145,16 +145,16 @@ echo $fashion2_noweapons | ./gw2fashionista read | jq
 # Combines fashion1 weapons with fashion2
 ./gw2fashionista wardrobe merge "$fashion1" "$fashion2_noweapons" | ./gw2fashionista read | jq
 
-# Showcase the different filtering options and how it affects the backpack:
+# Showcase the different filtering options and how it affects the head skin:
 
-# fashion2 backpack
-./gw2fashionista wardrobe merge "$fashion1" "$fashion2_noweapons" | ./gw2fashionista read | jq .backpack
-# fashion1 backpack
-./gw2fashionista wardrobe merge "$fashion1" "$fashion2_noweapons" --exclude backpack | ./gw2fashionista read | jq .backpack
-# fashion1 backpack skin and fashion2 dyes
-./gw2fashionista wardrobe merge "$fashion1" "$fashion2_noweapons" --no-skins | ./gw2fashionista read | jq .backpack
-# fashion2 backpack skin and fashion1 dyes
-./gw2fashionista wardrobe merge "$fashion1" "$fashion2_noweapons" --no-dyes | ./gw2fashionista read | jq .backpack
+# fashion2 head skin and dyes
+./gw2fashionista wardrobe merge "$fashion1" "$fashion2_noweapons" | ./gw2fashionista read | jq .head
+# fashion1 head skin and dyes
+./gw2fashionista wardrobe merge "$fashion1" "$fashion2_noweapons" --exclude head | ./gw2fashionista read | jq .head
+# fashion1 head skin and fashion2 dyes
+./gw2fashionista wardrobe merge "$fashion1" "$fashion2_noweapons" --no-skins | ./gw2fashionista read | jq .head
+# fashion2 head skin and fashion1 dyes
+./gw2fashionista wardrobe merge "$fashion1" "$fashion2_noweapons" --no-dyes | ./gw2fashionista read | jq .head
 ```
 
 ### Managing fashion templates
@@ -172,11 +172,11 @@ echo $fashion2_noweapons | ./gw2fashionista read | jq
 ./gw2fashionista fashion get -n "First Template"
 
 # Updating some of the template's fields without erasing the other ones
-./gw2fashionista fashion patch -n "First Template" --wardrobe "[&<base64-encoded-template>]"
-./gw2fashionista fashion patch -n "First Template" --travel "[&<base64-encoded-template>]"
+./gw2fashionista fashion patch -n "First Template" --wardrobe "[&D7UfOgkBAAEAAQABAJ4AHgUGAB4FAQCsAAYABgAeBQEANSgBAAYAHgUBAMkDHgUGAAEAAQDVAAYAHgUeBQEAoRYeBQYAAQABAAAAAQABAAEAAQAAAAAAAAAAAAAAAAD/fw==]"
+./gw2fashionista fashion patch -n "First Template" --travel "[&EJAABgDiBOIEHgUFAB4F4gTiBOIEbgIeBeIEHgXiBEoBBgAeBUgF4gTzAeIEHgVIBR4FJAPiBOIEHgVIBZMBBgAeBeIESAXnAkgFHgXiBOIEyAIGAB4F4gRIBXAC4gQGAAYAXwHDAR4F4gQeBeIE+AEeBeIESAUeBf8P]"
 
 # Update the template and erasing the fields not provided
-./gw2fashionista fashion set -n "First Template" --wardrobe "[&<base64-encoded-template>]"
+./gw2fashionista fashion set -n "First Template" --wardrobe "[&D7UfOgkBAAEAAQABAJ4AHgUGAB4FAQCsAAYABgAeBQEANSgBAAYAHgUBAMkDHgUGAAEAAQDVAAYAHgUeBQEAoRYeBQYAAQABAAAAAQABAAEAAQAAAAAAECoAABQqLyr/fw==]"
 
 # Deleting the template
 ./gw2fashionista fashion delete -n "First Template"
@@ -189,15 +189,15 @@ The character name becomes then part of the fashion's identifier.
 
 ```bash
 # Adding a new fashion for specific characters with a wardrobe and travel templates
-./gw2fashionista fashion create -n "Second Template" -c "My Character Name" --wardrobe "[&<base64-encoded-template>]" --travel "[&<base64-encoded-template>]"
-./gw2fashionista fashion create -n "Second Template" -c "My Second Character Name" --wardrobe "[&<base64-encoded-template>]" --travel "[&<base64-encoded-template>]"
+./gw2fashionista fashion create -n "Second Template" -c "My Character Name" --wardrobe "[&D7UfOgkBAAEAAQABAJ4AHgUGAB4FAQCsAAYABgAeBQEANSgBAAYAHgUBAMkDHgUGAAEAAQDVAAYAHgUeBQEAoRYeBQYAAQABAAAAAQABAAEAAQAAAAAAECoAABQqLyr/fw==]" --travel "[&EJAABgDiBOIEHgUFAB4F4gTiBOIEbgIeBeIEHgXiBEoBBgAeBUgF4gTzAeIEHgVIBR4FJAPiBOIEHgVIBZMBBgAeBeIESAXnAkgFHgXiBOIEyAIGAB4F4gRIBXAC4gQGAAYAXwHDAR4F4gQeBeIE+AEeBeIESAUeBf8P]"
+./gw2fashionista fashion create -n "Second Template" -c "My Second Character" --wardrobe "[&DwAAcR8BAAEAAQABAOcCSgJKBUoFAQBjLEoFZAFKAkoFGilKBUoFSgJKAkkDSgJKBQEAAQC3MAEASgVKBQEAhQVKBUoCAQBKAksASgV1AkoFSgIAAAAAAAAAAAAAAAD/fg==]" --travel "[&EEkA2QE4BQEAAQACAAEAAQABAAEAYQBKBUoCSgJ1AnMASgVKBUoCSgKnAUoF2QFKAkoChwFKBUoCSgI4BUkBSgLZAUoFewAlAUoFSgJKBTgFzwBKAkoFSgVKAowBSgVKBdkBSgLDAYEEhgB5AVoAjQFKAgEAAQABAP8P]"
 # Retrieving the created fashion templates
 ./gw2fashionista fashion get -n "Second Template" -c "My Character Name"
-./gw2fashionista fashion get -n "Second Template" -c "My Second Character Name"
+./gw2fashionista fashion get -n "Second Template" -c "My Second Character"
 # Retrieving the template without a character will fail
 ./gw2fashionista fashion get -n "Second Template"
 # We can also create a template with the same name without a character
-./gw2fashionista fashion create -n "Second Template" --wardrobe "[&<base64-encoded-template>]" --travel "[&<base64-encoded-template>]"
+./gw2fashionista fashion create -n "Second Template" --wardrobe "[&DwAAPQkBAAEAAQABAAwAGAURBhEGAQAjABgFEQYBAAEA/AABABEGGAUYBdIDGAURBgEAAQALAAEAEQYRBgEAohYYBREGAQABAAAAAQABAAEAAQAAAAAAAAAAAAAAAAD/fw==]" --travel "[&EJkAGAUYBREGEQYFAH4AgwAYBYECbgK7ARgFGAUYBUoBEQYYBRgFGAXzARgFEQYYBRgFJAMRBhgFfgB+AJMBEQYYBagCDQbnAhgFEQYYBdkByAIRBhgFqAJ+AHACGAURBhEGGAWdAREGGAUYBREG+AERBhgFGAURBv8P]"
 # Retrieving the template without a character will now work
 ./gw2fashionista fashion get -n "Second Template"
 ```
@@ -264,17 +264,22 @@ a chat link from/to the standard input/output so they can be modified with other
 such as `wardrobe|travel filter`:
 
 ```bash
-./gw2fashionista fashion create -n "A non empty fashion" --wardrobe "[&<base64-encoded-template>]" --travel "[&<base64-encoded-template>]"
+./gw2fashionista fashion create -n "A non empty fashion" --wardrobe "[&D7UfzTMeBQYA4gQGAJ4AHgUGAB4FAQCsAAYABgAeBQEANSgBAAYAHgUBAMkDHgUGAAEAAQDVAAYAHgUeBQEAoRYeBQYAAQABADIAAQABAAEAAQBoEqAPFCovKj8SAAD/fg==]" --travel "[&EJAABgDiBOIEHgUFAB4F4gTiBOIEbgIeBeIEHgXiBEoBBgAeBUgF4gTzAeIEHgVIBR4FJAPiBOIEHgVIBZMBBgAeBeIESAXnAkgFHgXiBOIEyAIGAB4F4gRIBXAC4gQGAAYAXwHDAR4F4gQeBeIE+AEeBeIESAUeBf8P]"
 ./gw2fashionista fashion create -n "An empty fashion"
 
 # Apply the travel template of the first fashion to the second
+
+./gw2fashionista fashion travel get -n "An empty fashion" | ./gw2fashionista read | jq
 ./gw2fashionista fashion travel get -n "A non empty fashion" | \
   ./gw2fashionista fashion travel set -n "An empty fashion"
+./gw2fashionista fashion travel get -n "An empty fashion" | ./gw2fashionista read | jq
 
 # Filter and update the first template's wardrobe chat link
+./gw2fashionista fashion wardrobe get -n "A non empty fashion" | ./gw2fashionista read | jq
 ./gw2fashionista fashion wardrobe get -n "A non empty fashion" | \
-  ./gw2fashionista fashion filter --exclude outfit,underwater,weapons | \
-  ./gw2fashionista fashion wardrobe get -n "A non empty fashion"
+  ./gw2fashionista wardrobe filter --exclude outfit,underwater,weapons | \
+  ./gw2fashionista fashion wardrobe set -n "A non empty fashion"
+./gw2fashionista fashion wardrobe get -n "A non empty fashion" | ./gw2fashionista read | jq
 ```
 
 ## Importing exported equipment tabs as fashion templates
