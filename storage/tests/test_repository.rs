@@ -56,7 +56,7 @@ async fn test_create_not_empty_fashion(pool: SqlitePool) {
         .character_str("Pikku Peekaboo")
         .unwrap()
         .wardrobe_template(
-            wardrobe::PEEKABOO_TEMPLATE
+            wardrobe::PEEKABOO
                 .link
                 .parse::<ChatLink>()
                 .unwrap()
@@ -64,7 +64,7 @@ async fn test_create_not_empty_fashion(pool: SqlitePool) {
                 .unwrap(),
         )
         .travel_template(
-            travel::PEEKABOO_TEMPLATE
+            travel::PEEKABOO
                 .link
                 .parse::<ChatLink>()
                 .unwrap()
@@ -120,7 +120,7 @@ async fn test_update_fashion(pool: SqlitePool) {
         .character_str("Pikku Peekaboo")
         .unwrap()
         .wardrobe_template(
-            wardrobe::PEEKABOO_TEMPLATE
+            wardrobe::PEEKABOO
                 .link
                 .parse::<ChatLink>()
                 .unwrap()
@@ -128,7 +128,7 @@ async fn test_update_fashion(pool: SqlitePool) {
                 .unwrap(),
         )
         .travel_template(
-            travel::PEEKABOO_TEMPLATE
+            travel::PEEKABOO
                 .link
                 .parse::<ChatLink>()
                 .unwrap()

@@ -1,4 +1,4 @@
-use gw2fashionista_chatlink::fixtures::wardrobe::{ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE};
+use gw2fashionista_chatlink::fixtures::wardrobe::{ZIZI, ZIZI_ARMOR};
 use gw2fashionista_chatlink::{
     ChatLink,
     templates::{
@@ -10,7 +10,7 @@ use gw2fashionista_chatlink::{
 #[test]
 #[test_log::test]
 fn test_filter_zizi() {
-    let template = &ZIZI_TEMPLATE.link.parse::<WardrobeTemplate>().unwrap();
+    let template = &ZIZI.link.parse::<WardrobeTemplate>().unwrap();
 
     let mut filter = SlotFilter::<WardrobeSlot>::all();
     filter.remove(&WardrobeSlot::Outfit);
@@ -20,5 +20,5 @@ fn test_filter_zizi() {
     let filtered = template.filter(&filter);
 
     let filtered_link = &ChatLink::WardrobeTemplate(filtered);
-    assert_eq!(filtered_link.to_string(), ZIZI_ARMOR_TEMPLATE.wrap(),);
+    assert_eq!(filtered_link.to_string(), ZIZI_ARMOR.wrap(),);
 }

@@ -1,0 +1,211 @@
+---
+source: e2e/tests/cli/read.rs
+expression: json
+---
+{
+  "aquabreather": {
+    "id": 8123,
+    "name": "Diver's Breather Mask",
+    "visible": true
+  },
+  "backpack": {
+    "dyes": [
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 8049,
+    "name": "Inquest Apparatus",
+    "visible": true
+  },
+  "chest": {
+    "dyes": [
+      {
+        "id": 586,
+        "name": "Black Cherry"
+      },
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      },
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 743,
+    "name": "Inquest Guise",
+    "visible": true
+  },
+  "gloves": {
+    "dyes": [
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      },
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      },
+      {
+        "id": 586,
+        "name": "Black Cherry"
+      },
+      {
+        "id": 586,
+        "name": "Black Cherry"
+      }
+    ],
+    "id": 10522,
+    "name": "Jade Tech Medium Gloves",
+    "visible": true
+  },
+  "head": {
+    "dyes": [
+      {
+        "id": 586,
+        "name": "Black Cherry"
+      },
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 841,
+    "name": "Magnus's Left Eye Patch",
+    "visible": true
+  },
+  "legs": {
+    "dyes": [
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      },
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      }
+    ],
+    "id": 12471,
+    "name": "Rot Stalker Leggings",
+    "visible": true
+  },
+  "link_type": "WardrobeTemplate",
+  "outfit": {
+    "dyes": [
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      },
+      {
+        "id": 629,
+        "name": "Lifesblood"
+      },
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      },
+      {
+        "id": 586,
+        "name": "Black Cherry"
+      }
+    ],
+    "id": 75,
+    "name": "Inquest Exo-Suit Outfit",
+    "visible": false
+  },
+  "shoes": {
+    "dyes": [
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      },
+      {
+        "id": 356,
+        "name": "Blue Tint"
+      },
+      {
+        "id": 586,
+        "name": "Black Cherry"
+      },
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      }
+    ],
+    "id": 11363,
+    "name": "Rebel Long Boots",
+    "visible": true
+  },
+  "shoulders": {
+    "dyes": [
+      {
+        "id": 1354,
+        "name": "Shadow Abyss"
+      },
+      {
+        "id": 586,
+        "name": "Black Cherry"
+      },
+      {
+        "id": 1,
+        "name": "Dye Remover"
+      },
+      {
+        "id": 586,
+        "name": "Black Cherry"
+      }
+    ],
+    "id": 1413,
+    "name": "Whisper's Secret Shoulderguards",
+    "visible": true
+  },
+  "weapon_a1": {
+    "id": 8092,
+    "name": "Inquest Mark II Rifle",
+    "visible": true
+  },
+  "weapon_aquatic_a": {
+    "id": 4733,
+    "name": "X6-31 Beta",
+    "visible": true
+  },
+  "weapon_b1": {
+    "id": 8039,
+    "name": "Inquest Mega-Spanner",
+    "visible": true
+  }
+}

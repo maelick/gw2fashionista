@@ -1,0 +1,149 @@
+---
+source: e2e/tests/cli/read.rs
+expression: json
+---
+{
+  "aquabreather": {
+    "id": 8117,
+    "visible": true
+  },
+  "backpack": {
+    "dyes": [
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 2362,
+    "visible": true
+  },
+  "chest": {
+    "dyes": [
+      {
+        "id": 1310
+      },
+      {
+        "id": 6
+      },
+      {
+        "id": 1310
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 158,
+    "visible": true
+  },
+  "gloves": {
+    "dyes": [
+      {
+        "id": 1
+      },
+      {
+        "id": 6
+      },
+      {
+        "id": 1310
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 10293,
+    "visible": true
+  },
+  "head": {
+    "dyes": [
+      {
+        "id": 1310
+      },
+      {
+        "id": 6
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 969,
+    "visible": true
+  },
+  "legs": {
+    "dyes": [
+      {
+        "id": 6
+      },
+      {
+        "id": 1310
+      },
+      {
+        "id": 1310
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 213,
+    "visible": true
+  },
+  "link_type": "WardrobeTemplate",
+  "shoes": {
+    "dyes": [
+      {
+        "id": 6
+      },
+      {
+        "id": 6
+      },
+      {
+        "id": 1310
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 172,
+    "visible": true
+  },
+  "shoulders": {
+    "dyes": [
+      {
+        "id": 1310
+      },
+      {
+        "id": 6
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 5793,
+    "visible": true
+  },
+  "weapon_a1": {
+    "id": 10768,
+    "visible": true
+  },
+  "weapon_b1": {
+    "id": 10772,
+    "visible": true
+  },
+  "weapon_b2": {
+    "id": 10799,
+    "visible": true
+  }
+}
