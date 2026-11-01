@@ -1,0 +1,151 @@
+---
+source: e2e/tests/cli/read.rs
+expression: json
+---
+{
+  "backpack": {
+    "dyes": [
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 8049,
+    "visible": true
+  },
+  "chest": {
+    "dyes": [
+      {
+        "id": 586
+      },
+      {
+        "id": 1354
+      },
+      {
+        "id": 1354
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 743,
+    "visible": true
+  },
+  "gloves": {
+    "dyes": [
+      {
+        "id": 1354
+      },
+      {
+        "id": 1354
+      },
+      {
+        "id": 586
+      },
+      {
+        "id": 586
+      }
+    ],
+    "id": 10522,
+    "visible": true
+  },
+  "head": {
+    "dyes": [
+      {
+        "id": 586
+      },
+      {
+        "id": 1354
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 841,
+    "visible": true
+  },
+  "legs": {
+    "dyes": [
+      {
+        "id": 1
+      },
+      {
+        "id": 1354
+      },
+      {
+        "id": 1354
+      },
+      {
+        "id": 1
+      }
+    ],
+    "id": 12471,
+    "visible": true
+  },
+  "link_type": "WardrobeTemplate",
+  "outfit": {
+    "dyes": [
+      {
+        "id": 1354
+      },
+      {
+        "id": 629
+      },
+      {
+        "id": 1354
+      },
+      {
+        "id": 586
+      }
+    ],
+    "id": 75,
+    "visible": false
+  },
+  "shoes": {
+    "dyes": [
+      {
+        "id": 1354
+      },
+      {
+        "id": 356
+      },
+      {
+        "id": 586
+      },
+      {
+        "id": 1354
+      }
+    ],
+    "id": 11363,
+    "visible": true
+  },
+  "shoulders": {
+    "dyes": [
+      {
+        "id": 1354
+      },
+      {
+        "id": 586
+      },
+      {
+        "id": 1
+      },
+      {
+        "id": 586
+      }
+    ],
+    "id": 1413,
+    "visible": true
+  }
+}

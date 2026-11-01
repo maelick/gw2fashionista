@@ -1,0 +1,106 @@
+---
+source: chatlink/tests/parse.rs
+expression: "&result"
+---
+link_type: WardrobeTemplate
+slots:
+  aquabreather:
+    NonDyeable:
+      skin: 0
+      visible: true
+  backpack:
+    Dyeable:
+      skin: 8049
+      visible: true
+      dyes:
+        - 1
+        - 1
+        - 1
+        - 1
+  chest:
+    Dyeable:
+      skin: 743
+      visible: true
+      dyes:
+        - 586
+        - 1354
+        - 1354
+        - 1
+  shoes:
+    Dyeable:
+      skin: 11363
+      visible: true
+      dyes:
+        - 1354
+        - 356
+        - 586
+        - 1354
+  gloves:
+    Dyeable:
+      skin: 10522
+      visible: true
+      dyes:
+        - 1354
+        - 1354
+        - 586
+        - 586
+  head:
+    Dyeable:
+      skin: 841
+      visible: true
+      dyes:
+        - 586
+        - 1354
+        - 1
+        - 1
+  legs:
+    Dyeable:
+      skin: 12471
+      visible: true
+      dyes:
+        - 1
+        - 1354
+        - 1354
+        - 1
+  shoulders:
+    Dyeable:
+      skin: 1413
+      visible: true
+      dyes:
+        - 1354
+        - 586
+        - 1
+        - 586
+  outfit:
+    Dyeable:
+      skin: 75
+      visible: false
+      dyes:
+        - 1354
+        - 629
+        - 1354
+        - 586
+  weapon_aquatic_a:
+    NonDyeable:
+      skin: 0
+      visible: true
+  weapon_aquatic_b:
+    NonDyeable:
+      skin: 0
+      visible: true
+  weapon_a1:
+    NonDyeable:
+      skin: 0
+      visible: true
+  weapon_a2:
+    NonDyeable:
+      skin: 0
+      visible: true
+  weapon_b1:
+    NonDyeable:
+      skin: 0
+      visible: true
+  weapon_b2:
+    NonDyeable:
+      skin: 0
+      visible: true
