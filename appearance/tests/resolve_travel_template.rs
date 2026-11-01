@@ -1,6 +1,6 @@
 use gw2fashionista_appearance::gw2::resolve::Resolver;
 use gw2fashionista_appearance::models::skin::Skin;
-use gw2fashionista_chatlink::fixtures::travel::{EMPTY_TEMPLATE, PEEKABOO_TEMPLATE, ZIZI_TEMPLATE};
+use gw2fashionista_chatlink::fixtures::travel::{EMPTY, PEEKABOO, ZIZI_TEMPLATE};
 use gw2fashionista_chatlink::templates::travel::TravelSlot;
 use gw2fashionista_chatlink::templates::travel::TravelTemplate;
 
@@ -8,7 +8,7 @@ use gw2fashionista_chatlink::templates::travel::TravelTemplate;
 #[test_log::test]
 async fn test_resolve_empty() {
     let resolver = Resolver::default();
-    let template = &EMPTY_TEMPLATE.link.parse::<TravelTemplate>().unwrap();
+    let template = &EMPTY.link.parse::<TravelTemplate>().unwrap();
 
     resolver.cache_template(&template).await.unwrap();
 
@@ -20,7 +20,7 @@ async fn test_resolve_empty() {
 #[test_log::test]
 async fn test_resolve_peekaboo() {
     let resolver = Resolver::default();
-    let template = &PEEKABOO_TEMPLATE.link.parse().unwrap();
+    let template = &PEEKABOO.link.parse().unwrap();
 
     resolver.cache_template(&template).await.unwrap();
 

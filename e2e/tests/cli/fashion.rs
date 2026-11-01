@@ -56,7 +56,7 @@ fn test_fashion(db_path: TempPath) {
             "-d",
             "This is a description",
             "--wardrobe",
-            wardrobe::ZIZI_TEMPLATE.link,
+            wardrobe::ZIZI.link,
             "--travel",
             travel::ZIZI_TEMPLATE.link,
             "-t",
@@ -85,9 +85,9 @@ fn test_fashion(db_path: TempPath) {
             "-d",
             "Another description",
             "--wardrobe",
-            wardrobe::PEEKABOO_TEMPLATE.link,
+            wardrobe::PEEKABOO.link,
             "--travel",
-            travel::PEEKABOO_TEMPLATE.link,
+            travel::PEEKABOO.link,
             "-t",
             "tag1,tag2",
         ],
@@ -131,9 +131,9 @@ fn test_fashion(db_path: TempPath) {
             "-d",
             "Another description",
             "--wardrobe",
-            wardrobe::PEEKABOO_TEMPLATE.link,
+            wardrobe::PEEKABOO.link,
             "--travel",
-            travel::PEEKABOO_TEMPLATE.link,
+            travel::PEEKABOO.link,
             "-t",
             "tag1,tag2",
         ],
@@ -162,30 +162,30 @@ fn test_fashion_chat_links(db_path: TempPath) {
     // Wardrobe
     fashion_cmd(&db_path, &["wardrobe", "get", "-n", "test_fashion"], None)
         .success()
-        .stdout(wardrobe::EMPTY_TEMPLATE.wrap() + "\n");
+        .stdout(wardrobe::EMPTY.wrap() + "\n");
     fashion_cmd(
         &db_path,
         &["wardrobe", "set", "-n", "test_fashion"],
-        Some(wardrobe::PEEKABOO_TEMPLATE.wrap()),
+        Some(wardrobe::PEEKABOO.wrap()),
     )
     .success();
     fashion_cmd(&db_path, &["wardrobe", "get", "-n", "test_fashion"], None)
         .success()
-        .stdout(wardrobe::PEEKABOO_TEMPLATE.wrap() + "\n");
+        .stdout(wardrobe::PEEKABOO.wrap() + "\n");
 
     // Travel
     fashion_cmd(&db_path, &["travel", "get", "-n", "test_fashion"], None)
         .success()
-        .stdout(travel::EMPTY_TEMPLATE.wrap() + "\n");
+        .stdout(travel::EMPTY.wrap() + "\n");
     fashion_cmd(
         &db_path,
         &["travel", "set", "-n", "test_fashion"],
-        Some(travel::PEEKABOO_TEMPLATE.wrap()),
+        Some(travel::PEEKABOO.wrap()),
     )
     .success();
     fashion_cmd(&db_path, &["travel", "get", "-n", "test_fashion"], None)
         .success()
-        .stdout(travel::PEEKABOO_TEMPLATE.wrap() + "\n");
+        .stdout(travel::PEEKABOO.wrap() + "\n");
 }
 
 #[rstest]
@@ -324,25 +324,25 @@ fn test_fashion_import(db_path: TempPath) {
             name: "Equipment tab 1".to_string(),
             character: "Character One".to_string(),
             tab_id: 1,
-            wardrobe_template: fixtures::wardrobe::ZIZI_TEMPLATE.link.to_string(),
+            wardrobe_template: fixtures::wardrobe::ZIZI.link.to_string(),
         },
         ExportedEquipment {
             name: "Equipment tab 2".to_string(),
             character: "Character One".to_string(),
             tab_id: 2,
-            wardrobe_template: fixtures::wardrobe::ZIZI_ARMOR_TEMPLATE.link.to_string(),
+            wardrobe_template: fixtures::wardrobe::ZIZI_ARMOR.link.to_string(),
         },
         ExportedEquipment {
             name: "Equipment tab 1".to_string(),
             character: "Character Two".to_string(),
             tab_id: 1,
-            wardrobe_template: fixtures::wardrobe::ZIZI_TEMPLATE.link.to_string(),
+            wardrobe_template: fixtures::wardrobe::ZIZI.link.to_string(),
         },
         ExportedEquipment {
             name: "Equipment tab 1".to_string(),
             character: "Character Three".to_string(),
             tab_id: 1,
-            wardrobe_template: fixtures::wardrobe::ZIZI_ARMOR_TEMPLATE.link.to_string(),
+            wardrobe_template: fixtures::wardrobe::ZIZI_ARMOR.link.to_string(),
         },
     ];
 
@@ -357,7 +357,7 @@ fn test_fashion_import(db_path: TempPath) {
             "-d",
             "The description",
             "--wardrobe",
-            fixtures::wardrobe::PEEKABOO_TEMPLATE.link,
+            fixtures::wardrobe::PEEKABOO.link,
         ],
         None,
     )
@@ -388,7 +388,7 @@ fn test_fashion_import(db_path: TempPath) {
             "-t",
             "tag",
             "--travel",
-            fixtures::travel::KABOOM_TEMPLATE.link,
+            fixtures::travel::KABOOM.link,
         ],
         None,
     )

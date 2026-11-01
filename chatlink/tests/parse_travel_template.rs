@@ -1,4 +1,4 @@
-use gw2fashionista_chatlink::fixtures::travel::{EMPTY_TEMPLATE, PEEKABOO_TEMPLATE, ZIZI_TEMPLATE};
+use gw2fashionista_chatlink::fixtures::travel::{EMPTY, PEEKABOO, ZIZI_TEMPLATE};
 use gw2fashionista_chatlink::templates::{
     appearance::{Appearance, Dyes, SkinId},
     travel::{TravelSlot, TravelTemplate},
@@ -12,7 +12,7 @@ fn test_parse_empty() {
         .map(|slot| (slot, empty_skin()))
         .collect();
     let expected_template = TravelTemplate::new(expected_slots);
-    let actual = &EMPTY_TEMPLATE.link.parse::<TravelTemplate>().unwrap();
+    let actual = &EMPTY.link.parse::<TravelTemplate>().unwrap();
 
     assert_eq!(actual, &expected_template);
     for (slot, appearance) in actual {
@@ -26,7 +26,7 @@ fn test_parse_empty() {
 #[test]
 #[test_log::test]
 fn test_parse_peekaboo() {
-    let actual = &PEEKABOO_TEMPLATE.link.parse::<TravelTemplate>().unwrap();
+    let actual = &PEEKABOO.link.parse::<TravelTemplate>().unwrap();
 
     for (slot, appearance) in actual {
         match appearance {

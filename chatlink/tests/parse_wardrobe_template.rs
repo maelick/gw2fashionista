@@ -1,6 +1,4 @@
-use gw2fashionista_chatlink::fixtures::wardrobe::{
-    EMPTY_TEMPLATE, ZIZI_ARMOR_TEMPLATE, ZIZI_TEMPLATE,
-};
+use gw2fashionista_chatlink::fixtures::wardrobe::{EMPTY, ZIZI, ZIZI_ARMOR};
 use gw2fashionista_chatlink::templates::{
     FashionSlot,
     appearance::{Appearance, Dyes, SkinId},
@@ -15,7 +13,7 @@ fn test_parse_empty() {
         .map(|slot| (slot, empty_skin(slot)))
         .collect();
     let expected_template = WardrobeTemplate::new(expected_slots);
-    let actual = &EMPTY_TEMPLATE.link.parse::<WardrobeTemplate>().unwrap();
+    let actual = &EMPTY.link.parse::<WardrobeTemplate>().unwrap();
 
     assert_eq!(actual, &expected_template);
     for (slot, appearance) in actual {
@@ -29,7 +27,7 @@ fn test_parse_empty() {
 #[test]
 #[test_log::test]
 fn test_parse_zizi() {
-    let actual = &ZIZI_TEMPLATE.link.parse::<WardrobeTemplate>().unwrap();
+    let actual = &ZIZI.link.parse::<WardrobeTemplate>().unwrap();
 
     for (slot, appearance) in actual {
         match appearance {
@@ -119,10 +117,7 @@ fn test_parse_zizi() {
 #[test]
 #[test_log::test]
 fn test_parse_zizi_armor_only() {
-    let actual = &ZIZI_ARMOR_TEMPLATE
-        .link
-        .parse::<WardrobeTemplate>()
-        .unwrap();
+    let actual = &ZIZI_ARMOR.link.parse::<WardrobeTemplate>().unwrap();
 
     for (slot, appearance) in actual {
         match appearance {
