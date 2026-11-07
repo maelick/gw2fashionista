@@ -140,7 +140,7 @@ pub fn read_templates(
             input::OneOrMany::One(merge_fashion(fashion, fashion_fields)?)
         }
         input::Input::Many(fashions) => {
-            input::OneOrMany::Many(merge_tags(fashions, &fashion_fields.tags)?)
+            input::OneOrMany::Many(merge_tags(fashions, &fashion_fields.tags()?)?)
         }
     };
     Ok((fashions, format))
@@ -180,7 +180,7 @@ fn merge_fashion(mut fashion: Fashion, fashion_fields: &FashionFields) -> anyhow
     if let Some(travel_template) = &fashion_fields.travel {
         fashion.travel_template = Some(travel_template.clone());
     }
-    ensure_tags(fashion, &fashion_fields.tags)
+    ensure_tags(fashion, &fashion_fields.tags()?)
 }
 
 fn ensure_tags(mut fashion: Fashion, tags: &[TagName]) -> anyhow::Result<Fashion> {

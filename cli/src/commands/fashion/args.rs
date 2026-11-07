@@ -4,7 +4,7 @@ use gw2fashionista_core::{
     app::FashionService,
     domain::{
         fashion::{self, Fashion},
-        names::{CharacterName, FashionName, TagName},
+        names::{CharacterName, FashionName, TagName, TagNameError},
     },
 };
 use gw2fashionista_storage::sqlite;
@@ -34,7 +34,19 @@ pub struct FashionFields {
 
     /// Tags
     #[arg(short, long = "tag", value_name = "TAG")]
-    pub tags: Vec<TagName>,
+    pub tags: Vec<String>,
+}
+
+impl FashionFields {
+    pub fn tags(&self) -> Result<Vec<TagName>, TagNameError> {
+        let mut tags = Vec::new();
+        for t in &self.tags {
+            for t in t.split(",") {
+                tags.push(t.parse()?);
+            }
+        }
+        Ok(tags)
+    }
 }
 
 impl TryFrom<&FashionFields> for Fashion {
@@ -51,7 +63,7 @@ impl TryFrom<&FashionFields> for Fashion {
             .maybe_description(fields.description.clone())
             .maybe_wardrobe_template(fields.wardrobe.clone())
             .maybe_travel_template(fields.travel.clone())
-            .tags(fields.tags.clone())
+            .tags(fields.tags()?)
             .build())
     }
 }
