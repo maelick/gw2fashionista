@@ -9,7 +9,8 @@ expression: json
   "id": "[uuid]",
   "name": "peekaboo",
   "tags": [
-    "tag1,tag2"
+    "tag1",
+    "tag2"
   ],
   "travel_template": "[&EJAABgDiBOIEHgUFAB4F4gTiBOIEbgIeBeIEHgXiBEoBBgAeBUgF4gTzAeIEHgVIBR4FJAPiBOIEHgVIBZMBBgAeBeIESAXnAkgFHgXiBOIEyAIGAB4F4gRIBXAC4gQGAAYAXwHDAR4F4gQeBeIE+AEeBeIESAUeBf8P]",
   "updated_at": "[datetime]",
