@@ -60,7 +60,9 @@ fn test_fashion(db_path: TempPath) {
             "--travel",
             travel::ZIZI_TEMPLATE.link,
             "-t",
-            "tag1,tag2",
+            "tag1",
+            "-t",
+            "tag2",
         ],
         None,
     );
@@ -89,7 +91,9 @@ fn test_fashion(db_path: TempPath) {
             "--travel",
             travel::PEEKABOO.link,
             "-t",
-            "tag1,tag2",
+            "tag1",
+            "-t",
+            "tag2",
         ],
         None,
     );

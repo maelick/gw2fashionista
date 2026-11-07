@@ -10,7 +10,8 @@ expression: json
     "id": "[uuid]",
     "name": "zizi",
     "tags": [
-      "tag1,tag2"
+      "tag1",
+      "tag2"
     ],
     "travel_template": "[&EJkAGAUYBREGEQYFAH4AgwAYBYECbgK7ARgFGAUYBUoBEQYYBRgFGAXzARgFEQYYBRgFJAMRBhgFfgB+AJMBEQYYBagCDQbnAhgFEQYYBdkByAIRBhgFqAJ+AHACGAURBhEGGAWdAREGGAUYBREG+AERBhgFGAURBv8P]",
     "updated_at": "[datetime]",

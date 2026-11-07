@@ -95,10 +95,28 @@ fn capitalize_word(word: &str) -> String {
 
 #[nutype(
     sanitize(trim, lowercase, with = normalize_tag_name),
-    validate(not_empty),
+    validate(with = validate_tag_name, error = TagNameError),
     derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Hash, Deserialize, Serialize, TryFrom, Into, FromStr, Display, AsRef, Deref)
 )]
 pub struct TagName(String);
+
+fn validate_tag_name(s: &str) -> Result<(), TagNameError> {
+    if s.is_empty() {
+        Err(TagNameError::Empty)
+    } else if s.contains(",") {
+        Err(TagNameError::HasComma)
+    } else {
+        Ok(())
+    }
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum TagNameError {
+    #[error("Fashion name is empty")]
+    Empty,
+    #[error("Tag name contains a comma")]
+    HasComma,
+}
 
 fn normalize_tag_name(s: String) -> String {
     normalize_whitespaces(&s).to_string()
